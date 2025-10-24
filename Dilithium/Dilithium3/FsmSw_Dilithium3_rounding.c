@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Dilithium3
+*    includes the modules for Dilithium3
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium3_rounding
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium3_rounding.c
+* \brief  description of FsmSw_Dilithium3_rounding.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -48,18 +67,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium3_Power2Round
-*
-* Description: For finite field element a, compute a0, a1 such that a mod^+ Q = a1*2^D + a0 with
+/*====================================================================================================================*/
+/**
+* \brief For finite field element a, compute a0, a1 such that a mod^+ Q = a1*2^D + a0 with
 *              -2^{D-1} < a0 <= 2^{D-1}. Assumes a to be standard representative.
 *
-* Arguments:   - sint32   a: input element
-*              - sint32 *a0: pointer to output element a0
+* \param[in]  sint32   a : input element
+* \param[out] sint32 *a0 : pointer to output element a0
 *
-* Returns a1.
-***********************************************************************************************************************/
-sint32 FsmSw_Dilithium3_Power2Round(sint32 *a0, sint32 a)
+* \returns a1.
+*/
+sint32 FsmSw_Dilithium3_Power2Round(sint32 *const a0, sint32 a)
 {
   sint32 a1   = 0;
   sint32 temp = 0;
@@ -69,21 +87,19 @@ sint32 FsmSw_Dilithium3_Power2Round(sint32 *a0, sint32 a)
   *a0  = a - (sint32)((uint32)((uint32)a1 << D_DILITHIUM));
 
   return a1;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium3_Decompose
-*
-* Description: For finite field element a, compute high and low bits a0, a1 such that a mod^+ Q = a1*ALPHA + a0 with
+} // end: FsmSw_Dilithium3_Power2Round
+/*====================================================================================================================*/
+/**
+* \brief For finite field element a, compute high and low bits a0, a1 such that a mod^+ Q = a1*ALPHA + a0 with
 *              -ALPHA/2 < a0 <= ALPHA/2 except if a1 = (Q-1)/ALPHA where we set a1 = 0 and
 *              -ALPHA/2 <= a0 = a mod^+ Q - Q < 0. Assumes a to be standard representative.
 *
-* Arguments:   - sint32   a: input element
-*              - sint32 *a0: pointer to output element a0
+* \param[in]  sint32   a : input element
+* \param[out] sint32 *a0 : pointer to output element a0
 *
-* Returns a1.
-***********************************************************************************************************************/
-sint32 FsmSw_Dilithium3_Decompose(sint32 *a0, sint32 a)
+* \returns a1.
+*/
+sint32 FsmSw_Dilithium3_Decompose(sint32 *const a0, sint32 a)
 {
   sint32 a1    = 0;
   sint32 temp1 = 0;
@@ -103,18 +119,16 @@ sint32 FsmSw_Dilithium3_Decompose(sint32 *a0, sint32 a)
   *a0   = *a0 - (sint32)((uint32)((uint32)temp3 & (uint32)Q_DILITHIUM));
 
   return a1;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium3_MakeHint
+} // end: FsmSw_Dilithium3_Decompose
+/*====================================================================================================================*/
+/**
+* \brief Compute hint bit indicating whether the low bits of the input element overflow into the high bits.
 *
-* Description: Compute hint bit indicating whether the low bits of the input element overflow into the high bits.
+* \param[in] sint32 a0 : low bits of input element
+* \param[in] sint32 a1 : high bits of input element
 *
-* Arguments:   - sint32 a0: low bits of input element
-*              - sint32 a1: high bits of input element
-*
-* Returns 1 if overflow.
-***********************************************************************************************************************/
+* \returns 1 if overflow.
+*/
 uint8 FsmSw_Dilithium3_MakeHint(sint32 a0, sint32 a1)
 {
   uint8 retVal = 0;
@@ -125,18 +139,16 @@ uint8 FsmSw_Dilithium3_MakeHint(sint32 a0, sint32 a1)
   }
 
   return retVal;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium3_UseHint
+} // end: FsmSw_Dilithium3_MakeHint
+/*====================================================================================================================*/
+/**
+* \brief Correct high bits according to hint.
 *
-* Description: Correct high bits according to hint.
+* \param[in] sint32    a : input element
+* \param[in] uint32 hint : hint bit
 *
-* Arguments:   - sint32 a:    input element
-*              - uint32 hint: hint bit
-*
-* Returns corrected high bits.
-***********************************************************************************************************************/
+* \returns corrected high bits.
+*/
 sint32 FsmSw_Dilithium3_UseHint(sint32 a, uint32 hint)
 {
   sint32 a0     = 0;
@@ -161,4 +173,8 @@ sint32 FsmSw_Dilithium3_UseHint(sint32 a, uint32 hint)
   }
 
   return retVal;
-}
+} // end: FsmSw_Dilithium3_UseHint
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

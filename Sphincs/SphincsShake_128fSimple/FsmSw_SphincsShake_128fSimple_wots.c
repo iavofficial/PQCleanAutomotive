@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple
+*    includes the modules for SphincsShake_128fSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple_wots
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128fSimple_wots.c
+* \brief  description of FsmSw_SphincsShake_128fSimple_wots.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -31,9 +50,8 @@
 #include "FsmSw_Sphincs_utils.h"
 
 #include "FsmSw_SphincsShake_128fSimple_wots.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -42,6 +60,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -55,24 +77,23 @@ static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *out, const uint8 
                                                         const sphincs_shake_128f_ctx *ctx, uint32 addr[8]);
 static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *output, const sint32 out_len, const uint8 *input);
 static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *csum_base_w, const uint32 *msg_base_w);
-
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_wots_GenChain
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes the chaining function. out and in have to be n-byte arrays. Interprets in as start-th value of
+ *        the chain. addr has to contain the address of the chain.
  *
- * Description: Computes the chaining function. out and in have to be n-byte arrays. Interprets in as start-th value of
- *              the chain. addr has to contain the address of the chain.
+ * \param[out] uint8                        *out : t.b.d.
+ * \param[in]  const uint8                   *in : t.b.d.
+ * \param[in]  uint32                      start : t.b.d.
+ * \param[in]  uint32                      steps : t.b.d.
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d.
+ * \param[in]  uint32                    addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                  *out:     t.b.d.
- *              - const uint8                  *in:      t.b.d.
- *              -       uint32                  start:   t.b.d.
- *              -       uint32                  steps:   t.b.d.
- *              - const sphincs_shake_128f_ctx *ctx:     t.b.d.
- *              -       uint32                  addr[8]: t.b.d.
- *
- **********************************************************************************************************************/
+ */
 static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *out, const uint8 *in, uint32 start, uint32 steps,
                                                         const sphincs_shake_128f_ctx *ctx, uint32 addr[8])
 {
@@ -87,19 +108,18 @@ static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *out, const uint8 
     FsmSw_SphincsShake_SetHashAddr(addr, i);
     FsmSw_SphincsShake_128fSimple_Thash(out, out, 1, ctx, addr);
   }
-}
+} // end: FsmSw_SphincsShake_128fSimple_wots_GenChain
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_wots_BaseW
+/*====================================================================================================================*/
+/**
+ * \brief base_w algorithm as described in draft. Interprets an array of bytes as integers in base w.
+ *        This only works when log_w is a divisor of 8.
  *
- * Description: base_w algorithm as described in draft. Interprets an array of bytes as integers in base w.
- *              This only works when log_w is a divisor of 8.
+ * \param[out] uint32     *output : t.b.d.
+ * \param[out] sint32     out_len: t.b.d.
+ * \param[in]  const uint8 *input : t.b.d.
  *
- * Arguments:   -       uint32 *output:  t.b.d.
- *              -       sint32  out_len: t.b.d.
- *              - const uint8  *input:   t.b.d.
- *
- **********************************************************************************************************************/
+ */
 static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *output, const sint32 out_len, const uint8 *input)
 {
   sint32 in       = 0;
@@ -120,17 +140,16 @@ static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *output, const sint3
     output[out] = ((uint32)total >> (uint32)bits) & (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W - 1u);
     out++;
   }
-}
+} // end: FsmSw_SphincsShake_128fSimple_wots_BaseW
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_wots_checksum
+/*====================================================================================================================*/
+/**
+ * \brief Computes the WOTS+ checksum over a message (in base_w).
  *
- * Description: Computes the WOTS+ checksum over a message (in base_w).
+ * \param[out] const uint32 *csum_base_w : t.b.d.
+ * \param[in]  const uint32  *msg_base_w : t.b.d.
  *
- * Arguments:   - const uint32 *csum_base_w: t.b.d.
- *              - const uint32 *msg_base_w:  t.b.d.
- *
- **********************************************************************************************************************/
+ */
 static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *csum_base_w, const uint32 *msg_base_w)
 {
   uint32 csum                                                                                                       = 0;
@@ -149,38 +168,39 @@ static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *csum_base_w, con
       csum << ((8u - ((FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2 * FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW) % 8u)) % 8u);
   FsmSw_Sphincs_UllToBytes(csum_bytes, sizeof(csum_bytes), csum);
   FsmSw_SphincsShake_128fSimple_wots_BaseW(csum_base_w, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2, csum_bytes);
-}
+} // end: FsmSw_SphincsShake_128fSimple_wots_checksum
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_Wots_ChainLengths
+
+/*====================================================================================================================*/
+/**
+ * \brief Takes a message and derives the matching chain lengths.
  *
- * Description: Takes a message and derives the matching chain lengths.
+ * \param[out] uint32  *lengths : t.b.d.
+ * \param[in]  const uint8 *msg : t.b.d.
  *
- * Arguments:   -       uint32 *lengths: t.b.d.
- *              - const uint8  *msg:     t.b.d.
- *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsShake_128fSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg)
 {
   FsmSw_SphincsShake_128fSimple_wots_BaseW(lengths, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1, msg);
   FsmSw_SphincsShake_128fSimple_wots_checksum(&lengths[FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1], lengths);
-}
+} // end: FsmSw_SphincsShake_128fSimple_Wots_ChainLengths
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_Wots_PkFromSig
+/*====================================================================================================================*/
+/**
+ * \brief Takes a WOTS signature and an n-byte message, computes a WOTS public key.
+ *        Writes the computed public key to 'pk'.
  *
- * Description: Takes a WOTS signature and an n-byte message, computes a WOTS public key.
- *              Writes the computed public key to 'pk'.
+ * \param[out] uint8                         *pk : t.b.d.
+ * \param[in]  const uint8                  *sig : t.b.d.
+ * \param[in]  const uint8                  *msg : t.b.d.
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d.
+ * \param[in]  uint32                    addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                  *pk:      t.b.d.
- *              - const uint8                  *sig:     t.b.d.
- *              - const uint8                  *msg:     t.b.d.
- *              - const sphincs_shake_128f_ctx *ctx:     t.b.d.
- *              -       uint32                  addr[8]: t.b.d.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -200,4 +220,8 @@ void FsmSw_SphincsShake_128fSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, c
                                                 &sig[i * FSMSW_SPHINCSSHAKE_128FSIMPLE_N], lengths[i],
                                                 FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W - 1u - lengths[i], ctx, addr);
   }
-}
+} // end: FsmSw_SphincsShake_128fSimple_Wots_PkFromSig
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Kyber_ntt
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber_ntt.c
+* \brief  description of FsmSw_Kyber_ntt.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -34,6 +53,10 @@
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
+/* polyspace +6 CERT-C:DCL15-C [Justified:]"The variable is used across multiple translation units, 
+and external linkage is required for proper functionality." */
+/* polyspace +4 CERT-C:DCL19-C [Justified:]"The variable is used across multiple translation units, 
+and external linkage is required for proper functionality." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"The variable is used across multiple translation units, 
 and external linkage is required for proper functionality." */
 const sint16 FsmSw_Kyber_zetas[128] = {
@@ -45,6 +68,9 @@ const sint16 FsmSw_Kyber_zetas[128] = {
     -246,  778,   1159,  -147,  -777,  1483,  -602,  1119,  -1590, 644,  -872,  349,   418,   329,   -156,  -75,
     817,   1097,  603,   610,   1322,  -1285, -1465, 384,   -1215, -136, 1218,  -1335, -874,  220,   -1187, -1659,
     -1185, -1530, -1278, 794,   -1510, -854,  -870,  478,   -108,  -308, 996,   991,   958,   -1460, 1522,  1628};
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
@@ -58,32 +84,31 @@ static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber_Fqmul
+
+/*====================================================================================================================*/
+/**
+* \brief Multiplication followed by Montgomery reduction
 *
-* Description: Multiplication followed by Montgomery reduction
+* \param[in] int16_t a : first factor
+* \param[in] int16_t b : second factor
 *
-* Arguments:   - int16_t a: first factor
-*              - int16_t b: second factor
-*
-* Returns 16-bit integer congruent to a*b*R^{-1} mod q
-***********************************************************************************************************************/
+* \returns 16-bit integer congruent to a*b*R^{-1} mod q
+*/
 static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b)
 {
   return FsmSw_Kyber_MontgomeryReduce((sint32)a * b);
-}
-
+} // end: fsmsw_kyber_Fqmul
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Ntt
+
+/*====================================================================================================================*/
+/**
+* \brief Inplace number-theoretic transform (NTT) in Rq.
+*        input is in standard order, output is in bitreversed order
 *
-* Description: Inplace number-theoretic transform (NTT) in Rq.
-*              input is in standard order, output is in bitreversed order
-*
-* Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
-***********************************************************************************************************************/
+* \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
+*/
 void FsmSw_Kyber_Ntt(sint16 r[256])
 {
   uint16 len   = 0;
@@ -107,17 +132,16 @@ void FsmSw_Kyber_Ntt(sint16 r[256])
       }
     }
   }
-}
+} // end: FsmSw_Kyber_Ntt
 
-/***********************************************************************************************************************
-* Name:        invntt_tomont
+/*====================================================================================================================*/
+/**
+* \brief Inplace inverse number-theoretic transform in Rq and
+*        multiplication by Montgomery factor 2^16.
+*        Input is in bitreversed order, output is in standard order
 *
-* Description: Inplace inverse number-theoretic transform in Rq and
-*              multiplication by Montgomery factor 2^16.
-*              Input is in bitreversed order, output is in standard order
-*
-* Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
-***********************************************************************************************************************/
+* \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
+*/
 void FsmSw_Kyber_Invntt(sint16 r[256])
 {
   uint16 start   = 0;
@@ -148,19 +172,18 @@ void FsmSw_Kyber_Invntt(sint16 r[256])
   {
     r[j] = fsmsw_kyber_Fqmul(r[j], f);
   }
-}
+} // end: FsmSw_Kyber_Invntt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Basemul
+/*====================================================================================================================*/
+/**
+* \brief Multiplication of polynomials in Zq[X]/(X^2-zeta)
+*        used for multiplication of elements in Rq in NTT domain
 *
-* Description: Multiplication of polynomials in Zq[X]/(X^2-zeta)
-*              used for multiplication of elements in Rq in NTT domain
-*
-* Arguments:   - int16_t r[2]:       pointer to the output polynomial
-*              - const int16_t a[2]: pointer to the first factor
-*              - const int16_t b[2]: pointer to the second factor
-*              - int16_t zeta:       integer defining the reduction polynomial
-***********************************************************************************************************************/
+* \param[out] int16_t       r[2] : pointer to the output polynomial
+* \param[in]  const int16_t a[2] : pointer to the first factor
+* \param[in]  const int16_t b[2] : pointer to the second factor
+* \param[in]  int16_t       zeta : integer defining the reduction polynomial
+*/
 void FsmSw_Kyber_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint16 zeta)
 {
   r[0] = fsmsw_kyber_Fqmul(a[1], b[1]);
@@ -168,4 +191,8 @@ void FsmSw_Kyber_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint
   r[0] += fsmsw_kyber_Fqmul(a[0], b[0]);
   r[1] = fsmsw_kyber_Fqmul(a[0], b[1]);
   r[1] += fsmsw_kyber_Fqmul(a[1], b[0]);
-}
+} // end: FsmSw_Kyber_Basemul
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

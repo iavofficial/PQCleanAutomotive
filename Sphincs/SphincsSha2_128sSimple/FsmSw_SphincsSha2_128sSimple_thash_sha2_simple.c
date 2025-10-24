@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128sSimple
+*    includes the modules for SphincsSha2_128sSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128sSimple_thash
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128sSimple_thash_sha2_simple.c
+* \brief  description of FsmSw_SphincsSha2_128sSimple_thash_sha2_simple.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -26,7 +45,6 @@
 #include "FsmSw_sha2.h"
 
 #include "FsmSw_SphincsSha2_128sSimple_thash.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -37,6 +55,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -54,18 +76,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128sSimple_thash
+
+/*====================================================================================================================*/
+/**
+ * \brief Takes an array of inblocks concatenated arrays of FSMSW_SPHINCSSHA2_128SSIMPLE_N bytes.
  *
- * Description: Takes an array of inblocks concatenated arrays of FSMSW_SPHINCSSHA2_128SSIMPLE_N bytes.
+ * \param[out] uint8                       *out : t.b.d.
+ * \param[in]  const uint8                  *in : t.b.d.
+ * \param[in]  uint32                  inblocks : t.b.d.
+ * \param[in]  const sphincs_sha2_128s_ctx *ctx : t.b.d.
+ * \param[in]  const uint32             addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                 *out:        t.b.d.
- *              - const uint8                 *in:        t.b.d.
- *              -       uint32                 inblocks:    t.b.d.
- *              - const sphincs_sha2_128s_ctx *ctx:         t.b.d.
- *              - const uint32                 addr[8]:     t.b.d.
- *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128sSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks, const sphincs_sha2_128s_ctx *ctx,
                                         const uint32 addr[8])
 {
@@ -83,4 +105,4 @@ void FsmSw_SphincsSha2_128sSimple_Thash(uint8 *out, const uint8 *in, uint32 inbl
   FsmSw_Sha256_IncFinalize(outbuf, &sha2_state, buf,
                            SPX_SHA256_ADDR_BYTES + (inblocks * FSMSW_SPHINCSSHA2_128SSIMPLE_N));
   FsmSw_CommonLib_MemCpy(out, outbuf, FSMSW_SPHINCSSHA2_128SSIMPLE_N);
-}
+} // end: FsmSw_SphincsSha2_128sSimple_Thash

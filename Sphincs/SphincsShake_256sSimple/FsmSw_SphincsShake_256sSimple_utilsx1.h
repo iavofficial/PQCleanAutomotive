@@ -1,31 +1,48 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_256sSimple
+*    includes the modules for SphincsShake_256sSimple
+ ** @{ */
+/** \addtogroup SphincsShake_256sSimple_utilsx1
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_256sSimple_utilsx1.h
+* \brief  Description of FsmSw_SphincsShake_256sSimple_utilsx1.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHAKE_256SSIMPLE_UTILSX4_H
 #define FSMSW_SPHINCSSHAKE_256SSIMPLE_UTILSX4_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_SphincsShake_256sSimple_context.h"
 #include "FsmSw_SphincsShake_256sSimple_params.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -37,12 +54,18 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -55,3 +78,7 @@ void FsmSw_SphincsShake_256sSimple_TreeHashX1(uint8 *root, uint8 *auth_path, con
                                               uint32 tree_addr[8], void *info);
 
 #endif /* FSMSW_SPHINCSSHAKE_256SSIMPLE_UTILSX4_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

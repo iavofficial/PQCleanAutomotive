@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple
+*    includes the modules for SphincsShake_128fSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple_fors
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128fSimple_fors.c
+* \brief  description of FsmSw_SphincsShake_128fSimple_fors.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -26,9 +45,8 @@
 #include "FsmSw_Sphincs_shake_address.h"
 
 #include "FsmSw_SphincsShake_128fSimple_fors.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -40,6 +58,10 @@ typedef struct
 } Fsmsw_Sphincsshake_128fSimple_ForsGenLeafInfo_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -56,56 +78,55 @@ static void fsmsw_sphincsshake_128fsimple_fors_SkToLeaf(uint8 *leaf, const uint8
 static void fsmsw_sphincsshake_128fsimple_fors_GenLeafx1(uint8 *leaf, const sphincs_shake_128f_ctx *ctx,
                                                          uint32 addr_idx, void *info);
 static void fsmsw_sphincsshake_128fsimple_fors_MessageToIndices(uint32 *indices, const uint8 *m);
-
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincsshake_128fsimple_fors_GenSk
+
+/*====================================================================================================================*/
+/**
+ * \brief t.b.d
  *
- * Description: t.b.d
- *
- * Arguments:   -       uint8                  *sk:                t.b.d
- *              - const sphincs_shake_128f_ctx *ctx:               t.b.d
- *              - const uint32                  fors_leaf_addr[8]: t.b.d
- **********************************************************************************************************************/
+ * \param[out] uint8                         *sk : t.b.d
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d
+ * \param[in]  const uint32    fors_leaf_addr[8] : t.b.d
+ */
 static void fsmsw_sphincsshake_128fsimple_fors_GenSk(uint8 *sk, const sphincs_shake_128f_ctx *ctx,
                                                      const uint32 fors_leaf_addr[8])
 {
   FsmSw_SphincsShake_128fSimple_PrfAddr(sk, ctx, fors_leaf_addr);
-}
+} // end: fsmsw_sphincsshake_128fsimple_fors_GenSk
 
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincsshake_128fsimple_fors_SkToLeaf
+/*====================================================================================================================*/
+/**
+ * \brief t.b.d
  *
- * Description: t.b.d
- *
- * Arguments:   -       uint8                  *leaf:              t.b.d
- *              - const uint8                  *sk:                t.b.d
- *              - const sphincs_shake_128f_ctx *ctx:               t.b.d
- *              - const uint32                  fors_leaf_addr[8]: t.b.d
- ***********************************************************************************************************************/
+ * \param[out] uint8                       *leaf : t.b.d
+ * \param[in]  const uint8                   *sk : t.b.d
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d
+ * \param[in]  const uint32    fors_leaf_addr[8] : t.b.d
+ */
 static void fsmsw_sphincsshake_128fsimple_fors_SkToLeaf(uint8 *leaf, const uint8 *sk, const sphincs_shake_128f_ctx *ctx,
                                                         const uint32 fors_leaf_addr[8])
 {
   FsmSw_SphincsShake_128fSimple_Thash(leaf, sk, 1, ctx, fors_leaf_addr);
-}
+} // end: fsmsw_sphincsshake_128fsimple_fors_SkToLeaf
 
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincsshake_128fsimple_fors_GenLeafx1
+/*====================================================================================================================*/
+/**
+ * \brief t.b.d
  *
- * Description: t.b.d
- *
- * Arguments:   -       uint8                  *leaf:     t.b.d
- *              - const sphincs_shake_128f_ctx *ctx:      t.b.d
- *              -       uint32                  addr_idx: t.b.d
- *              -       void                   *info:     t.b.d
- **********************************************************************************************************************/
+ * \param[out] uint8                       *leaf : t.b.d
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d
+ * \param[in]  uint32                   addr_idx : t.b.d
+ * \param[in]  void                        *info : t.b.d
+ */
 static void fsmsw_sphincsshake_128fsimple_fors_GenLeafx1(uint8 *leaf, const sphincs_shake_128f_ctx *ctx,
                                                          uint32 addr_idx, void *info)
 {
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   Fsmsw_Sphincsshake_128fSimple_ForsGenLeafInfo_T *fors_info = info;
   uint32 *fors_leaf_addr                                     = fors_info->leaf_addrx;
 
@@ -116,19 +137,18 @@ static void fsmsw_sphincsshake_128fsimple_fors_GenLeafx1(uint8 *leaf, const sphi
 
   FsmSw_SphincsShake_SetType(fors_leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_FORSTREE);
   fsmsw_sphincsshake_128fsimple_fors_SkToLeaf(leaf, leaf, ctx, fors_leaf_addr);
-}
+} // end: fsmsw_sphincsshake_128fsimple_fors_GenLeafx1
 
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincsshake_128fsimple_fors_MessageToIndices
+/*====================================================================================================================*/
+/**
+ * \brief Interprets m as FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT-bit uint32. Assumes m contains at least
+ *        FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
+ *        Assumes indices has space for FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES integers.
  *
- * Description: Interprets m as FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT-bit uint32. Assumes m contains at least
- *              FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
- *              Assumes indices has space for FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES integers.
+ * \param[out] uint32 *indices : t.b.d
+ * \param[in]  const uint8  *m : t.b.d
  *
- * Arguments:   -       uint32 *indices: t.b.d
- *              - const uint8  *m:       t.b.d
- *
- **********************************************************************************************************************/
+ */
 static void fsmsw_sphincsshake_128fsimple_fors_MessageToIndices(uint32 *indices, const uint8 *m)
 {
   uint32 i      = 0;
@@ -144,23 +164,22 @@ static void fsmsw_sphincsshake_128fsimple_fors_MessageToIndices(uint32 *indices,
       offset++;
     }
   }
-}
-
+} // end: fsmsw_sphincsshake_128fsimple_fors_MessageToIndices
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_Fors_Sign
+
+/*====================================================================================================================*/
+/**
+ * \brief Signs a message m, deriving the secret key from sk_seed and the FTS address. Assumes m contains at least
+ *        FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
  *
- * Description: Signs a message m, deriving the secret key from sk_seed and the FTS address. Assumes m contains at least
- *              FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
- *
- * Arguments:   -       uint8                  *sig:          t.b.d
- *              -       uint8                  *pk:           t.b.d
- *              - const uint8                  *m:            t.b.d
- *              - const sphincs_shake_128f_ctx *ctx:          t.b.d
- *              - const uint32                  fors_addr[8]: t.b.d
- **********************************************************************************************************************/
+ * \param[out] uint8                        *sig : t.b.d
+ * \param[out] uint8                         *pk : t.b.d
+ * \param[in]  const uint8                    *m : t.b.d
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d
+ * \param[in]  const uint32         fors_addr[8] : t.b.d
+ */
 void FsmSw_SphincsShake_128fSimple_Fors_Sign(uint8 *sig, uint8 *pk, const uint8 *m, const sphincs_shake_128f_ctx *ctx,
                                              const uint32 fors_addr[8])
 {
@@ -207,23 +226,24 @@ void FsmSw_SphincsShake_128fSimple_Fors_Sign(uint8 *sig, uint8 *pk, const uint8 
 
   /* Hash horizontally across all tree roots to derive the public key. */
   FsmSw_SphincsShake_128fSimple_Thash(pk, roots, FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES, ctx, fors_pk_addr);
-}
+} // end: FsmSw_SphincsShake_128fSimple_Fors_Sign
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128fSimple_Fors_PkFromSig
+/*====================================================================================================================*/
+/**
+ * \brief Derives the FORS public key from a signature. This can be used for verification by comparing to a known
+ *        public key, or to subsequently verify a signature on the derived public key. The latter is the typical
+ *        use-case when used as an FTS below an OTS in a hypertree. Assumes m contains at least
+ *        FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
  *
- * Description: Derives the FORS public key from a signature. This can be used for verification by comparing to a known
- *              public key, or to subsequently verify a signature on the derived public key. The latter is the typical
- *              use-case when used as an FTS below an OTS in a hypertree. Assumes m contains at least
- *              FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
+ * \param[out] uint8                         *pk : t.b.d
+ * \param[in]  const uint8                  *sig : t.b.d
+ * \param[in]  const uint8                    *m : t.b.d
+ * \param[in]  const sphincs_shake_128f_ctx *ctx : t.b.d
+ * \param[in]  const uint32         fors_addr[8] : t.b.d
  *
- *              -       uint8                  *pk:           t.b.d
- * Arguments:   - const uint8                  *sig:          t.b.d
- *              - const uint8                  *m:            t.b.d
- *              - const sphincs_shake_128f_ctx *ctx:          t.b.d
- *              - const uint32                  fors_addr[8]: t.b.d
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
@@ -269,4 +289,8 @@ void FsmSw_SphincsShake_128fSimple_Fors_PkFromSig(uint8 *pk, const uint8 *sig, c
 
   /* Hash horizontally across all tree roots to derive the public key. */
   FsmSw_SphincsShake_128fSimple_Thash(pk, roots, FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES, ctx, fors_pk_addr);
-}
+} // end: FsmSw_SphincsShake_128fSimple_Fors_PkFromSig
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple
+*    includes the modules for SphincsSha2_128fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple_utils
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128fSimple_utils.c
+* \brief  description of FsmSw_SphincsSha2_128fSimple_utils.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -25,7 +44,6 @@
 #include "FsmSw_Sphincs_sha2_address.h"
 
 #include "FsmSw_SphincsSha2_128fSimple_utils.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -36,6 +54,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -53,21 +75,22 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_ComputeRoot
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes a root node given a leaf and an auth path. Expects address to be complete other than
+ *        the tree_height and tree_index.
  *
- * Description: Computes a root node given a leaf and an auth path. Expects address to be complete other than
- *              the tree_height and tree_index.
+ * \param[out] uint8                      *root : t.b.d.
+ * \param[in]  const uint8                *leaf : t.b.d.
+ * \param[in]  uint32                  leaf_idx : t.b.d.
+ * \param[in]  uint32                idx_offset : t.b.d.
+ * \param[in]  const uint8           *auth_path : t.b.d.
+ * \param[in]  uint32               tree_height : t.b.d.
+ * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
+ * \param[in]  uint32                   addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                 *root:        t.b.d.
- *              - const uint8                 *leaf:        t.b.d.
- *              -       uint32                 leaf_idx:    t.b.d.
- *              -       uint32                 idx_offset:  t.b.d.
- *              - const uint8                 *auth_path:   t.b.d.
- *              -       uint32                 tree_height: t.b.d.
- *              - const sphincs_sha2_128f_ctx *ctx:         t.b.d.
- *              -       uint32                 addr[8]:     t.b.d.
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128fSimple_ComputeRoot(uint8 *root, const uint8 *leaf, uint32 leaf_idx, uint32 idx_offset,
                                               const uint8 *auth_path, uint32 tree_height,
                                               const sphincs_sha2_128f_ctx *ctx, uint32 addr[8])
@@ -122,33 +145,34 @@ void FsmSw_SphincsSha2_128fSimple_ComputeRoot(uint8 *root, const uint8 *leaf, ui
   FsmSw_SphincsSha2_SetTreeHeight(addr, tree_height);
   FsmSw_SphincsSha2_SetTreeIndex(addr, leaf_idx_temp + idx_offset_temp);
   FsmSw_SphincsSha2_128fSimple_Thash(root, buffer, 2, ctx, addr);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_ComputeRoot
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_TreeHash
+/*====================================================================================================================*/
+/**
+ * \brief For a given leaf index, computes the authentication path and the resulting root node using Merkle's
+ *        TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as well as the tree
+ *        type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE). Applies the offset 
+ *        idx_offset to indices before building addresses, so that it is possible to continue counting indices
+ *        across trees.
  *
- * Description: For a given leaf index, computes the authentication path and the resulting root node using Merkle's
- *              TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as well as the tree
- *type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE). Applies the offset idx_offset to
- *indices before building addresses, so that it is possible to continue counting indices across trees.
- *
- * Arguments:   -       uint8                 *root:         t.b.d.
- *              -       uint8                 *auth_path:    t.b.d.
- *              - const sphincs_sha2_128f_ctx *ctx:          t.b.d.
- *              -       uint32                 leaf_idx:     t.b.d.
- *              -       uint32                 idx_offset:   t.b.d.
- *              -       uint32                 tree_height:  t.b.d.
- *              -       void                 (*gen_leaf)
+ * \param[out] uint8                      *root : t.b.d.
+ * \param[in]  uint8                 *auth_path : t.b.d.
+ * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
+ * \param[in]  uint32                  leaf_idx : t.b.d.
+ * \param[in]  uint32                idx_offset : t.b.d.
+ * \param[in]  uint32               tree_height : t.b.d.
+ * \param[out] void                 (*gen_leaf)
  *                                             (
- *                                                     uint8                 *leaf:         t.b.d.
- *                                               const sphincs_sha2_128f_ctx *ctx:          t.b.d.
- *                                                     uint32                 idx:          t.b.d.
- *                                               const uint32                 tree_addr[8]: t.b.d.
+ *                                                     uint8                *leaf: t.b.d.
+ *                                               const sphincs_sha2_128f_ctx *ctx: t.b.d.
+ *                                                     uint32                 idx: t.b.d.
+ *                                               const uint32        tree_addr[8]: t.b.d.
  *                                             )
- *              -       uint32                 tree_addr[8]: t.b.d.
+ * \param[out] uint32              tree_addr[8] : t.b.d.
  *
  * Note:        This function is currently not used.
- **********************************************************************************************************************/
+ *
+ */
 void FsmSw_SphincsSha2_128fSimple_TreeHash(uint8 *root, uint8 *auth_path, const sphincs_sha2_128f_ctx *ctx,
                                            uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
                                            void (*gen_leaf)(uint8 *leaf, const sphincs_sha2_128f_ctx *ctx,
@@ -201,4 +225,8 @@ void FsmSw_SphincsSha2_128fSimple_TreeHash(uint8 *root, uint8 *auth_path, const 
     }
   }
   FsmSw_CommonLib_MemCpy(root, stack, FSMSW_SPHINCSSHA2_128FSIMPLE_N);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_TreeHash
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

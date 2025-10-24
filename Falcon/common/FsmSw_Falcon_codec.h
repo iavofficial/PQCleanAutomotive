@@ -1,29 +1,46 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_codec
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_code.h
+* \brief  description of FsmSw_Falcon_code.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_FALCON_CODEC_H
 #define FSMSW_FALCON_CODEC_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -40,6 +57,10 @@ extern const uint8 FsmSw_Falcon_max_big_FG_bits[11];
 
 /* Maximum size, in bits, of elements in a signature, indexed by logn (1 to 10). The size includes the sign bit. */
 extern const uint8 FsmSw_Falcon_max_sig_bits[11];
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
@@ -72,11 +93,15 @@ extern const uint8 FsmSw_Falcon_max_sig_bits[11];
  *   - comp: variable-length encoding for signed integers; each integer uses a minimum of 9 bits, possibly more. This
  *           is normally used only for signatures. */
 
-uint32 FsmSw_Falcon_ModqEncode(void *out, uint32 max_out_len, const uint16 *x, uint32 logn);
-uint32 FsmSw_Falcon_ModqDecode(uint16 *x, uint32 logn, const void *in, uint32 max_in_len);
-uint32 FsmSw_Falcon_TrimI8Encode(void *out, uint32 max_out_len, const sint8 *x, uint32 logn, uint32 bits);
-uint32 FsmSw_Falcon_TrimI8Decode(sint8 *x, uint32 logn, uint32 bits, const void *in, uint32 max_in_len);
-uint32 FsmSw_Falcon_CompEncode(void *out, uint32 max_out_len, const sint16 *x, uint32 logn);
-uint32 FsmSw_Falcon_CompDecode(sint16 *x, uint32 logn, const void *in, uint32 max_in_len);
+uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn);
+uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
+uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits);
+uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len);
+uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn);
+uint32 FsmSw_Falcon_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
 
 #endif /* FSMSW_FALCON_CODEC_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

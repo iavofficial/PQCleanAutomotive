@@ -1,30 +1,47 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_fft
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_fft.h
+* \brief  description of FsmSw_Falcon_fft.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_FALCON_FFT_H
 #define FSMSW_FALCON_FFT_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Falcon_fpr.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -36,46 +53,56 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_FFT(fpr *f, uint32 logn);
+void FsmSw_Falcon_FFT(fpr *const f, uint32 logn);
 
-void FsmSw_Falcon_IFFT(fpr *f, uint32 logn);
+void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn);
 
-void FsmSw_Falcon_Poly_Add(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_Add(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_Sub(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_Neg(fpr *a, uint32 logn);
+void FsmSw_Falcon_Poly_Neg(fpr *const a, uint32 logn);
 
-void FsmSw_Falcon_Poly_AdjFFT(fpr *a, uint32 logn);
+void FsmSw_Falcon_Poly_AdjFFT(fpr *const a, uint32 logn);
 
-void FsmSw_Falcon_Poly_MulFFT(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_MuladjFFT(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *a, uint32 logn);
+void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *const a, uint32 logn);
 
-void FsmSw_Falcon_Poly_Mulconst(fpr *a, fpr x, uint32 logn);
+void FsmSw_Falcon_Poly_Mulconst(fpr *const a, fpr x, uint32 logn);
 
-void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *d, const fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *d, const fpr *F, const fpr *G, const fpr *f, const fpr *g, uint32 logn);
+void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr *const G, const fpr *const f,
+                                     const fpr *const g, uint32 logn);
 
-void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *a, const fpr *b, uint32 logn);
+void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn);
 
-void FsmSw_Falcon_Poly_LdlFFT(const fpr *g00, fpr *g01, fpr *g11, uint32 logn);
+void FsmSw_Falcon_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g11, uint32 logn);
 
-void FsmSw_Falcon_Poly_LdlMvFFT(fpr *d11, fpr *l10, const fpr *g00, const fpr *g01, const fpr *g11, uint32 logn);
+void FsmSw_Falcon_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const g00, const fpr *const g01,
+                                const fpr *const g11, uint32 logn);
 
-void FsmSw_Falcon_Poly_SplitFFT(fpr *f0, fpr *f1, const fpr *f, uint32 logn);
+void FsmSw_Falcon_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f, uint32 logn);
 
-void FsmSw_Falcon_Poly_MergeFFT(fpr *f, const fpr *f0, const fpr *f1, uint32 logn);
+void FsmSw_Falcon_Poly_MergeFFT(fpr *const f, const fpr *const f0, const fpr *const f1, uint32 logn);
 
 #endif /* FSMSW_FALCON_FFT_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

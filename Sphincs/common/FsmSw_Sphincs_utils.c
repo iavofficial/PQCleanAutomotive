@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup FsmSw_Sphincs_utils
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Sphincs_utils.c
+* \brief  description of FsmSw_Sphincs_utils.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -13,7 +32,7 @@
  *
  *  $Rev$
  *
-***********************************************************************************************************************/
+ **********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -34,6 +53,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -48,17 +71,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_Sphincs_UllToBytes
+
+/*====================================================================================================================*/
+/**
+ * \brief Converts the value of 'in' to 'outlen' bytes in big-endian byte order.
  *
- * Description: Converts the value of 'in' to 'outlen' bytes in big-endian byte order.
+ * \param[out] uint8    *out : t.b.d.
+ * \param[out] uint32 outlen : t.b.d.
+ * \param[in]  uint64     in : t.b.d.
  *
- * Arguments:   - uint8   *out:    t.b.d.
- *              - uint32   outlen: t.b.d.
- *              - uint64   in:     t.b.d.
- *
- **********************************************************************************************************************/
-void FsmSw_Sphincs_UllToBytes(uint8 *out, uint32 outlen, uint64 in)
+ */
+void FsmSw_Sphincs_UllToBytes(uint8 *const out, uint32 outlen, uint64 in)
 {
   sint32 i = 0;
 
@@ -71,37 +94,35 @@ void FsmSw_Sphincs_UllToBytes(uint8 *out, uint32 outlen, uint64 in)
     out[i]  = (uint8)(in_temp & 0xFFu);
     in_temp = in_temp >> 8;
   }
-}
+} // end: FsmSw_Sphincs_UllToBytes
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Sphincs_U32ToBytes
+/*====================================================================================================================*/
+/**
+ * \brief t.b.d.
  *
- * Description: t.b.d.
+ * \param[out] uint8 *out : t.b.d.
+ * \param[in]  uint32  in : t.b.d.
  *
- * Arguments:   - uint8   *out: t.b.d.
- *              - uint32   in:  t.b.d.
- *
- **********************************************************************************************************************/
-void FsmSw_Sphincs_U32ToBytes(uint8 *out, uint32 in)
+ */
+void FsmSw_Sphincs_U32ToBytes(uint8 *const out, uint32 in)
 {
   out[0] = (uint8)(in >> 24);
   out[1] = (uint8)(in >> 16);
   out[2] = (uint8)(in >> 8);
   out[3] = (uint8)in;
-}
+} // end: FsmSw_Sphincs_U32ToBytes
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Sphincs_bytes_to_ull
+/*====================================================================================================================*/
+/**
+ * \brief Converts the inlen bytes in 'in' from big-endian byte order to an integer.
  *
- * Description: Converts the inlen bytes in 'in' from big-endian byte order to an integer.
+ * \param[in] const uint8 *in : t.b.d.
+ * \param[in] uint32    inlen : t.b.d.
  *
- * Arguments:   - const uint8  *in:    t.b.d.
- *              -       uint32  inlen: t.b.d.
+ * \returns uint64 retval.
  *
- * Returns uint64 retval.
- *
- **********************************************************************************************************************/
-uint64 FsmSw_Sphincs_BytesToUll(const uint8 *in, uint32 inlen)
+ */
+uint64 FsmSw_Sphincs_BytesToUll(const uint8 *const in, uint32 inlen)
 {
   uint64 retval = 0;
   uint32 i      = 0;
@@ -111,4 +132,8 @@ uint64 FsmSw_Sphincs_BytesToUll(const uint8 *in, uint32 inlen)
     retval |= ((uint64)in[i]) << (8u * (inlen - 1u - i));
   }
   return retval;
-}
+} // end: FsmSw_Sphincs_BytesToUll
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

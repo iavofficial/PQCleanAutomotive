@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_rng
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_rng.c
+* \brief  description of FsmSw_Falcon_rng.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* A PRNG based on ChaCha20 is implemented; it is seeded from a SHAKE256 context (flipped) and is used for bulk
  * pseudorandom generation. A system-dependent seed generator is also provided. */
 /**********************************************************************************************************************/
@@ -23,13 +42,15 @@
 #include "FsmSw_Falcon_common.h"
 
 #include "FsmSw_Falcon_rng.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
+/* polyspace +4 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
 /* polyspace +2 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 #define QROUND(a, b, c, d)                                                                                             \
+  do                                                                                                                   \
   {                                                                                                                    \
     state[a] += state[b];                                                                                              \
     state[d] ^= state[a];                                                                                              \
@@ -43,13 +64,17 @@ inline functions would not provide significant benefits." */
     state[c] += state[d];                                                                                              \
     state[b] ^= state[c];                                                                                              \
     state[b] = (state[b] << 7) | (state[b] >> 25);                                                                     \
-  }
+  } while (0)
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -60,24 +85,23 @@ inline functions would not provide significant benefits." */
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
 static void fsmsw_falcon_prng_Refill(prng *p);
-
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_prng_Refill
+
+/*====================================================================================================================*/
+/**
+* \brief fsmsw_falcon_prng_Refill based on ChaCha20.
+*        State consists in key (32 bytes) then IV (16 bytes) and block counter (8 bytes). Normally, we should not
+*        care about local endianness (this is for a PRNG), but for the NIST competition we need reproducible KAT
+*        vectors that work across architectures, so we enforce little-endian interpretation where applicable.
+*        Moreover, output words are "spread out" over the output buffer with the interleaving pattern that is
+*        naturally obtained from the AVX2 implementation that runs eight ChaCha20 instances in parallel.
+*        The block counter is XORed into the first 8 bytes of the IV.
 *
-* Description: fsmsw_falcon_prng_Refill based on ChaCha20.
-*              State consists in key (32 bytes) then IV (16 bytes) and block counter (8 bytes). Normally, we should not
-*              care about local endianness (this is for a PRNG), but for the NIST competition we need reproducible KAT
-*              vectors that work across architectures, so we enforce little-endian interpretation where applicable.
-*              Moreover, output words are "spread out" over the output buffer with the interleaving pattern that is
-*              naturally obtained from the AVX2 implementation that runs eight ChaCha20 instances in parallel.
-*              The block counter is XORed into the first 8 bytes of the IV.
+* \param[out] prng *p : t.b.d.
 *
-* Arguments:   - prng                   *p:   t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static void fsmsw_falcon_prng_Refill(prng *p)
 {
   static const uint32 CW[] = {0x61707865, 0x3320646e, 0x79622d32, 0x6b206574};
@@ -85,6 +109,8 @@ static void fsmsw_falcon_prng_Refill(prng *p)
   uint64 cc = 0;
   uint32 u  = 0;
 
+  /* polyspace +6 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +4 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* State uses local endianness. Only the output bytes must be converted to little endian (if used on a
@@ -119,6 +145,8 @@ static void fsmsw_falcon_prng_Refill(prng *p)
 
     for (v = 4; v < 14u; v++)
     {
+      /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+          Ensured proper alignment and validity." */
       /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
           Ensured proper alignment and validity." */
       state[v] = state[v] + ((uint32 *)((void *)p->state.d))[v - 4u];
@@ -140,27 +168,29 @@ static void fsmsw_falcon_prng_Refill(prng *p)
     }
   }
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   *((uint64 *)((void *)(&p->state.d[48]))) = cc;
 
   p->ptr = 0;
-}
+} // end: fsmsw_falcon_prng_Refill
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Prng_Init
+
+/*====================================================================================================================*/
+/**
+* \brief Instantiate a PRNG. That PRNG will feed over the provided SHAKE256 context (in "flipped" state) to
+*        obtain its initial state.
 *
-* Description: Instantiate a PRNG. That PRNG will feed over the provided SHAKE256 context (in "flipped" state) to
-*              obtain its initial state.
+* \param[out] prng                     *p : t.b.d.
+* \param[out] inner_shake256_context *src : t.b.d.
 *
-* Arguments:   - prng                   *p:   t.b.d.
-*              - inner_shake256_context *src: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *src)
+*/
+void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
 {
   /* To ensure reproducibility for a given seed, we must enforce little-endian interpretation of the state words. */
   uint8 tmp[56] = {0};
@@ -169,10 +199,12 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *src)
   sint32 i      = 0;
   uint32 w      = 0;
 
+  /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
-  uint32 *d32 = (uint32 *)((void *)p->state.d);
-  uint64 *d64 = (uint64 *)((void *)p->state.d);
+  uint32 *const d32 = (uint32 *)((void *)p->state.d);
+  uint64 *const d64 = (uint64 *)((void *)p->state.d);
 
   FsmSw_Fips202_Shake256_IncSqueeze(tmp, 56, src);
 
@@ -187,19 +219,18 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *src)
   th                        = d32[52u / sizeof(uint32)];
   d64[48u / sizeof(uint64)] = tl + (th << 32);
   fsmsw_falcon_prng_Refill(p);
-}
+} // end: FsmSw_Falcon_Prng_Init
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Prng_GetBytes
+/*====================================================================================================================*/
+/**
+* \brief Get some bytes from a PRNG.
 *
-* Description: Get some bytes from a PRNG.
+* \param[out] prng    *p : t.b.d.
+* \param[out] void  *dst : t.b.d.
+* \param[out] uint32 len : t.b.d.
 *
-* Arguments:   - prng   *p:   t.b.d.
-*              - void   *dst: t.b.d.
-*              - uint32  len: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Prng_GetBytes(prng *p, void *dst, uint32 len)
+*/
+void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
 {
   uint8 *buf  = (uint8 *)NULL_PTR;
   uint32 clen = 0;
@@ -207,6 +238,8 @@ void FsmSw_Falcon_Prng_GetBytes(prng *p, void *dst, uint32 len)
   /* len_temp is used to avoid modifying the input. */
   uint32 len_temp = len;
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   buf = dst;
@@ -229,17 +262,16 @@ void FsmSw_Falcon_Prng_GetBytes(prng *p, void *dst, uint32 len)
       fsmsw_falcon_prng_Refill(p);
     }
   }
-}
+} // end: FsmSw_Falcon_Prng_GetBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Prng_GetU64
+/*====================================================================================================================*/
+/**
+* \brief  Get a 64-bit random value from a PRNG.
 *
-* Description:  Get a 64-bit random value from a PRNG.
+* \param[out] prng *p : t.b.d.
 *
-* Arguments:   - prng   *p:   t.b.d.
-*
-***********************************************************************************************************************/
-uint64 FsmSw_Falcon_Prng_GetU64(prng *p)
+*/
+uint64 FsmSw_Falcon_Prng_GetU64(prng *const p)
 {
   uint32 u = 0;
 
@@ -257,17 +289,16 @@ uint64 FsmSw_Falcon_Prng_GetU64(prng *p)
                   ((uint64)p->buf.d[u + 3u] << 24) | ((uint64)p->buf.d[u + 4u] << 32) |
                   ((uint64)p->buf.d[u + 5u] << 40) | ((uint64)p->buf.d[u + 6u] << 48) |
                   ((uint64)p->buf.d[u + 7u] << 56));
-}
+} // end: FsmSw_Falcon_Prng_GetU64
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Prng_GetU8
+/*====================================================================================================================*/
+/**
+* \brief  Get an 8-bit random value from a PRNG.
 *
-* Description:  Get an 8-bit random value from a PRNG.
+* \param[out] prng *p : t.b.d.
 *
-* Arguments:   - prng   *p:   t.b.d.
-*
-***********************************************************************************************************************/
-uint32 FsmSw_Falcon_Prng_GetU8(prng *p)
+*/
+uint32 FsmSw_Falcon_Prng_GetU8(prng *const p)
 {
   uint32 v = 0;
 
@@ -278,4 +309,8 @@ uint32 FsmSw_Falcon_Prng_GetU8(prng *p)
     fsmsw_falcon_prng_Refill(p);
   }
   return v;
-}
+} // end: FsmSw_Falcon_Prng_GetU8
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

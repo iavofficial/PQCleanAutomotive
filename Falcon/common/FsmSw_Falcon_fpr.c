@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_fpr
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_fpr.c
+* \brief  description of FsmSw_Falcon_fpr.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Floating-point operations.
  * This file implements the non-inline functions declared in fpr.h, as well as the constants for FFT / iFFT. */
 
@@ -66,7 +85,6 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Falcon_fpr.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -84,6 +102,10 @@ static const uint64 C[] = {0x00000004741183A3u, 0x00000036548CFC06u, 0x0000024FD
                            0x8000000000000000u};
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -96,7 +118,7 @@ static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n);
 static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n);
 static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m);
 static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y);
-static void fsmsw_falcon_fpr_Norm64(uint64 *mp, sint32 *ep);
+static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -105,19 +127,18 @@ static void fsmsw_falcon_fpr_Norm64(uint64 *mp, sint32 *ep);
  * The lowest bit is "sticky" (it is set to 1 if any of the bits below it is 1); when re-encoding, the low two bits are
  * dropped, but may induce an increment in the value for proper rounding. */
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Ursh
+/*====================================================================================================================*/
+/**
+* \brief Right-shift a 64-bit unsigned value by a possibly secret shift count. We assumed that the underlying
+*        architecture had a barrel shifter for 32-bit shifts, but for 64-bit shifts on a 32-bit system, this will
+*        typically invoke a software routine that is not necessarily constant-time; hence the function below.
 *
-* Description: Right-shift a 64-bit unsigned value by a possibly secret shift count. We assumed that the underlying
-*              architecture had a barrel shifter for 32-bit shifts, but for 64-bit shifts on a 32-bit system, this will
-*              typically invoke a software routine that is not necessarily constant-time; hence the function below.
+* \param[in] uint64 x : t.b.d.
+* \param[in] sint32 n : Shift count n MUST be in the 0..63 range.
 *
-* Arguments:   - uint64 x: t.b.d.
-*              - sint32 n: Shift count n MUST be in the 0..63 range.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint64 fsmsw_falcon_fpr_Ursh(uint64 x, sint32 n)
 {
   /* x_temp is used to avoid modifying the input. */
@@ -125,24 +146,23 @@ static uint64 fsmsw_falcon_fpr_Ursh(uint64 x, sint32 n)
 
   x_temp ^= (x_temp ^ (x_temp >> 32)) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)n >> 5))));
   return x_temp >> ((uint64)n & 31u);
-}
+} // end: fsmsw_falcon_fpr_Ursh
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Irsh
+/*====================================================================================================================*/
+/**
+* \brief Right-shift a 64-bit signed value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
 *
-* Description: Right-shift a 64-bit signed value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
+* \param[in] sint64 x : t.b.d.
+* \param[in] sint32 n : Shift count n MUST be in the 0..63 range.
 *
-* Arguments:   - sint64 x: t.b.d.
-*              - sint32 n: Shift count n MUST be in the 0..63 range.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
 {
-  sint64 temp3 = 0;
-  uint64 temp2 = 0;
-  sint64 temp1 = ((-1) * (sint64)((uint64)((uint64)n >> 5)));
+  sint64 temp3       = 0;
+  uint64 temp2       = 0;
+  sint64 const temp1 = ((-1) * (sint64)((uint64)((uint64)n >> 5)));
 
   /* x_temp is used to avoid modifying the input. */
   sint64 x_temp = x;
@@ -161,19 +181,18 @@ static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
   x_temp = (sint64)((uint64)((uint64)x_temp ^ (uint64)((uint64)temp3 & (uint64)temp1)));
 
   return (sint64)((uint64)((uint64)x_temp >> ((uint64)n & 31u)));
-}
+} // end: fsmsw_falcon_fpr_Irsh
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Ulsh
+/*====================================================================================================================*/
+/**
+* \brief Left-shift a 64-bit unsigned value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
 *
-* Description: Left-shift a 64-bit unsigned value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
+* \param[in] uint64 x : t.b.d.
+* \param[in] sint32 n : Shift count n MUST be in the 0..63 range.
 *
-* Arguments:   - uint64 x: t.b.d.
-*              - sint32 n: Shift count n MUST be in the 0..63 range.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n)
 {
   /* x_temp is used to avoid modifying the input. */
@@ -181,24 +200,23 @@ static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n)
 
   x_temp ^= (x_temp ^ (x_temp << 32u)) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)n >> 5))));
   return x_temp << ((uint64)n & 31u);
-}
+} // end: fsmsw_falcon_fpr_Ulsh
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_CheckExponent
+/*====================================================================================================================*/
+/**
+* \brief Numerical value is (-1)^2 * m * 2^e. Exponents which are too low lead to value zero. If the exponent is
+*        too large, the returned value is indeterminate.
+*        If m = 0, then a zero is returned (using the provided sign).
+*        If e < -1076, then a zero is returned (regardless of the value of m).
+*        If e >= -1076 and e != 0, m must be within the expected range (2^54 to 2^55-1).
 *
-* Description: Numerical value is (-1)^2 * m * 2^e. Exponents which are too low lead to value zero. If the exponent is
-*              too large, the returned value is indeterminate.
-*              If m = 0, then a zero is returned (using the provided sign).
-*              If e < -1076, then a zero is returned (regardless of the value of m).
-*              If e >= -1076 and e != 0, m must be within the expected range (2^54 to 2^55-1).
+* \param[in] sint32 s : s = 0 or 1
+* \param[in] sint32 e : exponent e is "arbitrary"
+* \param[in] uint64 m : unbiased 2^54 <= m < 2^55
 *
-* Arguments:   - sint32 s: s = 0 or 1
-*              - sint32 e: exponent e is "arbitrary"
-*              - uint64 m: unbiased 2^54 <= m < 2^55
+* \returns x
 *
-* Returns x
-*
-***********************************************************************************************************************/
+*/
 static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
 {
   fpr x       = 0;
@@ -234,17 +252,16 @@ static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
   return x;
 }
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Div
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
+* \param[in] fpr y : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
-*              - fpr y: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
 {
   uint64 xu = 0;
@@ -309,24 +326,23 @@ static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
 
   /* fsmsw_falcon_fpr_CheckExponent() packs the result and applies proper rounding. */
   return fsmsw_falcon_fpr_CheckExponent(s, e, q);
-}
+} // end: fsmsw_falcon_fpr_Div
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Scaled
+/*====================================================================================================================*/
+/**
+* \brief To convert from sint32 to float, we have to do the following:
+*        1. Get the absolute value of the input, and its sign
+*        2. Shift right or left the value as appropriate
+*        3. Pack the result
 *
-* Description: To convert from sint32 to float, we have to do the following:
-*              1. Get the absolute value of the input, and its sign
-*              2. Shift right or left the value as appropriate
-*              3. Pack the result
+*        We can assume that the source integer is not -2^63.
 *
-*             We can assume that the source integer is not -2^63.
+* \param[in] sint64  x : t.b.d.
+* \param[in] sint32 sc : t.b.d.
 *
-* Arguments:   - sint64 x:  t.b.d.
-*              - sint32 sc: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
 {
   sint32 s = 0;
@@ -360,23 +376,22 @@ static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
 
   /* Assemble back everything. The fsmsw_falcon_fpr_CheckExponent() function will handle cases where e is too low. */
   return fsmsw_falcon_fpr_CheckExponent(s, e, m);
-}
+} // end: fsmsw_falcon_fpr_Scaled
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_fpr_Norm64
+/*====================================================================================================================*/
+/**
+* \brief Normalize a provided unsigned integer to the 2^63..2^64-1 range by left-shifting it if necessary. The
+*        exponent e is adjusted accordingly (i.e. if the value was left-shifted by n bits, then n is subtracted
+*        from e). If source m is 0, then it remains 0, but e is altered. Both m and e must be simple variables
+*        (no expressions allowed).
 *
-* Description: Normalize a provided unsigned integer to the 2^63..2^64-1 range by left-shifting it if necessary. The
-*              exponent e is adjusted accordingly (i.e. if the value was left-shifted by n bits, then n is subtracted
-*              from e). If source m is 0, then it remains 0, but e is altered. Both m and e must be simple variables
-*              (no expressions allowed).
+* \param[in] uint64 x : t.b.d.
+* \param[in] sint32 e : t.b.d.
 *
-* Arguments:   - uint64 x:  t.b.d.
-*              - sint32 e: t.b.d.
+* \returns t.b.d.????
 *
-* Returns t.b.d.????
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_fpr_Norm64(uint64 *mp, sint32 *ep)
+*/
+static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep)
 {
   uint32 nt = 0;
 
@@ -416,36 +431,35 @@ static void fsmsw_falcon_fpr_Norm64(uint64 *mp, sint32 *ep)
 
   *mp = m;
   *ep = e;
-}
+} // end: fsmsw_falcon_fpr_Norm64
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Of
+
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] sint64 x : t.b.d.
 *
-* Arguments:   - sint64 x:  t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Of(sint64 i)
 {
   return fsmsw_falcon_fpr_Scaled(i, 0);
-}
+} // end: FsmSw_Falcon_Fpr_Of
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Rint
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x:  t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 sint64 FsmSw_Falcon_Fpr_Rint(fpr x)
 {
   uint64 m  = 0;
@@ -481,18 +495,17 @@ sint64 FsmSw_Falcon_Fpr_Rint(fpr x)
   /* Apply the sign bit. */
   s = (uint32)(x >> 63);
   return (sint64)((uint64)((m ^ (uint64)((uint32)((sint32)((-1) * (sint32)s)))) + s));
-}
+} // end: FsmSw_Falcon_Fpr_Rint
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Floor
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x:  t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
 {
   uint64 t     = 0;
@@ -525,18 +538,17 @@ sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
   xi    = (sint64)((uint64)((uint64)xi ^ (temp2 & (uint64)temp1)));
 
   return xi;
-}
+} // end: FsmSw_Falcon_Fpr_Floor
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Trunc
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x:  t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
 {
   uint64 t  = 0;
@@ -560,19 +572,18 @@ sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
   xu = (uint64)(xu ^ (uint64)((sint64)((-1) * (sint64)t))) + t;
 
   return (sint64)xu;
-}
+} // end: FsmSw_Falcon_Fpr_Trunc
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Add
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
+* \param[in] fpr y : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
-*              - fpr y: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
 {
   uint64 m  = 0;
@@ -660,19 +671,18 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
      * alter the sign in that case. */
 
   return fsmsw_falcon_fpr_CheckExponent(sx, ex, xu);
-}
+} // end: FsmSw_Falcon_Fpr_Add
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Sub
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
+* \param[in] fpr y : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
-*              - fpr y: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Sub(fpr x, fpr y)
 {
   /* y_temp is used to avoid modifying the input. */
@@ -680,18 +690,17 @@ fpr FsmSw_Falcon_Fpr_Sub(fpr x, fpr y)
 
   y_temp ^= (uint64)1 << 63;
   return FsmSw_Falcon_Fpr_Add(x, y_temp);
-}
+} // end: FsmSw_Falcon_Fpr_Sub
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Neg
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns x
 *
-* Returns x
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Neg(fpr x)
 {
   /* x_temp is used to avoid modifying the input. */
@@ -699,18 +708,17 @@ fpr FsmSw_Falcon_Fpr_Neg(fpr x)
 
   x_temp ^= (uint64)1 << 63;
   return x_temp;
-}
+} // end: FsmSw_Falcon_Fpr_Neg
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Half
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns x
 *
-* Returns x
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Half(fpr x)
 {
   /* To divide a value by 2, we just have to subtract 1 from its exponent, but we have to take care of zero. */
@@ -723,18 +731,17 @@ fpr FsmSw_Falcon_Fpr_Half(fpr x)
   t = (uint32)((uint64)(((uint64)((uint64)(x_temp >> 52) & 0x7FFu)) + 1u) >> 11);
   x_temp &= t - (fpr)1u;
   return x_temp;
-}
+} // end: FsmSw_Falcon_Fpr_Half
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Double
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns x
 *
-* Returns x
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Double(fpr x)
 {
   /* x_temp is used to avoid modifying the input. */
@@ -744,56 +751,53 @@ fpr FsmSw_Falcon_Fpr_Double(fpr x)
      * special case. */
   x_temp += (fpr)(((uint64)((uint64)(((uint64)((uint64)(x_temp >> 52) & 0x7FFu) + 0x7FFu) >> 11))) << 52);
   return x_temp;
-}
+} // end: FsmSw_Falcon_Fpr_Double
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Sqr
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Sqr(fpr x)
 {
   return FsmSw_Falcon_Fpr_Mul(x, x);
-}
+} // end: FsmSw_Falcon_Fpr_Sqr
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Inv
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Inv(fpr x)
 {
   return fsmsw_falcon_fpr_Div(4607182418800017408u, x);
-}
+} // end: FsmSw_Falcon_Fpr_Inv
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Lt
+/*====================================================================================================================*/
+/**
+* \brief If both x and y are positive, then a signed comparison yields the proper result:
+*        - For positive values, the order is preserved.
+*        - The sign bit is at the same place as in integers, so
+*        sign is preserved.
+*        Moreover, we can compute [x < y] as sgn(x-y) and the computation of x-y will not overflow.
+*        If the signs differ, then sgn(x) gives the proper result.
+*        If both x and y are negative, then the order is reversed. Hence [x < y] = sgn(y-x). We must compute this
+*        separately from sgn(x-y); simply inverting sgn(x-y) would not handle the edge case x = y properly.
 *
-* Description: If both x and y are positive, then a signed comparison yields the proper result:
-*                - For positive values, the order is preserved.
-*                - The sign bit is at the same place as in integers, so
-*                  sign is preserved.
-*              Moreover, we can compute [x < y] as sgn(x-y) and the computation of x-y will not overflow.
-*              If the signs differ, then sgn(x) gives the proper result.
-*              If both x and y are negative, then the order is reversed. Hence [x < y] = sgn(y-x). We must compute this
-*              separately from sgn(x-y); simply inverting sgn(x-y) would not handle the edge case x = y properly.
+* \param[in] fpr x : t.b.d.
+* \param[in] fpr y : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
-*              - fpr y: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
 {
   sint32 cc0   = 0;
@@ -826,19 +830,18 @@ sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
   cc1 = (sint32)((uint64)((uint64)((uint64)(((uint64)((uint64)sy - (uint64)sx))) >> 63) & 1u));
 
   return (sint32)((uint32)((uint32)cc0 ^ ((uint32)(((uint32)((uint32)cc0 ^ (uint32)cc1)) & ((x & y) >> 63)))));
-}
+} // end: FsmSw_Falcon_Fpr_Lt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Mul
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
+* \param[in] fpr y : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
-*              - fpr y: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
 {
   uint64 xu = 0;
@@ -888,7 +891,7 @@ fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
      * and z1 are 25 bits each, we just take the upper part (zu), and consider z0 and z1 only for purposes of
      * stickiness. (This is the reason why we chose 25-bit limbs above.) */
 
-  uint64 temp1 = (uint64)(((uint64)((uint64)z0 | (uint64)z1)) + (uint64)0x01FFFFFFu);
+  uint64 const temp1 = (uint64)(((uint64)((uint64)z0 | (uint64)z1)) + (uint64)0x01FFFFFFu);
   zu |= temp1 >> 25;
 
   /* We normalize zu to the 2^54..s^55-1 range: it could be one bit too large at this point. This is done with a
@@ -918,18 +921,17 @@ fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
 
   /* fsmsw_falcon_fpr_CheckExponent() packs the result and applies proper rounding. */
   return fsmsw_falcon_fpr_CheckExponent(s, e, zu);
-}
+} // end: FsmSw_Falcon_Fpr_Mul
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_Sqrt
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in] fpr x : t.b.d.
 *
-* Arguments:   - fpr x: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
 {
   uint64 xu = 0;
@@ -985,19 +987,18 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
 
   /* Apply rounding and back result. */
   return fsmsw_falcon_fpr_CheckExponent(0, e, q);
-}
+} // end: FsmSw_Falcon_Fpr_Sqrt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Fpr_ExpmP63
+/*====================================================================================================================*/
+/**
+* \brief Compute exp(x) for x such that |x| <= ln 2. We want a precision of 50 bits or so.
 *
-* Description: Compute exp(x) for x such that |x| <= ln 2. We want a precision of 50 bits or so.
+* \param[in] fpr   x : t.b.d.
+* \param[in] fpr ccs : t.b.d.
 *
-* Arguments:   - fpr x:   t.b.d.
-*              - fpr ccs: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
 {
   /* polyspace +1 MISRA2012:3.1 [Justified:]"The comment is a link and therefore contains a slash" */
@@ -1056,4 +1057,8 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
   y += (uint64)z1 * (uint64)y1;
 
   return y;
-}
+} // end: FsmSw_Falcon_Fpr_ExpmP63
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Kyber_symmetric_shake
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber_symmetric_shake.c
+* \brief  description of FsmSw_symmetric_shake.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -37,6 +56,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -51,17 +74,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Shake128_Absorb
+
+/*====================================================================================================================*/
+/**
+* \brief Absorb step of the SHAKE128 specialized for the Kyber context.
 *
-* Description: Absorb step of the SHAKE128 specialized for the Kyber context.
-*
-* Arguments:   -       xof_state *s:     pointer to (uninitialized) output Keccak state
-*              - const uint8     *seed:  pointer to KYBER_SYMBYTES input to be absorbed into state
-*              -       uint8      i:     additional byte of input
-*              -       uint8      j:     additional byte of input
-***********************************************************************************************************************/
-void FsmSw_Kyber_Shake128_Absorb(xof_state *s, const uint8 seed[KYBER_SYMBYTES], uint8 x, uint8 y)
+* \param[out] xof_state      *s : pointer to (uninitialized) output Keccak state
+* \param[in]  const uint8 *seed : pointer to KYBER_SYMBYTES input to be absorbed into state
+* \param[in]  uint8           i : additional byte of input
+* \param[in]  uint8           j : additional byte of input
+*/
+void FsmSw_Kyber_Shake128_Absorb(xof_state *const s, const uint8 seed[KYBER_SYMBYTES], uint8 x, uint8 y)
 {
   uint8 extseed[KYBER_SYMBYTES + 2u] = {0};
 
@@ -70,20 +93,19 @@ void FsmSw_Kyber_Shake128_Absorb(xof_state *s, const uint8 seed[KYBER_SYMBYTES],
   extseed[KYBER_SYMBYTES + 1u] = y;
 
   FsmSw_Fips202_Shake128_Absorb(s, extseed, sizeof(extseed));
-}
+} // end: FsmSw_Kyber_Shake128_Absorb
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Shake256_Prf
+/*====================================================================================================================*/
+/**
+* \brief Usage of SHAKE256 as a PRF, concatenates secret and public input
+*        and then generates outlen bytes of SHAKE256 output
 *
-* Description: Usage of SHAKE256 as a PRF, concatenates secret and public input
-*              and then generates outlen bytes of SHAKE256 output
-*
-* Arguments:   -       uint8  *out:    pointer to output
-*              -       uint32  outlen: number of requested output bytes
-*              - const uint8  *key:    pointer to the key (of length KYBER_SYMBYTES)
-*              -       uint8   nonce:  single-byte nonce (public PRF input)
-***********************************************************************************************************************/
-void FsmSw_Kyber_Shake256_Prf(uint8 *out, uint32 outlen, const uint8 key[KYBER_SYMBYTES], uint8 nonce)
+* \param[out] uint8       *out : pointer to output
+* \param[out] uint32    outlen : number of requested output bytes
+* \param[in]  const uint8 *key : pointer to the key (of length KYBER_SYMBYTES)
+* \param[in]  uint8      nonce : single-byte nonce (public PRF input)
+*/
+void FsmSw_Kyber_Shake256_Prf(uint8 *const out, uint32 outlen, const uint8 key[KYBER_SYMBYTES], uint8 nonce)
 {
   uint8 extkey[KYBER_SYMBYTES + 1u] = {0};
 
@@ -91,4 +113,8 @@ void FsmSw_Kyber_Shake256_Prf(uint8 *out, uint32 outlen, const uint8 key[KYBER_S
   extkey[KYBER_SYMBYTES] = nonce;
 
   FsmSw_Fips202_Shake256(out, outlen, extkey, sizeof(extkey));
-}
+} // end: FsmSw_Kyber_Shake256_Prf
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

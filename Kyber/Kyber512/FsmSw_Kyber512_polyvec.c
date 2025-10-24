@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber512
+*    includes the modules for Kyber512
+ ** @{ */
+/** \addtogroup Kyber512_polyvec
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber512_polyvec.c
+* \brief  description of FsmSw_Kyber512_polyvec.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -37,6 +56,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -51,15 +74,15 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_Compress
+
+/*====================================================================================================================*/
+/**
+* \brief Compress and serialize vector of polynomials
 *
-* Description: Compress and serialize vector of polynomials
-*
-* Arguments:   -       uint8   *r: pointer to output byte array
-*              - const polyvec *a: pointer to input vector of polynomials
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Polyvec_Compress(uint8 r[KYBER512_POLYVECCOMPRESSEDBYTES], const polyvec512 *a)
+* \param[out] uint8         *r : pointer to output byte array
+* \param[in]  const polyvec *a : pointer to input vector of polynomials
+*/
+void FsmSw_Kyber512_Polyvec_Compress(uint8 r[KYBER512_POLYVECCOMPRESSEDBYTES], const polyvec512 *const a)
 {
   uint8 i     = 0;
   uint8 k     = 0;
@@ -92,18 +115,17 @@ void FsmSw_Kyber512_Polyvec_Compress(uint8 r[KYBER512_POLYVECCOMPRESSEDBYTES], c
       r_temp    = &(r_temp[5]);
     }
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_Compress
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_Decompress
+/*====================================================================================================================*/
+/**
+* \brief De-serialize and decompress vector of polynomials;
+*        approximate inverse of FsmSw_Kyber512_Polyvec_Compress
 *
-* Description: De-serialize and decompress vector of polynomials;
-*              approximate inverse of FsmSw_Kyber512_Polyvec_Compress
-*
-* Arguments:   -       polyvec512 *r: pointer to output vector of polynomials
-*              - const uint8      *a: pointer to input byte array of length KYBER512_POLYVECCOMPRESSEDBYTES
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Polyvec_Decompress(polyvec512 *r, const uint8 a[KYBER512_POLYVECCOMPRESSEDBYTES])
+* \param[out] polyvec512  *r : pointer to output vector of polynomials
+* \param[in]  const uint8 *a : pointer to input byte array of length KYBER512_POLYVECCOMPRESSEDBYTES
+*/
+void FsmSw_Kyber512_Polyvec_Decompress(polyvec512 *const r, const uint8 a[KYBER512_POLYVECCOMPRESSEDBYTES])
 {
   uint8 i     = 0;
   uint8 k     = 0;
@@ -130,17 +152,16 @@ void FsmSw_Kyber512_Polyvec_Decompress(polyvec512 *r, const uint8 a[KYBER512_POL
       }
     }
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_Decompress
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_ToBytes
+/*====================================================================================================================*/
+/**
+* \brief Serialize vector of polynomials
 *
-* Description: Serialize vector of polynomials
-*
-* Arguments:   -       uint8      *r: pointer to output byte array  of length KYBER512_POLYVECBYTES
-*              - const polyvec512 *a: pointer to input vector of polynomials
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Polyvec_ToBytes(uint8 r[KYBER512_POLYVECBYTES], const polyvec512 *a)
+* \param[out] uint8            *r : pointer to output byte array  of length KYBER512_POLYVECBYTES
+* \param[in]  const polyvec512 *a : pointer to input vector of polynomials
+*/
+void FsmSw_Kyber512_Polyvec_ToBytes(uint8 r[KYBER512_POLYVECBYTES], const polyvec512 *const a)
 {
   uint8 i = 0;
 
@@ -148,17 +169,16 @@ void FsmSw_Kyber512_Polyvec_ToBytes(uint8 r[KYBER512_POLYVECBYTES], const polyve
   {
     FsmSw_Kyber_Poly_ToBytes(&(r[i * KYBER_POLYBYTES]), &a->vec[i]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_ToBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_FromBytes
+/*====================================================================================================================*/
+/**
+* \brief De-serialize vector of polynomials;
+*        inverse of FsmSw_Kyber512_Polyvec_ToBytes
 *
-* Description: De-serialize vector of polynomials;
-*              inverse of FsmSw_Kyber512_Polyvec_ToBytes
-*
-* Arguments:   -       uint8      *r: pointer to output byte array
-*              - const polyvec512 *a: pointer to input vector of polynomials of length KYBER512_POLYVECBYTES
-***********************************************************************************************************************/
+* \param[out] uint8            *r : pointer to output byte array
+* \param[in]  const polyvec512 *a : pointer to input vector of polynomials of length KYBER512_POLYVECBYTES
+*/
 void FsmSw_Kyber512_Polyvec_FromBytes(polyvec512 *r, const uint8 a[KYBER512_POLYVECBYTES])
 {
   uint8 i = 0;
@@ -167,15 +187,14 @@ void FsmSw_Kyber512_Polyvec_FromBytes(polyvec512 *r, const uint8 a[KYBER512_POLY
   {
     FsmSw_Kyber_Poly_FromBytes(&r->vec[i], &a[i * KYBER_POLYBYTES]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_FromBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_Ntt
+/*====================================================================================================================*/
+/**
+* \brief Apply forward NTT to all elements of a vector of polynomials
 *
-* Description: Apply forward NTT to all elements of a vector of polynomials
-*
-* Arguments:   - polyvec512 *r: pointer to in/output vector of polynomials
-***********************************************************************************************************************/
+* \param[in,out] polyvec512 *r : pointer to in/output vector of polynomials
+*/
 void FsmSw_Kyber512_Polyvec_Ntt(polyvec512 *r)
 {
   uint8 i = 0;
@@ -184,16 +203,15 @@ void FsmSw_Kyber512_Polyvec_Ntt(polyvec512 *r)
   {
     FsmSw_Kyber_Poly_Ntt(&r->vec[i]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_Ntt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_InvnttTomont
+/*====================================================================================================================*/
+/**
+* \brief Apply inverse NTT to all elements of a vector of polynomials
+*        and multiply by Montgomery factor 2^16
 *
-* Description: Apply inverse NTT to all elements of a vector of polynomials
-*              and multiply by Montgomery factor 2^16
-*
-* Arguments:   - polyvec512 *r: pointer to in/output vector of polynomials
-***********************************************************************************************************************/
+* \param[in,out] polyvec512 *r : pointer to in/output vector of polynomials
+*/
 void FsmSw_Kyber512_Polyvec_InvnttTomont(polyvec512 *r)
 {
   uint8 i = 0;
@@ -202,19 +220,18 @@ void FsmSw_Kyber512_Polyvec_InvnttTomont(polyvec512 *r)
   {
     FsmSw_Kyber_Poly_InvnttTomont(&r->vec[i]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_InvnttTomont
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_BasemulAccMontgomery
+/*====================================================================================================================*/
+/**
+* \brief Multiply elements of a and b in NTT domain, accumulate into r,
+*        and multiply by 2^-16.
 *
-* Description: Multiply elements of a and b in NTT domain, accumulate into r,
-*              and multiply by 2^-16.
-*
-* Arguments: -       poly    *r: pointer to output polynomial
-*            - const polyvec512 *a: pointer to first input vector of polynomials
-*            - const polyvec512 *b: pointer to second input vector of polynomials
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Polyvec_BasemulAccMontgomery(poly *r, const polyvec512 *a, const polyvec512 *b)
+* \param[out] poly             *r : pointer to output polynomial
+* \param[in]  const polyvec512 *a : pointer to first input vector of polynomials
+* \param[in]  const polyvec512 *b : pointer to second input vector of polynomials
+*/
+void FsmSw_Kyber512_Polyvec_BasemulAccMontgomery(poly *const r, const polyvec512 *const a, const polyvec512 *const b)
 {
   uint8 i = 0;
   poly t  = {{0}};
@@ -228,17 +245,16 @@ void FsmSw_Kyber512_Polyvec_BasemulAccMontgomery(poly *r, const polyvec512 *a, c
   }
 
   FsmSw_Kyber_Poly_Reduce(r);
-}
+} // end: FsmSw_Kyber512_Polyvec_BasemulAccMontgomery
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_Reduce
+/*====================================================================================================================*/
+/**
+* \brief Applies Barrett reduction to each coefficient
+*        of each element of a vector of polynomials;
+*        for details of the Barrett reduction see comments in reduce.c
 *
-* Description: Applies Barrett reduction to each coefficient
-*              of each element of a vector of polynomials;
-*              for details of the Barrett reduction see comments in reduce.c
-*
-* Arguments:   - polyvec512 *r: pointer to input/output polynomial
-***********************************************************************************************************************/
+* \param[in,out] polyvec512 *r : pointer to input/output polynomial
+*/
 void FsmSw_Kyber512_Polyvec_Reduce(polyvec512 *r)
 {
   uint8 i = 0;
@@ -247,18 +263,17 @@ void FsmSw_Kyber512_Polyvec_Reduce(polyvec512 *r)
   {
     FsmSw_Kyber_Poly_Reduce(&r->vec[i]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_Reduce
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Polyvec_Add
+/*====================================================================================================================*/
+/**
+* \brief Add vectors of polynomials
 *
-* Description: Add vectors of polynomials
-*
-* Arguments: -       polyvec512 *r: pointer to output vector of polynomials
-*            - const polyvec512 *a: pointer to first input vector of polynomials
-*            - const polyvec512 *b: pointer to second input vector of polynomials
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Polyvec_Add(polyvec512 *r, const polyvec512 *a, const polyvec512 *b)
+* \param[out] polyvec512       *r : pointer to output vector of polynomials
+* \param[in]  const polyvec512 *a : pointer to first input vector of polynomials
+* \param[in]  const polyvec512 *b : pointer to second input vector of polynomials
+*/
+void FsmSw_Kyber512_Polyvec_Add(polyvec512 *r, const polyvec512 *const a, const polyvec512 *const b)
 {
   uint8 i = 0;
 
@@ -266,4 +281,8 @@ void FsmSw_Kyber512_Polyvec_Add(polyvec512 *r, const polyvec512 *a, const polyve
   {
     FsmSw_Kyber_Poly_Add(&r->vec[i], &a->vec[i], &b->vec[i]);
   }
-}
+} // end: FsmSw_Kyber512_Polyvec_Add
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

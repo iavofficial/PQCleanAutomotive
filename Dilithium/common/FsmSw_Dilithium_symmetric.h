@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium_symmetric
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium_symmetric.h
+* \brief  Description of FsmSw_Dilithium_symmetric.h 
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -16,28 +35,28 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_DILITHIUM_SYMMETRIC_H
 #define FSMSW_DILITHIUM_SYMMETRIC_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Dilithium_params.h"
 #include "FsmSw_Fips202.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define STREAM128_BLOCKBYTES SHAKE128_RATE
 #define STREAM256_BLOCKBYTES SHAKE256_RATE
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef shake128incctx FsmSw_Dilithium_stream128_state;
 typedef shake256incctx FsmSw_Dilithium_stream256_state;
-
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -47,7 +66,14 @@ typedef shake256incctx FsmSw_Dilithium_stream256_state;
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *state, const uint8 seed[SEEDBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *state, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
+
+void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_DILITHIUM],
+                                         uint16 nonce);
+void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_DILITHIUM],
+                                         uint16 nonce);
 
 #endif /* FSMSW_DILITHIUM_SYMMETRIC_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

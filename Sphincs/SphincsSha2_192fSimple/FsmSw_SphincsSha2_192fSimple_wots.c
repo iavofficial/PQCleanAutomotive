@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_192fSimple
+*    includes the modules for SphincsSha2_192fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_192fSimple_wots
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_192fSimple_wots.c
+* \brief  description of FsmSw_SphincsSha2_192fSimple_wots.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -32,7 +51,6 @@
 #include "FsmSw_Sphincs_utils.h"
 
 #include "FsmSw_SphincsSha2_192fSimple_wots.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -43,6 +61,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -59,10 +81,10 @@ static void fsmsw_sphincssha2_192fsimple_wots_Checksum(uint32 *csum_base_w, cons
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincssha2_192fsimple_wots_GenChain
- *
- * Description: Computes the chaining function. out and in have to be n-byte arrays.
+
+/*====================================================================================================================*/
+/** 
+ * \brief Computes the chaining function. out and in have to be n-byte arrays.
  *              Interprets in as start-th value of the chain. addr has to contain the address of the chain.
  *
  * Arguments:   -       uint8                 *out:     t.b.d.
@@ -89,10 +111,9 @@ static void fsmsw_sphincssha2_192fsimple_wots_GenChain(uint8 *out, const uint8 *
   }
 }
 
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincssha2_192fsimple_wots_BaseW
- *
- * Description: base_w algorithm as described in draft. Interprets an array of bytes as integers in base w. This only
+/*====================================================================================================================*/
+/** 
+ * \brief base_w algorithm as described in draft. Interprets an array of bytes as integers in base w. This only
  *              works when log_w is a divisor of 8.
  *
  * Arguments:   -       uint32 *output   t.b.d.
@@ -122,10 +143,9 @@ static void fsmsw_sphincssha2_192fsimple_wots_BaseW(uint32 *output, sint32 out_l
   }
 }
 
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincssha2_192fsimple_wots_Checksum
- *
- * Description: Computes the WOTS+ checksum over a message (in base_w).
+/*====================================================================================================================*/
+/** 
+ * \brief Computes the WOTS+ checksum over a message (in base_w).
  *
  * Arguments:   -       uint32                *csum_base_w: t.b.d.
  *              - const uint32                *msg_base_w:  t.b.d.
@@ -151,34 +171,35 @@ static void fsmsw_sphincssha2_192fsimple_wots_Checksum(uint32 *csum_base_w, cons
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_192fSimple_Wots_ChainLengths
+
+/*====================================================================================================================*/
+/** 
+ * \brief Takes a message and derives the matching chain lengths.
  *
- * Description: Takes a message and derives the matching chain lengths.
+ * \param[out] uint32  *lengths : t.b.d.
+ * \param[in]  const uint8 *msg : t.b.d.
  *
- * Arguments:   -       uint32 *lengths: t.b.d.
- *              - const uint8  *msg:     t.b.d.
- *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_192fSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg)
 {
   fsmsw_sphincssha2_192fsimple_wots_BaseW(lengths, (sint32)FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_LEN1, msg);
   fsmsw_sphincssha2_192fsimple_wots_Checksum(&lengths[FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_LEN1], lengths);
-}
+} // end: FsmSw_SphincsSha2_192fSimple_Wots_ChainLengths
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_192fSimple_Wots_PkFromSig
+/*====================================================================================================================*/
+/** 
+ * \brief Takes a WOTS signature and an n-byte message, computes a WOTS public key. Writes the computed public key
+ *        to 'pk'.
  *
- * Description: Takes a WOTS signature and an n-byte message, computes a WOTS public key. Writes the computed public key
- *              to 'pk'.
+ * \param[out] uint8                        *pk : t.b.d.
+ * \param[in]  const uint8                 *sig : t.b.d.
+ * \param[in]  const uint8                 *msg : t.b.d.
+ * \param[in]  const sphincs_sha2_192f_ctx *ctx : t.b.d.
+ * \param[in]  uint32                   addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                 *pk:      t.b.d.
- *              - const uint8                 *sig:     t.b.d.
- *              - const uint8                 *msg:     t.b.d.
- *              - const sphincs_sha2_192f_ctx *ctx:     t.b.d.
- *              -       uint32                 addr[8]: t.b.d.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -198,4 +219,8 @@ void FsmSw_SphincsSha2_192fSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, co
                                                &sig[i * FSMSW_SPHINCSSHA2_192FSIMPLE_N], lengths[i],
                                                FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_W - 1u - lengths[i], ctx, addr);
   }
-}
+} // end: FsmSw_SphincsSha2_192fSimple_Wots_PkFromSig
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

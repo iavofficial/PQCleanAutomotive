@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Dilithium2
+*    includes the modules for Dilithium2
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium2_sign
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium_sign.c
+* \brief  description of FsmSw_Dilithium_sign.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -54,22 +73,19 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Crypto_Sign_KeyPair
+/*====================================================================================================================*/
+/**
+* \brief Generates public and private key.
 *
-* Description: Generates public and private key.
-*
-* Arguments:   - uint8 *pk: pointer to output public key
+* \param[out] uint8 *pk : pointer to output public key
 *                           (allocated array of FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES bytes)
-*              - uint8 *sk: pointer to output private key (allocated
+* \param[out] uint8 *sk : pointer to output private key (allocated
 *                           array of FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES bytes)
-*
-* Returns 0 (success)
-***********************************************************************************************************************/
-sint8 FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+*/
+void FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
 {
-  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + CRHBYTES_DILITHIUM] = {0};
-  uint8 tr[TRBYTES_DILITHIUM]                                    = {0};
+  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + CRHBYTES_DILITHIUM] = {0u};
+  uint8 tr[TRBYTES_DILITHIUM]                                    = {0u};
   const uint8 *rho                                               = (uint8 *)NULL_PTR;
   const uint8 *rhoprime                                          = (uint8 *)NULL_PTR;
   const uint8 *key                                               = (uint8 *)NULL_PTR;
@@ -113,35 +129,35 @@ sint8 FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
   FsmSw_Fips202_Shake256(tr, TRBYTES_DILITHIUM, pk, FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES);
   FsmSw_Dilithium2_Pack_Sk(sk, rho, tr, key, &t0, &s1, &s2);
 
-  return 0;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Crypto_Sign_Signature
+  return;
+} // end: FsmSw_Dilithium2_Crypto_Sign_KeyPair
+/*====================================================================================================================*/
+/**
+* \brief Computes signature.
 *
-* Description: Computes signature.
-*
-* Arguments:   - uint8  *sig:    pointer to output signature (of length FSMSW_DILITHIUM2_CRYPTO_BYTES)
-*              - uint32 *siglen: pointer to output length of signature
-*              - uint8  *m:      pointer to message to be signed
-*              - uint32  mlen:   length of message
-*              - uint8  *sk:     pointer to bit-packed secret key
-*
-* Returns 0 (success)
-***********************************************************************************************************************/
+* \param[out] uint8     *sig : pointer to output signature (of length FSMSW_DILITHIUM2_CRYPTO_BYTES)
+* \param[out] uint32 *siglen : pointer to output length of signature
+* \param[in]  uint8       *m : pointer to message to be signed
+* \param[in]  uint32    mlen : length of message
+* \param[in]  uint8      *sk : pointer to bit-packed secret key
+*/
+/* polyspace +6 CERT-C:DCL15-C [Justified:]"This is an interface function 
+designed for use by other systems that aim to integrate the Dilithium." */
+/* polyspace +4 CERT-C:DCL19-C [Justified:]"This is an interface function 
+designed for use by other systems that aim to integrate the Dilithium." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function 
 designed for use by other systems that aim to integrate the Dilithium." */
-sint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
+void FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
 {
-  uint32 n                                                                                                       = 0;
-  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + RNDBYTES_DILITHIUM + (2u * CRHBYTES_DILITHIUM)] = {0};
+  uint32 n                                                                                                       = 0u;
+  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + RNDBYTES_DILITHIUM + (2u * CRHBYTES_DILITHIUM)] = {0u};
   uint8 *rho                    = (uint8 *)NULL_PTR;
   uint8 *tr                     = (uint8 *)NULL_PTR;
   uint8 *key                    = (uint8 *)NULL_PTR;
   uint8 *mu                     = (uint8 *)NULL_PTR;
   uint8 *rhoprime               = (uint8 *)NULL_PTR;
   uint8 *rnd                    = (uint8 *)NULL_PTR;
-  uint16 nonce                  = 0;
+  uint16 nonce                  = 0u;
   polyvecl_D2 mat[K_DILITHIUM2] = {{{{{0}}}}};
   polyvecl_D2 s1                = {{{{0}}}};
   polyvecl_D2 y                 = {{{{0}}}};
@@ -152,7 +168,7 @@ sint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const u
   polyveck_D2 w0                = {{{{0}}}};
   polyveck_D2 h                 = {{{{0}}}};
   poly_D2 cp                    = {{0}};
-  shake256incctx state          = {{0}};
+  shake256incctx state          = {{0u}};
   boolean loop                  = TRUE;
 
   rho      = seedbuf;
@@ -169,9 +185,9 @@ sint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const u
   FsmSw_Fips202_Shake256_IncAbsorb(&state, m, mlen);
   FsmSw_Fips202_Shake256_IncFinalize(&state);
   FsmSw_Fips202_Shake256_IncSqueeze(mu, CRHBYTES_DILITHIUM, &state);
-  for (n = 0; n < RNDBYTES_DILITHIUM; n++)
+  for (n = 0u; n < RNDBYTES_DILITHIUM; n++)
   {
-    rnd[n] = 0;
+    rnd[n] = 0u;
   }
   FsmSw_Fips202_Shake256(rhoprime, CRHBYTES_DILITHIUM, key,
                          SEEDBYTES_DILITHIUM + RNDBYTES_DILITHIUM + CRHBYTES_DILITHIUM);
@@ -250,82 +266,80 @@ sint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const u
   /* Write signature */
   FsmSw_Dilithium2_Pack_Sig(sig, sig, &z, &h);
   *siglen = FSMSW_DILITHIUM2_CRYPTO_BYTES;
-  return 0;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Crypto_Sign
+  return;
+} // end: FsmSw_Dilithium2_Crypto_Sign_Signature
+/*====================================================================================================================*/
+/**
+* \brief Compute signed message.
 *
-* Description: Compute signed message.
-*
-* Arguments:   -       uint8  *sm:    pointer to output signed message (allocated
+* \param[out] uint8       *sm :    pointer to output signed message (allocated
 *                                     array with FSMSW_DILITHIUM2_CRYPTO_BYTES + mlen bytes), can be equal to m
-*              -       uint32 *smlen: pointer to output length of signed message
-*              - const uint8  *m:     pointer to message to be signed
-*              -       uint32  mlen:  length of message
-*              - const uint8  *sk:    pointer to bit-packed secret key
-*
-* Returns 0 (success)
-***********************************************************************************************************************/
-sint8 FsmSw_Dilithium2_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+* \param[out] uint32   *smlen : pointer to output length of signed message
+* \param[in]  const uint8  *m : pointer to message to be signed
+* \param[in]  uint32     mlen : length of message
+* \param[in]  const uint8 *sk : pointer to bit-packed secret key
+*/
+void FsmSw_Dilithium2_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
 {
-  uint32 i = 0;
+  uint32 i = 0u;
 
-  for (i = 0; i < mlen; ++i)
+  for (i = 0u; i < mlen; ++i)
   {
     sm[FSMSW_DILITHIUM2_CRYPTO_BYTES + mlen - 1u - i] = m[mlen - 1u - i];
   }
   (void)FsmSw_Dilithium2_Crypto_Sign_Signature(sm, smlen, &sm[FSMSW_DILITHIUM2_CRYPTO_BYTES], mlen, sk);
   *smlen += mlen;
-  return 0;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Crypto_Sign_Verify
+  return;
+} // end: FsmSw_Dilithium2_Crypto_Sign
+/*====================================================================================================================*/
+/**
+* \brief Verifies signature.
 *
-* Description: Verifies signature.
+* \param[in] uint8        *m : pointer to input signature
+* \param[in] uint32   siglen : length of signature
+* \param[in] const uint8  *m : pointer to message
+* \param[in] uint32     mlen : length of message
+* \param[in] const uint8 *pk : pointer to bit-packed public key
 *
-* Arguments:   -       uint8  *m:      pointer to input signature
-*              -       uint32  siglen: length of signature
-*              - const uint8  *m:      pointer to message
-*              -       uint32  mlen:   length of message
-*              - const uint8  *pk:     pointer to bit-packed public key
-*
-* Returns 0 if signature could be verified correctly and -1 otherwise
-***********************************************************************************************************************/
+* \returns ERR_OK if signature could be verified correctly and ERR_NOT_OK otherwise
+*/
+/* polyspace +6 CERT-C:DCL15-C [Justified:]"This is an interface function 
+designed for use by other systems that aim to integrate the Dilithium." */
+/* polyspace +4 CERT-C:DCL19-C [Justified:]"This is an interface function 
+designed for use by other systems that aim to integrate the Dilithium." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function 
 designed for use by other systems that aim to integrate the Dilithium." */
-sint8 FsmSw_Dilithium2_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
+uint8 FsmSw_Dilithium2_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
 {
-  uint16 i                                                = 0;
-  uint8 buf[K_DILITHIUM2 * POLYW1_PACKEDBYTES_DILITHIUM2] = {0};
-  uint8 rho[SEEDBYTES_DILITHIUM]                          = {0};
-  uint8 mu[CRHBYTES_DILITHIUM]                            = {0};
-  uint8 c[CTILDEBYTES_DILITHIUM2]                         = {0};
-  uint8 c2[CTILDEBYTES_DILITHIUM2]                        = {0};
+  uint16 i                                                = 0u;
+  uint8 buf[K_DILITHIUM2 * POLYW1_PACKEDBYTES_DILITHIUM2] = {0u};
+  uint8 rho[SEEDBYTES_DILITHIUM]                          = {0u};
+  uint8 mu[CRHBYTES_DILITHIUM]                            = {0u};
+  uint8 c[CTILDEBYTES_DILITHIUM2]                         = {0u};
+  uint8 c2[CTILDEBYTES_DILITHIUM2]                        = {0u};
   poly_D2 cp                                              = {{0}};
   polyvecl_D2 mat[K_DILITHIUM2]                           = {{{{{0}}}}};
   polyvecl_D2 z                                           = {{{{0}}}};
   polyveck_D2 t1                                          = {{{{0}}}};
   polyveck_D2 w1                                          = {{{{0}}}};
   polyveck_D2 h                                           = {{{{0}}}};
-  shake256incctx state                                    = {{0}};
+  shake256incctx state                                    = {{0u}};
 
-  sint8 retVal = 0;
+  uint8 retVal = ERR_OK;
 
   if (siglen != FSMSW_DILITHIUM2_CRYPTO_BYTES)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   FsmSw_Dilithium2_Unpack_Pk(rho, &t1, pk);
   if (0 < FsmSw_Dilithium2_Unpack_Sig(c, &z, &h, sig))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
   if (0 < FsmSw_Dilithium2_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM2 - BETA_DILITHIUM2)))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   /* Compute CRH(H(rho, t1), msg) */
@@ -363,58 +377,60 @@ sint8 FsmSw_Dilithium2_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const
   FsmSw_Fips202_Shake256_IncAbsorb(&state, buf, K_DILITHIUM2 * POLYW1_PACKEDBYTES_DILITHIUM2);
   FsmSw_Fips202_Shake256_IncFinalize(&state);
   FsmSw_Fips202_Shake256_IncSqueeze(c2, CTILDEBYTES_DILITHIUM2, &state);
-  for (i = 0; i < CTILDEBYTES_DILITHIUM2; ++i)
+  for (i = 0u; i < CTILDEBYTES_DILITHIUM2; ++i)
   {
     if (c[i] != c2[i])
     {
-      retVal = -1;
+      retVal = ERR_NOT_OK;
     }
   }
   return retVal;
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Crypto_Sign_Open
+} // end: FsmSw_Dilithium2_Crypto_Sign_Verify
+/*====================================================================================================================*/
+/**
+* \brief Verify signed message.
 *
-* Description: Verify signed message.
+* \param[out] uint8        *m : pointer to output message (allocated array with smlen bytes), can be equal to sm
+* \param[out] uint32    *mlen : pointer to output length of message
+* \param[in]  const uint8 *sm : pointer to signed message
+* \param[in]  uint32    smlen : length of signed message
+* \param[in]  const uint8 *pk : pointer to bit-packed public key
 *
-* Arguments:   -       uint8  *m:     pointer to output message (allocated array with smlen bytes), can be equal to sm
-*              -       uint32 *mlen:  pointer to output length of message
-*              - const uint8  *sm:    pointer to signed message
-*              -       uint32  smlen: length of signed message
-*              - const uint8  *pk:    pointer to bit-packed public key
-*
-* Returns 0 if signed message could be verified correctly and -1 otherwise
-***********************************************************************************************************************/
-sint8 FsmSw_Dilithium2_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
+* \returns ERR_OK if signed message could be verified correctly and ERR_NOT_OK otherwise
+*/
+uint8 FsmSw_Dilithium2_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
 {
-  uint32 i     = 0;
-  sint8 retVal = -1;
+  uint32 i     = 0u;
+  uint8 retVal = ERR_NOT_OK;
 
   if (smlen >= FSMSW_DILITHIUM2_CRYPTO_BYTES)
   {
     *mlen = smlen - FSMSW_DILITHIUM2_CRYPTO_BYTES;
-    if (0 == FsmSw_Dilithium2_Crypto_Sign_Verify(sm, FSMSW_DILITHIUM2_CRYPTO_BYTES, &sm[FSMSW_DILITHIUM2_CRYPTO_BYTES],
-                                                 *mlen, pk))
+    if (0u == FsmSw_Dilithium2_Crypto_Sign_Verify(sm, FSMSW_DILITHIUM2_CRYPTO_BYTES, &sm[FSMSW_DILITHIUM2_CRYPTO_BYTES],
+                                                  *mlen, pk))
     {
-      /* All good, copy msg, return 0 */
-      for (i = 0; i < *mlen; ++i)
+      /* All good, copy msg, return 1 */
+      for (i = 0u; i < *mlen; ++i)
       {
         m[i] = sm[FSMSW_DILITHIUM2_CRYPTO_BYTES + i];
       }
-      retVal = 0;
+      retVal = ERR_OK;
     }
   }
 
-  if ((sint8)0u != retVal)
+  if (ERR_OK != retVal)
   {
     /* Signature verification failed */
     *mlen = UINT32_MAXVAL;
-    for (i = 0; i < smlen; ++i)
+    for (i = 0u; i < smlen; ++i)
     {
-      m[i] = 0;
+      m[i] = 0u;
     }
   }
 
   return retVal;
-}
+} // end: FsmSw_Dilithium2_Crypto_Sign_Open
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

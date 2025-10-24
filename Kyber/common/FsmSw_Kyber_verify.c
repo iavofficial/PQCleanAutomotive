@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Kyber_verify
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber_verify.c
+* \brief  description of FsmSw_symmetric_verify.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -34,6 +53,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -48,18 +71,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Verify
+
+/*====================================================================================================================*/
+/**
+* \brief Compare two arrays for equality in constant time.
 *
-* Description: Compare two arrays for equality in constant time.
+* \param[in] const uint8 *a : pointer to first byte array
+* \param[in] const uint8 *b : pointer to second byte array
+* \param[in] uint32     len : length of the byte arrays
 *
-* Arguments:   const uint8 *a:   pointer to first byte array
-*              const uint8 *b:   pointer to second byte array
-*                    uint32 len: length of the byte arrays
-*
-* Returns 0 if the byte arrays are equal, 1 otherwise
-***********************************************************************************************************************/
-uint8 FsmSw_Kyber_Verify(const uint8 *a, const uint8 *b, uint32 len)
+* \returns 0 if the byte arrays are equal, 1 otherwise
+*/
+uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
 {
   uint32 i = 0;
   uint8 r  = 0;
@@ -84,22 +107,21 @@ uint8 FsmSw_Kyber_Verify(const uint8 *a, const uint8 *b, uint32 len)
   }
 
   return (uint8)temp2;
-}
+} // end: FsmSw_Kyber_Verify
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Cmov
+/*====================================================================================================================*/
+/**
+* \brief Copy len bytes from x to r if b is 1;
+*        don't modify x if b is 0. Requires b to be in {0,1};
+*        assumes two's complement representation of negative integers.
+*        Runs in constant time.
 *
-* Description: Copy len bytes from x to r if b is 1;
-*              don't modify x if b is 0. Requires b to be in {0,1};
-*              assumes two's complement representation of negative integers.
-*              Runs in constant time.
-*
-* Arguments:   uint8 *r:       pointer to output byte array
-*              const uint8 *x: pointer to input byte array
-*              uint32 len:     Amount of bytes to be copied
-*              uint8 b:        Condition bit; has to be in {0,1}
-***********************************************************************************************************************/
-void FsmSw_Kyber_Cmov(uint8 *r, const uint8 *x, uint32 len, uint8 b)
+* \param[out] uint8       *r : pointer to output byte array
+* \param[in]  const uint8 *x : pointer to input byte array
+* \param[in]  uint32     len : Amount of bytes to be copied
+* \param[in]  uint8        b : Condition bit; has to be in {0,1}
+*/
+void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
 {
   uint32 i     = 0;
   sint8 b_sint = 0;
@@ -110,4 +132,8 @@ void FsmSw_Kyber_Cmov(uint8 *r, const uint8 *x, uint32 len, uint8 b)
   {
     r[i] = r[i] ^ ((uint8)b_sint & (r[i] ^ x[i]));
   }
-}
+} // end: FsmSw_Kyber_Cmov
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Dilithium2
+*    includes the modules for Dilithium2
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium2_packing
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium2_packing.c
+* \brief  description of FsmSw_Dilithium2_packing.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -37,6 +56,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -45,20 +68,22 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
-/* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
+/* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Pack_Pk
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTION DEFINITIONS                                                                                        */
+/**********************************************************************************************************************/
+/*====================================================================================================================*/
+/** 
+* \brief Bit-pack public key pk = (rho, t1).
 *
-* Description: Bit-pack public key pk = (rho, t1).
-*
-* Arguments:   -       uint8        pk[]:  output byte array
-*              - const uint8        rho[]: byte array containing rho
-*              - const polyveck_D2 *t1:    pointer to vector t1
-***********************************************************************************************************************/
+* \param[out]  uint8 pk[]             : output byte array
+* \param[in]   const uint8 rho[]      : byte array containing rho
+* \param[in]   const polyveck_D2 *t1  : pointer to vector t1
+*/
 void FsmSw_Dilithium2_Pack_Pk(uint8 pk[FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES], const uint8 rho[SEEDBYTES_DILITHIUM],
-                              const polyveck_D2 *t1)
+                              const polyveck_D2 *const t1)
 {
   uint16 i = 0;
   /* pk_temp is used to avoid modifying the input. */
@@ -74,17 +99,15 @@ void FsmSw_Dilithium2_Pack_Pk(uint8 pk[FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES], 
   {
     FsmSw_Dilithium2_Poly_T1Pack(&pk_temp[i * POLYT1_PACKEDBYTES_DILITHIUM], &t1->vec[i]);
   }
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Unpack_Pk
+} // end: FsmSw_Dilithium2_Pack_Pk
+/*====================================================================================================================*/
+/** 
+* \brief Unpack public key pk = (rho, t1).
 *
-* Description: Unpack public key pk = (rho, t1).
-*
-* Arguments:   -       uint8        rho[]: output byte array for rho
-*              -       polyveck_D2 *t1:    pointer to output vector t1
-*              - const uint8        pk[]:  byte array containing bit-packed pk
-***********************************************************************************************************************/
+* \param[out] uint8      rho[] : output byte array for rho
+* \param[out] polyveck_D2  *t1 : pointer to output vector t1
+* \param[in]  const uint8 pk[] : byte array containing bit-packed pk
+*/
 void FsmSw_Dilithium2_Unpack_Pk(uint8 rho[SEEDBYTES_DILITHIUM], polyveck_D2 *t1,
                                 const uint8 pk[FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES])
 {
@@ -102,24 +125,22 @@ void FsmSw_Dilithium2_Unpack_Pk(uint8 rho[SEEDBYTES_DILITHIUM], polyveck_D2 *t1,
   {
     FsmSw_Dilithium2_Poly_T1Unpack(&t1->vec[i], &pk_temp[i * POLYT1_PACKEDBYTES_DILITHIUM]);
   }
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Pack_Sk
+} // end: FsmSw_Dilithium2_Unpack_Pk
+/*====================================================================================================================*/
+/** 
+* \brief Bit-pack secret key sk = (rho, tr, key, t0, s1, s2).
 *
-* Description: Bit-pack secret key sk = (rho, tr, key, t0, s1, s2).
-*
-* Arguments:   -       uint8        sk[]:  output byte array
-*              - const uint8        rho[]: byte array containing rho
-*              - const uint8        tr[]:  byte array containing tr
-*              - const uint8        key[]: byte array containing key
-*              - const polyveck_D2 *t0:    pointer to vector t0
-*              - const polyvecl_D2 *s1:    pointer to vector s1
-*              - const polyveck_D2 *s2:    pointer to vector s2
-***********************************************************************************************************************/
+* \param[out] uint8            sk[] : output byte array
+* \param[in]  const uint8     rho[] : byte array containing rho
+* \param[in]  const uint8      tr[] : byte array containing tr
+* \param[in]  const uint8     key[] : byte array containing key
+* \param[in]  const polyveck_D2 *t0 : pointer to vector t0
+* \param[in]  const polyvecl_D2 *s1 : pointer to vector s1
+* \param[in]  const polyveck_D2 *s2 : pointer to vector s2
+*/
 void FsmSw_Dilithium2_Pack_Sk(uint8 sk[FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES], const uint8 rho[SEEDBYTES_DILITHIUM],
                               const uint8 tr[TRBYTES_DILITHIUM], const uint8 key[SEEDBYTES_DILITHIUM],
-                              const polyveck_D2 *t0, const polyvecl_D2 *s1, const polyveck_D2 *s2)
+                              const polyveck_D2 *const t0, const polyvecl_D2 *const s1, const polyveck_D2 *const s2)
 {
   uint16 i = 0;
   /* sk_temp is used to avoid modifying the input. */
@@ -159,21 +180,19 @@ void FsmSw_Dilithium2_Pack_Sk(uint8 sk[FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES], 
   {
     FsmSw_Dilithium2_Poly_T0Pack(&sk_temp[i * POLYT0_PACKEDBYTES_DILITHIUM], &t0->vec[i]);
   }
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Unpack_Sk
-*
+} // end: FsmSw_Dilithium2_Pack_Sk
+/*====================================================================================================================*/
+/** 
 * Description: Unpack secret key sk = (rho, tr, key, t0, s1, s2).
 *
-* Arguments:   -       uint8        rho[]: output byte array for rho
-*              -       uint8        tr[]:  output byte array for tr
-*              -       uint8        key[]: output byte array for key
-*              -       polyveck_D2 *t0:    pointer to output vector t0
-*              -       polyvecl_D2 *s1:    pointer to output vector s1
-*              -       polyveck_D2 *s2:    pointer to output vector s2
-*              - const uint8        sk[]:  byte array containing bit-packed sk
-***********************************************************************************************************************/
+* \param[out] uint8      rho[] : output byte array for rho
+* \param[out] uint8       tr[] : output byte array for tr
+* \param[out] uint8      key[] : output byte array for key
+* \param[out] polyveck_D2  *t0 : pointer to output vector t0
+* \param[out] polyvecl_D2  *s1 : pointer to output vector s1
+* \param[out] polyveck_D2  *s2 : pointer to output vector s2
+* \param[in]  const uint8 sk[] : byte array containing bit-packed sk
+*/
 void FsmSw_Dilithium2_Unpack_Sk(uint8 rho[SEEDBYTES_DILITHIUM], uint8 tr[TRBYTES_DILITHIUM],
                                 uint8 key[SEEDBYTES_DILITHIUM], polyveck_D2 *t0, polyvecl_D2 *s1, polyveck_D2 *s2,
                                 const uint8 sk[FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES])
@@ -216,20 +235,18 @@ void FsmSw_Dilithium2_Unpack_Sk(uint8 rho[SEEDBYTES_DILITHIUM], uint8 tr[TRBYTES
   {
     FsmSw_Dilithium2_Poly_T0Unpack(&t0->vec[i], &sk_temp[i * POLYT0_PACKEDBYTES_DILITHIUM]);
   }
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Pack_Sig
+} // end: FsmSw_Dilithium2_Unpack_Sk
+/*====================================================================================================================*/
+/** 
+* \brief Bit-pack signature sig = (c, z, h).
 *
-* Description: Bit-pack signature sig = (c, z, h).
-*
-* Arguments:   -       uint8        sig[]: output byte array
-*              - const uint8       *c:     pointer to FsmSw_Dilithium2_Challenge hash length SEEDBYTES_DILITHIUM
-*              - const polyvecl_D2 *z:     pointer to vector z
-*              - const polyveck_D2 *h:     pointer to hint vector h
-***********************************************************************************************************************/
+* \param[out] uint8          sig[] : output byte array
+* \param[in]  const uint8       *c : pointer to FsmSw_Dilithium2_Challenge hash length SEEDBYTES_DILITHIUM
+* \param[in]  const polyvecl_D2 *z : pointer to vector z
+* \param[in]  const polyveck_D2 *h : pointer to hint vector h
+*/
 void FsmSw_Dilithium2_Pack_Sig(uint8 sig[FSMSW_DILITHIUM2_CRYPTO_BYTES], const uint8 c[CTILDEBYTES_DILITHIUM2],
-                               const polyvecl_D2 *z, const polyveck_D2 *h)
+                               const polyvecl_D2 *const z, const polyveck_D2 *const h)
 {
   uint16 i = 0;
   uint16 j = 0;
@@ -269,21 +286,19 @@ void FsmSw_Dilithium2_Pack_Sig(uint8 sig[FSMSW_DILITHIUM2_CRYPTO_BYTES], const u
 
     sig_temp[OMEGA_DILITHIUM2 + i] = (uint8)k;
   }
-}
-
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium2_Unpack_Sig
+} // end: FsmSw_Dilithium2_Pack_Sig
+/*====================================================================================================================*/
+/** 
+* \brief Unpack signature sig = (c, z, h).
 *
-* Description: Unpack signature sig = (c, z, h).
-*
-* Arguments:   -       uint8       *c:     pointer to output FsmSw_Dilithium2_Challenge hash
-*              -       polyvecl_D2 *z:     pointer to output vector z
-*              -       polyveck_D2 *h:     pointer to output hint vector h
-*              - const uint8        sig[]: byte array containing bit-packed signature
+* \param[out]  uint8          *c : pointer to output FsmSw_Dilithium2_Challenge hash
+* \param[in]   polyvecl_D2    *z : pointer to output vector z
+* \param[in]   polyveck_D2    *h : pointer to output hint vector h
+* \param[in]   const uint8 sig[] : byte array containing bit-packed signature
 *
 * Returns 1 in case of malformed signature; otherwise 0.
-***********************************************************************************************************************/
-sint8 FsmSw_Dilithium2_Unpack_Sig(uint8 c[CTILDEBYTES_DILITHIUM2], polyvecl_D2 *z, polyveck_D2 *h,
+*/
+sint8 FsmSw_Dilithium2_Unpack_Sig(uint8 c[CTILDEBYTES_DILITHIUM2], polyvecl_D2 *z, polyveck_D2 *const h,
                                   const uint8 sig[FSMSW_DILITHIUM2_CRYPTO_BYTES])
 {
   uint16 i     = 0;
@@ -342,4 +357,8 @@ sint8 FsmSw_Dilithium2_Unpack_Sig(uint8 c[CTILDEBYTES_DILITHIUM2], polyvecl_D2 *
   }
 
   return retVal;
-}
+} // end: FsmSw_Dilithium2_Unpack_Sig
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

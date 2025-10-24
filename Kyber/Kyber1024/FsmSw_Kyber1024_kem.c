@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber1024
+*    includes the modules for Kyber1024
+ ** @{ */
+/** \addtogroup Kyber1024_kem
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber1024_kem.c
+* \brief  description of FsmSw_Kyber1024_kem.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -39,6 +58,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -53,18 +76,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Crypto_Kem_KeyPair
+
+/*====================================================================================================================*/
+/**
+* \brief Generates public and private key
+*        for CCA-secure Kyber key encapsulation mechanism
 *
-* Description: Generates public and private key
-*              for CCA-secure Kyber key encapsulation mechanism
-*
-* Arguments:   - uint8 *pk: pointer to output public key (of length KYBER1024_PUBLICKEYBYTES bytes)
-*              - uint8 *sk: pointer to output private key (of length KYBER1024_SECRETKEYBYTES bytes)
-*
-* Returns 0 (success)
-***********************************************************************************************************************/
-uint8 FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk)
+* \param[out] uint8 *pk : pointer to output public key (of length KYBER1024_PUBLICKEYBYTES bytes)
+* \param[out] uint8 *sk : pointer to output private key (of length KYBER1024_SECRETKEYBYTES bytes)
+*/
+void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk)
 {
   uint32 i = 0;
 
@@ -80,22 +101,19 @@ uint8 FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk)
   /* Value z for pseudo-random output on reject */
   (void)FsmSw_CommonLib_RandomBytes(&sk[KYBER1024_SECRETKEYBYTES - KYBER_SYMBYTES], KYBER_SYMBYTES);
 
-  return 0;
-}
+  return;
+} // end: FsmSw_Kyber1024_Crypto_Kem_KeyPair
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Crypto_Kem_Enc
+/*====================================================================================================================*/
+/**
+* \brief Generates cipher text and shared
+*        secret for given public key
 *
-* Description: Generates cipher text and shared
-*              secret for given public key
-*
-* Arguments:   - uint8       *ct: pointer to output cipher text (of length KYBER1024_CIPHERTEXTBYTES bytes)
-*              - uint8       *ss: pointer to output shared secret (of length KYBER_SSBYTES bytes)
-*              - const uint8 *pk: pointer to input public key (of length KYBER1024_PUBLICKEYBYTES bytes)
-*
-* Returns 0 (success)
-***********************************************************************************************************************/
-uint8 FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk)
+* \param[out] uint8       *ct : pointer to output cipher text (of length KYBER1024_CIPHERTEXTBYTES bytes)
+* \param[out] uint8       *ss : pointer to output shared secret (of length KYBER_SSBYTES bytes)
+* \param[in]  const uint8 *pk : pointer to input public key (of length KYBER1024_PUBLICKEYBYTES bytes)
+*/
+void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk)
 {
   uint8 buf[2u * KYBER_SYMBYTES] = {0};
   /* Will contain key, coins */
@@ -117,24 +135,21 @@ uint8 FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk)
   /* hash concatenation of pre-k and H(c) to k */
   FsmSw_Fips202_Shake256(ss, KYBER_SSBYTES, kr, 2u * KYBER_SYMBYTES);
 
-  return 0;
-}
+  return;
+} // end: FsmSw_Kyber1024_Crypto_Kem_Enc
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Crypto_Kem_Dec
+/*====================================================================================================================*/
+/**
+* \brief Generates shared secret for given
+*        cipher text and private key
 *
-* Description: Generates shared secret for given
-*              cipher text and private key
-*
-* Arguments:   - uint8       *ss: pointer to output shared secret (of length KYBER_SSBYTES bytes)
-*              - const uint8 *ct: pointer to input cipher text (of length KYBER1024_CIPHERTEXTBYTES bytes)
-*              - const uint8 *sk: pointer to input private key (of length KYBER1024_SECRETKEYBYTES bytes)
-*
-* Returns 0.
+* \param[out] uint8       *ss : pointer to output shared secret (of length KYBER_SSBYTES bytes)
+* \param[in]  const uint8 *ct : pointer to input cipher text (of length KYBER1024_CIPHERTEXTBYTES bytes)
+* \param[in]  const uint8 *sk : pointer to input private key (of length KYBER1024_SECRETKEYBYTES bytes)
 *
 * On failure, ss will contain a pseudo-random value.
-***********************************************************************************************************************/
-uint8 FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk)
+*/
+void FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk)
 {
   uint32 i                       = 0;
   uint8 fail                     = 0;
@@ -142,7 +157,7 @@ uint8 FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk
   /* Will contain key, coins */
   uint8 kr[2u * KYBER_SYMBYTES]        = {0};
   uint8 cmp[KYBER1024_CIPHERTEXTBYTES] = {0};
-  const uint8 *pk                      = &sk[KYBER1024_INDCPA_SECRETKEYBYTES];
+  const uint8 *const pk                = &sk[KYBER1024_INDCPA_SECRETKEYBYTES];
 
   FsmSw_Kyber1024_Indcpa_Dec(buf, ct, sk);
 
@@ -168,5 +183,9 @@ uint8 FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk
   /* hash concatenation of pre-k and H(c) to k */
   FsmSw_Fips202_Shake256(ss, KYBER_SSBYTES, kr, 2u * KYBER_SYMBYTES);
 
-  return 0;
-}
+  return;
+} // end: FsmSw_Kyber1024_Crypto_Kem_Dec
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

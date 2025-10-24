@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
  *
- ***********************************************************************************************************************/
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128sSimple
+*    includes the modules for SphincsSha2_128sSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128sSimple_merkle
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128sSimple_merkle.c
+* \brief  description of FsmSw_SphincsSha2_128sSimple_merkle.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -26,9 +45,8 @@
 #include "FsmSw_Sphincs_sha2_address.h"
 
 #include "FsmSw_SphincsSha2_128sSimple_merkle.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -37,6 +55,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -54,21 +76,21 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128sSimple_Merkle_Sign
+
+/*====================================================================================================================*/
+/**
+ * \brief This generates a Merkle signature (WOTS signature followed by the Merkle authentication path). This is
+ *        in this file because most of the complexity is involved with the WOTS signature; the Merkle
+ *        authentication path logic is mostly hidden in treehashx4.
  *
- * Description: This generates a Merkle signature (WOTS signature followed by the Merkle authentication path). This is
- *              in this file because most of the complexity is involved with the WOTS signature; the Merkle
- *              authentication path logic is mostly hidden in treehashx4.
+ * \param[out] uint8                       *sig : t.b.d.
+ * \param[out] uint8                      *root : t.b.d.
+ * \param[in]  const sphincs_sha2_128s_ctx *ctx : t.b.d.
+ * \param[in]  const uint32        wots_addr[8] : t.b.d.
+ * \param[in]  uint32              tree_addr[8] : t.b.d.
+ * \param[in]  uint32                  idx_leaf : t.b.d.
  *
- * Arguments:   -       uint8                 *sig:          t.b.d.
- *              -       uint8                 *root:         t.b.d.
- *              - const sphincs_sha2_128s_ctx *ctx:          t.b.d.
- *              - const uint32                 wots_addr[8]: t.b.d.
- *              -       uint32                 tree_addr[8]: t.b.d.
- *              -       uint32                 idx_leaf:     t.b.d.
- *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128sSimple_Merkle_Sign(uint8 *sig, uint8 *root, const sphincs_sha2_128s_ctx *ctx,
                                               const uint32 wots_addr[8], uint32 tree_addr[8], uint32 idx_leaf)
 {
@@ -97,17 +119,18 @@ void FsmSw_SphincsSha2_128sSimple_Merkle_Sign(uint8 *sig, uint8 *root, const sph
 
   FsmSw_SphincsSha2_128sSimple_TreeHashX1(root, auth_path, ctx, idx_leaf, 0, FSMSW_SPHINCSSHA2_128SSIMPLE_TREE_HEIGHT,
                                           FsmSw_SphincsSha2_128sSimple_Wots_GenLeafX1, tree_addr, &info);
-}
+} // end: FsmSw_SphincsSha2_128sSimple_Merkle_Sign
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128sSimple_Merkle_Sign
+/*====================================================================================================================*/
+/**
+ * \brief Compute root node of the top-most subtree.
  *
- * Description: Compute root node of the top-most subtree.
+ * \param[out] uint8                      *root : t.b.d.
+ * \param[in]  const sphincs_sha2_128s_ctx *ctx : t.b.d.
  *
- * Arguments:   -       uint8                 *root:          t.b.d.
- *              - const sphincs_sha2_128s_ctx *ctx:          t.b.d.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
@@ -127,4 +150,8 @@ void FsmSw_SphincsSha2_128sSimple_Merkle_GenRoot(uint8 *root, const sphincs_sha2
 
   FsmSw_SphincsSha2_128sSimple_Merkle_Sign(auth_path, root, ctx, wots_addr, top_tree_addr,
                                            ~((uint32)0u) /* ~0 means "don't bother generating an auth path */);
-}
+} // end: FsmSw_SphincsSha2_128sSimple_Merkle_GenRoot
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

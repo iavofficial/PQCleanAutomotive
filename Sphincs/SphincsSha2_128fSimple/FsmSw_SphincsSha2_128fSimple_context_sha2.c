@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple
+*    includes the modules for SphincsSha2_128fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple_context
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128fSimple_context_sha2.c
+* \brief  description of FsmSw_SphincsSha2_128fSimple_context_sha2.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -19,7 +38,6 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_SphincsSha2_128fSimple_context.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -30,6 +48,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -44,14 +66,15 @@ static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincssha2_128fsimple_SeedState
+
+/*====================================================================================================================*/
+/**
+ * \brief Absorb the constant pub_seed using one round of the compression function. This initializes state_seeded
+ *        and state_seeded_512, which can then be reused in FsmSw_SphincsSha2_128fSimple_Thash.
  *
- * Description: Absorb the constant pub_seed using one round of the compression function. This initializes state_seeded
- *              and state_seeded_512, which can then be reused in FsmSw_SphincsSha2_128fSimple_Thash.
+ * \param[in] sphincs_sha2_128f_ctx *ctx : t.b.d
  *
- * Arguments:   - sphincs_sha2_128f_ctx *ctx: t.b.d
- **********************************************************************************************************************/
+ */
 static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx)
 {
   uint8 block[FSMSW_SPHINCS_SHA512_BLOCK_BYTES] = {0};
@@ -70,19 +93,23 @@ static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx)
 
   FsmSw_Sha256_IncInit(&ctx->state_seeded);
   FsmSw_Sha256_IncBlocks(&ctx->state_seeded, block, 1);
-}
-
+} // end: fsmsw_sphincssha2_128fsimple_SeedState
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_InitializeHashFunction
+
+/*====================================================================================================================*/
+/**
+ * \brief We initialize the state for the hash functions
  *
- * Description: We initialize the state for the hash functions
+ * \param[in] sphincs_sha2_128f_ctx *ctx : t.b.d
  *
- * Arguments:   - sphincs_sha2_128f_ctx *ctx: t.b.d
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128fSimple_InitializeHashFunction(sphincs_sha2_128f_ctx *ctx)
 {
   fsmsw_sphincssha2_128fsimple_SeedState(ctx);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_InitializeHashFunction
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

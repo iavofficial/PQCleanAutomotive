@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium_reduce
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium_reduce.c
+* \brief  description of FsmSw_Dilithium_reduce
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -49,16 +68,15 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_MontgomeryReduce
-*
-* Description: For finite field element a with -2^{31}Q <= a <= Q*2^31,
+/*====================================================================================================================*/
+/** 
+* \brief For finite field element a with -2^{31}Q <= a <= Q*2^31,
 *              compute t \equiv a*2^{-32} (mod Q) such that -Q < r < Q.
 *
-* Arguments:   - sint64: finite field element a
+* \param[in] sint64 : finite field element a
 *
-* Returns t .
-***********************************************************************************************************************/
+* \returns t .
+*/
 sint32 FsmSw_Dilithium_MontgomeryReduce(sint64 a)
 {
   sint32 t    = 0;
@@ -70,18 +88,17 @@ sint32 FsmSw_Dilithium_MontgomeryReduce(sint64 a)
   t    = (sint32)((uint32)((uint64)temp >> 32));
 
   return t;
-}
+} // end: FsmSw_Dilithium_MontgomeryReduce
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_Reduce32
-*
-* Description: For finite field element a with a <= 2^{31} - 2^{22} - 1,
+/*====================================================================================================================*/
+/** 
+* \brief For finite field element a with a <= 2^{31} - 2^{22} - 1,
 *              compute t \equiv a (mod Q) such that -6283009 <= r <= 6283007.
 *
-* Arguments:   - sint32: finite field element a
+* \param[in] sint32 a : finite field element a
 *
 * Returns t.
-***********************************************************************************************************************/
+*/
 sint32 FsmSw_Dilithium_Reduce32(sint32 a)
 {
   sint32 t    = 0;
@@ -93,17 +110,16 @@ sint32 FsmSw_Dilithium_Reduce32(sint32 a)
   t = a - (t * Q_DILITHIUM);
 
   return t;
-}
+} // end: FsmSw_Dilithium_Reduce32
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_CAddQ
+/*====================================================================================================================*/
+/** 
+* \brief Add Q if input coefficient is negative.
 *
-* Description: Add Q if input coefficient is negative.
-*
-* Arguments:   - sint32: finite field element a
+* \param[in] sint32 a : finite field element a
 *
 * Returns result of addition.
-***********************************************************************************************************************/
+*/
 sint32 FsmSw_Dilithium_CAddQ(sint32 a)
 {
   uint32 temp = 0;
@@ -115,18 +131,17 @@ sint32 FsmSw_Dilithium_CAddQ(sint32 a)
   a_temp = a_temp + (sint32)((uint32)(temp & (uint32)Q_DILITHIUM));
 
   return a_temp;
-}
+} // end: FsmSw_Dilithium_CAddQ
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_Freeze
-*
-* Description: For finite field element a, compute standard
+/*====================================================================================================================*/
+/** 
+* \brief For finite field element a, compute standard
 *              representative r = a mod^+ Q.
 *
-* Arguments:   - sint32: finite field element a
+* \param[in] sint32 a : finite field element a
 *
 * Returns r.
-***********************************************************************************************************************/
+*/
 sint32 FsmSw_Dilithium_Freeze(sint32 a)
 {
   /* a_temp is used to avoid modifying the input. */
@@ -136,4 +151,8 @@ sint32 FsmSw_Dilithium_Freeze(sint32 a)
   a_temp = FsmSw_Dilithium_CAddQ(a_temp);
 
   return a_temp;
-}
+} // end: FsmSw_Dilithium_Freeze
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

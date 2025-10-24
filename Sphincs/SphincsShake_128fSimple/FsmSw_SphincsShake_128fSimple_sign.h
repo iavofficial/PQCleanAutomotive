@@ -1,30 +1,46 @@
-
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple
+*    includes the modules for SphincsShake_128fSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple_sign
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128fSimple_sign.h
+* \brief  Description of FsmSw_SphincsShake_128fSimple_sign.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHAKE_128FSIMPLE_SIGN_H
 #define FSMSW_SPHINCSSHAKE_128FSIMPLE_SIGN_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -36,19 +52,27 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-sint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
-sint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
-                                                          const uint8 *sk);
-sint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
+void FsmSw_SphincsShake_128fSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
+void FsmSw_SphincsShake_128fSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
+                                                         const uint8 *sk);
+uint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
                                                        const uint8 *pk);
-sint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
-sint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
+void FsmSw_SphincsShake_128fSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
+uint8 FsmSw_SphincsShake_128fSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
                                                      const uint8 *pk);
 
 #endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_SIGN_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

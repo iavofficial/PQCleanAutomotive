@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Falcon1024
+*    includes the modules for Falcon1024
+ ** @{ */
+/** \addtogroup Falcon1024_api
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon1024_api.c
+* \brief  description of FsmSw_Falcon1024_api.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -27,12 +46,10 @@
 #include "FsmSw_Falcon_vrfy.h"
 
 #include "FsmSw_Falcon1024_api.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
 #define FSMSW_FALCON1024_NONCELEN 40u
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -61,8 +78,11 @@ typedef struct
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-static r_struct r_1024;
 
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+static r_struct r_1024;
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
@@ -70,32 +90,32 @@ static r_struct r_1024;
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static sint32 fsmsw_falcon1024_DoSign(uint8 *nonce, uint8 *sigbuf, uint32 *sigbuflen, const uint8 *m, uint32 mlen,
-                                      const uint8 *sk);
-static sint32 fsmsw_falcon1024_DoVerify(const uint8 *nonce, const uint8 *sigbuf, uint32 sigbuflen, const uint8 *m,
-                                        uint32 mlen, const uint8 *pk);
+static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
+                                      const uint8 *const m, uint32 mlen, const uint8 *const sk);
+static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
+                                        const uint8 *const m, uint32 mlen, const uint8 *const pk);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_falcon1024_DoSign
+
+/*====================================================================================================================*/
+/**
+ * \brief If a signature could be computed but not encoded because it would exceed the output buffer size, then a
+ *        new signature is computed. If the provided buffer size is too low, this could loop indefinitely, so the
+ *        caller must provide a size that can accommodate signatures with a large enough probability.
  *
- * Description: If a signature could be computed but not encoded because it would exceed the output buffer size, then a
- *              new signature is computed. If the provided buffer size is too low, this could loop indefinitely, so the
- *              caller must provide a size that can accommodate signatures with a large enough probability.
+ * \param[out] uint8      *nonce : receives the nonce and must have length FSMSW_FALCON1024_NONCELEN bytes
+ * \param[out] uint8     *sigbuf : receives the signature value (without nonce or header byte)
+ * \param[out] uint32 *sigbuflen : providing the maximum value length and receiving the actual value length
+ * \param[in]  const uint8    *m : t.b.d.
+ * \param[in]  uint32       mlen : t.b.d.
+ * \param[in]  const uint8   *sk : t.b.d.
  *
- * Arguments:   -       uint8  *nonce:     receives the nonce and must have length FSMSW_FALCON1024_NONCELEN bytes
- *              -       uint8  *sigbuf:    receives the signature value (without nonce or header byte)
- *              -       uint32 *sigbuflen: providing the maximum value length and receiving the actual value length
- *              - const uint8  *m:         t.b.d.
- *              -       uint32  mlen:      t.b.d.
- *              - const uint8  *sk:        t.b.d.
+ * \returns 0 on success, -1 on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-static sint32 fsmsw_falcon1024_DoSign(uint8 *nonce, uint8 *sigbuf, uint32 *sigbuflen, const uint8 *m, uint32 mlen,
-                                      const uint8 *sk)
+ */
+static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
+                                      const uint8 *const m, uint32 mlen, const uint8 *const sk)
 {
   sint8 f[1024]             = {0};
   sint8 g[1024]             = {0};
@@ -180,25 +200,24 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *nonce, uint8 *sigbuf, uint32 *sigbu
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon1024_DoSign
 
-/***********************************************************************************************************************
- * Name:        fsmsw_falcon1024_DoVerify
+/*====================================================================================================================*/
+/**
+ * \brief Verify a signature.
  *
- * Description: Verify a signature.
+ * \param[out] uint8     *nonce : The nonce has size FSMSW_FALCON1024_NONCELEN bytes
+ * \param[out] uint8    *sigbuf : contains the signature value
+ * \param[in]  uint32 sigbuflen : providing the maximum value length
+ * \param[in]  const uint8   *m : t.b.d.
+ * \param[in]  uint32      mlen : t.b.d.
+ * \param[in]  const uint8  *pk : t.b.d.
  *
- * Arguments:   -       uint8  *nonce:     The nonce has size FSMSW_FALCON1024_NONCELEN bytes
- *              -       uint8  *sigbuf:    contains the signature value
- *              -       uint32  sigbuflen: providing the maximum value length
- *              - const uint8  *m:         t.b.d.
- *              -       uint32  mlen:      t.b.d.
- *              - const uint8  *pk:        t.b.d.
+ * \returns 0 on success, -1 on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-static sint32 fsmsw_falcon1024_DoVerify(const uint8 *nonce, const uint8 *sigbuf, uint32 sigbuflen, const uint8 *m,
-                                        uint32 mlen, const uint8 *pk)
+ */
+static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
+                                        const uint8 *const m, uint32 mlen, const uint8 *const pk)
 {
   uint16 h[1024]            = {0};
   uint16 hm[1024]           = {0};
@@ -254,10 +273,12 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *nonce, const uint8 *sigbuf,
     }
   }
   return retVal;
-}
+} // end: fsmsw_falcon1024_DoVerify
+
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
+
 /*
  * Encoding formats (nnnn = log of degree, 9 for Falcon-512, 10 for Falcon-1024)
  *
@@ -285,19 +306,18 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *nonce, const uint8 *sigbuf,
  *      (signature length is 1+len(value), not counting the nonce)
  */
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Falcon1024_Crypto_Sign_KeyPair
+/*====================================================================================================================*/
+/**
+ * \brief Computes a root node given a leaf and an auth path. Expects address to be complete other than the
+ *        tree_height and tree_index.
  *
- * Description: Computes a root node given a leaf and an auth path. Expects address to be complete other than the
- *              tree_height and tree_index.
+ * \param[out] uint8 *pk : public key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
+ * \param[out] uint8 *sk : private key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
  *
- * Arguments:   - uint8 *pk: public key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
- *              - uint8 *sk: private key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+ */
+uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
 {
   sint8 f[1024]              = {0};
   sint8 g[1024]              = {0};
@@ -307,7 +327,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
   inner_shake256_context rng = {{0}};
   uint32 u                   = 0;
   uint32 v                   = 0;
-  sint8 retVal               = 0;
+  uint8 retVal               = ERR_OK;
   boolean bStopFunc          = FALSE;
   tmp1_struct tmp1_1024      = {{0}};
 
@@ -325,7 +345,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
                                     FsmSw_Falcon_max_small_fg_bits[10]);
   if (v == 0u)
   {
-    retVal    = -1;
+    retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
@@ -333,7 +353,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
                                 FsmSw_Falcon_max_small_fg_bits[10]);
   if (v == 0u)
   {
-    retVal    = -1;
+    retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
@@ -341,13 +361,13 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
                                 (uint32)FsmSw_Falcon_max_big_FG_bits[10]);
   if (v == 0u)
   {
-    retVal    = -1;
+    retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
   if (u != FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES)
   {
-    retVal    = -1;
+    retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
 
@@ -358,103 +378,104 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
     v     = FsmSw_Falcon_ModqEncode(&pk[1], FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u, h, 10u);
     if (v != FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u)
     {
-      retVal = -1;
+      retVal = ERR_NOT_OK;
     }
   }
 
   return retVal;
-}
+} // end: FsmSw_Falcon1024_Crypto_Sign_KeyPair
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Falcon1024_Crypto_Sign_Signature
+/*====================================================================================================================*/
+/**
+ * \brief Compute a signature on a provided message (m, mlen), with a given private key (sk).
+ *        sig[], m[] and pk[] may overlap each other arbitrarily.
  *
- * Description: Compute a signature on a provided message (m, mlen), with a given private key (sk).
- *              sig[], m[] and pk[] may overlap each other arbitrarily.
+ * \param[out] uint8      *sig : Signature is written in sig
+ * \param[in]  uint32   siglen : maximum signature length (in bytes) is FSMSW_FALCON1024_CRYPTO_BYTES
+ * \param[in]  const uint8  *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8  *sig:    Signature is written in sig
- *              -       uint32  siglen: maximum signature length (in bytes) is FSMSW_FALCON1024_CRYPTO_BYTES
- *              - const uint8  *m:      t.b.d.
- *              -       uint32  mlen:   t.b.d.
- *              - const uint8  *sk:     t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
+ */
+uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
 {
   uint32 vlen  = 0;
-  sint8 retVal = 0;
+  uint8 retVal = ERR_OK;
 
   vlen = FSMSW_FALCON1024_CRYPTO_BYTES - FSMSW_FALCON1024_NONCELEN - 3u;
 
   if (fsmsw_falcon1024_DoSign(&sig[1], &sig[1u + FSMSW_FALCON1024_NONCELEN], &vlen, m, mlen, sk) < 0)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   sig[0]  = 0x30 + 10;
   *siglen = 1u + FSMSW_FALCON1024_NONCELEN + vlen;
 
   return retVal;
-}
+} // end: FsmSw_Falcon1024_Crypto_Sign_Signature
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Falcon1024_Crypto_Sign_Verify
+/*====================================================================================================================*/
+/**
+ * \brief Verify a signature (sig, siglen) on a message (m, mlen) with a given public key (pk).
+ *        sig[], m[] and pk[] may overlap each other arbitrarily.
  *
- * Description: Verify a signature (sig, siglen) on a message (m, mlen) with a given public key (pk).
- *              sig[], m[] and pk[] may overlap each other arbitrarily.
+ * \param[in] const uint8 *sig : t.b.d.
+ * \param[in] uint32    siglen : t.b.d.
+ * \param[in] const uint8   *m : t.b.d.
+ * \param[in] uint32      mlen : t.b.d.
+ * \param[in] const uint8  *pk : t.b.d.
  *
- * Arguments:   - const uint8  *sig:    t.b.d.
- *              -       uint32  siglen: t.b.d.
- *              - const uint8  *m:      t.b.d.
- *              -       uint32  mlen:   t.b.d.
- *              - const uint8  *pk:     t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
-                                           const uint8 *pk)
+ */
+uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
 {
-  sint32 retVal = fsmsw_falcon1024_DoVerify(&sig[1], &sig[1u + FSMSW_FALCON1024_NONCELEN],
-                                            siglen - 1u - FSMSW_FALCON1024_NONCELEN, m, mlen, pk);
+  uint8 retVal = ERR_OK;
+
+  if (0 != fsmsw_falcon1024_DoVerify(&sig[1], &sig[1u + FSMSW_FALCON1024_NONCELEN],
+                                     siglen - 1u - FSMSW_FALCON1024_NONCELEN, m, mlen, pk))
+  {
+    retVal = ERR_NOT_OK;
+  }
 
   if (siglen < (1u + FSMSW_FALCON1024_NONCELEN))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   if (sig[0] != (0x30u + 10u))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   return retVal;
-}
+} // end: FsmSw_Falcon1024_Crypto_Sign_Verify
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Falcon1024_Crypto_Sign
+/*====================================================================================================================*/
+/**
+ * \brief Compute a signature on a message and pack the signature and message into a single object, written
+ *        into sm[]. The length of that output is written in *smlen; that length may be larger than the message
+ *        length (mlen) by up to FSMSW_FALCON1024_CRYPTO_BYTES.
+ *        sm[] and m[] may overlap each other arbitrarily; however, sm[] shall not overlap with sk[].
  *
- * Description: Compute a signature on a message and pack the signature and message into a single object, written
- *              into sm[]. The length of that output is written in *smlen; that length may be larger than the message
- *              length (mlen) by up to FSMSW_FALCON1024_CRYPTO_BYTES.
- *              sm[] and m[] may overlap each other arbitrarily; however, sm[] shall not overlap with sk[].
+ * \param[out] uint8       *sm : t.b.d.
+ * \param[in]  uint32    smlen : t.b.d.
+ * \param[in]  const uint8  *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8  *sm:    t.b.d.
- *              -       uint32  smlen: t.b.d.
- *              - const uint8  *m:     t.b.d.
- *              -       uint32  mlen:  t.b.d.
- *              - const uint8  *sk:    t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+ */
+uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
 {
   uint8 *pm        = (uint8 *)NULL_PTR;
   uint8 *sigbuf    = (uint8 *)NULL_PTR;
   uint32 sigbuflen = 0;
-  sint8 retVal     = 0;
+  uint8 retVal     = ERR_OK;
 
   /* Move the message to its final location; this is a memmove() so it handles overlaps properly. */
   FsmSw_CommonLib_MemMove(&sm[2u + FSMSW_FALCON1024_NONCELEN], m, mlen);
@@ -464,7 +485,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, ui
 
   if (fsmsw_falcon1024_DoSign(&sm[2], sigbuf, &sigbuflen, pm, mlen, sk) < 0)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
   pm[mlen] = 0x20 + 10;
   sigbuflen++;
@@ -472,43 +493,42 @@ sint32 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, ui
   sm[1]  = (uint8)sigbuflen;
   *smlen = mlen + 2u + FSMSW_FALCON1024_NONCELEN + sigbuflen;
   return retVal;
-}
+} // end: FsmSw_Falcon1024_Crypto_Sign
 
-/***********************************************************************************************************************
- * Name:        FsmSw_Falcon1024_Crypto_Sign_Open
+/*====================================================================================================================*/
+/**
+ * \brief Open a signed message object (sm, smlen) and verify the signature; on success, the message itself is
+ *        written into m[] and its length into *mlen. The message is shorter than the signed message object, but
+ *        the size difference depends on the signature value; the difference may range up to
+ *        FSMSW_FALCON1024_CRYPTO_BYTES.
+ *        m[], sm[] and pk[] may overlap each other arbitrarily.
  *
- * Description: Open a signed message object (sm, smlen) and verify the signature; on success, the message itself is
- *              written into m[] and its length into *mlen. The message is shorter than the signed message object, but
- *              the size difference depends on the signature value; the difference may range up to
- *              FSMSW_FALCON1024_CRYPTO_BYTES.
- *              m[], sm[] and pk[] may overlap each other arbitrarily.
+ * \param[out] uint8        *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *sm : t.b.d.
+ * \param[in]  uint32    smlen : t.b.d.
+ * \param[in]  const uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8  *m:     t.b.d.
- *              -       uint32  mlen:  t.b.d.
- *              - const uint8  *sm:    t.b.d.
- *              -       uint32  smlen: t.b.d.
- *              - const uint8  *sk:    t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0 on success, -1 on error.
- *
- **********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
+ */
+uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
 {
   const uint8 *sigbuf = (uint8 *)NULL_PTR;
   uint32 pmlen        = 0;
   uint32 sigbuflen    = 0;
-  sint8 retVal        = 0;
+  uint8 retVal        = ERR_OK;
 
   if (smlen < (3u + FSMSW_FALCON1024_NONCELEN))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   sigbuflen = ((uint32)sm[0] << 8) | (uint32)sm[1];
 
   if ((sigbuflen < 2u) || (sigbuflen > (smlen - FSMSW_FALCON1024_NONCELEN - 2u)))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   sigbuflen--;
@@ -516,7 +536,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm
 
   if (sm[2u + FSMSW_FALCON1024_NONCELEN + pmlen] != (0x20u + 10u))
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   sigbuf = &sm[2u + FSMSW_FALCON1024_NONCELEN + pmlen + 1u];
@@ -526,7 +546,7 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm
      * byte). */
   if (fsmsw_falcon1024_DoVerify(&sm[2], sigbuf, sigbuflen, &sm[2u + FSMSW_FALCON1024_NONCELEN], pmlen, pk) < 0)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   /* Signature is correct, we just have to copy/move the message to its final destination.
@@ -535,4 +555,8 @@ sint32 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm
   *mlen = pmlen;
 
   return retVal;
-}
+} // end: FsmSw_Falcon1024_Crypto_Sign_Open
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
