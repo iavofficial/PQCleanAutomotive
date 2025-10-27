@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Libs
+*    includes the modules for Libs
+ ** @{ */
+/** \addtogroup CommonLib
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_CommonLib.c
+* \brief  description of FsmSw_CommonLib.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -19,7 +38,6 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_CommonLib.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -32,6 +50,9 @@
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
 static uint32 next = 1;
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
@@ -42,110 +63,111 @@ static uint32 next = 1;
 /**********************************************************************************************************************/
 static uint8 iav_commonlib_rand_byte(void);
 static uint32 iav_commonlib_rand(void);
-
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        iav_commonlib_rand_byte
+
+/*====================================================================================================================*/
+/**
+* \brief This function generates a 1 byte random value
 *
-* Description: This function generates a 1 byte random value
+* \returns a 1 byte random value
 *
-* Arguments:   -
-* Returns a 1 byte random value
-***********************************************************************************************************************/
+*/
 static uint8 iav_commonlib_rand_byte(void)
 {
   /* polyspace +2 MISRA2012:D1.1 [Justified:]"Generates a random byte. Float conversion is acceptable 
     due to randomness and planned future replacement of the function." */
   return (uint8)((float32)(256.0f * ((float32)((float32)iav_commonlib_rand() / 32768.0f))));
-}
+} // end: iav_commonlib_rand_byte
 
-/***********************************************************************************************************************
-* Name:        iav_commonlib_rand
+/*====================================================================================================================*/
+/**
+* \brief This function generates a 4 byte random value
+* \returns a 4 byte random value
 *
-* Description: This function generates a 4 byte random value
-
-* Arguments:   -
-* Returns a 4 byte random value
-***********************************************************************************************************************/
+*/
 static uint32 iav_commonlib_rand(void)
 {
   next = (next * 1103515245u) + 12345u;
   return ((uint32)(next / 65536u) & (32768u - 1u));
-}
-
+} // end: iav_commonlib_rand
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_MemCpy
+
+/*====================================================================================================================*/
+/**
+* \brief This function copies n values from dest to src
 *
-* Description: This function copies n values from dest to src
+* \param[out] void      *dest : pointer to output array destination
+* \param[in]  const void *src : pointer to input array source
+* \param[in]  const uint32  n : number of  values
 *
-* Arguments:   -       void   *dest: pointer to output array destination
-*              - const void   *src:  pointer to input array source
-*              - const uint32  n:    number of  values
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +2 CODE-METRICS:CALLING [Justified:]"[Value: 175]The increase to 175 is due 
 to recent refactoring and code improvements." */
-void FsmSw_CommonLib_MemCpy(void *dest, const void *src, const uint32 n)
+void FsmSw_CommonLib_MemCpy(void *const dest, const void *const src, const uint32 n)
 {
   uint32 i = 0;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
-  uint8 *destPtr      = (uint8 *)dest;
-  const uint8 *srcPtr = (const uint8 *)src;
+  uint8 *const destPtr      = (uint8 *)dest;
+  const uint8 *const srcPtr = (const uint8 *)src;
 
   for (i = 0; i < n; i++)
   {
     destPtr[i] = srcPtr[i];
   }
-}
+} // end: FsmSw_CommonLib_MemCpy
 
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_MemSet
+/*====================================================================================================================*/
+/**
+* \brief This function sets n values from dest to value
 *
-* Description: This function sets n values from dest to value
+* \param[out] void        *dest : pointer to output array destination
+* \param[in]  const uint8 value : set dest array to this value
+* \param[in]  const uint32    n : number of values
 *
-* Arguments:   -       void   *dest:  pointer to output array destination
-*              - const uint8   value: set dest array to this value
-*              - const uint32  n:     number of values
-*
-***********************************************************************************************************************/
-void FsmSw_CommonLib_MemSet(void *dest, const uint8 value, const uint32 n)
+*/
+void FsmSw_CommonLib_MemSet(void *const dest, const uint8 value, const uint32 n)
 {
   uint32 i = 0;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
-  uint8 *destPtr = (uint8 *)dest;
+  uint8 *const destPtr = (uint8 *)dest;
 
   for (i = 0; i < n; i++)
   {
     destPtr[i] = value;
   }
-}
+} // end: FsmSw_CommonLib_MemSet
 
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_MemCmp
+/*====================================================================================================================*/
+/**
+* \brief This function compares dest to src
 *
-* Description: This function compares dest to src
+* \param[in] const void *dest : pointer to input array destination
+* \param[in] const void  *src : pointer to input array source
+* \param[in] const uint32   n : number of  values
 *
-* Arguments:   - const void   *dest: pointer to input array destination
-*              - const void   *src:  pointer to input array source
-*              - const uint32  n:    number of  values
+* \returns 0 success, otherwise 1
 *
-* Returns 0 success, otherwise 1
-***********************************************************************************************************************/
-uint8 FsmSw_CommonLib_MemCmp(void *dest, const void *src, const uint32 n)
+*/
+uint8 FsmSw_CommonLib_MemCmp(void *const dest, const void *const src, const uint32 n)
 {
   uint32 i = 0;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
-  uint8 *destPtr      = (uint8 *)dest;
-  const uint8 *srcPtr = (const uint8 *)src;
-  uint8 retVal        = 0;
+  uint8 *const destPtr      = (uint8 *)dest;
+  const uint8 *const srcPtr = (const uint8 *)src;
+  uint8 retVal              = 0;
 
   for (i = 0; i < n; i++)
   {
@@ -156,25 +178,26 @@ uint8 FsmSw_CommonLib_MemCmp(void *dest, const void *src, const uint32 n)
   }
 
   return retVal;
-}
+} // end: FsmSw_CommonLib_MemCmp
 
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_MemMove
+/*====================================================================================================================*/
+/**
+* \brief This function moves n values from dest to src
 *
-* Description: This function moves n values from dest to src
+* \param[out] void      *dest : pointer to output array destination
+* \param[in]  const void *src : pointer to input array source
+* \param[in]  const uint32  n : number of  values
 *
-* Arguments:   -       void   *dest: pointer to output array destination
-*              - const void   *src:  pointer to input array source
-*              - const uint32  n:    number of  values
-*
-***********************************************************************************************************************/
-void FsmSw_CommonLib_MemMove(void *dest, const void *src, const uint32 n)
+*/
+void FsmSw_CommonLib_MemMove(void *const dest, const void *const src, const uint32 n)
 {
   sint32 i = 0;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
-  uint8 *destPtr      = (uint8 *)dest;
-  const uint8 *srcPtr = (const uint8 *)src;
+  uint8 *const destPtr      = (uint8 *)dest;
+  const uint8 *const srcPtr = (const uint8 *)src;
 
   if (destPtr > srcPtr)
   { /* copy from right to left */
@@ -190,19 +213,19 @@ void FsmSw_CommonLib_MemMove(void *dest, const void *src, const uint32 n)
       destPtr[i] = srcPtr[i];
     }
   }
-}
+} // end: FsmSw_CommonLib_MemMove
 
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_randombytes
+/*====================================================================================================================*/
+/**
+* \brief This function generates n random values
 *
-* Description: This function generates n random values
+* \param[out] uint8  *output : pointer to output array with random values
+* \param[in]  const uint32 n : number of random values
 *
-* Arguments:   -       uint8  *output: pointer to output array with random values
-*              - const uint32  n:      number of random values
+* \returns 0 (success)
 *
-* Returns 0 (success)
-***********************************************************************************************************************/
-uint8 FsmSw_CommonLib_RandomBytes(uint8 *output, const uint32 n)
+*/
+uint8 FsmSw_CommonLib_RandomBytes(uint8 *const output, const uint32 n)
 {
   for (uint32 i = 0; i < n; i++)
   {
@@ -210,16 +233,20 @@ uint8 FsmSw_CommonLib_RandomBytes(uint8 *output, const uint32 n)
   }
 
   return 0;
-}
+} // end: FsmSw_CommonLib_RandomBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_CommonLib_SRand
+/*====================================================================================================================*/
+/**
+* \brief Initialize the random function with a seed
 *
-* Description: Initialize the random function with a seed
+* \param[in] const uint32 seed : start seed for generating random values
 *
-* Arguments:   - const uint32 seed: start seed for generating random values
-***********************************************************************************************************************/
+*/
 void FsmSw_CommonLib_SRand(const uint32 seed)
 {
   next = seed;
-}
+} // end: FsmSw_CommonLib_SRand
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

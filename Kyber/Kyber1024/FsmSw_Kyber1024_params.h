@@ -23,25 +23,26 @@
 #include "FsmSw_Kyber_params.h"
 
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER1024_K             4u
-#define KYBER1024_POLYVECBYTES  (KYBER1024_K * KYBER_POLYBYTES)
+#define KYBER1024_K            4u
+#define KYBER1024_POLYVECBYTES (KYBER1024_K * KYBER_POLYBYTES)
 
 #define KYBER1024_POLYCOMPRESSEDBYTES    160u
 #define KYBER1024_POLYVECCOMPRESSEDBYTES (KYBER1024_K * 352u)
 
-#define KYBER1024_ETA1  2u
-#define KYBER1024_ETA2  2u
+#define KYBER1024_ETA1 2u
+#define KYBER1024_ETA2 2u
 
 #define KYBER1024_INDCPA_MSGBYTES       (KYBER_SYMBYTES)
 #define KYBER1024_INDCPA_PUBLICKEYBYTES (KYBER1024_POLYVECBYTES + KYBER_SYMBYTES)
 #define KYBER1024_INDCPA_SECRETKEYBYTES (KYBER1024_POLYVECBYTES)
 #define KYBER1024_INDCPA_BYTES          (KYBER1024_POLYVECCOMPRESSEDBYTES + KYBER1024_POLYCOMPRESSEDBYTES)
 
-#define KYBER1024_PUBLICKEYBYTES  (KYBER1024_INDCPA_PUBLICKEYBYTES)
+#define KYBER1024_PUBLICKEYBYTES (KYBER1024_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
-#define KYBER1024_SECRETKEYBYTES  (KYBER1024_INDCPA_SECRETKEYBYTES + KYBER1024_INDCPA_PUBLICKEYBYTES + (2u*KYBER_SYMBYTES))
+#define KYBER1024_SECRETKEYBYTES                                                                                       \
+  (KYBER1024_INDCPA_SECRETKEYBYTES + KYBER1024_INDCPA_PUBLICKEYBYTES + (2u * KYBER_SYMBYTES))
 #define KYBER1024_CIPHERTEXTBYTES (KYBER1024_INDCPA_BYTES)
 
 /**********************************************************************************************************************/
@@ -53,6 +54,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -61,3 +66,7 @@
 /**********************************************************************************************************************/
 
 #endif /* FSMSW_KYBER1024_PARAMS_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

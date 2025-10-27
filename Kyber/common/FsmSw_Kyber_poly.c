@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Kyber_poly
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber_poly.c
+* \brief  description of FsmSw_Kyber_poly.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -38,6 +57,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -52,14 +75,14 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_ToBytes
+
+/*====================================================================================================================*/
+/**
+* \brief Serialization of a polynomial
 *
-* Description: Serialization of a polynomial
-*
-* Arguments:   -       uint8   *r: pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
-*              - const poly *a: pointer to input polynomial
-***********************************************************************************************************************/
+* \param[out] uint8      *r : pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
+* \param[in]  const poly *a : pointer to input polynomial
+*/
 void FsmSw_Kyber_Poly_ToBytes(uint8 r[KYBER_POLYBYTES], const poly *a)
 {
   uint16 i  = 0;
@@ -88,17 +111,16 @@ void FsmSw_Kyber_Poly_ToBytes(uint8 r[KYBER_POLYBYTES], const poly *a)
     r[(3u * i) + 1u] = (uint8)((t0 >> 8u) | (t1 << 4u));
     r[(3u * i) + 2u] = (uint8)(t1 >> 4u);
   }
-}
+} // end: FsmSw_Kyber_Poly_ToBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_FromBytes
+/*====================================================================================================================*/
+/**
+* \brief De-serialization of a polynomial;
+*        inverse of FsmSw_Kyber_Poly_ToBytes
 *
-* Description: De-serialization of a polynomial;
-*              inverse of FsmSw_Kyber_Poly_ToBytes
-*
-* Arguments:   -       poly *r: pointer to output polynomial
-*              - const uint8   *a: pointer to input byte array (of KYBER_POLYBYTES bytes)
-***********************************************************************************************************************/
+* \param[out] poly        *r : pointer to output polynomial
+* \param[in]  const uint8 *a : pointer to input byte array (of KYBER_POLYBYTES bytes)
+*/
 void FsmSw_Kyber_Poly_FromBytes(poly *r, const uint8 a[KYBER_POLYBYTES])
 {
   uint16 i = 0;
@@ -111,46 +133,43 @@ void FsmSw_Kyber_Poly_FromBytes(poly *r, const uint8 a[KYBER_POLYBYTES])
     r->coeffs[(2u * i) + 1u] =
         (sint16)((uint16)((((((uint16)a[(3u * i) + 1u]) >> 4u) | (((uint16)a[(3u * i) + 2u]) << 4u))) & 0xFFFu));
   }
-}
+} // end: FsmSw_Kyber_Poly_FromBytes
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_Ntt
+/*====================================================================================================================*/
+/**
+* \brief Computes negacyclic number-theoretic transform (NTT) of
+*        a polynomial in place;
+*        inputs assumed to be in normal order, output in bitreversed order
 *
-* Description: Computes negacyclic number-theoretic transform (NTT) of
-*              a polynomial in place;
-*              inputs assumed to be in normal order, output in bitreversed order
-*
-* Arguments:   - uint16 *r: pointer to in/output polynomial
-***********************************************************************************************************************/
+* \param[in,out] uint16 *r : pointer to in/output polynomial
+*/
 void FsmSw_Kyber_Poly_Ntt(poly *r)
 {
   FsmSw_Kyber_Ntt(r->coeffs);
   FsmSw_Kyber_Poly_Reduce(r);
-}
+} // end: FsmSw_Kyber_Poly_Ntt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_InvnttTomont
+/*====================================================================================================================*/
+/**
+* \brief Computes inverse of negacyclic number-theoretic transform (NTT)
+*        of a polynomial in place;
+*        inputs assumed to be in bitreversed order, output in normal order
 *
-* Description: Computes inverse of negacyclic number-theoretic transform (NTT)
-*              of a polynomial in place;
-*              inputs assumed to be in bitreversed order, output in normal order
-*
-* Arguments:   - uint16 *a: pointer to in/output polynomial
-***********************************************************************************************************************/
+* \param[in,out] uint16 *a : pointer to in/output polynomial
+*/
 void FsmSw_Kyber_Poly_InvnttTomont(poly *r)
 {
   FsmSw_Kyber_Invntt(r->coeffs);
-}
+} // end: FsmSw_Kyber_Poly_InvnttTomont
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_BasemulMontgomery
+/*====================================================================================================================*/
+/**
+* \brief Multiplication of two polynomials in NTT domain
 *
-* Description: Multiplication of two polynomials in NTT domain
-*
-* Arguments:   -       poly *r: pointer to output polynomial
-*              - const poly *a: pointer to first input polynomial
-*              - const poly *b: pointer to second input polynomial
-***********************************************************************************************************************/
+* \param[out] poly       *r : pointer to output polynomial
+* \param[in]  const poly *a : pointer to first input polynomial
+* \param[in]  const poly *b : pointer to second input polynomial
+*/
 void FsmSw_Kyber_Poly_BasemulMontgomery(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
@@ -162,16 +181,15 @@ void FsmSw_Kyber_Poly_BasemulMontgomery(poly *r, const poly *a, const poly *b)
     FsmSw_Kyber_Basemul(&r->coeffs[(4u * i) + 2u], &a->coeffs[(4u * i) + 2u], &b->coeffs[(4u * i) + 2u],
                         -FsmSw_Kyber_zetas[64u + i]);
   }
-}
+} // end: FsmSw_Kyber_Poly_BasemulMontgomery
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_Tomont
+/*====================================================================================================================*/
+/**
+* \brief Inplace conversion of all coefficients of a polynomial
+*        from normal domain to Montgomery domain
 *
-* Description: Inplace conversion of all coefficients of a polynomial
-*              from normal domain to Montgomery domain
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-***********************************************************************************************************************/
+* \param[in,out] poly *r : pointer to input/output polynomial
+*/
 void FsmSw_Kyber_Poly_Tomont(poly *r)
 {
   uint16 i       = 0;
@@ -181,16 +199,15 @@ void FsmSw_Kyber_Poly_Tomont(poly *r)
   {
     r->coeffs[i] = FsmSw_Kyber_MontgomeryReduce((sint32)r->coeffs[i] * (sint32)f);
   }
-}
+} // end: FsmSw_Kyber_Poly_Tomont
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_Reduce
+/*====================================================================================================================*/
+/**
+* \brief Applies Barrett reduction to all coefficients of a polynomial
+*        for details of the Barrett reduction see comments in reduce.c
 *
-* Description: Applies Barrett reduction to all coefficients of a polynomial
-*              for details of the Barrett reduction see comments in reduce.c
-*
-* Arguments:   - poly *r: pointer to input/output polynomial
-***********************************************************************************************************************/
+* \param[in,out] poly *r : pointer to input/output polynomial
+*/
 void FsmSw_Kyber_Poly_Reduce(poly *r)
 {
   uint16 i = 0;
@@ -199,17 +216,16 @@ void FsmSw_Kyber_Poly_Reduce(poly *r)
   {
     r->coeffs[i] = FsmSw_Kyber_BarrettReduce(r->coeffs[i]);
   }
-}
+} // end: FsmSw_Kyber_Poly_Reduce
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_Add
+/*====================================================================================================================*/
+/**
+* \brief Add two polynomials; no modular reduction is performed
 *
-* Description: Add two polynomials; no modular reduction is performed
-*
-* Arguments: -       poly *r: pointer to output polynomial
-*            - const poly *a: pointer to first input polynomial
-*            - const poly *b: pointer to second input polynomial
-***********************************************************************************************************************/
+* \param[out] poly       *r : pointer to output polynomial
+* \param[in]  const poly *a : pointer to first input polynomial
+* \param[in]  const poly *b : pointer to second input polynomial
+*/
 void FsmSw_Kyber_Poly_Add(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
@@ -218,17 +234,16 @@ void FsmSw_Kyber_Poly_Add(poly *r, const poly *a, const poly *b)
   {
     r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
   }
-}
+} // end: FsmSw_Kyber_Poly_Add
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_Poly_Sub
+/*====================================================================================================================*/
+/**
+* \brief Subtract two polynomials; no modular reduction is performed
 *
-* Description: Subtract two polynomials; no modular reduction is performed
-*
-* Arguments: -       poly *r: pointer to output polynomial
-*            - const poly *a: pointer to first input polynomial
-*            - const poly *b: pointer to second input polynomial
-***********************************************************************************************************************/
+* \param[out] poly       *r : pointer to output polynomial
+* \param[in]  const poly *a : pointer to first input polynomial
+* \param[in]  const poly *b : pointer to second input polynomial
+*/
 void FsmSw_Kyber_Poly_Sub(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
@@ -237,4 +252,8 @@ void FsmSw_Kyber_Poly_Sub(poly *r, const poly *a, const poly *b)
   {
     r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
   }
-}
+} // end: FsmSw_Kyber_Poly_Sub
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

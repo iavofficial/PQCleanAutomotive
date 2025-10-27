@@ -1,95 +1,113 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple
+*    includes the modules for SphincsShake_128fSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple_params
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128fSimple_params.h
+* \brief  Description of FsmSw_SphincsShake_128fSimple_params.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHAKE_128FSIMPLE_PARAMS_H
 #define FSMSW_SPHINCSSHAKE_128FSIMPLE_PARAMS_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Sphincs_shake_offsets.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 /* Hash output length in bytes. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_N                       16u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_N 16u
 /* Height of the hypertree. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT             66u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT 66u
 /* Number of subtree layer. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_D                       22u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_D 22u
 /* FORS tree dimensions. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT              6u
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES              33u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT 6u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES  33u
 /* Winternitz parameter, */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W                  16u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W 16u
 
 /* For clarity */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_ADDR_BYTES              32u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_ADDR_BYTES 32u
 
 /* WOTS parameters. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW                4u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW 4u
 
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1               (8u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N / \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1                                                                        \
+  (8u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N / FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW)
 
 /* FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2 is floor(log(len_1 * (w - 1)) / log(w)) + 1 we precompute */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2                3u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2 3u
 
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN                (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1 + \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2)
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES              (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN                                                                         \
+  (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1 + FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES                                                                       \
+  (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN * FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
 
 /* Subtree size. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREE_HEIGHT             (FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT / \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_D)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREE_HEIGHT                                                                      \
+  (FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT / FSMSW_SPHINCSSHAKE_128FSIMPLE_D)
 
 /* FORS parameters. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_MSG_BYTES         (((FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES) + 7u) / 8u)
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_BYTES             ((FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT + 1u) * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_MSG_BYTES                                                                   \
+  (((FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES) + 7u) / 8u)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_BYTES                                                                       \
+  ((FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT + 1u) * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES *                       \
+   FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
 
 /* Resulting SPX sizes. */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_BYTES                   (FSMSW_SPHINCSSHAKE_128FSIMPLE_N + \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_BYTES + \
-                                                               (FSMSW_SPHINCSSHAKE_128FSIMPLE_D * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES) +\
-                                                               (FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT * \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_N))
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_PK_BYTES                (2u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_BYTES                                                                            \
+  (FSMSW_SPHINCSSHAKE_128FSIMPLE_N + FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_BYTES +                                        \
+   (FSMSW_SPHINCSSHAKE_128FSIMPLE_D * FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES) +                                      \
+   (FSMSW_SPHINCSSHAKE_128FSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_N))
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_PK_BYTES (2u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
 /* polyspace +2 MISRA2012:2.5 [Justified:]"This define is reserved for the future." */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_SK_BYTES                (2 * FSMSW_SPHINCSSHAKE_128FSIMPLE_N + \
-                                                               FSMSW_SPHINCSSHAKE_128FSIMPLE_PK_BYTES)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_SK_BYTES                                                                         \
+  (2 * FSMSW_SPHINCSSHAKE_128FSIMPLE_N + FSMSW_SPHINCSSHAKE_128FSIMPLE_PK_BYTES)
 
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_CRYPTO_SEEDBYTES        (3u*FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_CRYPTO_SEEDBYTES (3u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N)
 
 /* Defines for max array length */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_THASH_BUF_LEN            35u
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREEHASH_BUF_LEN          1u /* Buffer with this length is currently not used */
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREEHASHX1_BUF_LEN        6u
-
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_THASH_BUF_LEN      35u
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREEHASH_BUF_LEN   1u /* Buffer with this length is currently not used */
+#define FSMSW_SPHINCSSHAKE_128FSIMPLE_TREEHASHX1_BUF_LEN 6u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -101,3 +119,7 @@
 /**********************************************************************************************************************/
 
 #endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_PARAMS_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

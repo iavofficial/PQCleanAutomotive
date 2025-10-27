@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium_ntt
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium_ntt.c
+* \brief  description of FsmSw_Dilithium_ntt
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -33,6 +52,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 static const sint32 FsmSw_Dilithium_zetas[N_DILITHIUM] = {
     0,        25847,    -2608894, -518909,  237124,   -777960,  -876248,  466468,   1826347,  2353451,  -359251,
@@ -69,16 +92,19 @@ static const sint32 FsmSw_Dilithium_zetas[N_DILITHIUM] = {
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_Ntt
+/*====================================================================================================================*/
+/** 
+* \brief Forward NTT, in-place. No modular reduction is performed after additions or subtractions.
+*  Output vector is in bitreversed order.
 *
-* Description: Forward NTT, in-place. No modular reduction is performed after additions or subtractions.
-*              Output vector is in bitreversed order.
-*
-* Arguments:   - uint32 a[N]: input/output coefficient array
-***********************************************************************************************************************/
+* \param[in,out] uint32 a[N] : input/output coefficient array
+*/
 void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM])
 {
   uint16 len   = 0;
@@ -103,17 +129,16 @@ void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM])
       }
     }
   }
-}
+} // end: FsmSw_Dilithium_Ntt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_InvnttTomont
-*
-* Description: Inverse NTT and multiplication by Montgomery factor 2^32. In-place. No modular reductions after additions
+/*====================================================================================================================*/
+/**
+* \brief Inverse NTT and multiplication by Montgomery factor 2^32. In-place. No modular reductions after additions
 *              or subtractions; input coefficients need to be smaller than Q in absolute value.
 *              Output coefficient are smaller than Q in absolute value.
 *
-* Arguments:   - uint32 a[N]: input/output coefficient array
-***********************************************************************************************************************/
+* \param[in,out] uint32 a[N] : input/output coefficient array
+*/
 void FsmSw_Dilithium_InvnttTomont(sint32 a[N_DILITHIUM])
 {
   uint16 start   = 0;
@@ -146,4 +171,8 @@ void FsmSw_Dilithium_InvnttTomont(sint32 a[N_DILITHIUM])
   {
     a[j] = FsmSw_Dilithium_MontgomeryReduce((sint64)f * a[j]);
   }
-}
+} // end: FsmSw_Dilithium_InvnttTomont
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

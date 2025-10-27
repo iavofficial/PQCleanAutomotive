@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_256sSimple
+*    includes the modules for SphincsSha2_256sSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_256sSimple_wotsx1
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_256sSimple_wotsx1.c
+* \brief  description of FsmSw_SphincsSha2_256sSimple_wotsx1.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -28,7 +47,6 @@
 #include "FsmSw_Sphincs_sha2_address.h"
 
 #include "FsmSw_SphincsSha2_256sSimple_wotsx1.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -39,6 +57,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -56,18 +78,20 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Wots_GenLeafX1
+
+/*====================================================================================================================*/
+/**
+ * \brief This generates a WOTS public key. It also generates the WOTS signature if leaf_info indicates that we're
+ *        signing with this WOTS key.
  *
- * Description: This generates a WOTS public key. It also generates the WOTS signature if leaf_info indicates that we're
- *              signing with this WOTS key.
+ * \param[out] uint8                      *dest : t.b.d.
+ * \param[in]  const sphincs_sha2_256s_ctx *ctx : t.b.d.
+ * \param[in]  uint32                  leaf_idx : t.b.d.
+ * \param[in]  void                     *v_info : t.b.d.
  *
- * Arguments:   -       uint8                 *dest:     t.b.d.
- *              - const sphincs_sha2_256s_ctx *ctx:      t.b.d.
- *              -       uint32                 leaf_idx: t.b.d.
- *              -       void                  *v_info:   t.b.d.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
@@ -75,8 +99,10 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 void FsmSw_SphincsSha2_256sSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2_256s_ctx *ctx, uint32 leaf_idx,
                                                  void *v_info)
 {
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   Fsmsw_Sphincssha2_256sSimple_LeafInfoX1_T *info          = v_info;
   uint32 *leaf_addr                                        = info->leaf_addr;
   uint32 *pk_addr                                          = info->pk_addr;
@@ -144,4 +170,8 @@ void FsmSw_SphincsSha2_256sSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2
 
   /* Do the final thash to generate the public keys */
   FsmSw_SphincsSha2_256sSimple_Thash(dest, pk_buffer, FSMSW_SPHINCSSHA2_256SSIMPLE_WOTS_LEN, ctx, pk_addr);
-}
+} // end: FsmSw_SphincsSha2_256sSimple_Wots_GenLeafX1
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber1024
+*    includes the modules for Kyber1024
+ ** @{ */
+/** \addtogroup Kyber1024_cbd
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber1024_cbd.c
+* \brief  description of FsmSw_Kyber1024_cbd.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -36,6 +55,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -48,32 +71,35 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_Cbd_Eta1
-*
-* Description: Given an array of uniformly random bytes, compute
-*              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=2
-*
-* Arguments:   -       poly  *r:   pointer to output polynomial
-*              - const uint8 *buf: pointer to input byte array
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_Cbd_Eta1(poly *r, const uint8 buf[KYBER1024_ETA1 * KYBER_N / 4u])
-{
-  FsmSw_Kyber_Cbd2(r, buf);
-}
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_Cbd_Eta2
+/*====================================================================================================================*/
+/**
+* \brief Given an array of uniformly random bytes, compute
+*        polynomial with coefficients distributed according to
+*        a centered binomial distribution with parameter eta=2
 *
-* Description: Given an array of uniformly random bytes, compute
-*              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=2
-*
-* Arguments:   -       poly  *r:   pointer to output polynomial
-*              - const uint8 *buf: pointer to input byte array
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_Cbd_Eta2(poly *r, const uint8 buf[KYBER1024_ETA2 * KYBER_N / 4u])
+* \param[out] poly          *r : pointer to output polynomial
+* \param[in]  const uint8 *buf : pointer to input byte array
+*/
+void FsmSw_Kyber1024_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER1024_ETA1 * KYBER_N / 4u])
 {
   FsmSw_Kyber_Cbd2(r, buf);
-}
+} // end: FsmSw_Kyber1024_Poly_Cbd_Eta1
+
+/*====================================================================================================================*/
+/**
+* \brief Given an array of uniformly random bytes, compute
+*        polynomial with coefficients distributed according to
+*        a centered binomial distribution with parameter eta=2
+*
+* \param[out] poly          *r : pointer to output polynomial
+* \param[in]  const uint8 *buf : pointer to input byte array
+*/
+void FsmSw_Kyber1024_Poly_Cbd_Eta2(poly *const r, const uint8 buf[KYBER1024_ETA2 * KYBER_N / 4u])
+{
+  FsmSw_Kyber_Cbd2(r, buf);
+} // end: FsmSw_Kyber1024_Poly_Cbd_Eta2
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128sSimple
+*    includes the modules for SphincsShake_128sSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128sSimple_thash
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128sSimple_thash_shake_simple.c
+* \brief  description of FsmSw_SphincsShake_128sSimple_thash_shake_simple.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -25,9 +44,8 @@
 #include "FsmSw_Sphincs_shake_address.h"
 
 #include "FsmSw_SphincsShake_128sSimple_thash.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -36,6 +54,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -53,18 +75,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_128sSimple_Thash
+
+/*====================================================================================================================*/
+/**
+ * \brief Takes an array of inblocks concatenated arrays of FSMSW_SPHINCSSHAKE_128SSIMPLE_N bytes.
  *
- * Description: Takes an array of inblocks concatenated arrays of FSMSW_SPHINCSSHAKE_128SSIMPLE_N bytes.
+ * \param[out] uint8                        *out : t.b.d.
+ * \param[in]  const uint8                   *in : t.b.d.
+ * \param[in]  uint32                   inblocks : t.b.d.
+ * \param[in]  const sphincs_shake_128s_ctx *ctx : t.b.d.
+ * \param[in]  const uint32              addr[8] : t.b.d.
  *
- * Arguments:   -       uint8                  *out:      t.b.d.
- *              - const uint8                  *in:       t.b.d.
- *              -       uint32                  inblocks: t.b.d.
- *              - const sphincs_shake_128s_ctx *ctx:      t.b.d.
- *              - const uint32                  addr[8]:  t.b.d.
- *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsShake_128sSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks,
                                          const sphincs_shake_128s_ctx *ctx, const uint32 addr[8])
 {
@@ -79,4 +101,8 @@ void FsmSw_SphincsShake_128sSimple_Thash(uint8 *out, const uint8 *in, uint32 inb
   FsmSw_Fips202_Shake256(out, FSMSW_SPHINCSSHAKE_128SSIMPLE_N, buf,
                          FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES +
                              (inblocks * FSMSW_SPHINCSSHAKE_128SSIMPLE_N));
-}
+} // end: FsmSw_SphincsShake_128sSimple_Thash
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

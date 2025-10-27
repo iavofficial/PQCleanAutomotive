@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Libs
+*    includes the modules for Libs
+ ** @{ */
+/** \addtogroup CommonLibs
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_CommonLib.h
+* \brief  Declarations for the modul FsmSw_CommonLib.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -21,12 +40,14 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define UINT32_MAXVAL ((uint32)4294967295u) /* This value is 2^32 - 1 */
 #define NULL_PTR      ((void *)0)
+
+#define ERR_OK     0u
+#define ERR_NOT_OK 1u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -36,17 +57,25 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_CommonLib_MemCpy(void *dest, const void *src, const uint32 n);
-void FsmSw_CommonLib_MemSet(void *dest, const uint8 value, const uint32 n);
-uint8 FsmSw_CommonLib_MemCmp(void *dest, const void *src, const uint32 n);
-void FsmSw_CommonLib_MemMove(void *dest, const void *src, const uint32 n);
-uint8 FsmSw_CommonLib_RandomBytes(uint8 *output, const uint32 n);
+void FsmSw_CommonLib_MemCpy(void *const dest, const void *const src, const uint32 n);
+void FsmSw_CommonLib_MemSet(void *const dest, const uint8 value, const uint32 n);
+uint8 FsmSw_CommonLib_MemCmp(void *const dest, const void *const src, const uint32 n);
+void FsmSw_CommonLib_MemMove(void *const dest, const void *const src, const uint32 n);
+uint8 FsmSw_CommonLib_RandomBytes(uint8 *const output, const uint32 n);
 void FsmSw_CommonLib_SRand(const uint32 seed);
 
 #endif /* FSMSW_COMMONLIB_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

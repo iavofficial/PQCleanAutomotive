@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber1024
+*    includes the modules for Kyber1024
+ ** @{ */
+/** \addtogroup Kyber1024_indcpa
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber1024_indcpa.c
+* \brief  description of FsmSw_Kyber1024_indcpa.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -44,37 +63,43 @@ if the defines change, so it's not dead code." */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_kyber1024_PackPk(uint8 r[KYBER1024_INDCPA_PUBLICKEYBYTES], const polyvec1024 *pk,
+static void fsmsw_kyber1024_PackPk(uint8 r[KYBER1024_INDCPA_PUBLICKEYBYTES], const polyvec1024 *const pk,
                                    const uint8 seed[KYBER_SYMBYTES]);
-static void fsmsw_kyber1024_UnpackPk(polyvec1024 *pk, uint8 seed[KYBER_SYMBYTES],
+static void fsmsw_kyber1024_UnpackPk(polyvec1024 *const pk, uint8 seed[KYBER_SYMBYTES],
                                      const uint8 packedpk[KYBER1024_INDCPA_PUBLICKEYBYTES]);
-static void fsmsw_kyber1024_PackSk(uint8 r[KYBER1024_INDCPA_SECRETKEYBYTES], const polyvec1024 *sk);
-static void fsmsw_kyber1024_UnpackSk(polyvec1024 *sk, const uint8 packedsk[KYBER1024_INDCPA_SECRETKEYBYTES]);
-static void fsmsw_kyber1024_PackCiphertext(uint8 r[KYBER1024_INDCPA_BYTES], const polyvec1024 *b, const poly *v);
-static void fsmsw_kyber1024_UnpackCiphertext(polyvec1024 *b, poly *v, const uint8 c[KYBER1024_INDCPA_BYTES]);
-static uint16 fsmsw_kyber1024_RejUniform(sint16 *r, uint16 len, const uint8 *buf, uint16 buflen);
+static void fsmsw_kyber1024_PackSk(uint8 r[KYBER1024_INDCPA_SECRETKEYBYTES], const polyvec1024 *const sk);
+static void fsmsw_kyber1024_UnpackSk(polyvec1024 *const sk, const uint8 packedsk[KYBER1024_INDCPA_SECRETKEYBYTES]);
+static void fsmsw_kyber1024_PackCiphertext(uint8 r[KYBER1024_INDCPA_BYTES], const polyvec1024 *const b,
+                                           const poly *const v);
+static void fsmsw_kyber1024_UnpackCiphertext(polyvec1024 *const b, poly *const v,
+                                             const uint8 c[KYBER1024_INDCPA_BYTES]);
+static uint16 fsmsw_kyber1024_RejUniform(sint16 *const r, uint16 len, const uint8 *const buf, uint16 buflen);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_PackPk
+
+/*====================================================================================================================*/
+/**
+* \brief Serialize the public key as concatenation of the
+*        serialized vector of polynomials pk
+*        and the public seed used to generate the matrix A.
 *
-* Description: Serialize the public key as concatenation of the
-*              serialized vector of polynomials pk
-*              and the public seed used to generate the matrix A.
-*
-* Arguments:         uint8       *r:    pointer to the output serialized public key
-*              const polyvec1024 *pk:   pointer to the input public-key polyvec
-*              const uint8       *seed: pointer to the input public seed
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_PackPk(uint8 r[KYBER1024_INDCPA_PUBLICKEYBYTES], const polyvec1024 *pk,
+* \param[out] uint8              *r : pointer to the output serialized public key
+* \param[in]  const polyvec1024 *pk : pointer to the input public-key polyvec
+* \param[in]  const uint8     *seed : pointer to the input public seed
+*/
+static void fsmsw_kyber1024_PackPk(uint8 r[KYBER1024_INDCPA_PUBLICKEYBYTES], const polyvec1024 *const pk,
                                    const uint8 seed[KYBER_SYMBYTES])
 {
   uint32 i = 0;
@@ -85,19 +110,18 @@ static void fsmsw_kyber1024_PackPk(uint8 r[KYBER1024_INDCPA_PUBLICKEYBYTES], con
   {
     r[i + KYBER1024_POLYVECBYTES] = seed[i];
   }
-}
+} // end: fsmsw_kyber1024_PackPk
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_UnpackPk
+/*====================================================================================================================*/
+/**
+* \brief De-serialize public key from a byte array
+*        approximate inverse of fsmsw_kyber1024_PackPk
 *
-* Description: De-serialize public key from a byte array
-*              approximate inverse of fsmsw_kyber1024_PackPk
-*
-* Arguments:   -       polyvec1024 *pk:       pointer to output public-key polynomial vector
-*              -       uint8       *seed:     pointer to output seed to generate matrix A
-*              - const uint8       *packedpk: pointer to input serialized public key
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_UnpackPk(polyvec1024 *pk, uint8 seed[KYBER_SYMBYTES],
+* \param[out] polyvec1024       *pk : pointer to output public-key polynomial vector
+* \param[out] uint8           *seed : pointer to output seed to generate matrix A
+* \param[in]  const uint8 *packedpk : pointer to input serialized public key
+*/
+static void fsmsw_kyber1024_UnpackPk(polyvec1024 *const pk, uint8 seed[KYBER_SYMBYTES],
                                      const uint8 packedpk[KYBER1024_INDCPA_PUBLICKEYBYTES])
 {
   uint32 i = 0;
@@ -108,81 +132,77 @@ static void fsmsw_kyber1024_UnpackPk(polyvec1024 *pk, uint8 seed[KYBER_SYMBYTES]
   {
     seed[i] = packedpk[i + KYBER1024_POLYVECBYTES];
   }
-}
+} // end: fsmsw_kyber1024_UnpackPk
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_PackSk
+/*====================================================================================================================*/
+/**
+* \brief Serialize the secret key
 *
-* Description: Serialize the secret key
-*
-* Arguments:   -       uint8       *r:  pointer to output serialized secret key
-*              - const polyvec1024 *sk: pointer to input vector of polynomials (secret key)
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_PackSk(uint8 r[KYBER1024_INDCPA_SECRETKEYBYTES], const polyvec1024 *sk)
+* \param[out] uint8              *r : pointer to output serialized secret key
+* \param[in]  const polyvec1024 *sk : pointer to input vector of polynomials (secret key)
+*/
+static void fsmsw_kyber1024_PackSk(uint8 r[KYBER1024_INDCPA_SECRETKEYBYTES], const polyvec1024 *const sk)
 {
   FsmSw_Kyber1024_Polyvec_ToBytes(r, sk);
-}
+} // end: fsmsw_kyber1024_PackSk
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_UnpackSk
+/*====================================================================================================================*/
+/**
+* \brief De-serialize the secret key; inverse of fsmsw_kyber1024_PackSk
 *
-* Description: De-serialize the secret key; inverse of fsmsw_kyber1024_PackSk
-*
-* Arguments:   -       polyvec1024 *sk:       pointer to output vector of polynomials (secret key)
-*              - const uint8       *packedsk: pointer to input serialized secret key
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_UnpackSk(polyvec1024 *sk, const uint8 packedsk[KYBER1024_INDCPA_SECRETKEYBYTES])
+* \param[out] polyvec1024       *sk : pointer to output vector of polynomials (secret key)
+* \param[in]  const uint8 *packedsk : pointer to input serialized secret key
+*/
+static void fsmsw_kyber1024_UnpackSk(polyvec1024 *const sk, const uint8 packedsk[KYBER1024_INDCPA_SECRETKEYBYTES])
 {
   FsmSw_Kyber1024_Polyvec_FromBytes(sk, packedsk);
-}
+} // end: fsmsw_kyber1024_UnpackSk
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_PackCiphertext
+/*====================================================================================================================*/
+/**
+* \brief Serialize the ciphertext as concatenation of the
+*        compressed and serialized vector of polynomials b
+*        and the compressed and serialized polynomial v
 *
-* Description: Serialize the ciphertext as concatenation of the
-*              compressed and serialized vector of polynomials b
-*              and the compressed and serialized polynomial v
-*
-* Arguments:         uint8    *r: pointer to the output serialized ciphertext
-*              const poly *b: pointer to the input vector of polynomials b
-*              const poly *v: pointer to the input polynomial v
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_PackCiphertext(uint8 r[KYBER1024_INDCPA_BYTES], const polyvec1024 *b, const poly *v)
+* \param[out] uint8      *r : pointer to the output serialized ciphertext
+* \param[in]  const poly *b : pointer to the input vector of polynomials b
+* \param[in]  const poly *v : pointer to the input polynomial v
+*/
+static void fsmsw_kyber1024_PackCiphertext(uint8 r[KYBER1024_INDCPA_BYTES], const polyvec1024 *const b,
+                                           const poly *const v)
 {
   FsmSw_Kyber1024_Polyvec_Compress(r, b);
   FsmSw_Kyber1024_Poly_Compress(&r[KYBER1024_POLYVECCOMPRESSEDBYTES], v);
-}
+} // end: fsmsw_kyber1024_PackCiphertext
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_UnpackCiphertext
+/*====================================================================================================================*/
+/**
+* \brief De-serialize and decompress ciphertext from a byte array;
+*        approximate inverse of fsmsw_kyber1024_PackCiphertext
 *
-* Description: De-serialize and decompress ciphertext from a byte array;
-*              approximate inverse of fsmsw_kyber1024_PackCiphertext
-*
-* Arguments:   -       polyvec1024 *b: pointer to the output vector of polynomials b
-*              -       poly    *v: pointer to the output polynomial v
-*              - const uint8       *c: pointer to the input serialized ciphertext
-***********************************************************************************************************************/
-static void fsmsw_kyber1024_UnpackCiphertext(polyvec1024 *b, poly *v, const uint8 c[KYBER1024_INDCPA_BYTES])
+* \param[out] polyvec1024 *b : pointer to the output vector of polynomials b
+* \param[out] poly        *v : pointer to the output polynomial v
+* \param[in]  const uint8 *c : pointer to the input serialized ciphertext
+*/
+static void fsmsw_kyber1024_UnpackCiphertext(polyvec1024 *const b, poly *const v, const uint8 c[KYBER1024_INDCPA_BYTES])
 {
   FsmSw_Kyber1024_Polyvec_Decompress(b, c);
   FsmSw_Kyber1024_Poly_Decompress(v, &c[KYBER1024_POLYVECCOMPRESSEDBYTES]);
-}
+} // end: fsmsw_kyber1024_UnpackCiphertext
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber1024_RejUniform
+/*====================================================================================================================*/
+/**
+* \brief Run rejection sampling on uniform random bytes to generate
+*        uniform random integers mod q
 *
-* Description: Run rejection sampling on uniform random bytes to generate
-*              uniform random integers mod q
+* \param[out] sint16       *r : pointer to output buffer
+* \param[in]  uint16      len : requested number of 16-bit integers (uniform mod q)
+* \param[in]  const uint8 *buf: pointer to input buffer (assumed to be uniformly random bytes)
+* \param[in]  uint16   buflen : length of input buffer in bytes
 *
-* Arguments:   -       sint16 *r:      pointer to output buffer
-*              -       uint16  len:    requested number of 16-bit integers (uniform mod q)
-*              - const uint8  *buf:    pointer to input buffer (assumed to be uniformly random bytes)
-*              -       uint16  buflen: length of input buffer in bytes
-*
-* Returns number of sampled 16-bit integers (at most len)
-***********************************************************************************************************************/
-static uint16 fsmsw_kyber1024_RejUniform(sint16 *r, uint16 len, const uint8 *buf, uint16 buflen)
+* \returns number of sampled 16-bit integers (at most len)
+*/
+static uint16 fsmsw_kyber1024_RejUniform(sint16 *const r, uint16 len, const uint8 *const buf, uint16 buflen)
 {
   uint16 ctr  = 0;
   uint16 pos  = 0;
@@ -209,23 +229,24 @@ static uint16 fsmsw_kyber1024_RejUniform(sint16 *r, uint16 len, const uint8 *buf
   }
 
   return ctr;
-}
-
+} // end: fsmsw_kyber1024_RejUniform
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Indcpa_GenMatrix
+
+/*====================================================================================================================*/
+/**
+* \brief Deterministically generate matrix A (or the transpose of A)
+*        from a seed. Entries of the matrix are polynomials that look
+*        uniformly random. Performs rejection sampling on output of
+*        a XOF
 *
-* Description: Deterministically generate matrix A (or the transpose of A)
-*              from a seed. Entries of the matrix are polynomials that look
-*              uniformly random. Performs rejection sampling on output of
-*              a XOF
-*
-* Arguments:   -       polyvec1024 *a:          pointer to ouptput matrix A
-*              - const uint8       *seed:       pointer to input seed
-*              -       uint8        transposed: boolean deciding whether A or A^T is generated
-***********************************************************************************************************************/
+* \param[out] polyvec1024    *a : pointer to ouptput matrix A
+* \param[in]  const uint8 *seed : pointer to input seed
+* \param[in]  uint8  transposed : boolean deciding whether A or A^T is generated
+*/
+/* polyspace +3 CERT-C:DCL15-C [Justified:]"Not static for benchmarking */
+/* polyspace +2 CERT-C:DCL19-C [Justified:]"Not static for benchmarking */
 /* polyspace +1 MISRA2012:8.7 [Justified:]"Not static for benchmarking */
 void FsmSw_Kyber1024_Indcpa_GenMatrix(polyvec1024 *a, const uint8 seed[KYBER_SYMBYTES], uint8 transposed)
 {
@@ -268,24 +289,23 @@ void FsmSw_Kyber1024_Indcpa_GenMatrix(polyvec1024 *a, const uint8 seed[KYBER_SYM
       }
     }
   }
-}
+} // end: FsmSw_Kyber1024_Indcpa_GenMatrix
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Indcpa_KeyPair
+/*====================================================================================================================*/
+/**
+* \brief Generates public and private key for the CPA-secure
+*        public-key encryption scheme underlying Kyber
 *
-* Description: Generates public and private key for the CPA-secure
-*              public-key encryption scheme underlying Kyber
-*
-* Arguments:   - uint8 *pk: pointer to output public key (of length KYBER1024_INDCPA_PUBLICKEYBYTES bytes)
-*              - uint8 *sk: pointer to output private key  (of length KYBER1024_INDCPA_SECRETKEYBYTES bytes)
-***********************************************************************************************************************/
+* \param[out] uint8 *pk : pointer to output public key (of length KYBER1024_INDCPA_PUBLICKEYBYTES bytes)
+* \param[out] uint8 *sk : pointer to output private key  (of length KYBER1024_INDCPA_SECRETKEYBYTES bytes)
+*/
 void FsmSw_Kyber1024_Indcpa_KeyPair(uint8 pk[KYBER1024_INDCPA_PUBLICKEYBYTES],
                                     uint8 sk[KYBER1024_INDCPA_SECRETKEYBYTES])
 {
   uint8 i                        = 0;
   uint8 buf[2u * KYBER_SYMBYTES] = {0};
-  const uint8 *publicseed        = buf;
-  const uint8 *noiseseed         = &buf[KYBER_SYMBYTES];
+  const uint8 *const publicseed  = buf;
+  const uint8 *const noiseseed   = &buf[KYBER_SYMBYTES];
   uint8 nonce                    = 0;
 
   polyvec1024 a[KYBER1024_K], e, pkpv, skpv;
@@ -322,21 +342,20 @@ void FsmSw_Kyber1024_Indcpa_KeyPair(uint8 pk[KYBER1024_INDCPA_PUBLICKEYBYTES],
 
   fsmsw_kyber1024_PackSk(sk, &skpv);
   fsmsw_kyber1024_PackPk(pk, &pkpv, publicseed);
-}
+} // end: FsmSw_Kyber1024_Indcpa_KeyPair
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Indcpa_Enc
+/*====================================================================================================================*/
+/**
+* \brief Encryption function of the CPA-secure
+*        public-key encryption scheme underlying Kyber.
 *
-* Description: Encryption function of the CPA-secure
-*              public-key encryption scheme underlying Kyber.
-*
-* Arguments:   -       uint8 *c:     pointer to output ciphertext (of length KYBER1024_INDCPA_BYTES bytes)
-*              - const uint8 *m:     pointer to input message (of length KYBER1024_INDCPA_MSGBYTES bytes)
-*              - const uint8 *pk:    pointer to input public key (of length KYBER1024_INDCPA_PUBLICKEYBYTES)
-*              - const uint8 *coins: pointer to input random coins used as seed
-*                                    (of length KYBER_SYMBYTES) to deterministically
-*                                    generate all randomness
-***********************************************************************************************************************/
+* \param[out] uint8           *c : pointer to output ciphertext (of length KYBER1024_INDCPA_BYTES bytes)
+* \param[in]  const uint8     *m : pointer to input message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+* \param[in]  const uint8    *pk : pointer to input public key (of length KYBER1024_INDCPA_PUBLICKEYBYTES)
+* \param[in]  const uint8 *coins : pointer to input random coins used as seed
+*                                  (of length KYBER_SYMBYTES) to deterministically
+*                                  generate all randomness
+*/
 void FsmSw_Kyber1024_Indcpa_Enc(uint8 c[KYBER1024_INDCPA_BYTES], const uint8 m[KYBER1024_INDCPA_MSGBYTES],
                                 const uint8 pk[KYBER1024_INDCPA_PUBLICKEYBYTES], const uint8 coins[KYBER_SYMBYTES])
 {
@@ -390,18 +409,17 @@ void FsmSw_Kyber1024_Indcpa_Enc(uint8 c[KYBER1024_INDCPA_BYTES], const uint8 m[K
   FsmSw_Kyber_Poly_Reduce(&v);
 
   fsmsw_kyber1024_PackCiphertext(c, &b, &v);
-}
+} // end: FsmSw_Kyber1024_Indcpa_Enc
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Indcpa_Dec
+/*====================================================================================================================*/
+/**
+* \brief Decryption function of the CPA-secure
+*        public-key encryption scheme underlying Kyber.
 *
-* Description: Decryption function of the CPA-secure
-*              public-key encryption scheme underlying Kyber.
-*
-* Arguments:   -       uint8 *m:  pointer to output decrypted message (of length KYBER1024_INDCPA_MSGBYTES bytes)
-*              - const uint8 *c:  pointer to input ciphertext (of length KYBER1024_INDCPA_BYTES bytes)
-*              - const uint8 *sk: pointer to input secret key (of length KYBER1024_INDCPA_SECRETKEYBYTES bytes)
-***********************************************************************************************************************/
+* \param[out] uint8        *m :  pointer to output decrypted message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+* \param[in]  const uint8  *c :  pointer to input ciphertext (of length KYBER1024_INDCPA_BYTES bytes)
+* \param[in]  const uint8 *sk : pointer to input secret key (of length KYBER1024_INDCPA_SECRETKEYBYTES bytes)
+*/
 void FsmSw_Kyber1024_Indcpa_Dec(uint8 m[KYBER1024_INDCPA_MSGBYTES], const uint8 c[KYBER1024_INDCPA_BYTES],
                                 const uint8 sk[KYBER1024_INDCPA_SECRETKEYBYTES])
 {
@@ -421,4 +439,8 @@ void FsmSw_Kyber1024_Indcpa_Dec(uint8 m[KYBER1024_INDCPA_MSGBYTES], const uint8 
   FsmSw_Kyber_Poly_Reduce(&mp);
 
   FsmSw_Kyber1024_Poly_ToMsg(m, &mp);
-}
+} // end: FsmSw_Kyber1024_Indcpa_Dec
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_192sSimple
+*    includes the modules for SphincsShake_192sSimple
+ ** @{ */
+/** \addtogroup SphincsShake_192sSimple_utilsx1
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_192sSimple_utilsx1.c
+* \brief  description of FsmSw_SphincsShake_192sSimple_utilsx1.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -25,7 +44,6 @@
 #include "FsmSw_Sphincs_shake_address.h"
 
 #include "FsmSw_SphincsShake_192sSimple_utilsx1.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -36,6 +54,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -53,33 +75,33 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_192sSimple_3_TreeHashX1
+
+/*====================================================================================================================*/
+/**
+ * \brief Generate the entire Merkle tree, computing the authentication path for leaf_idx, and the resulting root
+ *        node using Merkle's TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as
+ *        well as the tree type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE).
+ *        This expects tree_addr to be initialized to the addr structures for the Merkle tree nodes.
+ *        Applies the offset idx_offset to indices before building addresses, so that it is possible to continue
+ *        counting indices across trees.
+ *        This works by using the standard Merkle tree building algorithm.
  *
- * Description: Generate the entire Merkle tree, computing the authentication path for leaf_idx, and the resulting root
- *              node using Merkle's TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as
- *              well as the tree type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE).
- *              This expects tree_addr to be initialized to the addr structures for the Merkle tree nodes.
- *              Applies the offset idx_offset to indices before building addresses, so that it is possible to continue
- *              counting indices across trees.
- *              This works by using the standard Merkle tree building algorithm.
- *
- * Arguments:   -       uint8                  *root:         t.b.d.
- *              -       uint8                  *auth_path:    t.b.d.
- *              - const sphincs_shake_192s_ctx *ctx:          t.b.d.
- *              -       uint32                  leaf_idx:     t.b.d.
- *              -       uint32                  idx_offset:   t.b.d.
- *              -       uint32                  tree_height:  t.b.d.
- *              -       void                 (*gen_leaf)
+ * \param[out] uint8                       *root : t.b.d.
+ * \param[out] uint8                  *auth_path : t.b.d.
+ * \param[in]  const sphincs_shake_192s_ctx *ctx : t.b.d.
+ * \param[in]  uint32                   leaf_idx : t.b.d.
+ * \param[in]  uint32                 idx_offset : t.b.d.
+ * \param[in]  uint32                tree_height : t.b.d.
+ * \param[in]  void                 (*gen_leaf)
  *                                             (
- *                                                     uint8                  *leaf:         t.b.d.
- *                                               const sphincs_shake_192s_ctx *ctx:          t.b.d.
- *                                                     uint32                  idx:          t.b.d.
- *                                               const uint32                  tree_addr[8]: t.b.d.
+ *                                                     uint8                 *leaf : t.b.d.
+ *                                               const sphincs_shake_192s_ctx *ctx : t.b.d.
+ *                                                     uint32                  idx : t.b.d.
+ *                                               const uint32         tree_addr[8] : t.b.d.
  *                                             )
- *              -       uint32                  tree_addr[8]: t.b.d.
+ * \param[in]  uint32               tree_addr[8] : t.b.d.
  *
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(uint8 *root, uint8 *auth_path, const sphincs_shake_192s_ctx *ctx,
                                                 uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
                                                 void (*gen_leaf)(uint8 *leave /* Where to write the leaves */,
@@ -158,4 +180,8 @@ void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(uint8 *root, uint8 *auth_path, c
                              FSMSW_SPHINCSSHAKE_192SSIMPLE_N);
     }
   }
-}
+} // end: FsmSw_SphincsShake_192sSimple_3_TreeHashX1
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Dilithium2
+*    includes the modules for Dilithium2
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium2_poly
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium2_poly.c
+* \brief  description of FsmSw_Dilithium2_poly.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -32,7 +51,6 @@
 #define POLY_UNIFORM_NBLOCKS        ((768u + STREAM128_BLOCKBYTES - 1u) / STREAM128_BLOCKBYTES)
 #define POLY_UNIFORM_ETA_NBLOCKS    ((136u + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
 #define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES_DILITHIUM2 + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -42,32 +60,35 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static uint32 fsmsw_dilithium2_RejEta(sint32 *a, uint32 len, const uint8 *buf, uint32 buflen);
-static uint32 fsmsw_dilithium2_RejUniform(sint32 *a, uint32 len, const uint8 *buf, uint32 buflen);
+static uint32 fsmsw_dilithium2_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
+static uint32 fsmsw_dilithium2_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_dilithium2_RejEta
- *
- * Description: Sample uniformly random coefficients in [-ETA, ETA] by
+/*====================================================================================================================*/
+/** 
+ * \brief Sample uniformly random coefficients in [-ETA, ETA] by
  *              performing rejection sampling on array of random bytes.
  *
- * Arguments:   -       sint32 *a:      pointer to output array (allocated)
- *              -       uint32  len:    number of coefficients to be sampled
- *              - const uint8  *buf:    array of random bytes
- *              -       uint32  buflen: length of array of random bytes
+ * \param[out] sint32        *a : pointer to output array (allocated)
+ * \param[in]  uint32       len : number of coefficients to be sampled
+ * \param[in]  const uint8 *buf : array of random bytes
+ * \param[in]  uint32    buflen : length of array of random bytes
  *
  * Returns number of sampled coefficients. Can be smaller than len if not enough random bytes were given.
- **********************************************************************************************************************/
-static uint32 fsmsw_dilithium2_RejEta(sint32 *a, uint32 len, const uint8 *buf, uint32 buflen)
+*/
+static uint32 fsmsw_dilithium2_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
 {
   uint32 ctr = 0;
   uint32 pos = 0;
@@ -96,23 +117,21 @@ static uint32 fsmsw_dilithium2_RejEta(sint32 *a, uint32 len, const uint8 *buf, u
   }
 
   return ctr;
-}
-
-/***********************************************************************************************************************
- * Name:        fsmsw_dilithium2_RejUniform
- *
- * Description: Sample uniformly random coefficients in [0, Q-1] by
+} // end: fsmsw_dilithium2_RejEta
+/*====================================================================================================================*/
+/**
+ * \brief Sample uniformly random coefficients in [0, Q-1] by
  *              performing rejection sampling on array of random bytes.
  *
- * Arguments:   -       sint32 *a:     pointer to output array (allocated)
- *              -       uint32 len:    number of coefficients to be sampled
- *              - const uint8 *buf:    array of random bytes
- *              -       uint32 buflen: length of array of random bytes
+ * \param[out]  sint32         *a : pointer to output array (allocated)
+ * \param[in]   uint32        len : number of coefficients to be sampled
+ * \param[in]   const  uint8 *buf : array of random bytes
+ * \param[in]   uint32     buflen : length of array of random bytes
  *
  * Returns number of sampled coefficients. Can be smaller than len if not enough
  * random bytes were given.
- **********************************************************************************************************************/
-static uint32 fsmsw_dilithium2_RejUniform(sint32 *a, uint32 len, const uint8 *buf, uint32 buflen)
+*/
+static uint32 fsmsw_dilithium2_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
 {
   uint32 ctr, pos;
   uint32 t;
@@ -137,20 +156,18 @@ static uint32 fsmsw_dilithium2_RejUniform(sint32 *a, uint32 len, const uint8 *bu
   }
 
   return ctr;
-}
+} // end: fsmsw_dilithium2_RejUniform
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Reduce
+/*====================================================================================================================*/
+/**
+ * \brief Inplace reduction of all coefficients of polynomial to representative in [-6283009,6283007].
  *
- * Description: Inplace reduction of all coefficients of polynomial to representative in [-6283009,6283007].
- *
- * Arguments:   - poly_D2 *a: pointer to input/output polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Reduce(poly_D2 *a)
+ * \param[out] poly_D2 *a: pointer to input/output polynomial
+*/
+void FsmSw_Dilithium2_Poly_Reduce(poly_D2 *const a)
 {
   uint16 i;
 
@@ -158,16 +175,14 @@ void FsmSw_Dilithium2_Poly_Reduce(poly_D2 *a)
   {
     a->coeffs[i] = FsmSw_Dilithium_Reduce32(a->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_CAddQ
+} // end: FsmSw_Dilithium2_Poly_Reduce
+/*====================================================================================================================*/
+/**
+ * \brief For all coefficients of in/out polynomial add Q if coefficient is negative.
  *
- * Description: For all coefficients of in/out polynomial add Q if coefficient is negative.
- *
- * Arguments:   - poly_D2 *a: pointer to input/output polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_CAddQ(poly_D2 *a)
+ * \param[out] poly_D2 *a: pointer to input/output polynomial
+*/
+void FsmSw_Dilithium2_Poly_CAddQ(poly_D2 *const a)
 {
   uint16 i;
 
@@ -175,18 +190,16 @@ void FsmSw_Dilithium2_Poly_CAddQ(poly_D2 *a)
   {
     a->coeffs[i] = FsmSw_Dilithium_CAddQ(a->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Add
+} // end: FsmSw_Dilithium2_Poly_CAddQ
+/*====================================================================================================================*/
+/**
+ * \brief Add polynomials. No modular reduction is performed.
  *
- * Description: Add polynomials. No modular reduction is performed.
- *
- * Arguments:   -       poly_D2 *c: pointer to output polynomial
- *              - const poly_D2 *a: pointer to first summand
- *              - const poly_D2 *b: pointer to second summand
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Add(poly_D2 *c, const poly_D2 *a, const poly_D2 *b)
+ * \param[out]  poly_D2       *c : pointer to output polynomial
+ * \param[in]   const poly_D2 *a : pointer to first summand
+ * \param[in]   const poly_D2 *b : pointer to second summand
+*/
+void FsmSw_Dilithium2_Poly_Add(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b)
 {
   uint16 i;
 
@@ -194,18 +207,16 @@ void FsmSw_Dilithium2_Poly_Add(poly_D2 *c, const poly_D2 *a, const poly_D2 *b)
   {
     c->coeffs[i] = a->coeffs[i] + b->coeffs[i];
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Sub
+} // end: FsmSw_Dilithium2_Poly_Add
+/*====================================================================================================================*/
+/**
+ * \brief Subtract polynomials. No modular reduction is performed.
  *
- * Description: Subtract polynomials. No modular reduction is performed.
- *
- * Arguments:   -       poly_D2 *c: pointer to output polynomial
- *              - const poly_D2 *a: pointer to first input polynomial
- *              - const poly_D2 *b: pointer to second input polynomial to be subtraced from first input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Sub(poly_D2 *c, const poly_D2 *a, const poly_D2 *b)
+ * \param[out]  poly_D2       *c : pointer to output polynomial
+ * \param[in]   const poly_D2 *a : pointer to first input polynomial
+ * \param[in]   const poly_D2 *b : pointer to second input polynomial to be subtraced from first input polynomial
+*/
+void FsmSw_Dilithium2_Poly_Sub(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b)
 {
   uint16 i;
 
@@ -213,17 +224,15 @@ void FsmSw_Dilithium2_Poly_Sub(poly_D2 *c, const poly_D2 *a, const poly_D2 *b)
   {
     c->coeffs[i] = a->coeffs[i] - b->coeffs[i];
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Shiftl
- *
- * Description: Multiply polynomial by 2^D without modular reduction.
+} // end: FsmSw_Dilithium2_Poly_Sub
+/*====================================================================================================================*/
+/**
+ * \brief Multiply polynomial by 2^D without modular reduction.
  *              Assumes input coefficients to be less than 2^{31-D} in absolute value.
  *
- * Arguments:   - poly_D2 *a: pointer to input/output polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Shiftl(poly_D2 *a)
+ * \param[out] poly_D2 *a : pointer to input/output polynomial
+*/
+void FsmSw_Dilithium2_Poly_Shiftl(poly_D2 *const a)
 {
   uint16 i;
 
@@ -231,44 +240,38 @@ void FsmSw_Dilithium2_Poly_Shiftl(poly_D2 *a)
   {
     a->coeffs[i] = (sint32)((uint32)((uint32)(a->coeffs[i]) << D_DILITHIUM));
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Ntt
+} // end: FsmSw_Dilithium2_Poly_Shiftl
+/*====================================================================================================================*/
+/**
+ * \brief Inplace forward NTT. Coefficients can grow by 8*Q in absolute value.
  *
- * Description: Inplace forward NTT. Coefficients can grow by 8*Q in absolute value.
- *
- * Arguments:   - poly_D2 *a: pointer to input/output polynomial
- **********************************************************************************************************************/
+ * \param[out] poly_D2 *a : pointer to input/output polynomial
+*/
 void FsmSw_Dilithium2_Poly_Ntt(poly_D2 *a)
 {
   FsmSw_Dilithium_Ntt(a->coeffs);
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_InvnttTomont
- *
- * Description: Inplace inverse NTT and multiplication by 2^{32}. Input coefficients need to be less than Q in absolute
+} // end: FsmSw_Dilithium2_Poly_Ntt
+/*====================================================================================================================*/
+/**
+ * \brief Inplace inverse NTT and multiplication by 2^{32}. Input coefficients need to be less than Q in absolute
  *              value and output coefficients are again bounded by Q.
  *
- * Arguments:   - poly_D2 *a: pointer to input/output polynomial
- **********************************************************************************************************************/
+ * \param[out] poly_D2 *a : pointer to input/output polynomial
+ */
 void FsmSw_Dilithium2_Poly_InvnttTomont(poly_D2 *a)
 {
   FsmSw_Dilithium_InvnttTomont(a->coeffs);
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_PointwiseMontgomery
- *
- * Description: Pointwise multiplication of polynomials in NTT domain representation and multiplication of
+} // end: FsmSw_Dilithium2_Poly_InvnttTomont
+/*====================================================================================================================*/
+/**
+ * \brief Pointwise multiplication of polynomials in NTT domain representation and multiplication of
  *              resulting polynomial by 2^{-32}.
  *
- * Arguments:   -       poly_D2 *c: pointer to output polynomial
- *              - const poly_D2 *a: pointer to first input polynomial
- *              - const poly_D2 *b: pointer to second input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_PointwiseMontgomery(poly_D2 *c, const poly_D2 *a, const poly_D2 *b)
+ * \param[out] poly_D2       *c : pointer to output polynomial
+ * \param[in]  const poly_D2 *a : pointer to first input polynomial
+ * \param[in]  const poly_D2 *b : pointer to second input polynomial
+*/
+void FsmSw_Dilithium2_Poly_PointwiseMontgomery(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b)
 {
   uint16 i;
 
@@ -276,19 +279,17 @@ void FsmSw_Dilithium2_Poly_PointwiseMontgomery(poly_D2 *c, const poly_D2 *a, con
   {
     c->coeffs[i] = FsmSw_Dilithium_MontgomeryReduce((sint64)a->coeffs[i] * b->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Power2Round
- *
- * Description: For all coefficients c of the input polynomial, compute c0, c1 such that c mod Q = c1*2^D + c0
+} // end: FsmSw_Dilithium2_Poly_PointwiseMontgomery
+/*====================================================================================================================*/
+/**
+ * \brief For all coefficients c of the input polynomial, compute c0, c1 such that c mod Q = c1*2^D + c0
  *              with -2^{D-1} < c0 <= 2^{D-1}. Assumes coefficients to be standard representatives.
  *
- * Arguments:   -       poly_D2 *a1: pointer to output polynomial with coefficients c1
- *              -       poly_D2 *a0: pointer to output polynomial with coefficients c0
- *              - const poly_D2 *a:  pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Power2Round(poly_D2 *a1, poly_D2 *a0, const poly_D2 *a)
+ * \param[out]  poly_D2       *a1 : pointer to output polynomial with coefficients c1
+ * \param[out]  poly_D2       *a0 : pointer to output polynomial with coefficients c0
+ * \param[in]   const poly_D2  *a : pointer to input polynomial
+*/
+void FsmSw_Dilithium2_Poly_Power2Round(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a)
 {
   uint16 i;
 
@@ -296,20 +297,18 @@ void FsmSw_Dilithium2_Poly_Power2Round(poly_D2 *a1, poly_D2 *a0, const poly_D2 *
   {
     a1->coeffs[i] = FsmSw_Dilithium2_Power2Round(&a0->coeffs[i], a->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Decompose
- *
- * Description: For all coefficients c of the input polynomial, compute high and low bits c0, c1 such c mod
+} // end: FsmSw_Dilithium2_Poly_Power2Round
+/*====================================================================================================================*/
+/**
+ * \brief For all coefficients c of the input polynomial, compute high and low bits c0, c1 such c mod
  *              Q = c1*ALPHA + c0 with -ALPHA/2 < c0 <= ALPHA/2 except c1 = (Q-1)/ALPHA where we set c1 = 0 and
  *              -ALPHA/2 <= c0 = c mod Q - Q < 0. Assumes coefficients to be standard representatives.
  *
- * Arguments:   -       poly_D2 *a1: pointer to output polynomial with coefficients c1
- *              -       poly_D2 *a0: pointer to output polynomial with coefficients c0
- *              - const poly_D2 *a:  pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Decompose(poly_D2 *a1, poly_D2 *a0, const poly_D2 *a)
+ * \param[out]  poly_D2       *a1 : pointer to output polynomial with coefficients c1
+ * \param[out]  poly_D2       *a0 : pointer to output polynomial with coefficients c0
+ * \param[in]   const  poly_D2 *a : pointer to input polynomial
+ */
+void FsmSw_Dilithium2_Poly_Decompose(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a)
 {
   uint16 i;
 
@@ -317,21 +316,19 @@ void FsmSw_Dilithium2_Poly_Decompose(poly_D2 *a1, poly_D2 *a0, const poly_D2 *a)
   {
     a1->coeffs[i] = FsmSw_Dilithium2_Decompose(&a0->coeffs[i], a->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_MakeHint
- *
- * Description: Compute hint polynomial. The coefficients of which indicate whether the low bits of the corresponding
+} // end: FsmSw_Dilithium2_Poly_Decompose
+/*====================================================================================================================*/
+/**
+ * \brief Compute hint polynomial. The coefficients of which indicate whether the low bits of the corresponding
  *              coefficient of the input polynomial overflow into the high bits.
  *
- * Arguments:   -       poly_D2 *h:  pointer to output hint polynomial
- *              - const poly_D2 *a0: pointer to low part of input polynomial
- *              - const poly_D2 *a1: pointer to high part of input polynomial
+ * \param[out]  poly_D2          *h : pointer to output hint polynomial
+ * \param[in]   const   poly_D2 *a0 : pointer to low part of input polynomial
+ * \param[in]   const   poly_D2 *a1 : pointer to high part of input polynomial
  *
  * Returns number of 1 bits.
- **********************************************************************************************************************/
-uint32 FsmSw_Dilithium2_Poly_MakeHint(poly_D2 *h, const poly_D2 *a0, const poly_D2 *a1)
+ */
+uint32 FsmSw_Dilithium2_Poly_MakeHint(poly_D2 *const h, const poly_D2 *const a0, const poly_D2 *const a1)
 {
   uint16 i;
   uint32 s = 0;
@@ -343,18 +340,16 @@ uint32 FsmSw_Dilithium2_Poly_MakeHint(poly_D2 *h, const poly_D2 *a0, const poly_
   }
 
   return s;
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_UseHint
+} // end: FsmSw_Dilithium2_Poly_MakeHint
+/*====================================================================================================================*/
+/**
+ * \brief Use hint polynomial to correct the high bits of a polynomial.
  *
- * Description: Use hint polynomial to correct the high bits of a polynomial.
- *
- * Arguments:   -       poly_D2 *b: pointer to output polynomial with corrected high bits
- *              - const poly_D2 *a: pointer to input polynomial
- *              - const poly_D2 *h: pointer to input hint polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_UseHint(poly_D2 *b, const poly_D2 *a, const poly_D2 *h)
+ * \param[out] poly_D2       *b : pointer to output polynomial with corrected high bits
+ * \param[in]  const poly_D2 *a : pointer to input polynomial
+ * \param[in]  const poly_D2 *h : pointer to input hint polynomial
+*/
+void FsmSw_Dilithium2_Poly_UseHint(poly_D2 *const b, const poly_D2 *const a, const poly_D2 *const h)
 {
   uint16 i;
 
@@ -362,20 +357,18 @@ void FsmSw_Dilithium2_Poly_UseHint(poly_D2 *b, const poly_D2 *a, const poly_D2 *
   {
     b->coeffs[i] = FsmSw_Dilithium2_UseHint(a->coeffs[i], (uint32)h->coeffs[i]);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Chknorm
- *
- * Description: Check infinity norm of polynomial against given bound.
+} // end: FsmSw_Dilithium2_Poly_UseHint
+/*====================================================================================================================*/
+/**
+ * \brief Check infinity norm of polynomial against given bound.
  *              Assumes input coefficients were reduced by FsmSw_Dilithium2_reduce32().
  *
- * Arguments:   - const poly_D2 *a: pointer to polynomial
- *              -       sint32 B:   norm bound
+ * \param[in] const poly_D2 *a : pointer to polynomial
+ * \param[in] sint32         B : norm bound
  *
  * Returns 0 if norm is strictly smaller than B <= (Q-1)/8 and 1 otherwise.
- **********************************************************************************************************************/
-sint8 FsmSw_Dilithium2_Poly_Chknorm(const poly_D2 *a, sint32 B)
+*/
+sint8 FsmSw_Dilithium2_Poly_Chknorm(const poly_D2 *const a, sint32 B)
 {
   uint16 i;
   sint32 t;
@@ -403,18 +396,16 @@ sint8 FsmSw_Dilithium2_Poly_Chknorm(const poly_D2 *a, sint32 B)
   }
 
   return retVal;
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Uniform
- *
- * Description: Sample polynomial with uniformly random coefficients in [0,Q-1] by performing rejection sampling on the
+} // end: FsmSw_Dilithium2_Poly_Chknorm
+/*====================================================================================================================*/
+/**
+ * \brief Sample polynomial with uniformly random coefficients in [0,Q-1] by performing rejection sampling on the
  *              output stream of SHAKE256(seed|nonce)
  *
- * Arguments:   -       poly_D2 *a:      pointer to output polynomial
- *              - const uint8    seed[]: byte array with seed of length SEEDBYTES_DILITHIUM
- *              -       uint16   nonce:  2-byte nonce
- **********************************************************************************************************************/
+ * \param[out] poly_D2         *a : pointer to output polynomial
+ * \param[in]  const uint8 seed[] : byte array with seed of length SEEDBYTES_DILITHIUM
+ * \param[in]  uint16       nonce : 2-byte nonce
+ */
 void FsmSw_Dilithium2_Poly_Uniform(poly_D2 *a, const uint8 seed[SEEDBYTES_DILITHIUM], uint16 nonce)
 {
   uint32 ctr, off;
@@ -437,23 +428,21 @@ void FsmSw_Dilithium2_Poly_Uniform(poly_D2 *a, const uint8 seed[SEEDBYTES_DILITH
     buflen = (uint32)(STREAM128_BLOCKBYTES + off);
     ctr += fsmsw_dilithium2_RejUniform(&a->coeffs[ctr], N_DILITHIUM - ctr, buf, buflen);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_UniformEta
- *
- * Description: Sample polynomial with uniformly random coefficients in [-ETA,ETA] by performing rejection sampling
+} // end: FsmSw_Dilithium2_Poly_Uniform
+/*====================================================================================================================*/
+/**
+ * \brief Sample polynomial with uniformly random coefficients in [-ETA,ETA] by performing rejection sampling
  *              on the output stream from SHAKE256(seed|nonce)
  *
- * Arguments:   -       poly_D2 *a:      pointer to output polynomial
- *              - const uint8    seed[]: byte array with seed of length CRHBYTES_DILITHIUM
- *              -       uint16   nonce:  2-byte nonce
- **********************************************************************************************************************/
+ *  \param[out] poly_D2         *a : pointer to output polynomial
+ *  \param[in]  const uint8 seed[] : byte array with seed of length CRHBYTES_DILITHIUM
+ *  \param[in]  uint16       nonce : 2-byte nonce
+*/
 void FsmSw_Dilithium2_Poly_UniformEta(poly_D2 *a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint32 ctr;
   /* polyspace +1 MISRA2012:2.2 [Justified:]"Calculation of buflen is important for generic implementation" */
-  uint32 buflen = POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES;
+  uint32 const buflen = POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES;
   /* polyspace +1 MISRA2012:2.2 [Justified:]"Calculation of buffer length is important for generic implementation" */
   uint8 buf[POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES];
   FsmSw_Dilithium_stream256_state state;
@@ -475,19 +464,17 @@ void FsmSw_Dilithium2_Poly_UniformEta(poly_D2 *a, const uint8 seed[CRHBYTES_DILI
     FsmSw_Fips202_Shake256_IncSqueeze(buf, SHAKE256_RATE, &state);
     ctr += fsmsw_dilithium2_RejEta(&(a->coeffs[ctr]), N_DILITHIUM - ctr, buf, STREAM256_BLOCKBYTES);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_Uniform_Gamma1
- *
- * Description: Sample polynomial with uniformly random coefficients in [-(GAMMA1 - 1), GAMMA1] by unpacking
+} // end: FsmSw_Dilithium2_Poly_UniformEta
+/*====================================================================================================================*/
+/**
+ * \brief Sample polynomial with uniformly random coefficients in [-(GAMMA1 - 1), GAMMA1] by unpacking
  *              output stream of SHAKE256(seed|nonce)
  *
- * Arguments:   -       poly_D2 *a:      pointer to output polynomial
- *              - const uint8    seed[]: byte array with seed of length CRHBYTES_DILITHIUM
- *              -       uint16   nonce:  16-bit nonce
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_UniformGamma1(poly_D2 *a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+ * \param[out] poly_D2         *a : pointer to output polynomial
+ * \param[in]  const uint8 seed[] : byte array with seed of length CRHBYTES_DILITHIUM
+ * \param[in]  uint16       nonce : 16-bit nonce
+*/
+void FsmSw_Dilithium2_Poly_UniformGamma1(poly_D2 *const a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint8 buf[POLY_UNIFORM_GAMMA1_NBLOCKS * STREAM256_BLOCKBYTES];
   FsmSw_Dilithium_stream256_state state;
@@ -495,18 +482,16 @@ void FsmSw_Dilithium2_Poly_UniformGamma1(poly_D2 *a, const uint8 seed[CRHBYTES_D
   FsmSw_Dilithium_Shake256_StreamInit(&state, seed, nonce);
   FsmSw_Fips202_Shake256_IncSqueeze(buf, POLY_UNIFORM_GAMMA1_NBLOCKS * SHAKE256_RATE, &state);
   FsmSw_Dilithium2_Poly_ZUnpack(a, buf);
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Challenge
- *
- * Description: Implementation of H. Samples polynomial with TAU nonzero coefficients in {-1,1} using the output stream
+} // end: FsmSw_Dilithium2_Poly_UniformGamma1
+/*====================================================================================================================*/
+/**
+ * \brief Implementation of H. Samples polynomial with TAU nonzero coefficients in {-1,1} using the output stream
  *              of SHAKE256(seed).
  *
- * Arguments:   -       poly_D2 *c:      pointer to output polynomial
- *              - const uint8    seed[]: byte array containing seed of length SEEDBYTES_DILITHIUM
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *c, const uint8 seed[SEEDBYTES_DILITHIUM])
+ * \param[out] poly_D2         *c : pointer to output polynomial
+ * \param[in]  const uint8 seed[] : byte array containing seed of length SEEDBYTES_DILITHIUM
+*/
+void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *const c, const uint8 seed[SEEDBYTES_DILITHIUM])
 {
   uint32 i, b, pos;
   uint64 signs;
@@ -549,17 +534,15 @@ void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *c, const uint8 seed[SEEDBYTES_DILI
     c->coeffs[b] = (sint32)((uint32)((uint64)(1u - (2u * (signs & 1u)))));
     signs >>= 1;
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Polyeta_EtaPack
+} // end: FsmSw_Dilithium2_Poly_Challenge
+/*====================================================================================================================*/
+/**
+ * \brief Bit-pack polynomial with coefficients in [-ETA,ETA].
  *
- * Description: Bit-pack polynomial with coefficients in [-ETA,ETA].
- *
- * Arguments:   -       uint8   *r: pointer to output byte array with at least POLYETA_PACKEDBYTES bytes
- *              - const poly_D2 *a: pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Polyeta_EtaPack(uint8 *r, const poly_D2 *a)
+ * \param[out]  uint8         *r : pointer to output byte array with at least POLYETA_PACKEDBYTES bytes
+ * \param[in]   const poly_D2 *a : pointer to input polynomial
+*/
+void FsmSw_Dilithium2_Polyeta_EtaPack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
   uint8 t[8];
@@ -579,17 +562,15 @@ void FsmSw_Dilithium2_Polyeta_EtaPack(uint8 *r, const poly_D2 *a)
     r[(3u * i) + 1u] = (t[2] >> 2) | (t[3] << 1) | (t[4] << 4) | (t[5] << 7);
     r[(3u * i) + 2u] = (t[5] >> 1) | (t[6] << 2) | (t[7] << 5);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Polyeta_EtaUnpack
+} // end: FsmSw_Dilithium2_Polyeta_EtaPack
+/*====================================================================================================================*/
+/**
+ * \brief Unpack polynomial with coefficients in [-ETA,ETA].
  *
- * Description: Unpack polynomial with coefficients in [-ETA,ETA].
- *
- * Arguments:   -       poly_D2 *r: pointer to output polynomial
- *              - const uint8   *a: byte array with bit-packed polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Polyeta_EtaUnpack(poly_D2 *r, const uint8 *a)
+ * \param[out]  poly_D2     *r : pointer to output polynomial
+ * \param[in]   const uint8 *a : byte array with bit-packed polynomial
+*/
+void FsmSw_Dilithium2_Polyeta_EtaUnpack(poly_D2 *const r, const uint8 *const a)
 {
   uint16 i;
 
@@ -615,18 +596,16 @@ void FsmSw_Dilithium2_Polyeta_EtaUnpack(poly_D2 *r, const uint8 *a)
     r->coeffs[(8u * i) + 6u] = (sint32)ETA_DILITHIUM2 - r->coeffs[(8u * i) + 6u];
     r->coeffs[(8u * i) + 7u] = (sint32)ETA_DILITHIUM2 - r->coeffs[(8u * i) + 7u];
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_T1Pack
- *
- * Description: Bit-pack polynomial t1 with coefficients fitting in 10 bits.
+} // end: FsmSw_Dilithium2_Polyeta_EtaUnpack
+/*====================================================================================================================*/
+/**
+ * \brief Bit-pack polynomial t1 with coefficients fitting in 10 bits.
  *              Input coefficients are assumed to be standard representatives.
  *
- * Arguments:   -       uint8   *r: pointer to output byte array with at least POLYT1_PACKEDBYTES bytes
- *              - const poly_D2 *a: pointer to input polynomial
- ***********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_T1Pack(uint8 *r, const poly_D2 *a)
+ * \param[out] uint8         *r : pointer to output byte array with at least POLYT1_PACKEDBYTES bytes
+ * \param[in]  const poly_D2 *a : pointer to input polynomial
+*/
+void FsmSw_Dilithium2_Poly_T1Pack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
 
@@ -640,18 +619,16 @@ void FsmSw_Dilithium2_Poly_T1Pack(uint8 *r, const poly_D2 *a)
         (uint8)((uint16)(((uint16)a->coeffs[(4u * i) + 2u] >> 4) | ((uint16)a->coeffs[(4u * i) + 3u] << 6u)));
     r[(5u * i) + 4u] = (uint8)((uint16)a->coeffs[(4u * i) + 3u] >> 2);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_T1Unpack
- *
- * Description: Unpack polynomial t1 with 10-bit coefficients.
+} // end: FsmSw_Dilithium2_Poly_T1Pack
+/*====================================================================================================================*/
+/**
+ * \brief Unpack polynomial t1 with 10-bit coefficients.
  *              Output coefficients are standard representatives.
  *
- * Arguments:   -       poly_D2 *r: pointer to output polynomial
- *              - const uint8   *a: byte array with bit-packed polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_T1Unpack(poly_D2 *r, const uint8 *a)
+ * \param[out] poly_D2     *r : pointer to output polynomial
+ * \param[in]  const uint8 *a : byte array with bit-packed polynomial
+*/
+void FsmSw_Dilithium2_Poly_T1Unpack(poly_D2 *const r, const uint8 *const a)
 {
   uint16 i;
 
@@ -666,17 +643,15 @@ void FsmSw_Dilithium2_Poly_T1Unpack(poly_D2 *r, const uint8 *a)
     r->coeffs[(4u * i) + 3u] =
         (sint32)((uint32)(((uint32)(((uint32)a[(5u * i) + 3u] >> 6) | ((uint32)a[(5u * i) + 4u] << 2u))) & 0x3FFu));
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_T0Pack
+} // end: FsmSw_Dilithium2_Poly_T1Unpack
+/*====================================================================================================================*/
+/**
+ * \brief Bit-pack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
  *
- * Description: Bit-pack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
- *
- * Arguments:   -       uint8   *r: pointer to output byte array with at least POLYT0_PACKEDBYTES_DILITHIUM bytes
- *              - const poly_D2 *a: pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_T0Pack(uint8 *r, const poly_D2 *a)
+ * \param[out] uint8         *r : pointer to output byte array with at least POLYT0_PACKEDBYTES_DILITHIUM bytes
+ * \param[in]  const poly_D2 *a : pointer to input polynomial
+*/
+void FsmSw_Dilithium2_Poly_T0Pack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
   uint32 t[8];
@@ -713,17 +688,15 @@ void FsmSw_Dilithium2_Poly_T0Pack(uint8 *r, const poly_D2 *a)
     r[(13u * i) + 11u] |= (uint8)(t[7] << 3);
     r[(13u * i) + 12u] = (uint8)(t[7] >> 5);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_T0Unpack
+} // end: FsmSw_Dilithium2_Poly_T0Pack
+/*====================================================================================================================*/
+/**
+ * \brief Unpack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
  *
- * Description: Unpack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
- *
- * Arguments:   -       poly_D2 *r: pointer to output polynomial
- *              - const uint8   *a: byte array with bit-packed polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_T0Unpack(poly_D2 *r, const uint8 *a)
+ * \param[out] poly_D2     *r : pointer to output polynomial
+ * \param[in]  const uint8 *a : byte array with bit-packed polynomial
+ */
+void FsmSw_Dilithium2_Poly_T0Unpack(poly_D2 *const r, const uint8 *const a)
 {
   uint16 i;
 
@@ -792,17 +765,15 @@ void FsmSw_Dilithium2_Poly_T0Unpack(poly_D2 *r, const uint8 *a)
     r->coeffs[(8u * i) + 7u] =
         (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 7u])));
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_ZPack
+} // end: FsmSw_Dilithium2_Poly_T0Unpack
+/*====================================================================================================================*/
+/**
+ * \brief Bit-pack polynomial with coefficients in [-(GAMMA1 - 1), GAMMA1].
  *
- * Description: Bit-pack polynomial with coefficients in [-(GAMMA1 - 1), GAMMA1].
- *
- * Arguments:   -       uint8   *r: pointer to output byte array with at least POLYZ_PACKEDBYTES_DILITHIUM2 bytes
- *              - const poly_D2 *a: pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_ZPack(uint8 *r, const poly_D2 *a)
+ * \param[out] uint8         *r : pointer to output byte array with at least POLYZ_PACKEDBYTES_DILITHIUM2 bytes
+ * \param[in]  const poly_D2 *a : pointer to input polynomial
+*/
+void FsmSw_Dilithium2_Poly_ZPack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
   uint32 t[4];
@@ -827,17 +798,15 @@ void FsmSw_Dilithium2_Poly_ZPack(uint8 *r, const poly_D2 *a)
     r[(9u * i) + 7u] = (uint8)(t[3] >> 2);
     r[(9u * i) + 8u] = (uint8)(t[3] >> 10);
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_ZUnpack
+} // end: FsmSw_Dilithium2_Poly_ZPack
+/*====================================================================================================================*/
+/**
+ * \brief Unpack polynomial z with coefficients in [-(GAMMA1 - 1), GAMMA1].
  *
- * Description: Unpack polynomial z with coefficients in [-(GAMMA1 - 1), GAMMA1].
- *
- * Arguments:   -       poly_D2 *r: pointer to output polynomial
- *              - const uint8   *a: byte array with bit-packed polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_ZUnpack(poly_D2 *r, const uint8 *a)
+ * \param[out] poly_D2     *r : pointer to output polynomial
+ * \param[in]  const uint8 *a : byte array with bit-packed polynomial
+*/
+void FsmSw_Dilithium2_Poly_ZUnpack(poly_D2 *const r, const uint8 *const a)
 {
   uint16 i;
 
@@ -868,18 +837,16 @@ void FsmSw_Dilithium2_Poly_ZUnpack(poly_D2 *r, const uint8 *a)
     r->coeffs[(4u * i) + 2u] = (sint32)((uint32)(GAMMA1_DILITHIUM2 - (uint32)r->coeffs[(4u * i) + 2u]));
     r->coeffs[(4u * i) + 3u] = (sint32)((uint32)(GAMMA1_DILITHIUM2 - (uint32)r->coeffs[(4u * i) + 3u]));
   }
-}
-
-/***********************************************************************************************************************
- * Name:        FsmSw_Dilithium2_Poly_W1Pack
- *
- * Description: Bit-pack polynomial w1 with coefficients in [0,15] or [0,43].
+} // end: FsmSw_Dilithium2_Poly_ZUnpack
+/*====================================================================================================================*/
+/**
+ * \brief Bit-pack polynomial w1 with coefficients in [0,15] or [0,43].
  *              Input coefficients are assumed to be standard representatives.
  *
- * Arguments:   -       uint8   *r: pointer to output byte array with at least POLYW1_PACKEDBYTES bytes
- *              - const poly_D2 *a: pointer to input polynomial
- **********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_W1Pack(uint8 *r, const poly_D2 *a)
+ * \param[out] uint8         *r : pointer to output byte array with at least POLYW1_PACKEDBYTES bytes
+ * \param[in]  const poly_D2 *a : pointer to input polynomial
+ */
+void FsmSw_Dilithium2_Poly_W1Pack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
 
@@ -892,4 +859,8 @@ void FsmSw_Dilithium2_Poly_W1Pack(uint8 *r, const poly_D2 *a)
     r[(3u * i) + 2u] = (uint8)((uint32)a->coeffs[(4u * i) + 2u] >> 4);
     r[(3u * i) + 2u] = (uint8)((uint32)((uint32)r[(3u * i) + 2u] | ((uint32)a->coeffs[(4u * i) + 3u] << 2u)));
   }
-}
+} // end: FsmSw_Dilithium2_Poly_W1Pack
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

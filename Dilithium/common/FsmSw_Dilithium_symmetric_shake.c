@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium_symmetric
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium_symmetric_shake.c
+* \brief  description of FsmSw_Dilithium_symmetric_shake.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -49,16 +68,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_Shake128_StreamInit
+/*====================================================================================================================*/
+/**
+* \brief t.b.d
 *
-* Description: t.b.d
-*
-* Arguments:   -       shake128incctx *state:
-*              - const uint8          *seed:
-*              -       uint16          nonce:
-***********************************************************************************************************************/
-void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *state, const uint8 seed[SEEDBYTES_DILITHIUM], uint16 nonce)
+* \param[in,out]  shake128incctx  *state:
+* \param[in]  const   uint8   *seed:
+* \param[in]          uint16  nonce:
+*/
+void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_DILITHIUM],
+                                         uint16 nonce)
 {
   uint8 t[2];
 
@@ -69,18 +88,18 @@ void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *state, const uint8 seed
   FsmSw_Fips202_Shake128_IncAbsorb(state, seed, SEEDBYTES_DILITHIUM);
   FsmSw_Fips202_Shake128_IncAbsorb(state, t, 2);
   FsmSw_Fips202_Shake128_IncFinalize(state);
-}
+} // end: FsmSw_Dilithium_Shake128_StreamInit
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Dilithium_Shake256_StreamInit
+/*====================================================================================================================*/
+/**
+* \brief t.b.d
 *
-* Description: t.b.d
-*
-* Arguments:   -       shake256incctx *state:
-*              - const uint8          *seed:
-*              -       uint16          nonce:
-***********************************************************************************************************************/
-void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *state, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+* \param[in,out]  shake128incctx  *state:
+* \param[in]  const   uint8   *seed:
+* \param[in]          uint16  nonce:
+*/
+void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_DILITHIUM],
+                                         uint16 nonce)
 {
   uint8 t[2];
 
@@ -91,4 +110,8 @@ void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *state, const uint8 seed
   FsmSw_Fips202_Shake256_IncAbsorb(state, seed, CRHBYTES_DILITHIUM);
   FsmSw_Fips202_Shake256_IncAbsorb(state, t, 2);
   FsmSw_Fips202_Shake256_IncFinalize(state);
-}
+} // end: FsmSw_Dilithium_Shake256_StreamInit
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

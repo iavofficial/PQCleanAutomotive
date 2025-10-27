@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple
+*    includes the modules for SphincsSha2_128fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple_wots
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128fSimple_wots.h
+* \brief  Description of FsmSw_SphincsSha2_128fSimple_wots.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -16,16 +35,14 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHA2_128FSIMPLE_WOTS_H
 #define FSMSW_SPHINCSSHA2_128FSIMPLE_WOTS_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_SphincsSha2_128fSimple_context.h"
 #include "FsmSw_SphincsSha2_128fSimple_params.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -37,6 +54,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -44,6 +65,8 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 void FsmSw_SphincsSha2_128fSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg);
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -52,3 +75,7 @@ void FsmSw_SphincsSha2_128fSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, co
                                                  const sphincs_sha2_128f_ctx *ctx, uint32 addr[8]);
 
 #endif /* FSMSW_SPHINCSSHA2_128FSIMPLE_WOTS_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

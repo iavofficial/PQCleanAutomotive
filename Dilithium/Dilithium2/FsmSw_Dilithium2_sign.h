@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Dilithium2
+*    includes the modules for Dilithium2
+ ** @{ */
+/** \addtogroup FsmSw_Dilithium2_sign
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Dilithium2_sign.h
+* \brief  Description of the FsmSw_Dilithium2_sign.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -16,7 +35,6 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_DILITHIUM2_SIGN_H
 #define FSMSW_DILITHIUM2_SIGN_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -24,9 +42,8 @@
 #include "FsmSw_Dilithium2_poly.h"
 #include "FsmSw_Dilithium2_polyvec.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -38,18 +55,32 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
+
 void FsmSw_Dilithium2_Challenge(poly_D2 *c, const uint8 seed[SEEDBYTES_DILITHIUM]);
-sint8 FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
-sint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
-sint8 FsmSw_Dilithium2_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
-sint8 FsmSw_Dilithium2_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
+
+void FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
+
+void FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
+
+void FsmSw_Dilithium2_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
+
+uint8 FsmSw_Dilithium2_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
                                           const uint8 *pk);
-sint8 FsmSw_Dilithium2_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
+
+uint8 FsmSw_Dilithium2_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
 
 #endif /* FSMSW_DILITHIUM2_SIGN_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

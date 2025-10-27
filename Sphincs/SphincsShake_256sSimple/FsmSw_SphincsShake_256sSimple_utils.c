@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_256sSimple
+*    includes the modules for SphincsShake_256sSimple
+ ** @{ */
+/** \addtogroup SphincsShake_256sSimple_utils
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_256sSimple_utils.c
+* \brief  description of FsmSw_SphincsShake_256sSimple_utils.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -25,7 +44,6 @@
 #include "FsmSw_Sphincs_shake_address.h"
 
 #include "FsmSw_SphincsShake_256sSimple_utils.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -36,6 +54,10 @@
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -53,22 +75,24 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_256sSimple_ComputeRoot
- *
- * Description: Computes a root node given a leaf and an auth path. Expects address to be complete other than the
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes a root node given a leaf and an auth path. Expects address to be complete other than the
  *              tree_height and tree_index.
  *
- * Arguments:   -       uint8                  *root:        t.b.d.
- *              - const uint8                  *leaf:        t.b.d.
- *              -       uint32                  leaf_idx:    t.b.d.
- *              -       uint32                  idx_offset:  t.b.d.
- *              - const uint8                  *auth_path:   t.b.d.
- *              -       uint32                  tree_height: t.b.d.
- *              - const sphincs_shake_256s_ctx *ctx:         t.b.d.
- *              -       uint32                  addr[8]:     t.b.d.
+ * \param[out] uint8                       *root : t.b.d.
+ * \param[in]  const uint8                 *leaf : t.b.d.
+ * \param[in]  uint32                   leaf_idx : t.b.d.
+ * \param[in]  uint32                 idx_offset : t.b.d.
+ * \param[in]  const uint8            *auth_path : t.b.d.
+ * \param[in]  uint32                tree_height : t.b.d.
+ * \param[in]  const sphincs_shake_256s_ctx *ctx : t.b.d.
+ * \param[in]  uint32                    addr[8] : t.b.d.
  *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
@@ -127,34 +151,35 @@ void FsmSw_SphincsShake_256sSimple_ComputeRoot(uint8 *root, const uint8 *leaf, u
   FsmSw_SphincsShake_SetTreeHeight(addr, tree_height);
   FsmSw_SphincsShake_SetTreeIndex(addr, leaf_idx_temp + idx_offset_temp);
   FsmSw_SphincsShake_256sSimple_Thash(root, buffer, 2, ctx, addr);
-}
+} // end: FsmSw_SphincsShake_256sSimple_ComputeRoot
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsShake_256sSimple_TreeHash
+/*====================================================================================================================*/
+/**
+ * \brief For a given leaf index, computes the authentication path and the resulting root node using Merkle's
+ *        TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as well as the tree
+ *        type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE). Applies the offset
+ *        idx_offset to indices before building addresses, so that it is possible to continue counting indices
+ *        across trees.
  *
- * Description: For a given leaf index, computes the authentication path and the resulting root node using Merkle's
- *              TreeHash algorithm. Expects the layer and tree parts of the tree_addr to be set, as well as the tree
- *              type (i.e. FSMSW_SPHINCS_ADDR_TYPE_HASHTREE or FSMSW_SPHINCS_ADDR_TYPE_FORSTREE). Applies the offset
- *              idx_offset to indices before building addresses, so that it is possible to continue counting indices
- *              across trees.
- *
- * Arguments:   -       uint8                  *root:         t.b.d.
- *              -       uint8                  *auth_path:    t.b.d.
- *              - const sphincs_shake_256s_ctx *ctx:         t.b.d.
- *              -       uint32                  leaf_idx:     t.b.d.
- *              -       uint32                  idx_offset:   t.b.d.
- *              -       uint32                  tree_height:  t.b.d.
- *              -       void                 (*gen_leaf)
+ * \param[out] uint8                       *root : t.b.d.
+ * \param[out] uint8                  *auth_path : t.b.d.
+ * \param[in]  const sphincs_shake_256s_ctx *ctx : t.b.d.
+ * \param[in]  uint32                   leaf_idx : t.b.d.
+ * \param[in]  uint32                 idx_offset : t.b.d.
+ * \param[in]  uint32                tree_height : t.b.d.
+ * \param[in]  void                 (*gen_leaf)
  *                                             (
- *                                                     uint8                  *leaf:         t.b.d.
- *                                               const sphincs_shake_256s_ctx *ctx:          t.b.d.
- *                                                     uint32                  idx:          t.b.d.
- *                                               const uint32                  tree_addr[8]: t.b.d.
+ *                                                     uint8                 *leaf : t.b.d.
+ *                                               const sphincs_shake_256s_ctx *ctx : t.b.d.
+ *                                                     uint32                  idx : t.b.d.
+ *                                               const uint32         tree_addr[8] : t.b.d.
  *                                             )
- *              -       uint32                  tree_addr[8]: t.b.d.
+ * \param[in]  uint32               tree_addr[8] : t.b.d.
  *
  * Note:        This function is currently not used.
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
@@ -211,4 +236,8 @@ void FsmSw_SphincsShake_256sSimple_TreeHash(uint8 *root, uint8 *auth_path, const
     }
   }
   FsmSw_CommonLib_MemCpy(root, stack, FSMSW_SPHINCSSHAKE_256SSIMPLE_N);
-}
+} // end: FsmSw_SphincsShake_256sSimple_TreeHash
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

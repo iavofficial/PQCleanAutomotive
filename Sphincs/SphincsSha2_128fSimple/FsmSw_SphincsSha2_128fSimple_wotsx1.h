@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple
+*    includes the modules for SphincsSha2_128fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple_wotsx1
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128fSimple_wotsx1.h
+* \brief  Description of FsmSw_SphincsSha2_128fSimple_wotsx1.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -16,16 +35,14 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHA2_128FSIMPLE_WOTSX1_H
 #define FSMSW_SPHINCSSHA2_128FSIMPLE_WOTSX1_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_SphincsSha2_128fSimple_context.h"
 #include "FsmSw_SphincsSha2_128fSimple_params.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -44,6 +61,10 @@ typedef struct
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -51,6 +72,8 @@ typedef struct
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -59,3 +82,7 @@ void FsmSw_SphincsSha2_128fSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2
                                                  void *v_info);
 
 #endif /* FSMSW_SPHINCSSHA2_128FSIMPLE_WOTSX1_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

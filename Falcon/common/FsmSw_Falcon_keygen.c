@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_keygen
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_keygen.c
+* \brief  description of FsmSw_Falcon_keygen.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Falcon key pair generation. */
 
 /* Modular arithmetics.
@@ -50,10 +69,11 @@
 #include "FsmSw_Falcon_vrfy.h"
 
 #include "FsmSw_Falcon_keygen.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
+/* polyspace +4 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
 /* polyspace +2 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 #define MKN(logn)   ((uint32)1 << (logn))
@@ -61,7 +81,6 @@ inline functions would not provide significant benefits." */
 
 /* Minimal recursion depth at which we rebuild intermediate values when reconstructing f and g. */
 #define DEPTH_INT_FG 4u
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -101,7 +120,6 @@ static const struct
     {3138, 13},
     {6308, 25}
 };
-
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -784,6 +802,10 @@ static const uint32 MAX_BL_SMALL[] = {1, 1, 2, 2, 4, 7, 14, 27, 53, 106, 209};
 static const uint32 MAX_BL_LARGE[] = {2, 2, 5, 7, 12, 21, 40, 78, 157, 308};
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -800,66 +822,76 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
 static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i);
 static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2);
 static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R);
-static void fsmsw_falcon_ModpMkgm2(uint32 *gm, uint32 *igm, uint32 logn, uint32 g, uint32 p, uint32 p0i);
-static void fsmsw_falcon_ModpNtt2Ext(uint32 *a, uint32 stride, const uint32 *gm, uint32 logn, uint32 p, uint32 p0i);
-static void fsmsw_falcon_ModpIntt2Ext(uint32 *a, uint32 stride, const uint32 *igm, uint32 logn, uint32 p, uint32 p0i);
-static void fsmsw_falcon_ModpPolyRecRes(uint32 *f, uint32 logn, uint32 p, uint32 p0i, uint32 R2);
-static uint32 fsmsw_falcon_ZintSub(uint32 *a, const uint32 *b, uint32 len, uint32 ctl);
-static uint32 fsmsw_falcon_ZintMulSmall(uint32 *m, uint32 mlen, uint32 x);
-static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2);
-static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2, uint32 Rx);
-static void fsmsw_falcon_ZintAddMulSmall(uint32 *x, const uint32 *y, uint32 len, uint32 s);
-static void fsmsw_falcon_ZintNormZero(uint32 *x, const uint32 *p, uint32 len);
-static void fsmsw_falcon_ZintRebuildCrt(uint32 *xx, uint32 xlen, uint32 xstride, uint32 num, const small_prime *primes,
-                                        sint32 normalize_signed, uint32 *tmp);
-static void fsmsw_falcon_ZintNegate(uint32 *a, uint32 len, uint32 ctl);
-static uint32 fsmsw_falcon_ZintCoReduce(uint32 *a, uint32 *b, uint32 len, sint64 xa, sint64 xb, sint64 ya, sint64 yb);
-static void fsmsw_falcon_ZintFinishMod(uint32 *a, uint32 len, const uint32 *m, uint32 neg);
-static void fsmsw_falcon_ZintCoReduceMod(uint32 *a, uint32 *b, const uint32 *m, uint32 len, uint32 m0i, sint64 xa,
-                                         sint64 xb, sint64 ya, sint64 yb);
-static sint32 fsmsw_falcon_ZintBezout(uint32 *u, uint32 *v, const uint32 *x, const uint32 *y, uint32 len, uint32 *tmp);
-static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *x, uint32 xlen, const uint32 *y, uint32 ylen, sint32 k,
-                                               uint32 sch, uint32 scl);
-static void fsmsw_falcon_ZintSubScaled(uint32 *x, uint32 xlen, const uint32 *y, uint32 ylen, uint32 sch, uint32 scl);
-static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *x);
-static void fsmsw_falcon_PolyBigToFp(fpr *d, const uint32 *f, uint32 flen, uint32 fstride, uint32 logn);
-static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *d, const uint32 *s, sint32 lim, uint32 logn);
-static void fsmsw_falcon_PolySubScaled(uint32 *F, uint32 Flen, uint32 Fstride, const uint32 *f, uint32 flen1,
-                                       uint32 fstride1, const sint32 *k, uint32 sch, uint32 scl, uint32 logn);
-static void fsmsw_falcon_PolySubScaledNtt(uint32 *F, uint32 Flen, uint32 Fstride, const uint32 *f, uint32 flen1,
-                                          uint32 fstride1, const sint32 *k, uint32 sch, uint32 scl, uint32 logn,
-                                          uint32 *tmp);
-static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *rng);
-static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *rng, uint32 logn);
-static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *f, uint32 logn);
-static fpr *fsmsw_falcon_AlignFpr(void *base, void *data);
-static uint32 *fsmsw_falcon_AlignU32(void *base, void *data);
-static void fsmsw_falcon_PolySmallToFp(fpr *x, const sint8 *f, uint32 logn);
-static void fsmsw_falcon_MakeFgStep(uint32 *data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt);
-static void fsmsw_falcon_MakeFg(uint32 *data, const sint8 *f, const sint8 *g, uint32 logn, uint32 depth,
-                                sint32 out_ntt);
-static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 *tmp);
-static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 depth,
-                                                 uint32 *tmp);
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 *tmp);
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *f, const sint8 *g, uint32 *tmp);
-static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *F, sint8 *G, const sint8 *f, const sint8 *g, sint32 lim,
-                                     uint32 *tmp);
-static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *rng, sint8 *f, uint32 logn);
+static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i);
+static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
+                                     uint32 p0i);
+static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
+                                      uint32 p0i);
+static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2);
+static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl);
+static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x);
+static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2);
+static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
+                                              uint32 Rx);
+static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s);
+static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len);
+static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
+                                        const small_prime *const primes, sint32 normalize_signed, uint32 *const tmp);
+static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl);
+static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
+                                        sint64 yb);
+static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg);
+static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
+                                         uint32 m0i, sint64 xa, sint64 xb, sint64 ya, sint64 yb);
+static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
+                                      uint32 len, uint32 *const tmp);
+static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
+                                               sint32 k, uint32 sch, uint32 scl);
+static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
+                                       uint32 scl);
+static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x);
+static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen, uint32 fstride, uint32 logn);
+static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn);
+static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+                                       uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
+                                       uint32 logn);
+static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+                                          uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
+                                          uint32 logn, uint32 *const tmp);
+static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng);
+static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn);
+static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn);
+static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data);
+static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data);
+static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn);
+static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt);
+static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
+                                uint32 depth, sint32 out_ntt);
+static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                            uint32 *const tmp);
+static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                                 uint32 depth, uint32 *const tmp);
+static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                                 uint32 *const tmp);
+static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
+                                                 uint32 *const tmp);
+static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
+                                     const sint8 *const g, sint32 lim, uint32 *const tmp);
+static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpSet
+
+/*====================================================================================================================*/
+/**
+* \brief Reduce a small signed integer modulo a small prime. The source value x MUST be such that -p < x < p.
 *
-* Description: Reduce a small signed integer modulo a small prime. The source value x MUST be such that -p < x < p.
+* \param[in] sint32 x : t.b.d.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - sint32 x: t.b.d.
-*              - uint32 p: t.b.d.
+* \returns w
 *
-* Returns w
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
 {
   uint32 w = 0;
@@ -868,34 +900,32 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
   w += p & (uint32)((sint32)((-1) * (sint32)((uint32)(w >> 31))));
 
   return w;
-}
+} // end: fsmsw_falcon_ModpSet
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpNorm
+/*====================================================================================================================*/
+/**
+* \brief Normalize a modular integer around 0.
 *
-* Description: Normalize a modular integer around 0.
+* \param[in] uint32 x : t.b.d.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
-*              - uint32 p: t.b.d.
+* \returns  t.b.d.
 *
-* Returns  t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 {
   return (sint32)((uint32)(x - (p & (((x - ((p + 1u) >> 1)) >> 31) - 1u))));
-}
+} // end: fsmsw_falcon_ModpNorm
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Compute -1/p mod 2^31. This works for all odd integers p that fit on 31 bits.
 *
-* Description: Compute -1/p mod 2^31. This works for all odd integers p that fit on 31 bits.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - uint32 p: t.b.d.
+* \returns  t.b.d.
 *
-* Returns  t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
 {
   uint32 y = 0;
@@ -907,36 +937,34 @@ static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
   y *= 2u - (p * y);
 
   return (uint32)(0x7FFFFFFFu & (uint32)((sint32)((-1) * (sint32)y)));
-}
+} // end: fsmsw_falcon_ModpNorm
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpR
+/*====================================================================================================================*/
+/**
+* \brief Compute R = 2^31 mod p.
 *
-* Description: Compute R = 2^31 mod p.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - uint32 p: t.b.d.
+* \returns  t.b.d.
 *
-* Returns  t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpR(uint32 p)
 {
   /* Since 2^30 < p < 2^31, we know that 2^31 mod p is simply 2^31 - p. */
   return ((uint32)1 << 31) - p;
-}
+} // end: fsmsw_falcon_ModpR
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Addition modulo p.
 *
-* Description: Addition modulo p.
+* \param[in] uint32 a : t.b.d.
+* \param[in] uint32 b : t.b.d.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - uint32 a: t.b.d.
-*              - uint32 b: t.b.d.
-*              - uint32 p: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
 {
   uint32 d = 0;
@@ -945,20 +973,19 @@ static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-}
+} // end: fsmsw_falcon_ModpAdd
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpSub
+/*====================================================================================================================*/
+/**
+* \brief Subtraction modulo p.
 *
-* Description: Subtraction modulo p.
+* \param[in] uint32 a : t.b.d.
+* \param[in] uint32 b : t.b.d.
+* \param[in] uint32 p : t.b.d.
 *
-* Arguments:   - uint32 a: t.b.d.
-*              - uint32 b: t.b.d.
-*              - uint32 p: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
 {
   uint32 d = 0;
@@ -967,22 +994,21 @@ static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-}
+} // end: fsmsw_falcon_ModpSub
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpMontymul
+/*====================================================================================================================*/
+/**
+* \brief Montgomery multiplication modulo p. The 'p0i' value is -1/p mod 2^31. It is required that p is an odd
+*        integer.
 *
-* Description: Montgomery multiplication modulo p. The 'p0i' value is -1/p mod 2^31. It is required that p is an odd
-*              integer.
+* \param[in] uint32   a : t.b.d.
+* \param[in] uint32   b : t.b.d.
+* \param[in] uint32   p : t.b.d.
+* \param[in] uint32 p0i : t.b.d.
 *
-* Arguments:   - uint32 a:   t.b.d.
-*              - uint32 b:   t.b.d.
-*              - uint32 p:   t.b.d.
-*              - uint32 p0i: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i)
 {
   uint64 z = 0;
@@ -995,19 +1021,18 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-}
+} // end: fsmsw_falcon_ModpMontymul
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpR2
+/*====================================================================================================================*/
+/**
+* \brief Compute R2 = 2^62 mod p.
 *
-* Description: Compute R2 = 2^62 mod p.
+* \param[in] uint32   p : t.b.d.
+* \param[in] uint32 p0i : t.b.d.
 *
-* Arguments:   - uint32 p:   t.b.d.
-*              - uint32 p0i: t.b.d.
+* \returns z
 *
-* Returns z
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
 {
   uint32 z = 0;
@@ -1027,21 +1052,20 @@ static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
   z = (z + (p & (uint32)((sint32)((-1) * (sint32)((uint32)(z & 1u)))))) >> 1;
 
   return z;
-}
+} // end: fsmsw_falcon_ModpR2
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpRx
+/*====================================================================================================================*/
+/**
+* \brief Compute 2^(31*x) modulo p. This works for integers x up to 2^11.
 *
-* Description: Compute 2^(31*x) modulo p. This works for integers x up to 2^11.
+* \param[in] uint32   x : t.b.d.
+* \param[in] uint32   p : p must be prime such that 2^30 < p < 2^31
+* \param[in] uint32 p0i : p0i must be equal to -1/p mod 2^31
+* \param[in] uint32  R2 : R2 must be equal to 2^62 mod p
 *
-* Arguments:   - uint32 x:   t.b.d.
-*              - uint32 p:   p must be prime such that 2^30 < p < 2^31
-*              - uint32 p0i: p0i must be equal to -1/p mod 2^31
-*              - uint32 R2:  R2 must be equal to 2^62 mod p
+* \returns z
 *
-* Returns z
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
 {
   sint32 i = 0;
@@ -1069,23 +1093,22 @@ static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
     r = fsmsw_falcon_ModpMontymul(r, r, p, p0i);
   }
   return z;
-}
+} // end: fsmsw_falcon_ModpRx
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpDiv
+/*====================================================================================================================*/
+/**
+* \brief Division modulo p. If the divisor (b) is 0, then 0 is returned. This function computes proper results
+*        only when p is prime.
 *
-* Description: Division modulo p. If the divisor (b) is 0, then 0 is returned. This function computes proper results
-*              only when p is prime.
+* \param[in] uint32   a : dividend
+* \param[in] uint32   b : divisor
+* \param[in] uint32   p : odd prime modulus
+* \param[in] uint32 p0i : -1/p mod 2^31
+* \param[in] uint32   R : 2^31 mod R
 *
-* Arguments:   - uint32 a:   dividend
-*              - uint32 b:   divisor
-*              - uint32 p:   odd prime modulus
-*              - uint32 p0i: -1/p mod 2^31
-*              - uint32 R:   2^31 mod R
+* \returns t.b.d
 *
-* Returns t.b.d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R)
 {
   uint32 z = 0;
@@ -1112,29 +1135,28 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
   z = fsmsw_falcon_ModpMontymul(z, 1, p, p0i);
 
   return fsmsw_falcon_ModpMontymul(a, z, p, p0i);
-}
+} // end: fsmsw_falcon_ModpDiv
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpMkgm2
+/*====================================================================================================================*/
+/**
+* \brief Compute the roots for NTT and inverse NTT (binary case). Input parameter g is a primitive 2048-th root
+*        of 1 modulo p (i.e. g^1024 = * -1 mod p). This fills gm[] and igm[] with powers of g and 1/g:
+*        gm[rev(i)] = g^i mod p
+*        igm[rev(i)] = (1/g)^i mod p
+*        where rev() is the "bit reversal" function over 10 bits. It fills the arrays only up to N = 2^logn
+*        values.
+*        The values stored in gm[] and igm[] are in Montgomery representation.
+*        p must be a prime such that p = 1 mod 2048.
 *
-* Description: Compute the roots for NTT and inverse NTT (binary case). Input parameter g is a primitive 2048-th root
-*              of 1 modulo p (i.e. g^1024 = * -1 mod p). This fills gm[] and igm[] with powers of g and 1/g:
-*              gm[rev(i)] = g^i mod p
-*              igm[rev(i)] = (1/g)^i mod p
-*              where rev() is the "bit reversal" function over 10 bits. It fills the arrays only up to N = 2^logn
-*              values.
-*              The values stored in gm[] and igm[] are in Montgomery representation.
-*              p must be a prime such that p = 1 mod 2048.
+* \param[out] uint32  *gm : t.b.d.
+* \param[out] uint32 *igm : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
+* \param[in]  uint32    g : t.b.d.
+* \param[in]  uint32    p : t.b.d.
+* \param[in]  uint32  p0i : t.b.d.
 *
-* Arguments:   - uint32   *gm:   t.b.d.
-*              - uint32   *igm:  t.b.d.
-*              - uint32  logn: t.b.d.
-*              - uint32    g:    t.b.d.
-*              - uint32    p:    t.b.d.
-*              - uint32    p0i:  t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ModpMkgm2(uint32 *gm, uint32 *igm, uint32 logn, uint32 g, uint32 p, uint32 p0i)
+*/
+static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i)
 {
   uint32 u  = 0;
   uint32 n  = 0;
@@ -1172,23 +1194,23 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *gm, uint32 *igm, uint32 logn, uint32 
     x1     = fsmsw_falcon_ModpMontymul(x1, g_temp, p, p0i);
     x2     = fsmsw_falcon_ModpMontymul(x2, ig, p, p0i);
   }
-}
+} // end: fsmsw_falcon_ModpMkgm2
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Compute the NTT over a polynomial (binary case).
+*        Polynomial elements are a[0], a[stride], a[2 * stride]...
 *
-* Description: Compute the NTT over a polynomial (binary case).
-*              Polynomial elements are a[0], a[stride], a[2 * stride]...
+* \param[out] uint32       *a : t.b.d.
+* \param[in]  uint32   stride : t.b.d.
+* \param[in] const uint32 *gm : t.b.d.
+* \param[in] uint32      logn : t.b.d.
+* \param[in] uint32         p : t.b.d.
+* \param[in] uint32       p0i : t.b.d.
 *
-* Arguments:   -       uint32   *a:      t.b.d.
-*              -       uint32    stride: t.b.d.
-*              - const uint32   *gm:     t.b.d.
-*              -       uint32    logn:   t.b.d.
-*              -       uint32    p:      t.b.d.
-*              -       uint32    p0i:    t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ModpNtt2Ext(uint32 *a, uint32 stride, const uint32 *gm, uint32 logn, uint32 p, uint32 p0i)
+*/
+static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
+                                     uint32 p0i)
 {
   uint32 t          = 0;
   uint32 m          = 0;
@@ -1240,22 +1262,22 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *a, uint32 stride, const uint32 *gm,
       t = ht;
     }
   }
-}
+} // end: fsmsw_falcon_ModpNtt2Ext
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpIntt2Ext
+/*====================================================================================================================*/
+/**
+* \brief Compute the inverse NTT over a polynomial (binary case).
 *
-* Description: Compute the inverse NTT over a polynomial (binary case).
+* \param[out] uint32        *a : t.b.d.
+* \param[in]  uint32    stride : t.b.d.
+* \param[in] const uint32 *igm : t.b.d.
+* \param[in] uint32       logn : t.b.d.
+* \param[in] uint32          p : t.b.d.
+* \param[in] uint32        p0i : t.b.d.
 *
-* Arguments:   -       uint32   *a:      t.b.d.
-*              -       uint32    stride: t.b.d.
-*              - const uint32   *igm:    t.b.d.
-*              -       uint32    logn:   t.b.d.
-*              -       uint32    p:      t.b.d.
-*              -       uint32    p0i:    t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ModpIntt2Ext(uint32 *a, uint32 stride, const uint32 *igm, uint32 logn, uint32 p, uint32 p0i)
+*/
+static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
+                                      uint32 p0i)
 {
   uint32 t   = 0;
   uint32 m   = 0;
@@ -1317,27 +1339,26 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *a, uint32 stride, const uint32 *ig
       r  = &r[stride];
     }
   }
-}
+} // end: fsmsw_falcon_ModpIntt2Ext
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ModpPolyRecRes
+/*====================================================================================================================*/
+/**
+* \brief Given polynomial f in NTT representation modulo p, compute f' of degree less than N/2 such that
+*        f' = f0^2 - X*f1^2, where f0 and f1 are polynomials of degree less than N/2 such that
+*        f = f0(X^2) + X*f1(X^2).
+*        The new polynomial is written "in place" over the first N/2 elements of f.
+*        If applied logn times successively on a given polynomial, the resulting degree-0 polynomial is the
+*        resultant of f and X^N+1 modulo p.
+*        This function applies only to the binary case; it is invoked from fsmsw_falcon_SolveNtruBinaryDepth1().
 *
-* Description: Given polynomial f in NTT representation modulo p, compute f' of degree less than N/2 such that
-*              f' = f0^2 - X*f1^2, where f0 and f1 are polynomials of degree less than N/2 such that
-*              f = f0(X^2) + X*f1(X^2).
-*             The new polynomial is written "in place" over the first N/2 elements of f.
-*             If applied logn times successively on a given polynomial, the resulting degree-0 polynomial is the
-*             resultant of f and X^N+1 modulo p.
-*             This function applies only to the binary case; it is invoked from fsmsw_falcon_SolveNtruBinaryDepth1().
+* \param[out] uint32   *f : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
+* \param[in]  uint32    p : t.b.d.
+* \param[in]  uint32  p0i : t.b.d.
+* \param[in]  uint32   R2 : t.b.d.
 *
-* Arguments:   - uint32   *f:    t.b.d.
-*              - uint32    logn: t.b.d.
-*              - uint32    p:    t.b.d.
-*              - uint32    p0i:  t.b.d.
-*              - uint32    R2:   t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ModpPolyRecRes(uint32 *f, uint32 logn, uint32 p, uint32 p0i, uint32 R2)
+*/
+static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2)
 {
   uint32 hn = 0;
   uint32 u  = 0;
@@ -1352,7 +1373,7 @@ static void fsmsw_falcon_ModpPolyRecRes(uint32 *f, uint32 logn, uint32 p, uint32
     w1   = f[(u << 1) + 1u];
     f[u] = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
   }
-}
+} // end: fsmsw_falcon_ModpPolyRecRes
 
 /* ================================================================================================================== */
 /*
@@ -1375,23 +1396,22 @@ static void fsmsw_falcon_ModpPolyRecRes(uint32 *f, uint32 logn, uint32 p, uint32
  * Using 31-bit words makes it easier to keep track of carries. When negative values are used, two's complement is used.
  */
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Subtract integer b from integer a. Both integers are supposed to have the same size. The carry (0 or 1)
+*        is returned. Source arrays a and b MUST be distinct.
+*        The operation is performed as described above if ctr = 1. If ctl = 0, the value a[] is unmodified, but
+*        all memory accesses are still performed, and the carry is computed and returned.
 *
-* Description: Subtract integer b from integer a. Both integers are supposed to have the same size. The carry (0 or 1)
-*              is returned. Source arrays a and b MUST be distinct.
-*              The operation is performed as described above if ctr = 1. If ctl = 0, the value a[] is unmodified, but
-*              all memory accesses are still performed, and the carry is computed and returned.
+* \param[out] uint32       *a : t.b.d.
+* \param[in]  const uint32 *b : t.b.d.
+* \param[in]  uint32      len : t.b.d.
+* \param[in]  uint32      ctl : t.b.d.
 *
-* Arguments:   -       uint32 *a:   t.b.d.
-*              - const uint32 *b:   t.b.d.
-*              -       uint32  len: t.b.d.
-*              -       uint32  ctl: t.b.d.
+* \returns cc
 *
-* Returns cc
-*
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_ZintSub(uint32 *a, const uint32 *b, uint32 len, uint32 ctl)
+*/
+static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1412,22 +1432,21 @@ static uint32 fsmsw_falcon_ZintSub(uint32 *a, const uint32 *b, uint32 len, uint3
   }
 
   return cc;
-}
+} // end: fsmsw_falcon_ZintSub
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintMulSmall
+/*====================================================================================================================*/
+/**
+* \brief Mutiply the provided big integer m with a small value x. This function assumes that x < 2^31. The carry
+*        word is returned.
 *
-* Description: Mutiply the provided big integer m with a small value x. This function assumes that x < 2^31. The carry
-*              word is returned.
+* \param[out] uint32   *m : t.b.d.
+* \param[in]  uint32 mlen : t.b.d.
+* \param[in]  uint32    x : t.b.d.
 *
-* Arguments:   - uint32 *m:    t.b.d.
-*              - uint32  mlen: t.b.d.
-*              - uint32  x:    t.b.d.
+* \returns cc
 *
-* Returns cc
-*
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_ZintMulSmall(uint32 *m, uint32 mlen, uint32 x)
+*/
+static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1441,29 +1460,28 @@ static uint32 fsmsw_falcon_ZintMulSmall(uint32 *m, uint32 mlen, uint32 x)
   }
 
   return cc;
-}
+} // end: fsmsw_falcon_ZintMulSmall
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintModSmallUnsigned
+/*====================================================================================================================*/
+/**
+* \brief Reduce a big integer d modulo a small integer p.
+*        Rules:
+*        d is uint32
+*        p is prime
+*        2^30 < p < 2^31
+*        p0i = -(1/p) mod 2^31
+*        R2 = 2^62 mod p
 *
-* Description: Reduce a big integer d modulo a small integer p.
-*              Rules:
-*               d is uint32
-*               p is prime
-*               2^30 < p < 2^31
-*               p0i = -(1/p) mod 2^31
-*               R2 = 2^62 mod p
+* \param[in] const uint32 *d : t.b.d.
+* \param[in] uint32     dlen : t.b.d.
+* \param[in] uint32        p : t.b.d.
+* \param[in] uint32      p0i : t.b.d.
+* \param[in] uint32       R2 : t.b.d.
 *
-* Arguments:   - const uint32 *d:    t.b.d.
-*              -       uint32  dlen: t.b.d.
-*              -       uint32  p:    t.b.d.
-*              -       uint32  p0i:  t.b.d.
-*              -       uint32  R2:   t.b.d.
+* \returns x
 *
-* Returns x
-*
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2)
+*/
+static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2)
 {
   uint32 x = 0;
   uint32 u = 0;
@@ -1484,25 +1502,25 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *d, uint32 dlen, ui
   }
 
   return x;
-}
+} // end: fsmsw_falcon_ZintModSmallUnsigned
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintModSmallSigned
+/*====================================================================================================================*/
+/**
+* \brief Similar to fsmsw_falcon_ZintModSmallUnsigned(), except that d may be signed. Extra parameter is Rx = 2^(31*dlen)
+*        mod p.
 *
-* Description: Similar to fsmsw_falcon_ZintModSmallUnsigned(), except that d may be signed. Extra parameter is Rx = 2^(31*dlen)
-*              mod p.
+* \param[in] const uint32 *d : t.b.d.
+* \param[in] uint32     dlen : t.b.d.
+* \param[in] uint32        p : t.b.d.
+* \param[in] uint32      p0i : t.b.d.
+* \param[in] uint32       R2 : t.b.d.
+* \param[in] uint32       Rx : t.b.d.
 *
-* Arguments:   - const uint32 *d:    t.b.d.
-*              -       uint32  dlen: t.b.d.
-*              -       uint32  p:    t.b.d.
-*              -       uint32  p0i:  t.b.d.
-*              -       uint32  R2:   t.b.d.
-*              -       uint32  Rx:   t.b.d.
+* \returns z or 0
 *
-* Returns z or 0
-*
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2, uint32 Rx)
+*/
+static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
+                                              uint32 Rx)
 {
   uint32 z      = 0;
   uint32 retVal = 0;
@@ -1517,21 +1535,20 @@ static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *d, uint32 dlen, uint
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon_ZintModSmallSigned
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintAddMulSmall
+/*====================================================================================================================*/
+/**
+* \brief Add y*s to x. x and y initially have length 'len' words; the new x has length 'len+1' words. 's' must
+*        fit on 31 bits. x[] and y[] must not overlap.
 *
-* Description: Add y*s to x. x and y initially have length 'len' words; the new x has length 'len+1' words. 's' must
-*              fit on 31 bits. x[] and y[] must not overlap.
+* \param[out] uint32       *x : t.b.d.
+* \param[in]  const uint32 *y : t.b.d.
+* \param[in]  uint32      len : t.b.d.
+* \param[in]  uint32        s : t.b.d.
 *
-* Arguments:   -       uint32 *x:   t.b.d.
-*              - const uint32 *y:   t.b.d.
-*              -       uint32  len: t.b.d.
-*              -       uint32  s:   t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintAddMulSmall(uint32 *x, const uint32 *y, uint32 len, uint32 s)
+*/
+static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1551,20 +1568,19 @@ static void fsmsw_falcon_ZintAddMulSmall(uint32 *x, const uint32 *y, uint32 len,
   }
 
   x[len] = cc;
-}
+} // end: fsmsw_falcon_ZintAddMulSmall
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintNormZero
+/*====================================================================================================================*/
+/**
+* \brief Normalize a modular integer around 0: if x > p/2, then x is replaced with x - p (signed encoding with
+*        two's complement); otherwise, x is untouched. The two integers x and p are encoded over the same length.
 *
-* Description: Normalize a modular integer around 0: if x > p/2, then x is replaced with x - p (signed encoding with
-*              two's complement); otherwise, x is untouched. The two integers x and p are encoded over the same length.
+* \param[out] uint32       *x : t.b.d.
+* \param[in]  const uint32 *p : t.b.d.
+* \param[in]  uint32      len : t.b.d.
 *
-* Arguments:   -       uint32 *x:   t.b.d.
-*              - const uint32 *p:   t.b.d.
-*              -       uint32  len: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintNormZero(uint32 *x, const uint32 *p, uint32 len)
+*/
+static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len)
 {
   uint32 u  = 0;
   uint32 r  = 0;
@@ -1596,30 +1612,29 @@ static void fsmsw_falcon_ZintNormZero(uint32 *x, const uint32 *p, uint32 len)
   /* At this point, r = -1, 0 or 1, depending on whether (p-1)/2 is lower than, equal to, or greater than x. We thus
    * want to do the subtraction only if r = -1. */
   (void)fsmsw_falcon_ZintSub(x, p, len, (r >> 31));
-}
+} // end: fsmsw_falcon_ZintNormZero
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintRebuildCrt
+/*====================================================================================================================*/
+/**
+* \brief Rebuild integers from their RNS representation. There are 'num' integers, and each consists in 'xlen'
+*        words. 'xx' points at that first word of the first integer; subsequent integers are accessed by adding
+*        'xstride' repeatedly.
+*        The words of an integer are the RNS representation of that integer, using the provided 'primes' are
+*        moduli. This function replaces each integer with its multi-word value (little-endian order).
+*        If "normalize_signed" is non-zero, then the returned value is normalized to the -m/2..m/2 interval
+*        (where m is the product of all small prime moduli); two's complement is used for negative values.
 *
-* Description: Rebuild integers from their RNS representation. There are 'num' integers, and each consists in 'xlen'
-*              words. 'xx' points at that first word of the first integer; subsequent integers are accessed by adding
-*              'xstride' repeatedly.
-*              The words of an integer are the RNS representation of that integer, using the provided 'primes' are
-*              moduli. This function replaces each integer with its multi-word value (little-endian order).
-*              If "normalize_signed" is non-zero, then the returned value is normalized to the -m/2..m/2 interval
-*              (where m is the product of all small prime moduli); two's complement is used for negative values.
+* \param[out] uint32                *xx : t.b.d.
+* \param[in]  uint32               xlen : t.b.d.
+* \param[in]  uint32            xstride : t.b.d.
+* \param[in]  uint32                num : t.b.d.
+* \param[in]  const small_prime *primes : t.b.d.
+* \param[in]  sint32   normalize_signed : t.b.d.
+* \param[out] uint32               *tmp : t.b.d.
 *
-* Arguments:   -       uint32       *xx:              t.b.d.
-*              -       uint32       xlen:             t.b.d.
-*              -       uint32       xstride:          t.b.d.
-*              -       uint32       num:              t.b.d.
-*              - const small_prime *primes:           t.b.d.
-*              -       sint32       normalize_signed: t.b.d.
-*              -       uint32      *tmp:              t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintRebuildCrt(uint32 *xx, uint32 xlen, uint32 xstride, uint32 num, const small_prime *primes,
-                                        sint32 normalize_signed, uint32 *tmp)
+*/
+static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
+                                        const small_prime *const primes, sint32 normalize_signed, uint32 *const tmp)
 {
   uint32 u   = 0;
   uint32 *x  = (uint32 *)NULL_PTR;
@@ -1676,20 +1691,19 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *xx, uint32 xlen, uint32 xstride,
       x = &x[xstride];
     }
   }
-}
+} // end: fsmsw_falcon_ZintRebuildCrt
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintNegate
+/*====================================================================================================================*/
+/**
+* \brief Negate a big integer conditionally: value a is replaced with -a if and only if ctl = 1. Control value
+*        ctl must be 0 or 1.
 *
-* Description: Negate a big integer conditionally: value a is replaced with -a if and only if ctl = 1. Control value
-*              ctl must be 0 or 1.
+* \param[out] uint32  *a : t.b.d.
+* \param[in]  uint32 len : t.b.d.
+* \param[in]  uint32 ct1 : t.b.d.
 *
-* Arguments:   - uint32 *a:   t.b.d.
-*              - uint32  len: t.b.d.
-*              - uint32  ct1: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintNegate(uint32 *a, uint32 len, uint32 ctl)
+*/
+static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1708,32 +1722,32 @@ static void fsmsw_falcon_ZintNegate(uint32 *a, uint32 len, uint32 ctl)
     a[u] = aw & 0x7FFFFFFFu;
     cc   = aw >> 31;
   }
-}
+} // end: fsmsw_falcon_ZintNegate
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintCoReduce
+/*====================================================================================================================*/
+/**
+* \brief Replace a with (a*xa+b*xb)/(2^31) and b with (a*ya+b*yb)/(2^31). The low bits are dropped (the caller
+*        should compute the coefficients such that these dropped bits are all zeros). If either or both yields a
+*        negative value, then the value is negated.
+*        Coefficients xa, xb, ya and yb may use the full signed 32-bit range.
 *
-* Description: Replace a with (a*xa+b*xb)/(2^31) and b with (a*ya+b*yb)/(2^31). The low bits are dropped (the caller
-*              should compute the coefficients such that these dropped bits are all zeros). If either or both yields a
-*              negative value, then the value is negated.
-*              Coefficients xa, xb, ya and yb may use the full signed 32-bit range.
+* \param[out] uint32  *a : t.b.d.
+* \param[out] uint32  *b : t.b.d.
+* \param[in]  uint32 len : t.b.d.
+* \param[in]  sint64  xa : t.b.d.
+* \param[in]  sint64  xb : t.b.d.
+* \param[in]  sint64  ya : t.b.d.
+* \param[in]  sint64  yb : t.b.d.
 *
-* Arguments:   - uint32 *a:   t.b.d.
-*              - uint32 *b: t.b.d.
-*              - uint32  len: t.b.d.
-*              - sint64  xa: t.b.d.
-*              - sint64  xb: t.b.d.
-*              - sint64  ya: t.b.d.
-*              - sint64  yb: t.b.d.
-*
-* Returned value is:
+* \returns:
 *  0  both values were positive
 *  1  new a had to be negated
 *  2  new b had to be negated
 *  3  both new a and new b had to be negated
 *
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_ZintCoReduce(uint32 *a, uint32 *b, uint32 len, sint64 xa, sint64 xb, sint64 ya, sint64 yb)
+*/
+static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
+                                        sint64 yb)
 {
   uint32 u    = 0;
   sint64 cca  = 0;
@@ -1794,24 +1808,23 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *a, uint32 *b, uint32 len, sint64
   fsmsw_falcon_ZintNegate(b, len, negb);
 
   return nega | (negb << 1);
-}
+} // end: fsmsw_falcon_ZintCoReduce
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintFinishMod
+/*====================================================================================================================*/
+/**
+* \brief Finish modular reduction. Rules on input parameters:
+*        - if neg = 1, then -m <= a < 0
+*        - if neg = 0, then 0 <= a < 2*m
+*        If neg = 0, then the top word of a[] is allowed to use 32 bits.
+*        Modulus m must be odd.
 *
-* Description: Finish modular reduction. Rules on input parameters:
-*              - if neg = 1, then -m <= a < 0
-*              - if neg = 0, then 0 <= a < 2*m
-*              If neg = 0, then the top word of a[] is allowed to use 32 bits.
-*              Modulus m must be odd.
+* \param[out] uint32       *a : t.b.d.
+* \param[in]  uint32      len : t.b.d.
+* \param[in]  const uint32 *m : t.b.d.
+* \param[in]  uint32      neg : t.b.d.
 *
-* Arguments:   -       uint32 *a:   t.b.d.
-*              -       uint32  len: t.b.d.
-*              - const uint32 *m:   t.b.d.
-*              -       uint32  neg: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintFinishMod(uint32 *a, uint32 len, const uint32 *m, uint32 neg)
+*/
+static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1845,26 +1858,25 @@ static void fsmsw_falcon_ZintFinishMod(uint32 *a, uint32 len, const uint32 *m, u
     a[u] = aw & 0x7FFFFFFFu;
     cc   = aw >> 31;
   }
-}
+} // end: fsmsw_falcon_ZintFinishMod
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintCoReduceMod
+/*====================================================================================================================*/
+/**
+* \brief Replace a with (a*xa+b*xb)/(2^31) mod m, and b with (a*ya+b*yb)/(2^31) mod m. Modulus m must be odd;
+*        m0i = -1/m[0] mod 2^31.
 *
-* Description: Replace a with (a*xa+b*xb)/(2^31) mod m, and b with (a*ya+b*yb)/(2^31) mod m. Modulus m must be odd;
-*              m0i = -1/m[0] mod 2^31.
+* \param[out] uint32 *a:   t.b.d.
+* \param[out] uint32 *b:   t.b.d.
+* \param[in]  const uint32 *m:   t.b.d.
+* \param[in]  uint32  len: t.b.d.
+* \param[in]  uint32  m0i: t.b.d.
+* \param[in]  sint64  xb:  t.b.d.
+* \param[in]  sint64  ya:  t.b.d.
+* \param[in]  sint64  yb:  t.b.d.
 *
-* Arguments:   -       uint32 *a:   t.b.d.
-*              -       uint32 *b:   t.b.d.
-*              - const uint32 *m:   t.b.d.
-*              -       uint32  len: t.b.d.
-*              -       uint32  m0i: t.b.d.
-*              -       sint64  xb:  t.b.d.
-*              -       sint64  ya:  t.b.d.
-*              -       sint64  yb:  t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintCoReduceMod(uint32 *a, uint32 *b, const uint32 *m, uint32 len, uint32 m0i, sint64 xa,
-                                         sint64 xb, sint64 ya, sint64 yb)
+*/
+static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
+                                         uint32 m0i, sint64 xa, sint64 xb, sint64 ya, sint64 yb)
 {
   uint32 u    = 0;
   sint64 cca  = 0;
@@ -1927,31 +1939,31 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *a, uint32 *b, const uint32 *m, 
    * subtract the modulus, as required. */
   fsmsw_falcon_ZintFinishMod(a, len, m, (uint32)((uint64)cca >> 63));
   fsmsw_falcon_ZintFinishMod(b, len, m, (uint32)((uint64)ccb >> 63));
-}
+} // end: fsmsw_falcon_ZintCoReduceMod
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintBezout
+/*====================================================================================================================*/
+/**
+* \brief Compute a GCD between two positive big integers x and y. The two integers must be odd. Returned value is
+*        1 if the GCD is 1, 0 otherwise. When 1 is returned, arrays u and v are filled with values such that:
+*        0 <= u <= y
+*        0 <= v <= x
+*        x*u - y*v = 1
+*        x[] and y[] are unmodified. Both input values must have the same encoded length. Temporary array must be
+*        large enough to accommodate 4 extra values of that length. Arrays u, v and tmp may not overlap with each
+*        other, or with either x or y.
 *
-* Description: Compute a GCD between two positive big integers x and y. The two integers must be odd. Returned value is
-*              1 if the GCD is 1, 0 otherwise. When 1 is returned, arrays u and v are filled with values such that:
-*                0 <= u <= y
-*                0 <= v <= x
-*                x*u - y*v = 1
-*              x[] and y[] are unmodified. Both input values must have the same encoded length. Temporary array must be
-*              large enough to accommodate 4 extra values of that length. Arrays u, v and tmp may not overlap with each
-*              other, or with either x or y.
+* \param[out] uint32       *u : t.b.d.
+* \param[out] uint32       *v : t.b.d.
+* \param[in]  const uint32 *x : t.b.d.
+* \param[in]  const uint32 *y : t.b.d.
+* \param[in]  uint32      len : t.b.d.
+* \param[in]  uint32      tmp : t.b.d.
 *
-* Arguments:   -       uint32 *u:   t.b.d.
-*              -       uint32 *v:   t.b.d.
-*              - const uint32 *x:   t.b.d.
-*              - const uint32 *y:   t.b.d.
-*              -       uint32  len: t.b.d.
-*              -       uint32  tmp: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_ZintBezout(uint32 *u, uint32 *v, const uint32 *x, const uint32 *y, uint32 len, uint32 *tmp)
+*/
+static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
+                                      uint32 len, uint32 *const tmp)
 {
   /* Algorithm is an extended binary GCD. We maintain 6 values a, b, u0, u1, v0 and v1 with the following invariants:
    *  a = x*u0 - y*v0
@@ -2217,29 +2229,28 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *u, uint32 *v, const uint32 *x, con
     retVal = (sint32)((uint32)((1u - ((rc | ((uint32)((sint32)((-1) * (sint32)rc)))) >> 31)) & x[0] & y[0]));
   }
   return retVal;
-}
+} // end: fsmsw_falcon_ZintBezout
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintAddScaledMulSmall
+/*====================================================================================================================*/
+/**
+* \brief Add k*y*2^sc to x. The result is assumed to fit in the array of size xlen (truncation is applied if
+*        necessary). Scale factor 'sc' is provided as sch and scl, such that:
+*        sch = sc / 31
+*        scl = sc % 31
+*        xlen MUST NOT be lower than ylen.
+*        x[] and y[] are both signed integers, using two's complement for negative values.
 *
-* Description: Add k*y*2^sc to x. The result is assumed to fit in the array of size xlen (truncation is applied if
-*              necessary). Scale factor 'sc' is provided as sch and scl, such that:
-*                sch = sc / 31
-*                scl = sc % 31
-*              xlen MUST NOT be lower than ylen.
-*              x[] and y[] are both signed integers, using two's complement for negative values.
+* \param[out] uint32       *x : t.b.d.
+* \param[in]  uint32     xlen : t.b.d.
+* \param[in]  const uint32 *y : t.b.d.
+* \param[in]  uint32     ylen : t.b.d.
+* \param[in]  sint32        k : t.b.d.
+* \param[in]  uint32      sch : t.b.d.
+* \param[in]  uint32      scl : t.b.d.
 *
-* Arguments:   -       uint32 *x:    t.b.d.
-*              -       uint32  xlen: t.b.d.
-*              - const uint32 *y:    t.b.d.
-*              -       uint32  ylen: t.b.d.
-*              -       sint32  k:    t.b.d.
-*              -       uint32  sch:  t.b.d.
-*              -       uint32  scl:  t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *x, uint32 xlen, const uint32 *y, uint32 ylen, sint32 k,
-                                               uint32 sch, uint32 scl)
+*/
+static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
+                                               sint32 k, uint32 sch, uint32 scl)
 {
   uint32 u;
   uint32 ysign, tw;
@@ -2283,27 +2294,27 @@ static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *x, uint32 xlen, const uin
       cc  = (sint32)ccu;
     }
   }
-}
+} // end: fsmsw_falcon_ZintAddScaledMulSmall
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintSubScaled
+/*====================================================================================================================*/
+/**
+* \brief Subtract y*2^sc from x. The result is assumed to fit in the array of size xlen (truncation is applied if
+*        necessary). Scale factor 'sc' is provided as sch and scl, such that:
+*        sch = sc / 31
+*        scl = sc % 31
+*        xlen MUST NOT be lower than ylen.
+*        x[] and y[] are both signed integers, using two's complement for negative values.
 *
-* Description: Subtract y*2^sc from x. The result is assumed to fit in the array of size xlen (truncation is applied if
-*              necessary). Scale factor 'sc' is provided as sch and scl, such that:
-*                sch = sc / 31
-*                scl = sc % 31
-*              xlen MUST NOT be lower than ylen.
-*              x[] and y[] are both signed integers, using two's complement for negative values.
+* \param[out] uint32       *x : t.b.d.
+* \param[in]  uint32     xlen : t.b.d.
+* \param[in]  const uint32 *y : t.b.d.
+* \param[in]  uint32     ylen : t.b.d.
+* \param[in]  uint32      sch : t.b.d.
+* \param[in]  uint32      scl : t.b.d.
 *
-* Arguments:   -       uint32 *x:    t.b.d.
-*              -       uint32  xlen: t.b.d.
-*              - const uint32 *y:    t.b.d.
-*              -       uint32  ylen: t.b.d.
-*              -       uint32  sch:  t.b.d.
-*              -       uint32  scl:  t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_ZintSubScaled(uint32 *x, uint32 xlen, const uint32 *y, uint32 ylen, uint32 sch, uint32 scl)
+*/
+static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
+                                       uint32 scl)
 {
   uint32 u     = 0;
   uint32 ysign = 0;
@@ -2342,19 +2353,18 @@ static void fsmsw_falcon_ZintSubScaled(uint32 *x, uint32 xlen, const uint32 *y, 
       cc   = w >> 31;
     }
   }
-}
+} // end: fsmsw_falcon_ZintSubScaled
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_ZintOneToPlain
+/*====================================================================================================================*/
+/**
+* \brief Convert a one-word signed big integer into a signed value.
 *
-* Description: Convert a one-word signed big integer into a signed value.
+* \param[in] const uint32 *x
 *
-* Arguments:   - const uint32 *x
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *x)
+*/
+static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x)
 {
   uint32 w = 0;
 
@@ -2362,25 +2372,24 @@ static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *x)
   w |= (w & 0x40000000u) << 1;
 
   return (sint32)w;
-}
+} // end: fsmsw_falcon_ZintOneToPlain
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolyBigToFp
+/*====================================================================================================================*/
+/**
+* \brief Convert a polynomial to floating-point values.
+*        Each coefficient has length flen words, and starts fstride words after the previous.
+*        IEEE-754 binary64 values can represent values in a finite range, roughly 2^(-1023) to 2^(+1023); thus,
+*        if coefficients are too large, they should be "trimmed" by pointing not to the lowest word of each,
+*        but upper.
 *
-* Description: Convert a polynomial to floating-point values.
-*              Each coefficient has length flen words, and starts fstride words after the previous.
-*              IEEE-754 binary64 values can represent values in a finite range, roughly 2^(-1023) to 2^(+1023); thus,
-*              if coefficients are too large, they should be "trimmed" by pointing not to the lowest word of each,
-*              but upper.
+* \param[out] fpr          *d : t.b.d.
+* \param[in]  const uint32 *f : t.b.d.
+* \param[in]  uint32     flen : t.b.d.
+* \param[in]  uint32  fstride : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
 *
-* Arguments:   -       fpr      *d:       t.b.d.
-*              - const uint32   *f:       t.b.d.
-*              -       uint32    flen:    t.b.d.
-*              -       uint32    fstride: t.b.d.
-*              -       uint32    logn:    t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_PolyBigToFp(fpr *d, const uint32 *f, uint32 flen, uint32 fstride, uint32 logn)
+*/
+static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen, uint32 fstride, uint32 logn)
 {
   uint32 n   = 0;
   uint32 u   = 0;
@@ -2431,26 +2440,25 @@ static void fsmsw_falcon_PolyBigToFp(fpr *d, const uint32 *f, uint32 flen, uint3
       f_temp = &f_temp[fstride];
     }
   }
-}
+} // end: fsmsw_falcon_PolyBigToFp
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Convert a polynomial to small integers. Source values are supposed to be one-word integers, signed over
+*        31 bits. Returned value is 0 if any of the coefficients exceeds the provided limit (in absolute value),
+*        or 1 on success.
+*        This is not constant-time; this is not a problem here, because on any failure, the NTRU-solving process
+*        will be deemed to have failed and the (f,g) polynomials will be discarded.
 *
-* Description: Convert a polynomial to small integers. Source values are supposed to be one-word integers, signed over
-*              31 bits. Returned value is 0 if any of the coefficients exceeds the provided limit (in absolute value),
-*              or 1 on success.
-*              This is not constant-time; this is not a problem here, because on any failure, the NTRU-solving process
-*              will be deemed to have failed and the (f,g) polynomials will be discarded.
+* \param[out] sint8        *d : t.b.d.
+* \param[in]  const uint32 *s : t.b.d.
+* \param[in]  sint32      lim : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
 *
-* Arguments:   -       sint8    *d:    t.b.d.
-*              - const uint32   *s:    t.b.d.
-*              -       sint32       lim:  t.b.d.
-*              -       uint32    logn: t.b.d.
+* \returns 1 on success, 0 on error.
 *
-* Returns 1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *d, const uint32 *s, sint32 lim, uint32 logn)
+*/
+static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn)
 {
   uint32 n     = 0;
   uint32 u     = 0;
@@ -2473,31 +2481,31 @@ static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *d, const uint32 *s, sint32 lim,
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon_PolyBigToSmall
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolySubScaled
+/*====================================================================================================================*/
+/**
+* \brief Subtract k*f from F, where F, f and k are polynomials modulo X^N+1. Coefficients of polynomial k are
+*        small integers (signed values in the -2^31..2^31 range) scaled by 2^sc. Value sc is provided as
+*        sch = sc / 31 and scl = sc % 31.
+*        This function implements the basic quadratic multiplication algorithm, which is efficient in space
+*        (no extra buffer needed) but slow at high degree.
 *
-* Description: Subtract k*f from F, where F, f and k are polynomials modulo X^N+1. Coefficients of polynomial k are
-*              small integers (signed values in the -2^31..2^31 range) scaled by 2^sc. Value sc is provided as
-*              sch = sc / 31 and scl = sc % 31.
-*              This function implements the basic quadratic multiplication algorithm, which is efficient in space
-*              (no extra buffer needed) but slow at high degree.
+* \param[out] uint32       *F : t.b.d.
+* \param[in]  uint32     Flen : t.b.d.
+* \param[in]  uint32  Fstride : t.b.d.
+* \param[in]  const uint32 *f : t.b.d.
+* \param[in]  uint32     flen : t.b.d.
+* \param[in]  uint32  fstride : t.b.d.
+* \param[in]  const sint32 *k : t.b.d.
+* \param[in]  uint32      sch : t.b.d.
+* \param[in]  uint32      scl : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
 *
-* Arguments:   -       uint32   *F:       t.b.d.
-*              -       uint32    Flen:    t.b.d.
-*              -       uint32    Fstride: t.b.d.
-*              - const uint32   *f:       t.b.d.
-*              -       uint32    flen:    t.b.d.
-*              -       uint32    fstride: t.b.d.
-*              - const sint32   *k:       t.b.d.
-*              -       uint32    sch:     t.b.d.
-*              -       uint32    scl:     t.b.d.
-*              -       uint32    logn:    t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_PolySubScaled(uint32 *F, uint32 Flen, uint32 Fstride, const uint32 *f, uint32 flen1,
-                                       uint32 fstride1, const sint32 *k, uint32 sch, uint32 scl, uint32 logn)
+*/
+static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+                                       uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
+                                       uint32 logn)
 {
   uint32 n        = 0;
   uint32 u        = 0;
@@ -2531,31 +2539,30 @@ static void fsmsw_falcon_PolySubScaled(uint32 *F, uint32 Flen, uint32 Fstride, c
       y = &y[fstride1];
     }
   }
-}
+} // end: fsmsw_falcon_PolySubScaled
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolySubScaledNtt
+/*====================================================================================================================*/
+/**
+* \brief Subtract k*f from F. Coefficients of polynomial k are small integers (signed values in the -2^31..2^31
+*        range) scaled by 2^sc. This function assumes that the degree is large, and integers relatively small.
+*        The value sc is provided as sch = sc / 31 and scl = sc % 31.
 *
-* Description: Subtract k*f from F. Coefficients of polynomial k are small integers (signed values in the -2^31..2^31
-*              range) scaled by 2^sc. This function assumes that the degree is large, and integers relatively small.
-*              The value sc is provided as sch = sc / 31 and scl = sc % 31.
+* \param[out] uint32       *F : t.b.d.
+* \param[in]  uint32     Flen : t.b.d.
+* \param[in]  uint32  Fstride : t.b.d.
+* \param[in]  const uint32 *f : t.b.d.
+* \param[in]  uint32     flen : t.b.d.
+* \param[in]  uint32  fstride : t.b.d.
+* \param[in]  const sint32 *k : t.b.d.
+* \param[in]  uint32      sch : t.b.d.
+* \param[in]  uint32      scl : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
+* \param[out] uint32     *tmp : t.b.d.
 *
-* Arguments:   -       uint32   *F:       t.b.d.
-*              -       uint32    Flen:    t.b.d.
-*              -       uint32    Fstride: t.b.d.
-*              - const uint32   *f:       t.b.d.
-*              -       uint32    flen:    t.b.d.
-*              -       uint32    fstride: t.b.d.
-*              - const sint32   *k:       t.b.d.
-*              -       uint32    sch:     t.b.d.
-*              -       uint32    scl:     t.b.d.
-*              -       uint32    logn:    t.b.d.
-*              -       uint32   *tmp:     t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_PolySubScaledNtt(uint32 *F, uint32 Flen, uint32 Fstride, const uint32 *f, uint32 flen1,
-                                          uint32 fstride1, const sint32 *k, uint32 sch, uint32 scl, uint32 logn,
-                                          uint32 *tmp)
+*/
+static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+                                          uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
+                                          uint32 logn, uint32 *const tmp)
 {
   uint32 *gm                     = (uint32 *)NULL_PTR;
   uint32 *igm                    = (uint32 *)NULL_PTR;
@@ -2631,21 +2638,20 @@ static void fsmsw_falcon_PolySubScaledNtt(uint32 *F, uint32 Flen, uint32 Fstride
     x = &x[Fstride];
     y = &y[tlen];
   }
-}
+} // end: fsmsw_falcon_PolySubScaledNtt
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_GetRngU64
+/*====================================================================================================================*/
+/**
+* \brief Get a random 8-byte integer from a SHAKE-based RNG. This function ensures consistent interpretation of
+*        the SHAKE output so that the same values will be obtained over different platforms, in case a known seed
+*        is used.
 *
-* Description: Get a random 8-byte integer from a SHAKE-based RNG. This function ensures consistent interpretation of
-*              the SHAKE output so that the same values will be obtained over different platforms, in case a known seed
-*              is used.
+* \param[out] inner_shake256_context *rng : t.b.d.
 *
-* Arguments:   - inner_shake256_context *rng: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *rng)
+*/
+static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng)
 {
   /* We enforce little-endian representation. */
   uint8 tmp[8] = {0};
@@ -2654,24 +2660,23 @@ static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *rng)
 
   return (uint64)tmp[0] | ((uint64)tmp[1] << 8) | ((uint64)tmp[2] << 16) | ((uint64)tmp[3] << 24) |
          ((uint64)tmp[4] << 32) | ((uint64)tmp[5] << 40) | ((uint64)tmp[6] << 48) | ((uint64)tmp[7] << 56);
-}
+} // end: fsmsw_falcon_GetRngU64
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_Mkgauss
+/*====================================================================================================================*/
+/**
+* \brief Generate a random value with a Gaussian distribution centered on 0. The RNG must be ready for extraction
+*        (already flipped).
+*        Distribution has standard deviation 1.17*sqrt(q/(2*N)). The precomputed table is for N = 1024. Since the
+*        sum of two independent values of standard deviation sigma has standard deviation sigma*sqrt(2), then we
+*        can just generate more values and add them together for lower dimensions.
 *
-* Description: Generate a random value with a Gaussian distribution centered on 0. The RNG must be ready for extraction
-*              (already flipped).
-*              Distribution has standard deviation 1.17*sqrt(q/(2*N)). The precomputed table is for N = 1024. Since the
-*              sum of two independent values of standard deviation sigma has standard deviation sigma*sqrt(2), then we
-*              can just generate more values and add them together for lower dimensions.
+* \param[out] RNG_CONTEXT *rng : t.b.d.
+* \param[in]  uint32      logn : t.b.d.
 *
-* Arguments:   - RNG_CONTEXT *rng:  t.b.d.
-*              - uint32       logn: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *rng, uint32 logn)
+*/
+static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
 {
   uint32 u   = 0;
   uint32 g   = 0;
@@ -2723,21 +2728,20 @@ static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *rng, uint32 logn)
   }
 
   return val;
-}
+} // end: fsmsw_falcon_Mkgauss
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolySmallSqNorm
+/*====================================================================================================================*/
+/**
+* \brief Compute squared norm of a short vector. Returned value is saturated to 2^32-1 if it is not lower
+*        than 2^31.
 *
-* Description: Compute squared norm of a short vector. Returned value is saturated to 2^32-1 if it is not lower
-*              than 2^31.
+* \param[in] const sint8 *f : t.b.d.
+* \param[in] uint32    logn : t.b.d.
 *
-* Arguments:   - const sint8    *f:    t.b.d.
-*              -       uint32    logn: t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *f, uint32 logn)
+*/
+static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn)
 {
   uint32 n  = 0;
   uint32 u  = 0;
@@ -2757,27 +2761,28 @@ static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *f, uint32 logn)
   }
 
   return s | (uint32)((sint32)((-1) * (sint32)((uint32)(ng >> 31))));
-}
+} // end: fsmsw_falcon_PolySmallSqNorm
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_AlignFpr
+/*====================================================================================================================*/
+/**
+* \brief Align (upwards) the provided 'data' pointer with regards to 'base' so that the offset is a multiple of
+*        the size of 'fpr'.
 *
-* Description: Align (upwards) the provided 'data' pointer with regards to 'base' so that the offset is a multiple of
-*              the size of 'fpr'.
+* \param[out] void *base : t.b.d.
+* \param[out] void *data : t.b.d.
 *
-* Arguments:   - void *base: t.b.d.
-*              - void *data: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static fpr *fsmsw_falcon_AlignFpr(void *base, void *data)
+*/
+static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data)
 {
   uint8 *cb = (uint8 *)NULL_PTR;
   uint8 *cd = (uint8 *)NULL_PTR;
   uint32 k  = 0;
   uint32 km = 0;
 
+  /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
   Ensured proper alignment and validity." */
   cb = base;
@@ -2793,30 +2798,33 @@ static fpr *fsmsw_falcon_AlignFpr(void *base, void *data)
     k += (sizeof(fpr)) - km;
   }
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   return (fpr *)((void *)(&cb[k]));
-}
+} // end: *fsmsw_falcon_AlignFpr
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_AlignU32
+/*====================================================================================================================*/
+/**
+* \brief Align (upwards) the provided 'data' pointer with regards to 'base' so that the offset is a multiple of
+*        the size of 'uint32'.
 *
-* Description: Align (upwards) the provided 'data' pointer with regards to 'base' so that the offset is a multiple of
-*              the size of 'uint32'.
+* \param[out] void *base : t.b.d.
+* \param[out] void *data : t.b.d.
 *
-* Arguments:   - void *base: t.b.d.
-*              - void *data: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static uint32 *fsmsw_falcon_AlignU32(void *base, void *data)
+*/
+static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data)
 {
   uint8 *cb = (uint8 *)NULL_PTR;
   uint8 *cd = (uint8 *)NULL_PTR;
   uint32 k  = 0;
   uint32 km = 0;
 
+  /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
   Ensured proper alignment and validity." */
   cb = base;
@@ -2832,22 +2840,23 @@ static uint32 *fsmsw_falcon_AlignU32(void *base, void *data)
     k += (sizeof(uint32)) - km;
   }
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   return (uint32 *)((void *)(&cb[k]));
-}
+} // end: *fsmsw_falcon_AlignU32
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolySmallToFp
+/*====================================================================================================================*/
+/**
+* \brief Convert a small vector to floating point.
 *
-* Description: Convert a small vector to floating point.
+* \param[out] fpr         *x : t.b.d.
+* \param[in]  const sint8 *f : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
 *
-* Arguments:   -       fpr      *x:    t.b.d.
-*              - const sint8    *f:    t.b.d.
-*              -       uint32    logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_PolySmallToFp(fpr *x, const sint8 *f, uint32 logn)
+*/
+static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -2858,23 +2867,22 @@ static void fsmsw_falcon_PolySmallToFp(fpr *x, const sint8 *f, uint32 logn)
   {
     x[u] = FsmSw_Falcon_Fpr_Of(f[u]);
   }
-}
+} // end: fsmsw_falcon_PolySmallToFp
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MakeFgStep
+/*====================================================================================================================*/
+/**
+* \brief Input: f,g of degree N = 2^logn; 'depth' is used only to get their individual length.
+*        Output: f',g' of degree N/2, with the length for 'depth+1'.
+*        Values are in RNS; input and/or output may also be in NTT.
 *
-* Description: Input: f,g of degree N = 2^logn; 'depth' is used only to get their individual length.
-*              Output: f',g' of degree N/2, with the length for 'depth+1'.
-*              Values are in RNS; input and/or output may also be in NTT.
+* \param[out] uint32   *data : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
+* \param[in]  uint32   depth : t.b.d.
+* \param[in]  sint32  in_ntt : t.b.d.
+* \param[in]  sint32 out_ntt : t.b.d.
 *
-* Arguments:   - uint32 *data:    t.b.d.
-*              - uint32  logn:    t.b.d.
-*              - uint32  depth:   t.b.d.
-*              - sint32  in_ntt:  t.b.d.
-*              - sint32  out_ntt: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MakeFgStep(uint32 *data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt)
+*/
+static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt)
 {
   uint32 n                       = 0;
   uint32 hn                      = 0;
@@ -3037,28 +3045,28 @@ static void fsmsw_falcon_MakeFgStep(uint32 *data, uint32 logn, uint32 depth, sin
       fsmsw_falcon_ModpIntt2Ext(&gd[u], tlen, igm, logn - 1u, p, p0i);
     }
   }
-}
+} // end: fsmsw_falcon_MakeFgStep
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MakeFg
+/*====================================================================================================================*/
+/**
+* \brief Compute f and g at a specific depth, in RNS notation.
+*        Returned values are stored in the data[] array, at slen words per integer.
+*        Conditions:
+*        0 <= depth <= logn
+         Space use in data[]: enough room for any two successive values (f', g', f and g).
 *
-* Description: Compute f and g at a specific depth, in RNS notation.
-*              Returned values are stored in the data[] array, at slen words per integer.
-*              Conditions:
-*                0 <= depth <= logn
-               Space use in data[]: enough room for any two successive values (f', g', f and g).
+* \param[out] uint32   *data : t.b.d.
+* \param[in]  const sint8 *f : t.b.d.
+* \param[in]  const sint8 *g : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
+* \param[in]  uint32   depth : t.b.d.
+* \param[in]  sint32 out_ntt : t.b.d.
 *
-* Arguments:   -       uint32   *data:    t.b.d.
-*              - const sint8    *f:       t.b.d.
-*              - const sint8    *g:       t.b.d.
-*              -       uint32    logn:    t.b.d.
-*              -       uint32    depth:   t.b.d.
-*              -       sint32       out_ntt: t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MakeFg(uint32 *data, const sint8 *f, const sint8 *g, uint32 logn, uint32 depth, sint32 out_ntt)
+*/
+static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
+                                uint32 depth, sint32 out_ntt)
 {
   uint32 n                       = 0;
   uint32 u                       = 0;
@@ -3123,23 +3131,23 @@ static void fsmsw_falcon_MakeFg(uint32 *data, const sint8 *f, const sint8 *g, ui
 
     fsmsw_falcon_MakeFgStep(data, logn - depth + 1u, depth - 1u, 1, out_ntt);
   }
-}
+} // end: fsmsw_falcon_MakeFg
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtruDeepest
+/*====================================================================================================================*/
+/**
+* \brief Solving the NTRU equation, deepest level: compute the resultants of f and g with X^N+1, and use binary
+*        GCD. The F and G values are returned in tmp[].
 *
-* Description: Solving the NTRU equation, deepest level: compute the resultants of f and g with X^N+1, and use binary
-*              GCD. The F and G values are returned in tmp[].
+* \param[in]  uint32 logn_top : t.b.d.
+* \param[in]  const sint8  *f : t.b.d.
+* \param[in]  const sint8  *g : t.b.d.
+* \param[out] uint32     *tmp : t.b.d.
 *
-* Arguments:   -       uint32    logn_top: t.b.d.
-*              - const sint8    *f:        t.b.d.
-*              - const sint8    *g:        t.b.d.
-*              -       uint32   *tmp:      t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 *tmp)
+*/
+static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                            uint32 *const tmp)
 {
   uint32 len                     = 0;
   uint32 *Fp                     = (uint32 *)NULL_PTR;
@@ -3190,25 +3198,24 @@ static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *f, con
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon_SolveNtruDeepest
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtruIntermediate
+/*====================================================================================================================*/
+/**
+* \brief Solving the NTRU equation, intermediate level. Upon entry, the F and G from the previous level should be
+*        in the tmp[] array. This function MAY be invoked for the top-level (in which case depth = 0).
 *
-* Description: Solving the NTRU equation, intermediate level. Upon entry, the F and G from the previous level should be
-*              in the tmp[] array. This function MAY be invoked for the top-level (in which case depth = 0).
+* \param[in]  uint32 logn_top : t.b.d.
+* \param[in]  const sint8  *f : t.b.d.
+* \param[in]  const sint8  *g : t.b.d.
+* \param[in]  uint32    depth : t.b.d.
+* \param[out] uint32     *tmp : t.b.d.
 *
-* Arguments:   -       uint32    logn_top: t.b.d.
-*              - const sint8    *f:        t.b.d.
-*              - const sint8    *g:        t.b.d.
-*              -       uint32    depth:    t.b.d.
-*              -       uint32   *tmp:      t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 depth,
-                                                 uint32 *tmp)
+*/
+static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                                 uint32 depth, uint32 *const tmp)
 {
   /* In this function, 'logn' is the log2 of the degree for this step. If N = 2^logn, then:
    *  - the F and G values already in fk->tmp (from the deeper
@@ -3496,6 +3503,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *f
   rt4 = &rt3[n];
   rt5 = &rt4[n];
   rt1 = &rt5[(n >> 1)];
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
   Ensured proper alignment and validity." */
   k   = (sint32 *)((void *)fsmsw_falcon_AlignU32(tmp, rt1));
@@ -3506,6 +3515,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *f
     rt2 = &rt1[n];
   }
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
   Ensured proper alignment and validity." */
   t1 = (uint32 *)((void *)(&k[n]));
@@ -3716,26 +3727,26 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *f
     y = &y[llen];
   }
   return retVal;
-}
+} // end: fsmsw_falcon_SolveNtruIntermediate
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtruBinaryDepth1
+/*====================================================================================================================*/
+/**
+* \brief Solving the NTRU equation, binary case, depth = 1. Upon entry, the F and G from the previous level
+*        should be in the tmp[] array.
 *
-* Description: Solving the NTRU equation, binary case, depth = 1. Upon entry, the F and G from the previous level
-*              should be in the tmp[] array.
+* \param[in]  uint32 logn_top : t.b.d.
+* \param[in]  const sint8  *f : t.b.d.
+* \param[in]  const sint8  *g : t.b.d.
+* \param[out] uint32     *tmp : t.b.d.
 *
-* Arguments:   -       uint32    logn_top: t.b.d.
-*              - const sint8    *f:        t.b.d.
-*              - const sint8    *g:        t.b.d.
-*              -       uint32   *tmp:      t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *f, const sint8 *g, uint32 *tmp)
+static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+                                                 uint32 *const tmp)
 {
   /* The first half of this function is a copy of the corresponding part in fsmsw_falcon_SolveNtruIntermediate(), for the
    * reconstruction of the unreduced F and G. The second half (Babai reduction) is done differently, because the
@@ -3999,8 +4010,10 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *f
 
   /* Remove unneeded ft1 and gt1. */
   FsmSw_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   rt1 = (fpr *)(void *)tmp;
   rt2 = &rt1[n];
   rt3 = &rt2[n];
@@ -4073,23 +4086,23 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *f
   }
 
   return 1;
-}
+} // end: fsmsw_falcon_SolveNtruBinaryDepth1
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Solving the NTRU equation, top level. Upon entry, the F and G from the previous level should be in the
+*        tmp[] array.
 *
-* Description: Solving the NTRU equation, top level. Upon entry, the F and G from the previous level should be in the
-*              tmp[] array.
+* \param[in]  uint32    logn : t.b.d.
+* \param[in]  const sint8 *f : t.b.d.
+* \param[in]  const sint8 *g : t.b.d.
+* \param[out] uint32    *tmp : t.b.d.
 *
-* Arguments:   -       uint32    logn: t.b.d.
-*              - const sint8    *f:    t.b.d.
-*              - const sint8    *g:    t.b.d.
-*              -       uint32   *tmp:  t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *f, const sint8 *g, uint32 *tmp)
+*/
+static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
+                                                 uint32 *const tmp)
 {
   uint32 n    = 0;
   uint32 hn   = 0;
@@ -4329,30 +4342,29 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *f, co
   }
 
   return 1;
-}
+} // end: fsmsw_falcon_SolveNtruBinaryDepth0
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SolveNtru
+/*====================================================================================================================*/
+/**
+* \brief Solve the NTRU equation. G can be NULL, in which case that value is computed but not returned. If any of
+*        the coefficients of F and G exceeds lim (in absolute value), then 0 is returned.
 *
-* Description: Solve the NTRU equation. G can be NULL, in which case that value is computed but not returned. If any of
-*              the coefficients of F and G exceeds lim (in absolute value), then 0 is returned.
+* \param[in]  uint32    logn : t.b.d.
+* \param[out] sint8       *F : t.b.d.
+* \param[out] sint8       *G : t.b.d.
+* \param[in]  const sint8 *f : t.b.d.
+* \param[in]  const sint8 *g : t.b.d.
+* \param[in]  sint32     lim : t.b.d.
+* \param[out] uint32    *tmp : t.b.d.
 *
-* Arguments:   -       uint32    logn: t.b.d.
-*              -       sint8    *F:    t.b.d.
-*              -       sint8    *G:    t.b.d.
-*              - const sint8    *f:    t.b.d.
-*              - const sint8    *g:    t.b.d.
-*              -       sint32       lim:  t.b.d.
-*              -       uint32   *tmp:  t.b.d.
+* \returns  1 on success, 0 on error.
 *
-* Returns  1 on success, 0 on error.
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *F, sint8 *G, const sint8 *f, const sint8 *g, sint32 lim,
-                                     uint32 *tmp)
+static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
+                                     const sint8 *const g, sint32 lim, uint32 *const tmp)
 {
   uint32 n                       = 0;
   uint32 u                       = 0;
@@ -4414,6 +4426,8 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *F, sint8 *G, const sint
   /* If no buffer has been provided for G, use a temporary one. */
   if (G_temp == ((void *)0))
   {
+    /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
     G_temp = (sint8 *)(void *)(&tmp[2u * n]);
@@ -4474,20 +4488,19 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *F, sint8 *G, const sint
   }
 
   return 1;
-}
+} // end: fsmsw_falcon_SolveNtru
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_PolySmallMkgauss
+/*====================================================================================================================*/
+/**
+* \brief Generate a random polynomial with a Gaussian distribution. This function also makes sure that the
+*        resultant of the polynomial with phi is odd.
 *
-* Description: Generate a random polynomial with a Gaussian distribution. This function also makes sure that the
-*              resultant of the polynomial with phi is odd.
+* \param[out] RNG_CONTEXT *rng : t.b.d.
+* \param[out] sint8         *f : t.b.d.
+* \param[in]  uint32      logn : t.b.d.
 *
-* Arguments:   - RNG_CONTEXT *rng:  t.b.d.
-*              - sint8       *f:    t.b.d.
-*              - uint32       logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *rng, sint8 *f, uint32 logn)
+*/
+static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn)
 {
   uint32 n     = 0;
   uint32 u     = 0;
@@ -4529,34 +4542,34 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *rng, sint8 *f, uint32 log
       loop = FALSE;
     }
   }
-}
+} // end: fsmsw_falcon_PolySmallMkgauss
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Keygen
+
+/*====================================================================================================================*/
+/**
+* \brief Generate a new key pair. Randomness is extracted from the provided SHAKE256 context, which must have
+*        already been seeded and flipped. The tmp[] array must have suitable size (see FALCON_KEYGEN_TEMP_*
+*        macros) and be aligned for the uint32, uint64 and fpr types.
+*        The private key elements are written in f, g, F and G, and the public key is written in h. Either or
+*        both of G and h may be NULL, in which case the corresponding element is not returned (they can be
+*        recomputed from f, g and F).
+*        This function uses floating-point rounding (see set_fpu_cw()).
 *
-* Description: Generate a new key pair. Randomness is extracted from the provided SHAKE256 context, which must have
-*              already been seeded and flipped. The tmp[] array must have suitable size (see FALCON_KEYGEN_TEMP_*
-*              macros) and be aligned for the uint32, uint64 and fpr types.
-*              The private key elements are written in f, g, F and G, and the public key is written in h. Either or
-*              both of G and h may be NULL, in which case the corresponding element is not returned (they can be
-*              recomputed from f, g and F).
-*              This function uses floating-point rounding (see set_fpu_cw()).
+* \param[out] inner_shake256_context *rng : t.b.d.
+* \param[out] sint8                    *f : private key element
+* \param[out] sint8                    *g : private key element
+* \param[out] sint8                    *F : private key element
+* \param[out] sint8                    *G : private key element
+* \param[out] sint16                   *h : public key
+* \param[in]  uint32                 logn : t.b.d.
+* \param[out] uint8                  *tmp : tmp[] must have 64-bit alignment.
 *
-* Arguments:   - inner_shake256_context *rng:  t.b.d.
-*              - sint8                  *f:    private key element
-*              - sint8                  *g:    private key element
-*              - sint8                  *F:    private key element
-*              - sint8                  *G:    private key element
-*              - sint16                 *h:    public key
-*              - uint32                  logn: t.b.d.
-*              - uint8                  *tmp:  tmp[] must have 64-bit alignment.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Keygen(inner_shake256_context *rng, sint8 *f, sint8 *g, sint8 *F, sint8 *G, uint16 *h, uint32 logn,
-                         uint8 *tmp)
+*/
+void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint8 *const g, sint8 *const F,
+                         sint8 *const G, uint16 *const h, uint32 logn, uint8 *const tmp)
 {
   /* Algorithm is the following:
    *  - Generate f and g with the Gaussian distribution.
@@ -4630,6 +4643,8 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *rng, sint8 *f, sint8 *g, sint8 
       continue;
     }
 
+    /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
     /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
     /* We compute the orthogonalized vector norm. */
@@ -4665,21 +4680,27 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *rng, sint8 *f, sint8 *g, sint8 
     /* Compute public key h = g/f mod X^N+1 mod q. If this fails, we must restart. */
     if (h == ((void *)0))
     {
+      /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+        Ensured proper alignment and validity." */
       /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-      Ensured proper alignment and validity." */
+        Ensured proper alignment and validity." */
       h2   = (uint16 *)((void *)tmp);
       tmp2 = &h2[n];
     }
     else
     {
       h2 = h;
+      /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+      Ensured proper alignment and validity." */
       /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
       Ensured proper alignment and validity." */
       tmp2 = (uint16 *)((void *)tmp);
     }
 
+    /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+        Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-    Ensured proper alignment and validity." */
+        Ensured proper alignment and validity." */
     if (0 == FsmSw_Falcon_ComputePublic(h2, f, g, logn, (uint8 *)((void *)tmp2)))
     {
       continue;
@@ -4688,8 +4709,10 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *rng, sint8 *f, sint8 *g, sint8 
     /* Solve the NTRU equation to get F and G. */
     lim = (sint32)((uint8)(1u << (FsmSw_Falcon_max_big_FG_bits[logn] - 1u)));
 
+    /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+        Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-    Ensured proper alignment and validity." */
+        Ensured proper alignment and validity." */
     if (0 == fsmsw_falcon_SolveNtru(logn, F, G, f, g, lim, (uint32 *)((void *)tmp)))
     {
       continue;
@@ -4699,4 +4722,8 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *rng, sint8 *f, sint8 *g, sint8 
 
     break;
   }
-}
+} // end: FsmSw_Falcon_Keygen
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

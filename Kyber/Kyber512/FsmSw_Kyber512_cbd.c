@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber512
+*    includes the modules for Kyber512
+ ** @{ */
+/** \addtogroup Kyber512_cbd
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber512_cbd.c
+* \brief  description of FsmSw_Kyber512_cbd.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -36,6 +55,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -43,22 +66,22 @@
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
 static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3]);
-static void fsmsw_kyber512_Cbd3(poly *r, const uint8 buf[3u * KYBER_N / 4u]);
+static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u]);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber512_Load24LittleEndian
+
+/*====================================================================================================================*/
+/**
+* \brief load 3 bytes into a 32-bit integer
+*        in little-endian order.
+*        This function is only needed for Kyber-512
 *
-* Description: load 3 bytes into a 32-bit integer
-*              in little-endian order.
-*              This function is only needed for Kyber-512
+* \param[in] const uint8 *x : pointer to input byte array
 *
-* Arguments:   - const uint8 *x: pointer to input byte array
-*
-* Returns 32-bit unsigned integer loaded from x (most significant byte is zero)
-***********************************************************************************************************************/
+* \returns 32-bit unsigned integer loaded from x (most significant byte is zero)
+*/
 static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3])
 {
   uint32 r = 0;
@@ -68,20 +91,19 @@ static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3])
   r |= (uint32)x[2] << 16;
 
   return r;
-}
+} // end: fsmsw_kyber512_Load24LittleEndian
 
-/***********************************************************************************************************************
-* Name:        fsmsw_kyber512_Cbd3
+/*====================================================================================================================*/
+/**
+* \brief Given an array of uniformly random bytes, compute
+*        polynomial with coefficients distributed according to
+*        a centered binomial distribution with parameter eta=3.
+*        This function is only needed for Kyber-512
 *
-* Description: Given an array of uniformly random bytes, compute
-*              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=3.
-*              This function is only needed for Kyber-512
-*
-* Arguments:   -       poly *r:   pointer to output polynomial
-*              - const uint8   *buf: pointer to input byte array
-***********************************************************************************************************************/
-static void fsmsw_kyber512_Cbd3(poly *r, const uint8 buf[3u * KYBER_N / 4u])
+* \param[out] poly          *r : pointer to output polynomial
+* \param[in]  const uint8 *buf : pointer to input byte array
+*/
+static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u])
 {
   uint8 i  = 0;
   uint8 j  = 0;
@@ -104,38 +126,40 @@ static void fsmsw_kyber512_Cbd3(poly *r, const uint8 buf[3u * KYBER_N / 4u])
       r->coeffs[(4u * i) + j] = a - b;
     }
   }
-}
-
+} // end: fsmsw_kyber512_Cbd3
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Poly_Cbd_Eta1
+
+/*====================================================================================================================*/
+/**
+* \brief Given an array of uniformly random bytes, compute
+*        polynomial with coefficients distributed according to
+*        a centered binomial distribution with parameter eta=3.
+*        This function is only needed for Kyber-512
 *
-* Description: Given an array of uniformly random bytes, compute
-*              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=3.
-*              This function is only needed for Kyber-512
-*
-* Arguments:   -       poly *r:   pointer to output polynomial
-*              - const uint8   *buf: pointer to input byte array
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Poly_Cbd_Eta1(poly *r, const uint8 buf[KYBER512_ETA1 * KYBER_N / 4u])
+* \param[out] poly          *r : pointer to output polynomial
+* \param[in]  const uint8 *buf : pointer to input byte array
+*/
+void FsmSw_Kyber512_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER512_ETA1 * KYBER_N / 4u])
 {
   fsmsw_kyber512_Cbd3(r, buf);
-}
+} // end: FsmSw_Kyber512_Poly_Cbd_Eta1
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber512_Poly_Cbd_Eta2
+/*====================================================================================================================*/
+/**
+* \brief Given an array of uniformly random bytes, compute
+*        polynomial with coefficients distributed according to
+*        a centered binomial distribution with parameter eta=2
 *
-* Description: Given an array of uniformly random bytes, compute
-*              polynomial with coefficients distributed according to
-*              a centered binomial distribution with parameter eta=2
-*
-* Arguments:   -       poly  *r:   pointer to output polynomial
-*              - const uint8 *buf: pointer to input byte array
-***********************************************************************************************************************/
-void FsmSw_Kyber512_Poly_Cbd_Eta2(poly *r, const uint8 buf[KYBER512_ETA2 * KYBER_N / 4u])
+* \param[out] poly          *r : pointer to output polynomial
+* \param[in]  const uint8 *buf : pointer to input byte array
+*/
+void FsmSw_Kyber512_Poly_Cbd_Eta2(poly *const r, const uint8 buf[KYBER512_ETA2 * KYBER_N / 4u])
 {
   FsmSw_Kyber_Cbd2(r, buf);
-}
+} // end: FsmSw_Kyber512_Poly_Cbd_Eta2
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

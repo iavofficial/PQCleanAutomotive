@@ -1,31 +1,48 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple
+*    includes the modules for SphincsShake_128fSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128fSimple_hash 
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128fSimple_hash.h
+* \brief  Description of FsmSw_SphincsShake_128fSimple_hash.h
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 #ifndef FSMSW_SPHINCSSHAKE_128FSIMPLE_HASH_H
 #define FSMSW_SPHINCSSHAKE_128FSIMPLE_HASH_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_SphincsShake_128fSimple_context.h"
 #include "FsmSw_SphincsShake_128fSimple_params.h"
 #include "FsmSw_Types.h"
-
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -37,6 +54,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -45,11 +66,15 @@
 /**********************************************************************************************************************/
 void FsmSw_SphincsShake_128fSimple_PrfAddr(uint8 *out, const sphincs_shake_128f_ctx *ctx, const uint32 addr[8]);
 
-void FsmSw_SphincsShake_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand,
-                                                      const uint8 *m, uint32 mlen, const sphincs_shake_128f_ctx *ctx);
+void FsmSw_SphincsShake_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
+                                                    uint32 mlen, const sphincs_shake_128f_ctx *ctx);
 
 void FsmSw_SphincsShake_128fSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                                const uint8 *pk, const uint8 *m, uint32 mlen,
-                                                const sphincs_shake_128f_ctx *ctx);
+                                               const uint8 *pk, const uint8 *m, uint32 mlen,
+                                               const sphincs_shake_128f_ctx *ctx);
 
 #endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_HASH_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

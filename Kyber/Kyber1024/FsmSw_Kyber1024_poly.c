@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Kyber1024
+*    includes the modules for Kyber1024
+ ** @{ */
+/** \addtogroup Kyber1024_poly
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber1024_poly.c
+* \brief  description of FsmSw_Kyber1024_poly.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -40,6 +59,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -54,15 +77,15 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_Compress
+
+/*====================================================================================================================*/
+/**
+* \brief Compression and subsequent serialization of a polynomial
 *
-* Description: Compression and subsequent serialization of a polynomial
-*
-* Arguments:   -       uint8    *r: pointer to output byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
-*              - const poly *a: pointer to input polynomial
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_Compress(uint8 r[KYBER1024_POLYCOMPRESSEDBYTES], const poly *a)
+* \param[out] uint8      *r : pointer to output byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
+* \param[in]  const poly *a : pointer to input polynomial
+*/
+void FsmSw_Kyber1024_Poly_Compress(uint8 r[KYBER1024_POLYCOMPRESSEDBYTES], const poly *const a)
 {
   uint16 i   = 0;
   sint16 u   = 0;
@@ -89,18 +112,17 @@ void FsmSw_Kyber1024_Poly_Compress(uint8 r[KYBER1024_POLYCOMPRESSEDBYTES], const
     r_temp[4] = (t[6] >> 2) | (t[7] << 3);
     r_temp    = &(r_temp[5]);
   }
-}
+} // end: FsmSw_Kyber1024_Poly_Compress
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_Decompress
+/*====================================================================================================================*/
+/**
+* \brief De-serialization and subsequent decompression of a polynomial;
+*        approximate inverse of FsmSw_Kyber1024_Poly_Compress
 *
-* Description: De-serialization and subsequent decompression of a polynomial;
-*              approximate inverse of FsmSw_Kyber1024_Poly_Compress
-*
-* Arguments:   - poly    *r: pointer to output polynomial
-*              - const uint8 *a: pointer to input byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_Decompress(poly *r, const uint8 a[KYBER1024_POLYCOMPRESSEDBYTES])
+* \param[out] poly        *r : pointer to output polynomial
+* \param[in]  const uint8 *a : pointer to input byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
+*/
+void FsmSw_Kyber1024_Poly_Decompress(poly *const r, const uint8 a[KYBER1024_POLYCOMPRESSEDBYTES])
 {
   uint16 i   = 0;
   uint8 j    = 0;
@@ -126,17 +148,16 @@ void FsmSw_Kyber1024_Poly_Decompress(poly *r, const uint8 a[KYBER1024_POLYCOMPRE
       r->coeffs[(8u * i) + j] = (sint16)((uint16)(((uint32)(((uint32)t[j] & 31u) * KYBER_Q) + 16u) >> 5u));
     }
   }
-}
+} // end: FsmSw_Kyber1024_Poly_Decompress
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_FromMsg
+/*====================================================================================================================*/
+/**
+* \brief Convert 32-byte message to polynomial
 *
-* Description: Convert 32-byte message to polynomial
-*
-* Arguments:   - poly    *r:   pointer to output polynomial
-*              - const uint8 *msg: pointer to input message (of length KYBER1024_INDCPA_MSGBYTES bytes)
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_FromMsg(poly *r, const uint8 msg[KYBER1024_INDCPA_MSGBYTES])
+* \param[out] poly          *r :   pointer to output polynomial
+* \param[in]  const uint8 *msg : pointer to input message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+*/
+void FsmSw_Kyber1024_Poly_FromMsg(poly *const r, const uint8 msg[KYBER1024_INDCPA_MSGBYTES])
 {
   uint8 j     = 0;
   uint16 i    = 0;
@@ -150,17 +171,16 @@ void FsmSw_Kyber1024_Poly_FromMsg(poly *r, const uint8 msg[KYBER1024_INDCPA_MSGB
       r->coeffs[(8u * i) + j] = (sint16)((uint16)((uint16)mask & ((uint16)((KYBER_Q + 1u) / 2u))));
     }
   }
-}
+} // end: FsmSw_Kyber1024_Poly_FromMsg
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_ToMsg
+/*====================================================================================================================*/
+/**
+* \brief Convert polynomial to 32-byte message
 *
-* Description: Convert polynomial to 32-byte message
-*
-* Arguments:   - uint8          *msg: pointer to output message (of length KYBER1024_INDCPA_MSGBYTES bytes)
-*              - const poly *a:   pointer to input polynomial
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_ToMsg(uint8 msg[KYBER1024_INDCPA_MSGBYTES], const poly *a)
+* \param[out] uint8    *msg : pointer to output message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+* \param[in]  const poly *a : pointer to input polynomial
+*/
+void FsmSw_Kyber1024_Poly_ToMsg(uint8 msg[KYBER1024_INDCPA_MSGBYTES], const poly *const a)
 {
   uint8 j  = 0;
   uint16 i = 0;
@@ -182,46 +202,50 @@ void FsmSw_Kyber1024_Poly_ToMsg(uint8 msg[KYBER1024_INDCPA_MSGBYTES], const poly
       msg[i] = (uint8)((uint16)msg[i] | (t << j));
     }
   }
-}
+} // end: FsmSw_Kyber1024_Poly_ToMsg
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_GetNoiseEta1
+/*====================================================================================================================*/
+/**
+* \brief Sample a polynomial deterministically from a seed and a nonce,
+*        with output polynomial close to centered binomial distribution
+*        with parameter KYBER1024_ETA1
 *
-* Description: Sample a polynomial deterministically from a seed and a nonce,
-*              with output polynomial close to centered binomial distribution
-*              with parameter KYBER1024_ETA1
-*
-* Arguments:   - poly    *r:     pointer to output polynomial
-*              - const uint8 *seed:  pointer to input seed (of length KYBER_SYMBYTES bytes)
-*              - uint8        nonce: one-byte input nonce
-***********************************************************************************************************************/
-void FsmSw_Kyber1024_Poly_GetNoiseEta1(poly *r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
+* \param[out] poly           *r : pointer to output polynomial
+* \param[in]  const uint8 *seed : pointer to input seed (of length KYBER_SYMBYTES bytes)
+* \param[in]  uint8       nonce : one-byte input nonce
+*/
+void FsmSw_Kyber1024_Poly_GetNoiseEta1(poly *const r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
 {
   uint8 buf[KYBER1024_ETA1 * KYBER_N / 4u] = {0};
 
   FsmSw_Kyber_Shake256_Prf(buf, sizeof(buf), seed, nonce);
   FsmSw_Kyber1024_Poly_Cbd_Eta1(r, buf);
-}
+} // end: FsmSw_Kyber1024_Poly_GetNoiseEta1
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber1024_Poly_GetNoiseEta2
+/*====================================================================================================================*/
+/**
+* \brief Sample a polynomial deterministically from a seed and a nonce,
+*        with output polynomial close to centered binomial distribution
+*        with parameter KYBER1024_ETA2
 *
-* Description: Sample a polynomial deterministically from a seed and a nonce,
-*              with output polynomial close to centered binomial distribution
-*              with parameter KYBER1024_ETA2
-*
-* Arguments:   - poly    *r:     pointer to output polynomial
-*              - const uint8 *seed:  pointer to input seed (of length KYBER_SYMBYTES bytes)
-*              - uint8        nonce: one-byte input nonce
-***********************************************************************************************************************/
+* \param[out] poly           *r : pointer to output polynomial
+* \param[in]  const uint8 *seed : pointer to input seed (of length KYBER_SYMBYTES bytes)
+* \param[in]  uint8       nonce : one-byte input nonce
+*/
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Kyber1024_Poly_GetNoiseEta2(poly *r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
+void FsmSw_Kyber1024_Poly_GetNoiseEta2(poly *const r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
 {
   uint8 buf[KYBER1024_ETA2 * KYBER_N / 4u] = {0};
 
   FsmSw_Kyber_Shake256_Prf(buf, sizeof(buf), seed, nonce);
   FsmSw_Kyber1024_Poly_Cbd_Eta2(r, buf);
-}
+} // end: FsmSw_Kyber1024_Poly_GetNoiseEta2
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

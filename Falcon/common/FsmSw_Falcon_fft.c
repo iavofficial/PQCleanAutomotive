@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_fft
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_fft.c
+* \brief  description of FsmSw_Falcon_fft.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Let w = exp(i*pi/N); w is a primitive 2N-th root of 1. We define the values w_j = w^(2j+1) for all j from 0 to N-1:
 *  these are the roots of X^N+1 in the field of complex numbers. A crucial property is that w_{N-1-j} = conj(w_j) =
 *  1/w_j for all j. *
@@ -42,33 +61,38 @@
  * - Each operand is a real and an imaginary part.
  * - All overlaps are allowed. */
 
+/* polyspace +70 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
 /* polyspace +68 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 
 /* Addition of two complex numbers (d = a + b). */
 #define FPC_ADD(d_re, d_im, a_re, a_im, b_re, b_im)                                                                    \
+  do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_re, fpct_im;                                                                                              \
     fpct_re = FsmSw_Falcon_Fpr_Add(a_re, b_re);                                                                        \
     fpct_im = FsmSw_Falcon_Fpr_Add(a_im, b_im);                                                                        \
     (d_re)  = fpct_re;                                                                                                 \
     (d_im)  = fpct_im;                                                                                                 \
-  }
+  } while (0)
 
 /* Subtraction of two complex numbers (d = a - b). */
 #define FPC_SUB(d_re, d_im, a_re, a_im, b_re, b_im)                                                                    \
+  do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_re, fpct_im;                                                                                              \
     fpct_re = FsmSw_Falcon_Fpr_Sub(a_re, b_re);                                                                        \
     fpct_im = FsmSw_Falcon_Fpr_Sub(a_im, b_im);                                                                        \
     (d_re)  = fpct_re;                                                                                                 \
     (d_im)  = fpct_im;                                                                                                 \
-  }
+  } while (0)
 
 /* Multplication of two complex numbers (d = a * b). */
 /* polyspace +2 MISRA2012:2.2 [Justified:]"Polyspace does not properly decompose the function; 
 location of dead code unclear." */
 #define FPC_MUL(d_re, d_im, a_re, a_im, b_re, b_im)                                                                    \
+  do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_a_re, fpct_a_im;                                                                                          \
     fpr fpct_b_re, fpct_b_im;                                                                                          \
@@ -83,10 +107,11 @@ location of dead code unclear." */
         FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_im), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_re));  \
     (d_re) = fpct_d_re;                                                                                                \
     (d_im) = fpct_d_im;                                                                                                \
-  }
+  } while (0)
 
 /* Division of complex numbers (d = a / b). */
 #define FPC_DIV(d_re, d_im, a_re, a_im, b_re, b_im)                                                                    \
+  do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_a_re, fpct_a_im;                                                                                          \
     fpr fpct_b_re, fpct_b_im;                                                                                          \
@@ -106,7 +131,7 @@ location of dead code unclear." */
         FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_im), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_re));  \
     (d_re) = fpct_d_re;                                                                                                \
     (d_im) = fpct_d_im;                                                                                                \
-  }
+  } while (0)
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -114,6 +139,10 @@ location of dead code unclear." */
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -131,18 +160,18 @@ location of dead code unclear." */
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_FFT
+
+/*====================================================================================================================*/
+/**
+* \brief Compute FFT in-place: the source array should contain a real polynomial (N coefficients); its storage
+*        area is reused to store the FFT representation of that polynomial (N/2 complex numbers).
+*        'logn' MUST lie between 1 and 10 (inclusive).
 *
-* Description: Compute FFT in-place: the source array should contain a real polynomial (N coefficients); its storage
-*              area is reused to store the FFT representation of that polynomial (N/2 complex numbers).
-*              'logn' MUST lie between 1 and 10 (inclusive).
+* \param[out] fpr      *f : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - fpr    *f:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_FFT(fpr *f, uint32 logn)
+*/
+void FsmSw_Falcon_FFT(fpr *const f, uint32 logn)
 {
   /* FFT algorithm in bit-reversal order uses the following iterative algorithm:
      *
@@ -220,21 +249,20 @@ void FsmSw_Falcon_FFT(fpr *f, uint32 logn)
 
     m <<= 1;
   }
-}
+} // end: FsmSw_Falcon_FFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_IFFT
+/*====================================================================================================================*/
+/**
+* \brief Compute the inverse FFT in-place: the source array should contain the FFT representation of a real
+*        polynomial (N/2 elements); the resulting real polynomial (N coefficients of type 'fpr') is written over
+*        the array.
+*        'logn' MUST lie between 1 and 10 (inclusive).
 *
-* Description: Compute the inverse FFT in-place: the source array should contain the FFT representation of a real
-*              polynomial (N/2 elements); the resulting real polynomial (N coefficients of type 'fpr') is written over
-*              the array.
-*              'logn' MUST lie between 1 and 10 (inclusive).
+* \param[out] fpr      *f : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - fpr    *f:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_IFFT(fpr *f, uint32 logn)
+**/
+void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn)
 {
   /* Inverse FFT algorithm in bit-reversal order uses the following iterative algorithm:
      *
@@ -332,20 +360,19 @@ void FsmSw_Falcon_IFFT(fpr *f, uint32 logn)
       f[u] = FsmSw_Falcon_Fpr_Mul(f[u], ni);
     }
   }
-}
+} // end: FsmSw_Falcon_IFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Add
+/*====================================================================================================================*/
+/**
+* \brief Add polynomial b to polynomial a. a and b MUST NOT overlap. This function works in both normal and FFT
+*        representations.
 *
-* Description: Add polynomial b to polynomial a. a and b MUST NOT overlap. This function works in both normal and FFT
-*              representations.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Add(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Add(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -355,20 +382,19 @@ void FsmSw_Falcon_Poly_Add(fpr *a, const fpr *b, uint32 logn)
   {
     a[u] = FsmSw_Falcon_Fpr_Add(a[u], b[u]);
   }
-}
+} // end: FsmSw_Falcon_Poly_Add
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Sub
+/*====================================================================================================================*/
+/**
+* \brief Subtract polynomial b from polynomial a. a and b MUST NOT overlap. This function works in both normal
+*        and FFT representations.
 *
-* Description: Subtract polynomial b from polynomial a. a and b MUST NOT overlap. This function works in both normal
-*              and FFT representations.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Sub(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -378,18 +404,17 @@ void FsmSw_Falcon_Poly_Sub(fpr *a, const fpr *b, uint32 logn)
   {
     a[u] = FsmSw_Falcon_Fpr_Sub(a[u], b[u]);
   }
-}
+} // end: FsmSw_Falcon_Poly_Sub
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Neg
+/*====================================================================================================================*/
+/**
+* \brief Negate polynomial a. This function works in both normal and FFT representations.
 *
-* Description: Negate polynomial a. This function works in both normal and FFT representations.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   - fpr    *a:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Neg(fpr *a, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Neg(fpr *const a, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -399,18 +424,17 @@ void FsmSw_Falcon_Poly_Neg(fpr *a, uint32 logn)
   {
     a[u] = FsmSw_Falcon_Fpr_Neg(a[u]);
   }
-}
+} // end: FsmSw_Falcon_Poly_Neg
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_AdjFFT
+/*====================================================================================================================*/
+/**
+* \brief Compute adjoint of polynomial a. This function works only in FFT representation.
 *
-* Description: Compute adjoint of polynomial a. This function works only in FFT representation.
+* \param[out] fpr      *a : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - fpr    *a:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_AdjFFT(fpr *a, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_AdjFFT(fpr *const a, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -420,20 +444,19 @@ void FsmSw_Falcon_Poly_AdjFFT(fpr *a, uint32 logn)
   {
     a[u] = FsmSw_Falcon_Fpr_Neg(a[u]);
   }
-}
+} // end: FsmSw_Falcon_Poly_AdjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_MulFFT
+/*====================================================================================================================*/
+/**
+* \brief Multiply polynomial a with polynomial b. a and b MUST NOT overlap. This function works only in FFT
+*        representation.
 *
-* Description: Multiply polynomial a with polynomial b. a and b MUST NOT overlap. This function works only in FFT
-*              representation.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_MulFFT(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -453,20 +476,19 @@ void FsmSw_Falcon_Poly_MulFFT(fpr *a, const fpr *b, uint32 logn)
     b_im = b[u + hn];
     FPC_MUL(a[u], a[u + hn], a_re, a_im, b_re, b_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_MulFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_MuladjFFT
+/*====================================================================================================================*/
+/**
+* \brief Multiply polynomial a with the adjoint of polynomial b. a and b MUST NOT overlap. This function works
+*        only in FFT representation.
 *
-* Description: Multiply polynomial a with the adjoint of polynomial b. a and b MUST NOT overlap. This function works
-*              only in FFT representation.
+* \param[out] fpr    *a:    t.b.d.
+* \param[in]  const fpr    *b:    t.b.d.
+* \param[in]  uint32  logn: t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_MuladjFFT(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -484,18 +506,17 @@ void FsmSw_Falcon_Poly_MuladjFFT(fpr *a, const fpr *b, uint32 logn)
     b_im = FsmSw_Falcon_Fpr_Neg(b[u + hn]);
     FPC_MUL(a[u], a[u + hn], a_re, a_im, b_re, b_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_MuladjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_MulselfadjFFT
+/*====================================================================================================================*/
+/**
+* \brief Multiply polynomial with its own adjoint. This function works only in FFT representation.
 *
-* Description: Multiply polynomial with its own adjoint. This function works only in FFT representation.
+* \param[out] fpr      *a : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - fpr    *a:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *a, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *const a, uint32 logn)
 {
   /* Since each coefficient is multiplied with its own conjugate, the result contains only real values. */
   uint32 n  = 0;
@@ -513,19 +534,18 @@ void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *a, uint32 logn)
     a[u]      = FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(a_re), FsmSw_Falcon_Fpr_Sqr(a_im));
     a[u + hn] = fpr_zero;
   }
-}
+} // end: FsmSw_Falcon_Poly_MulselfadjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Mulconst
+/*====================================================================================================================*/
+/**
+* \brief Multiply polynomial with a real constant. This function works in both normal and FFT representations.
 *
-* Description: Multiply polynomial with a real constant. This function works in both normal and FFT representations.
+* \param[out] fpr      *a : t.b.d.
+* \param[in]  fpr       x : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - fpr    *a:    t.b.d.
-*              - fpr     x:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Mulconst(fpr *a, fpr x, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Mulconst(fpr *const a, fpr x, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -535,23 +555,22 @@ void FsmSw_Falcon_Poly_Mulconst(fpr *a, fpr x, uint32 logn)
   {
     a[u] = FsmSw_Falcon_Fpr_Mul(a[u], x);
   }
-}
+} // end: FsmSw_Falcon_Poly_Mulconst
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Invnorm2FFT
+/*====================================================================================================================*/
+/**
+* \brief Given f and g (in FFT representation), compute 1/(f*adj(f)+g*adj(g)) (also in FFT representation). Since
+*        the result is auto-adjoint, all its coordinates in FFT representation are real; as such, only the first
+*        N/2 values of d[] are filled (the imaginary parts are skipped).
+*        Array d MUST NOT overlap with either a or b.
 *
-* Description: Given f and g (in FFT representation), compute 1/(f*adj(f)+g*adj(g)) (also in FFT representation). Since
-*              the result is auto-adjoint, all its coordinates in FFT representation are real; as such, only the first
-*              N/2 values of d[] are filled (the imaginary parts are skipped).
-*              Array d MUST NOT overlap with either a or b.
+* \param[out] fpr       *d : t.b.d.
+* \param[in]  const fpr *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *d:    t.b.d.
-*              - const fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *d, const fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -573,23 +592,23 @@ void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *d, const fpr *a, const fpr *b, uint32 lo
         FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(a_re), FsmSw_Falcon_Fpr_Sqr(a_im)),
                              FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(b_re), FsmSw_Falcon_Fpr_Sqr(b_im))));
   }
-}
+} // end: FsmSw_Falcon_Poly_Invnorm2FFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_FFT
+/*====================================================================================================================*/
+/**
+* \brief Given F, G, f and g (in FFT representation), compute F*adj(f)+G*adj(g) (also in FFT representation).
+*        Destination d MUST NOT overlap with any of the source arrays.
 *
-* Description: Given F, G, f and g (in FFT representation), compute F*adj(f)+G*adj(g) (also in FFT representation).
-*              Destination d MUST NOT overlap with any of the source arrays.
+* \param[out] fpr       *d : t.b.d.
+* \param[in]  const fpr *F : t.b.d.
+* \param[in]  const fpr *G : t.b.d.
+* \param[in]  const fpr *f : t.b.d.
+* \param[in]  const fpr *g : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *d:    t.b.d.
-*              - const fpr    *F:    t.b.d.
-*              - const fpr    *G:    t.b.d.
-*              - const fpr    *f:    t.b.d.
-*              - const fpr    *g:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *d, const fpr *F, const fpr *G, const fpr *f, const fpr *g, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr *const G, const fpr *const f,
+                                     const fpr *const g, uint32 logn)
 {
   uint32 n             = 0;
   uint32 hn            = 0;
@@ -625,21 +644,20 @@ void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *d, const fpr *F, const fpr *G, const f
     d[u]      = FsmSw_Falcon_Fpr_Add(a_re, b_re);
     d[u + hn] = FsmSw_Falcon_Fpr_Add(a_im, b_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_Add_MuladjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Mul_AutoadjFFT
+/*====================================================================================================================*/
+/**
+* \brief Multiply polynomial a by polynomial b, where b is autoadjoint. Both a and b are in FFT representation.
+*        Since b is autoadjoint, all its FFT coefficients are real, and the array b contains only N/2 elements.
+*        a and b MUST NOT overlap.
 *
-* Description: Multiply polynomial a by polynomial b, where b is autoadjoint. Both a and b are in FFT representation.
-*              Since b is autoadjoint, all its FFT coefficients are real, and the array b contains only N/2 elements.
-*              a and b MUST NOT overlap.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -652,21 +670,20 @@ void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *a, const fpr *b, uint32 logn)
     a[u]      = FsmSw_Falcon_Fpr_Mul(a[u], b[u]);
     a[u + hn] = FsmSw_Falcon_Fpr_Mul(a[u + hn], b[u]);
   }
-}
+} // end: FsmSw_Falcon_Poly_Mul_AutoadjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_Div_AutoadjFFT
+/*====================================================================================================================*/
+/**
+* \brief Divide polynomial a by polynomial b, where b is autoadjoint. Both a and b are in FFT representation.
+*        Since b is autoadjoint, all its FFT coefficients are real, and the array b contains only N/2 elements.
+*        a and b MUST NOT overlap.
 *
-* Description: Divide polynomial a by polynomial b, where b is autoadjoint. Both a and b are in FFT representation.
-*              Since b is autoadjoint, all its FFT coefficients are real, and the array b contains only N/2 elements.
-*              a and b MUST NOT overlap.
+* \param[out] fpr       *a : t.b.d.
+* \param[in]  const fpr *b : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *a:    t.b.d.
-*              - const fpr    *b:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *a, const fpr *b, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -682,23 +699,22 @@ void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *a, const fpr *b, uint32 logn)
     a[u]      = FsmSw_Falcon_Fpr_Mul(a[u], ib);
     a[u + hn] = FsmSw_Falcon_Fpr_Mul(a[u + hn], ib);
   }
-}
+} // end: FsmSw_Falcon_Poly_Div_AutoadjFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_LdlFFT
+/*====================================================================================================================*/
+/**
+* \brief Perform an LDL decomposition of an auto-adjoint matrix G, in FFT representation. On input, g00, g01 and
+*        g11 are provided (where the matrix G = [[g00, g01], [adj(g01), g11]]). On output, the d00, l10 and d11
+*        values are written in g00, g01 and g11, respectively (with D = [[d00, 0], [0, d11]] and L = [[1, 0],
+*        [l10, 1]]). (In fact, d00 = g00, so the g00 operand is left unmodified.)
 *
-* Description: Perform an LDL decomposition of an auto-adjoint matrix G, in FFT representation. On input, g00, g01 and
-*              g11 are provided (where the matrix G = [[g00, g01], [adj(g01), g11]]). On output, the d00, l10 and d11
-*              values are written in g00, g01 and g11, respectively (with D = [[d00, 0], [0, d11]] and L = [[1, 0],
-*              [l10, 1]]). (In fact, d00 = g00, so the g00 operand is left unmodified.)
+* \param[in]  const fpr *g00 : t.b.d.
+* \param[out] fpr       *g01 : t.b.d.
+* \param[out] fpr       *g11 : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
 *
-* Arguments:   - const fpr    *g00:  t.b.d.
-*              -       fpr    *g01:  t.b.d.
-*              -       fpr    *g11:  t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_LdlFFT(const fpr *g00, fpr *g01, fpr *g11, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g11, uint32 logn)
 {
   uint32 n   = 0;
   uint32 hn  = 0;
@@ -728,24 +744,24 @@ void FsmSw_Falcon_Poly_LdlFFT(const fpr *g00, fpr *g01, fpr *g11, uint32 logn)
     g01[u]      = mu_re;
     g01[u + hn] = FsmSw_Falcon_Fpr_Neg(mu_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_LdlFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_LdlMvFFT
+/*====================================================================================================================*/
+/**
+* \brief Perform an LDL decomposition of an auto-adjoint matrix G, in FFT representation. This is identical to
+*        poly_LDL_fft() except that g00, g01 and g11 are unmodified; the outputs d11 and l10 are written in two
+*        other separate buffers provided as extra parameters.
 *
-* Description: Perform an LDL decomposition of an auto-adjoint matrix G, in FFT representation. This is identical to
-*              poly_LDL_fft() except that g00, g01 and g11 are unmodified; the outputs d11 and l10 are written in two
-*              other separate buffers provided as extra parameters.
+* \param[out] fpr       *d11 : t.b.d.
+* \param[out] fpr       *l10 : t.b.d.
+* \param[in]  const fpr *g00 : t.b.d.
+* \param[in]  const fpr *g01 : t.b.d.
+* \param[in]  const fpr *g11 : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
 *
-* Arguments:   -       fpr    *d11:  t.b.d.
-*              -       fpr    *l10:  t.b.d.
-*              - const fpr    *g00:  t.b.d.
-*              - const fpr    *g01:  t.b.d.
-*              - const fpr    *g11:  t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_LdlMvFFT(fpr *d11, fpr *l10, const fpr *g00, const fpr *g01, const fpr *g11, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const g00, const fpr *const g01,
+                                const fpr *const g11, uint32 logn)
 {
   uint32 n   = 0;
   uint32 hn  = 0;
@@ -775,22 +791,21 @@ void FsmSw_Falcon_Poly_LdlMvFFT(fpr *d11, fpr *l10, const fpr *g00, const fpr *g
     l10[u]      = mu_re;
     l10[u + hn] = FsmSw_Falcon_Fpr_Neg(mu_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_LdlMvFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_SplitFFT
+/*====================================================================================================================*/
+/**
+* \brief Apply "split" operation on a polynomial in FFT representation:
+*        f = f0(x^2) + x*f1(x^2), for half-size polynomials f0 and f1 (polynomials modulo X^(N/2)+1).
+*        f0, f1 and f MUST NOT overlap.
 *
-* Description: Apply "split" operation on a polynomial in FFT representation:
-*              f = f0(x^2) + x*f1(x^2), for half-size polynomials f0 and f1 (polynomials modulo X^(N/2)+1).
-*              f0, f1 and f MUST NOT overlap.
+* \param[out] fpr      *f0 : t.b.d.
+* \param[out] fpr      *f1 : t.b.d.
+* \param[in]  const fpr *f : t.b.d.
+* \param[in]  uint32  logn : t.b.d.
 *
-* Arguments:   -       fpr    *f0:   t.b.d.
-*              -       fpr    *f1:   t.b.d.
-*              - const fpr    *f:    t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_SplitFFT(fpr *f0, fpr *f1, const fpr *f, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f, uint32 logn)
 {
   /* The FFT representation we use is in bit-reversed order (element i contains f(w^(rev(i))), where rev() is the
      * bit-reversal function over the ring degree. This changes indexes with regards to the Falcon specification. */
@@ -831,22 +846,21 @@ void FsmSw_Falcon_Poly_SplitFFT(fpr *f0, fpr *f1, const fpr *f, uint32 logn)
     f1[u]      = FsmSw_Falcon_Fpr_Half(t_re);
     f1[u + qn] = FsmSw_Falcon_Fpr_Half(t_im);
   }
-}
+} // end: FsmSw_Falcon_Poly_SplitFFT
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Poly_MergeFFT
+/*====================================================================================================================*/
+/**
+* \brief Apply "merge" operation on two polynomials in FFT representation:
+*        Given f0 and f1, polynomials moduo X^(N/2)+1, this function computes f = f0(x^2) + x*f1(x^2), in FFT
+*        representation modulo X^N+1. f MUST NOT overlap with either f0 or f1.
 *
-* Description: Apply "merge" operation on two polynomials in FFT representation:
-*              Given f0 and f1, polynomials moduo X^(N/2)+1, this function computes f = f0(x^2) + x*f1(x^2), in FFT
-*              representation modulo X^N+1. f MUST NOT overlap with either f0 or f1.
+* \param[out] fpr        *f : t.b.d.
+* \param[in]  const fpr *f0 : t.b.d.
+* \param[in]  const fpr *f1 : t.b.d.
+* \param[in]  uint32   logn : t.b.d.
 *
-* Arguments:   -       fpr    *f:    t.b.d.
-*              - const fpr    *f0:   t.b.d.
-*              - const fpr    *f1:   t.b.d.
-*              -       uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Poly_MergeFFT(fpr *f, const fpr *f0, const fpr *f1, uint32 logn)
+*/
+void FsmSw_Falcon_Poly_MergeFFT(fpr *const f, const fpr *const f0, const fpr *const f1, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -879,4 +893,8 @@ void FsmSw_Falcon_Poly_MergeFFT(fpr *f, const fpr *f0, const fpr *f1, uint32 log
     f[(u << 1) + 1u]      = t_re;
     f[(u << 1) + 1u + hn] = t_im;
   }
-}
+} // end: FsmSw_Falcon_Poly_MergeFFT
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

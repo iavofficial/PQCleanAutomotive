@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Falcon1024
+*    includes the modules for Falcon1024
+ ** @{ */
+/** \addtogroup Falcon1024_api
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon1024_api.h
+* \brief  description of FsmSw_Falcon1024_api.h
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -16,18 +35,16 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_FALCON1024_API_H
 #define FSMSW_FALCON1024_API_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES 2305u
 #define FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES 1793u
 #define FSMSW_FALCON1024_CRYPTO_BYTES          1280u
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -37,21 +54,29 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-sint32 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
+uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
 
-sint32 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
+uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
 
-sint32 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
-                                           const uint8 *pk);
+uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
+                                          const uint8 *pk);
 
-sint32 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
+uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
 
-sint32 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
+uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
 
-#endif
+#endif /* FSMSW_FALCON1024_API_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

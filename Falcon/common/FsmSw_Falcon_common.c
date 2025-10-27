@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_common
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_common.c
+* \brief  description of FsmSw_Falcon_common.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Support functions for signatures (hash-to-point, norm). */
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -40,6 +59,9 @@ static const uint16 overtab[] = {0, /* unused */
 static const uint32 l2bound[] = {0, /* unused */
                                  101498,  208714,  428865,   892039,   1852696,
                                  3842630, 7959734, 16468416, 34034726, 70265242};
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
@@ -56,21 +78,21 @@ static const uint32 l2bound[] = {0, /* unused */
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_HashToPointVartime
+
+/*====================================================================================================================*/
+/**
+* \brief From a SHAKE256 context (must be already flipped), produce a new point. This is the non-constant-time
+*        version, which may leak enough information to serve as a stop condition on a brute force attack on the
+*        hashed message (provided that the nonce value is known).
 *
-* Description: From a SHAKE256 context (must be already flipped), produce a new point. This is the non-constant-time
-*              version, which may leak enough information to serve as a stop condition on a brute force attack on the
-*              hashed message (provided that the nonce value is known).
-*
-* Arguments:   - inner_shake256_context *sc:   t.b.d.
-*              - uint16                 *x:    t.b.d.
-*              - uint32                  logn: t.b.d.
+* \param[out] inner_shake256_context *sc : t.b.d.
+* \param[out] uint16                  *x : t.b.d.
+* \param[in]  uint32                logn : t.b.d.
 *
 * Note:        This function is currently not used.
 *
-***********************************************************************************************************************/
-void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *sc, uint16 *x, uint32 logn)
+*/
+void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn)
 {
   /* This is the straightforward per-the-spec implementation. It is not constant-time, thus it might reveal
      * information on the plaintext (at least, enough to check the plaintext against a list of potential plaintexts)
@@ -87,6 +109,8 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *sc, uint16 *x, uint
     uint8 buf[2];
     uint32 w;
 
+    /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
     FsmSw_Fips202_Shake256_IncSqueeze((void *)buf, sizeof(buf), sc);
@@ -103,22 +127,21 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *sc, uint16 *x, uint
       n--;
     }
   }
-}
+} // end: FsmSw_Falcon_HashToPointVartime
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_HashToPointCt
+/*====================================================================================================================*/
+/**
+* \brief From a SHAKE256 context (must be already flipped), produce a new point. The temporary buffer (tmp) must #
+*        have room for 2*2^logn bytes. This function is constant-time but is typically more expensive than
+*        FsmSw_Falcon_HashToPointVartime(). tmp[] must have 16-bit alignment.
 *
-* Description: From a SHAKE256 context (must be already flipped), produce a new point. The temporary buffer (tmp) must #
-*              have room for 2*2^logn bytes. This function is constant-time but is typically more expensive than
-*              FsmSw_Falcon_HashToPointVartime(). tmp[] must have 16-bit alignment.
+* \param[out] inner_shake256_context *sc : t.b.d.
+* \param[out] uint16                  *x : t.b.d.
+* \param[in]  uint32                logn : t.b.d.
+* \param[out] uint8                 *tmp : t.b.d.
 *
-* Arguments:   - inner_shake256_context *sc:   t.b.d.
-*              - uint16                 *x:    t.b.d.
-*              - uint32                  logn: t.b.d.
-*              - uint8                  *tmp:  t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_HashToPointCt(inner_shake256_context *sc, uint16 *x, uint32 logn, uint8 *tmp)
+*/
+void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp)
 {
   /* Each 16-bit sample is a value in 0..65535. The value is kept if it falls in 0..61444 (because 61445 = 5*12289)
      * and rejected otherwise; thus, each sample has probability about 0.93758 of being selected. We want to oversample
@@ -156,6 +179,8 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *sc, uint16 *x, uint32 lo
   n2   = n << 1;
   over = overtab[logn];
   m    = n + over;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   tt1 = (uint16 *)((void *)tmp);
@@ -256,22 +281,21 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *sc, uint16 *x, uint32 lo
       *d = (uint16)(dv ^ (mk & (sv ^ dv)));
     }
   }
-}
+} // end: FsmSw_Falcon_HashToPointCt
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_IsShort
+/*====================================================================================================================*/
+/**
+* \brief Tell whether a given vector (2N coordinates, in two halves) is acceptable as a signature. This compares
+*        the appropriate norm of the vector with the acceptance bound.
 *
-* Description: Tell whether a given vector (2N coordinates, in two halves) is acceptable as a signature. This compares
-*              the appropriate norm of the vector with the acceptance bound.
+* \param[in] const sint16 *s1 : t.b.d.
+* \param[in] const sint16 *s2 : t.b.d.
+* \param[in] uint32      logn : t.b.d.
 *
-* Arguments:   - const sint16 *s1:   t.b.d.
-*              - const sint16 *s2:   t.b.d.
-*              -       uint32  logn: t.b.d.
+* \returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
 *
-* Returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
-*
-***********************************************************************************************************************/
-sint32 FsmSw_Falcon_IsShort(const sint16 *s1, const sint16 *s2, uint32 logn)
+*/
+sint32 FsmSw_Falcon_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn)
 {
   /* We use the l2-norm. Code below uses only 32-bit operations to compute the square of the norm with saturation to
      * 2^32-1 if the value exceeds 2^31-1. */
@@ -304,23 +328,22 @@ sint32 FsmSw_Falcon_IsShort(const sint16 *s1, const sint16 *s2, uint32 logn)
   }
 
   return retVal;
-}
+} // end: FsmSw_Falcon_IsShort
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_IsShortHalf
+/*====================================================================================================================*/
+/**
+* \brief Tell whether a given vector (2N coordinates, in two halves) is acceptable as a signature. Instead of the
+*        first half s1, this function receives the "saturated squared norm" of s1, i.e. the sum of the squares of
+*        the coordinates of s1 (saturated at 2^32-1 if the sum exceeds 2^31-1).
 *
-* Description: Tell whether a given vector (2N coordinates, in two halves) is acceptable as a signature. Instead of the
-*              first half s1, this function receives the "saturated squared norm" of s1, i.e. the sum of the squares of
-*              the coordinates of s1 (saturated at 2^32-1 if the sum exceeds 2^31-1).
+* \param[in] uint32       sqn : t.b.d.
+* \param[in] const sint16 *s2 : t.b.d.
+* \param[in] uint32      logn : t.b.d.
 *
-* Arguments:   -       uint32  sqn:  t.b.d.
-*              - const sint16 *s2:   t.b.d.
-*              -       uint32  logn: t.b.d.
+* \returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
 *
-* Returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
-*
-***********************************************************************************************************************/
-sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *s2, uint32 logn)
+*/
+sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn)
 {
   uint32 n  = 0;
   uint32 u  = 0;
@@ -349,4 +372,8 @@ sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *s2, uint32 logn)
   }
 
   return retVal;
-}
+} // end: FsmSw_Falcon_IsShortHalf
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

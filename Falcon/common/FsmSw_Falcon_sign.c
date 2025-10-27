@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_sign
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_sign.c
+* \brief  description of FsmSw_Falcon_sign.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Falcon signature generation. */
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -27,11 +46,12 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
+/* polyspace +5 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
 /* polyspace +3 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 /* Compute degree N from logarithm 'logn'. */
 #define MKN(logn) ((uint32)1 << (logn))
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -52,7 +72,6 @@ typedef struct
 } sampler_context;
 
 typedef sint32 (*samplerZ)(void *ctx, fpr mu, fpr sigma);
-
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -63,6 +82,10 @@ static const uint32 dist[] = {
     0u,        38047u,    9111839u, 0u,       870u,     6138264u,  0u,        14u,       12545723u, 0u,       0u,
     3104126u,  0u,        0u,       28824u,   0u,       0u,        198u,      0u,        0u,        1u};
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -70,33 +93,35 @@ static const uint32 dist[] = {
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
 static uint32 fsmsw_falcon_FfldlTreeSize(uint32 logn);
-static void fsmsw_falcon_FfldlFftInner(fpr *tree, fpr *g0, fpr *g1, uint32 logn, fpr *tmp);
-static void fsmsw_falcon_FfldlBinaryNormalize(fpr *tree, uint32 orig_logn, uint32 logn);
-static void fsmsw_falcon_SmallintsToFpr(fpr *r, const sint8 *t, uint32 logn);
-static sint32 fsmsw_falcon_BerExp(prng *p, fpr x, fpr ccs);
+static void fsmsw_falcon_FfldlFftInner(fpr *const tree, fpr *const g0, fpr *const g1, uint32 logn, fpr *const tmp);
+static void fsmsw_falcon_FfldlBinaryNormalize(fpr *const tree, uint32 orig_logn, uint32 logn);
+static void fsmsw_falcon_SmallintsToFpr(fpr *const r, const sint8 *const t, uint32 logn);
+static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs);
 static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma);
-static sint32 fsmsw_falcon_Gaussian0Sampler(prng *p);
-static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ samp, void *samp_ctx, fpr *t0, fpr *t1, fpr *g00, fpr *g01,
-                                              fpr *g11, uint32 orig_logn, uint32 logn, fpr *tmp);
-static void fsmsw_falcon_FfSamplingFft(samplerZ samp, void *samp_ctx, fpr *z0, fpr *z1, const fpr *tree, const fpr *t0,
-                                       const fpr *t1, uint32 logn, fpr *tmp);
-static sint32 fsmsw_falcon_DoSignDyn(samplerZ samp, void *samp_ctx, sint16 *s2, const sint8 *f, const sint8 *g,
-                                     const sint8 *F, const sint8 *G, const uint16 *hm, uint32 logn, fpr *tmp);
-
+static sint32 fsmsw_falcon_Gaussian0Sampler(prng *const p);
+static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ctx, fpr *const t0, fpr *const t1,
+                                              fpr *const g00, fpr *const g01, fpr *const g11, uint32 orig_logn,
+                                              uint32 logn, fpr *const tmp);
+static void fsmsw_falcon_FfSamplingFft(samplerZ const samp, void *const samp_ctx, fpr *const z0, fpr *const z1,
+                                       const fpr *const tree, const fpr *const t0, const fpr *const t1, uint32 logn,
+                                       fpr *const tmp);
+static sint32 fsmsw_falcon_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16 *const s2, const sint8 *const f,
+                                     const sint8 *const g, const sint8 *const F, const sint8 *const G,
+                                     const uint16 *const hm, uint32 logn, fpr *const tmp);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_FfldlTreeSize
-*
-* Description: Get the size of the LDL tree for an input with polynomials of size 2^logn. The size is expressed in the
+
+/*====================================================================================================================*/
+/**
+* \brief Get the size of the LDL tree for an input with polynomials of size 2^logn. The size is expressed in the
 *              number of elements.
 *
-* Arguments:   - uint32 logn:    t.b.d.
+* \param[in] uint32 logn : t.b.d.
 *
-* Returns t.b.d.
+* \returns t.b.d.
 *
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_FfldlTreeSize(uint32 logn)
 {
   /* For logn = 0 (polynomials are constant), the "tree" is a single element. Otherwise, the tree node has size 2^logn,
@@ -104,22 +129,21 @@ static uint32 fsmsw_falcon_FfldlTreeSize(uint32 logn)
    *   s(0) = 1
    *   s(logn) = (2^logn) + 2*s(logn-1) */
   return (logn + 1u) << logn;
-}
+} // end: fsmsw_falcon_FfldlTreeSize
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_FfldlFftInner
+/*====================================================================================================================*/
+/**
+* \brief Inner function for ffLDL_fft(). It expects the matrix to be both auto-adjoint and quasicyclic; also, it
+*        uses the source operands as modifiable temporaries.
 *
-* Description: Inner function for ffLDL_fft(). It expects the matrix to be both auto-adjoint and quasicyclic; also, it
-*              uses the source operands as modifiable temporaries.
+* \param[out] fpr   *tree : t.b.d.
+* \param[out] fpr     *g0 : t.b.d.
+* \param[out] fpr     *g1 : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
+* \param[out] fpr    *tmp : tmp[] must have room for at least one polynomial.
 *
-* Arguments:   - fpr      *tree: t.b.d.
-*              - fpr      *g0:   t.b.d.
-*              - fpr      *g1:   t.b.d.
-*              - uint32    logn: t.b.d.
-*              - fpr      *tmp:  tmp[] must have room for at least one polynomial.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_FfldlFftInner(fpr *tree, fpr *g0, fpr *g1, uint32 logn, fpr *tmp)
+*/
+static void fsmsw_falcon_FfldlFftInner(fpr *const tree, fpr *const g0, fpr *const g1, uint32 logn, fpr *const tmp)
 {
   uint32 n          = 0;
   uint32 hn         = 0;
@@ -147,24 +171,25 @@ static void fsmsw_falcon_FfldlFftInner(fpr *tree, fpr *g0, fpr *g1, uint32 logn,
     FsmSw_Falcon_Poly_SplitFFT(g0, &g0[hn], tmp, logn);
 
     /* Each split result is the first row of a new auto-adjoint quasicyclic matrix for the next recursive step. */
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfldlFftInner(&tree[n], g1, &g1[hn], logn - 1u, tmp);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfldlFftInner(&tree[n + fsmsw_falcon_FfldlTreeSize(logn - 1u)], g0, &g0[hn], logn - 1u, tmp);
   }
-}
+} // end: fsmsw_falcon_FfldlFftInner
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_FfldlBinaryNormalize
+/*====================================================================================================================*/
+/**
+* \brief Normalize an ffLDL tree: each leaf of value x is replaced with sigma / sqrt(x).
 *
-* Description: Normalize an ffLDL tree: each leaf of value x is replaced with sigma / sqrt(x).
+* \param[out] fpr        *tree : t.b.d.
+* \param[in]  uint32 orig_logn : t.b.d.
+* \param[in]  uint32      logn : t.b.d.
 *
-* Arguments:   - fpr    *tree:      t.b.d.
-*              - uint32  orig_logn: t.b.d.
-*              - uint32  logn:      t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_FfldlBinaryNormalize(fpr *tree, uint32 orig_logn, uint32 logn)
+*/
+static void fsmsw_falcon_FfldlBinaryNormalize(fpr *const tree, uint32 orig_logn, uint32 logn)
 {
   /* TODO: make an iterative version. */
   uint32 n = 0;
@@ -178,24 +203,25 @@ static void fsmsw_falcon_FfldlBinaryNormalize(fpr *tree, uint32 orig_logn, uint3
   }
   else
   {
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfldlBinaryNormalize(&tree[n], orig_logn, logn - 1u);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfldlBinaryNormalize(&tree[n + fsmsw_falcon_FfldlTreeSize(logn - 1u)], orig_logn, logn - 1u);
   }
-}
+} // end: fsmsw_falcon_FfldlBinaryNormalize
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SmallintsToFpr
+/*====================================================================================================================*/
+/**
+* \brief Convert an integer polynomial (with small values) into the representation with complex numbers.
 *
-* Description: Convert an integer polynomial (with small values) into the representation with complex numbers.
+* \param[out] fpr         *r : t.b.d.
+* \param[in]  const sint8 *t : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
 *
-* Arguments:   -       fpr      *r:    t.b.d.
-*              - const sint8    *t:    t.b.d.
-*              -       uint32    logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_SmallintsToFpr(fpr *r, const sint8 *t, uint32 logn)
+*/
+static void fsmsw_falcon_SmallintsToFpr(fpr *const r, const sint8 *const t, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -205,21 +231,20 @@ static void fsmsw_falcon_SmallintsToFpr(fpr *r, const sint8 *t, uint32 logn)
   {
     r[u] = FsmSw_Falcon_Fpr_Of(t[u]);
   }
-}
+} // end: fsmsw_falcon_SmallintsToFpr
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_BerExp
+/*====================================================================================================================*/
+/**
+* \brief Sample a bit with probability exp(-x) for some x >= 0.
 *
-* Description: Sample a bit with probability exp(-x) for some x >= 0.
+* \param[out] prng *p : t.b.d.
+* \param[in]  fpr   x : t.b.d.
+* \param[in]  fpr ccs : t.b.d.
 *
-* Arguments:   - prng *p:   t.b.d.
-*              - fpr   x:   t.b.d.
-*              - fpr   ccs: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_BerExp(prng *p, fpr x, fpr ccs)
+*/
+static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs)
 {
   sint32 s  = 0;
   sint32 i  = 0;
@@ -259,23 +284,22 @@ static sint32 fsmsw_falcon_BerExp(prng *p, fpr x, fpr ccs)
   } while ((0u == w) && (i > 0));
 
   return (sint32)((uint32)(w >> 31));
-}
+} // end: fsmsw_falcon_BerExp
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_SignSampler
+/*====================================================================================================================*/
+/**
+* \brief The sampler produces a random integer that follows a discrete Gaussian distribution, centered on mu, and
+*        with standard deviation sigma. The provided parameter isigma is equal to 1/sigma.
+*        The value of sigma MUST lie between 1 and 2 (i.e. isigma lies between 0.5 and 1); in Falcon, sigma
+*        should always be between 1.2 and 1.9.
 *
-* Description: The sampler produces a random integer that follows a discrete Gaussian distribution, centered on mu, and
-*              with standard deviation sigma. The provided parameter isigma is equal to 1/sigma.
-*              The value of sigma MUST lie between 1 and 2 (i.e. isigma lies between 0.5 and 1); in Falcon, sigma
-*              should always be between 1.2 and 1.9.
+* \param[out] void  *ctx : t.b.d.
+* \param[in]  fpr     mu : t.b.d.
+* \param[in]  fpr isigma : t.b.d.
 *
-* Arguments:   - void *ctx:    t.b.d.
-*              - fpr   mu:     t.b.d.
-*              - fpr   isigma: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma)
 {
   sampler_context *spc = (sampler_context *)NULL_PTR;
@@ -289,6 +313,8 @@ static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma)
   fpr x                = 0;
   sint32 retVal        = 0;
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   spc = ctx;
@@ -344,20 +370,19 @@ static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma)
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon_SignSampler
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_Gaussian0Sampler
+/*====================================================================================================================*/
+/**
+* \brief Sample an integer value along a half-gaussian distribution centered on zero and standard deviation
+*        1.8205, with a precision of 72 bits.
 *
-* Description: Sample an integer value along a half-gaussian distribution centered on zero and standard deviation
-*              1.8205, with a precision of 72 bits.
+* \param[out] prng *p : t.b.d.
 *
-* Arguments:   - prng *p: t.b.d.
+* \returns z
 *
-* Returns z
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_Gaussian0Sampler(prng *p)
+*/
+static sint32 fsmsw_falcon_Gaussian0Sampler(prng *const p)
 {
   uint32 v0 = 0;
   uint32 v1 = 0;
@@ -391,28 +416,28 @@ static sint32 fsmsw_falcon_Gaussian0Sampler(prng *p)
   }
 
   return z;
-}
+} /// end: fsmsw_falcon_Gaussian0Sampler
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_FfSamplingFftDyntree
+/*====================================================================================================================*/
+/**
+* \brief Perform Fast Fourier Sampling for target vector t. The Gram matrix is provided (G = [[g00, g01],
+*        [adj(g01), g11]]). The sampled vector is written over (t0,t1). The Gram matrix is modified as well.
 *
-* Description: Perform Fast Fourier Sampling for target vector t. The Gram matrix is provided (G = [[g00, g01],
-*              [adj(g01), g11]]). The sampled vector is written over (t0,t1). The Gram matrix is modified as well.
+* \param[in]  samplerZ    samp : t.b.d.
+* \param[out] void   *samp_ctx : t.b.d.
+* \param[out] fpr          *t0 : t.b.d.
+* \param[out] fpr          *t1 : t.b.d.
+* \param[out] fpr         *g00 : t.b.d.
+* \param[out] fpr         *g01 : t.b.d.
+* \param[out] fpr         *g11 : t.b.d.
+* \param[in]  uint32 orig_logn : t.b.d.
+* \param[in]  uint32      logn : t.b.d.
+* \param[out] fpr         *tmp : tmp[] must have room for at least nine polynomials.
 *
-* Arguments:   - samplerZ  samp:      t.b.d.
-*              - void     *samp_ctx:  t.b.d.
-*              - fpr      *t0:        t.b.d.
-*              - fpr      *t1:        t.b.d.
-*              - fpr      *g00:       t.b.d.
-*              - fpr      *g01:       t.b.d.
-*              - fpr      *g11:       t.b.d.
-*              - uint32  orig_logn: t.b.d.
-*              - uint32  logn:      t.b.d.
-*              - fpr      *tmp:       tmp[] must have room for at least nine polynomials.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ samp, void *samp_ctx, fpr *t0, fpr *t1, fpr *g00, fpr *g01,
-                                              fpr *g11, uint32 orig_logn, uint32 logn, fpr *tmp)
+*/
+static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ctx, fpr *const t0, fpr *const t1,
+                                              fpr *const g00, fpr *const g01, fpr *const g11, uint32 orig_logn,
+                                              uint32 logn, fpr *const tmp)
 {
   uint32 n          = 0;
   uint32 hn         = 0;
@@ -460,6 +485,7 @@ static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ samp, void *samp_ctx, fpr
    * back into tmp + 2*n. */
     z1 = &tmp[n];
     FsmSw_Falcon_Poly_SplitFFT(z1, &z1[hn], t1, logn);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfSamplingFftDyntree(samp, samp_ctx, z1, &z1[hn], g11, &g11[hn], &g01[hn], orig_logn, logn - 1u,
                                       &z1[n]);
@@ -477,30 +503,31 @@ static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ samp, void *samp_ctx, fpr
     /* Second recursive invocation, on the split tb0 (currently in t0) and the left sub-tree. */
     z0 = tmp;
     FsmSw_Falcon_Poly_SplitFFT(z0, &z0[hn], t0, logn);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfSamplingFftDyntree(samp, samp_ctx, z0, &z0[hn], g00, &g00[hn], g01, orig_logn, logn - 1u, &z0[n]);
     FsmSw_Falcon_Poly_MergeFFT(t0, z0, &z0[hn], logn);
   }
-}
+} // end: fsmsw_falcon_FfSamplingFftDyntree
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_FfSamplingFft
+/*====================================================================================================================*/
+/**
+* \brief Perform Fast Fourier Sampling for target vector t and LDL tree T.
 *
-* Description: Perform Fast Fourier Sampling for target vector t and LDL tree T.
+* \param[in]  samplerZ   samp : t.b.d.
+* \param[out] void  *samp_ctx : t.b.d.
+* \param[out] fpr         *z0 : t.b.d.
+* \param[out] fpr         *z1 : t.b.d.
+* \param[in]  const fpr *tree : t.b.d.
+* \param[in]  const fpr   *t0 : t.b.d.
+* \param[in]  const fpr   *t1 : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
+* \param[out] fpr        *tmp : tmp[] must have size for at least two polynomials of size 2^logn.
 *
-* Arguments:   -       samplerZ  samp:     t.b.d.
-*              -       void     *samp_ctx: t.b.d.
-*              -       fpr      *z0:       t.b.d.
-*              -       fpr      *z1:       t.b.d.
-*              - const fpr      *tree:     t.b.d.
-*              - const fpr      *t0:       t.b.d.
-*              - const fpr      *t1:       t.b.d.
-*              -       uint32    logn:     t.b.d.
-*              -       fpr      *tmp:      tmp[] must have size for at least two polynomials of size 2^logn.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_FfSamplingFft(samplerZ samp, void *samp_ctx, fpr *z0, fpr *z1, const fpr *tree, const fpr *t0,
-                                       const fpr *t1, uint32 logn, fpr *tmp)
+*/
+static void fsmsw_falcon_FfSamplingFft(samplerZ const samp, void *const samp_ctx, fpr *const z0, fpr *const z1,
+                                       const fpr *const tree, const fpr *const t0, const fpr *const t1, uint32 logn,
+                                       fpr *const tmp)
 {
   uint32 n          = 0;
   uint32 hn         = 0;
@@ -674,6 +701,7 @@ static void fsmsw_falcon_FfSamplingFft(samplerZ samp, void *samp_ctx, fpr *z0, f
     /* We split t1 into z1 (reused as temporary storage), then do the recursive invocation, with output in tmp.
    * We finally merge back into z1. */
     FsmSw_Falcon_Poly_SplitFFT(z1, &z1[hn], t1, logn);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfSamplingFft(samp, samp_ctx, tmp, &tmp[hn], tree1, z1, &z1[hn], logn - 1u, &tmp[n]);
     FsmSw_Falcon_Poly_MergeFFT(z1, tmp, &tmp[hn], logn);
@@ -686,35 +714,36 @@ static void fsmsw_falcon_FfSamplingFft(samplerZ samp, void *samp_ctx, fpr *z0, f
 
     /* Second recursive invocation. */
     FsmSw_Falcon_Poly_SplitFFT(z0, &z0[hn], tmp, logn);
+    /* polyspace +2 CERT-C:MEM05-C [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     /* polyspace +1 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
     fsmsw_falcon_FfSamplingFft(samp, samp_ctx, tmp, &tmp[hn], tree0, z0, &z0[hn], logn - 1u, &tmp[n]);
     FsmSw_Falcon_Poly_MergeFFT(z0, tmp, &tmp[hn], logn);
   }
-}
+} // end: fsmsw_falcon_FfSamplingFft
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_DoSignDyn
+/*====================================================================================================================*/
+/**
+* \brief Compute a signature: the signature contains two vectors, s1 and s2. The s1 vector is not returned. The
+*        squared norm of (s1,s2) is computed, and if it is short enough, then s2 is returned into the s2[] buffer,
+*        and 1 is returned; otherwise, s2[] is untouched and 0 is returned; the caller should then try again.
 *
-* Description: Compute a signature: the signature contains two vectors, s1 and s2. The s1 vector is not returned. The
-*              squared norm of (s1,s2) is computed, and if it is short enough, then s2 is returned into the s2[] buffer,
-*              and 1 is returned; otherwise, s2[] is untouched and 0 is returned; the caller should then try again.
+* \param[in]  samplerZ    samp : t.b.d.
+* \param[out] void   *samp_ctx : t.b.d.
+* \param[out] sint16       *s2 : t.b.d.
+* \param[in]  const sint8   *f : t.b.d.
+* \param[in]  const sint8   *g : t.b.d.
+* \param[in]  const sint8   *F : t.b.d.
+* \param[in]  const sint8   *G : t.b.d.
+* \param[in]  const uint16 *h m: t.b.d.
+* \param[in]  uint32      logn : t.b.d.
+* \param[out] fpr         *tmp : tmp[] must have room for at least nine polynomials.
 *
-* Arguments:   -       samplerZ  samp:     t.b.d.
-*              -       void     *samp_ctx: t.b.d.
-*              -       sint16   *s2:       t.b.d.
-*              - const sint8    *f:        t.b.d.
-*              - const sint8    *g:        t.b.d.
-*              - const sint8    *F:        t.b.d.
-*              - const sint8    *G:        t.b.d.
-*              - const uint16   *hm:       t.b.d.
-*              -       uint32  logn:     t.b.d.
-*              -       fpr      *tmp:      tmp[] must have room for at least nine polynomials.
+* \returns 0 or 1
 *
-* Returns 0 or 1
-*
-***********************************************************************************************************************/
-static sint32 fsmsw_falcon_DoSignDyn(samplerZ samp, void *samp_ctx, sint16 *s2, const sint8 *f, const sint8 *g,
-                                     const sint8 *F, const sint8 *G, const uint16 *hm, uint32 logn, fpr *tmp)
+*/
+static sint32 fsmsw_falcon_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16 *const s2, const sint8 *const f,
+                                     const sint8 *const g, const sint8 *const F, const sint8 *const G,
+                                     const uint16 *const hm, uint32 logn, fpr *const tmp)
 {
   uint32 n      = 0;
   uint32 u      = 0;
@@ -857,8 +886,10 @@ static sint32 fsmsw_falcon_DoSignDyn(samplerZ samp, void *samp_ctx, sint16 *s2, 
   FsmSw_Falcon_IFFT(t0, logn);
   FsmSw_Falcon_IFFT(t1, logn);
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   s1tmp = (sint16 *)((void *)tx);
   sqn   = 0;
   ng    = 0;
@@ -877,8 +908,10 @@ static sint32 fsmsw_falcon_DoSignDyn(samplerZ samp, void *samp_ctx, sint16 *s2, 
    * however, it may happen in practice for the very reduced versions (e.g. degree 16 or below). In that case, the
    * caller will loop, and we must not write anything into s2[] because s2[] may overlap with the hashed message hm[]
    * and we need hm[] for the next iteration. */
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   s2tmp = (sint16 *)((void *)tmp);
 
   for (u = 0; u < n; u++)
@@ -895,40 +928,43 @@ static sint32 fsmsw_falcon_DoSignDyn(samplerZ samp, void *samp_ctx, sint16 *s2, 
   }
 
   return retVal;
-}
+} // end: fsmsw_falcon_DoSignDyn
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_Sign_Dyn
+
+/*====================================================================================================================*/
+/**
+* \brief Compute a signature over the provided hashed message (hm); the signature value is one short vector. This
+*        function uses a raw key and dynamically recompute the B0 matrix and LDL tree; this saves RAM since there
+*        is no needed for an expanded key, but increases the signature cost.
+*        The sig[] and hm[] buffers may overlap. On successful output, the start of the tmp[] buffer contains the
+*        s1 vector (as sint16 elements).
+*        The minimal size (in bytes) of tmp[] is 72*2^logn bytes. tmp[] must have 64-bit alignment.
+*        This function uses floating-point rounding (see set_fpu_cw()).
 *
-* Description: Compute a signature over the provided hashed message (hm); the signature value is one short vector. This
-*              function uses a raw key and dynamically recompute the B0 matrix and LDL tree; this saves RAM since there
-*              is no needed for an expanded key, but increases the signature cost.
-*              The sig[] and hm[] buffers may overlap. On successful output, the start of the tmp[] buffer contains the
-*              s1 vector (as sint16 elements).
-*              The minimal size (in bytes) of tmp[] is 72*2^logn bytes. tmp[] must have 64-bit alignment.
-*              This function uses floating-point rounding (see set_fpu_cw()).
+* \param[out] sint16                 *sig : t.b.d.
+* \param[out] inner_shake256_context *rng : t.b.d.
+* \param[in]  const sint8              *f : t.b.d.
+* \param[in]  const sint8              *g : t.b.d.
+* \param[in]  const sint8              *F : t.b.d.
+* \param[in]  const sint8              *G : t.b.d.
+* \param[in]  const sint16            *hm : t.b.d.
+* \param[in]  uint32                 logn : t.b.d.
+* \param[out] uint8                  *tmp : t.b.d.
 *
-* Arguments:   -       sint16                 *sig:  t.b.d.
-*              -       inner_shake256_context *rng:  t.b.d.
-*              - const sint8                  *f:    t.b.d.
-*              - const sint8                  *g:    t.b.d.
-*              - const sint8                  *F:    t.b.d.
-*              - const sint8                  *G:    t.b.d.
-*              - const sint16                 *hm:   t.b.d.
-*              -       uint32                  logn: t.b.d.
-*              -       uint8                  *tmp:  t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_Sign_Dyn(sint16 *sig, inner_shake256_context *rng, const sint8 *f, const sint8 *g, const sint8 *F,
-                           const sint8 *G, const uint16 *hm, uint32 logn, uint8 *tmp)
+*/
+void FsmSw_Falcon_Sign_Dyn(sint16 *const sig, inner_shake256_context *const rng, const sint8 *const f,
+                           const sint8 *const g, const sint8 *const F, const sint8 *const G, const uint16 *const hm,
+                           uint32 logn, uint8 *const tmp)
 {
   fpr *ftmp = (uint64 *)NULL_PTR;
 
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   ftmp = (fpr *)((void *)tmp);
 
   for (uint32 i = 0; i < 0xFFFFFFFFu; i++)
@@ -953,4 +989,4 @@ void FsmSw_Falcon_Sign_Dyn(sint16 *sig, inner_shake256_context *rng, const sint8
       break;
     }
   }
-}
+} // end: FsmSw_Falcon_Sign_Dyn

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup Falcon512
+*    includes the modules for Falcon512
+ ** @{ */
+/** \addtogroup Falcon512_api
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon512_api.c
+* \brief  description of FsmSw_Falcon512_api.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -16,18 +35,16 @@
  **********************************************************************************************************************/
 #ifndef FSMSW_FALCON512_API_H
 #define FSMSW_FALCON512_API_H
-
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES 1281u
 #define FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES 897u
 #define FSMSW_FALCON512_CRYPTO_BYTES          666u
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -37,16 +54,24 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-sint32 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
-sint32 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
-sint32 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk);
-sint32 FsmSw_Falcon512_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
-sint32 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
+uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk);
+uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
 
 #endif /* FSMSW_FALCON512_API_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

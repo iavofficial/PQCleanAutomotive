@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple
+*    includes the modules for SphincsSha2_128fSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_128fSimple_hash
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_128fSimple_hash_sha2.c
+* \brief  description of FsmSw_SphincsSha2_128fSimple_hash_sha2.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -25,7 +44,6 @@
 #include "FsmSw_sha2.h"
 
 #include "FsmSw_SphincsSha2_128fSimple_hash.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -50,13 +68,16 @@
                                SPX_SHAX_BLOCK_BYTES - 1u) &                                                            \
                               (uint32)((sint32)((-1) * (sint32)SPX_SHAX_BLOCK_BYTES)))) /                              \
                     SPX_SHAX_BLOCK_BYTES))
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -70,18 +91,18 @@ static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, con
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_MgF1_256
+
+/*====================================================================================================================*/
+/**
+ * \brief FsmSw_SphincsSha2_128fSimple_MgF1_256 function based on the SHA-256 hash function. Note that inlen
+ *        should be sufficiently small that it still allows for an array to be allocated on the stack.
+ *        Typically 'in' is merely a seed. Outputs outlen number of bytes.
  *
- * Description: FsmSw_SphincsSha2_128fSimple_MgF1_256 function based on the SHA-256 hash function. Note that inlen
- *              should be sufficiently small that it still allows for an array to be allocated on the stack.
- *              Typically 'in' is merely a seed. Outputs outlen number of bytes.
- *
- * Arguments:   -       uint8  *out:    t.b.d.
- *              -       uint32  outlen: t.b.d.
- *              - const uint8  *in:     t.b.d.
- *              -       uint32  inlen:  t.b.d.
- **********************************************************************************************************************/
+ * \param[out] uint8      *out : t.b.d.
+ * \param[out] uint32   outlen : t.b.d.
+ * \param[in]  const uint8 *in : t.b.d.
+ * \param[in]  uint32    inlen : t.b.d.
+ */
 static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_128FSIMPLE_MGF1_256_BUF_LEN + 4] = {0};
@@ -109,20 +130,19 @@ static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, con
     FsmSw_Sha256(outbuf, inbuf, inlen + 4u);
     FsmSw_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * FSMSW_SPHINCS_SHA256_OUTPUT_BYTES));
   }
-}
+} // end: FsmSw_SphincsSha2_128fSimple_MgF1_256
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_Mgf1512
+/*====================================================================================================================*/
+/**
+ * \brief mgf1 function based on the SHA-512 hash function
  *
- * Description: mgf1 function based on the SHA-512 hash function
- *
- * Arguments:   -       uint8  *out:    t.b.d.
- *              -       uint32  outlen: t.b.d.
- *              - const uint8  *in:     t.b.d.
- *              -       uint32  inlen:  t.b.d.
+ * \param[out] uint8      *out : t.b.d.
+ * \param[out] uint32   outlen : t.b.d.
+ * \param[in]  const uint8 *in : t.b.d.
+ * \param[in]  uint32    inlen : t.b.d.
  *
  * Note: This function is currently not used.
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128fSimple_Mgf1512(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_128FSIMPLE_MGF1_512_BUF_LEN + 4] = {0};
@@ -150,20 +170,20 @@ void FsmSw_SphincsSha2_128fSimple_Mgf1512(uint8 *out, uint32 outlen, const uint8
     FsmSw_Sha512(outbuf, inbuf, inlen + 4u);
     FsmSw_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * FSMSW_SPHINCS_SHA512_OUTPUT_BYTES));
   }
-}
+} // end: FsmSw_SphincsSha2_128fSimple_Mgf1512
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_PrfAddr
+/*====================================================================================================================*/
+/**
+ * \brief Computes PRF(pk_seed, sk_seed, addr).
  *
- * Description: Computes PRF(pk_seed, sk_seed, addr).
- *
- * Arguments:   -       uint8                 *out:     t.b.d.
- *              - const sphincs_sha2_128f_ctx *ctx:     t.b.d.
- *              - const uint32                 addr[8]: t.b.d.
- **********************************************************************************************************************/
+ * \param[out] uint8                       *out : t.b.d.
+ * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
+ * \param[in]  const uint32             addr[8] : t.b.d.
+ * 
+ */
 void FsmSw_SphincsSha2_128fSimple_PrfAddr(uint8 *out, const sphincs_sha2_128f_ctx *ctx, const uint32 addr[8])
 {
   sha256ctx sha2_state                                              = {{0}};
@@ -180,24 +200,24 @@ void FsmSw_SphincsSha2_128fSimple_PrfAddr(uint8 *out, const sphincs_sha2_128f_ct
   FsmSw_Sha256_IncFinalize(outbuf, &sha2_state, buf, SPX_SHA256_ADDR_BYTES + FSMSW_SPHINCSSHA2_128FSIMPLE_N);
 
   FsmSw_CommonLib_MemCpy(out, outbuf, FSMSW_SPHINCSSHA2_128FSIMPLE_N);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_PrfAddr
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_GenMessageRandom
+/*====================================================================================================================*/
+/**
+ * \brief Computes the message-dependent randomness R, using a secret seed as a key for HMAC, and an optional
+ *        randomization value prefixed to the message. This requires m to have at least SPX_SHAX_BLOCK_BYTES +
+ *        FSMSW_SPHINCSSHA2_128FSIMPLE_N space available in front of the pointer, i.e. before the message to use
+ *        for the prefix.
+ *        This is necessary to prevent having to move the message around (and allocate memory for it).
  *
- * Description: Computes the message-dependent randomness R, using a secret seed as a key for HMAC, and an optional
- *              randomization value prefixed to the message. This requires m to have at least SPX_SHAX_BLOCK_BYTES +
- *              FSMSW_SPHINCSSHA2_128FSIMPLE_N space available in front of the pointer, i.e. before the message to use
- *              for the prefix.
- *              This is necessary to prevent having to move the message around (and allocate memory for it).
+ * \param[out] uint8                         *R : t.b.d.
+ * \param[in]  const uint8              *sk_prf : t.b.d.
+ * \param[in]  const uint8             *optrand : t.b.d.
+ * \param[in]  const uint8                   *m : t.b.d.
+ * \param[in]  uint32                      mlen : t.b.d.
+ * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
  *
- * Arguments:   -       uint8                 *R:       t.b.d.
- *              - const uint8                 *sk_prf:  t.b.d.
- *              - const uint8                 *optrand: t.b.d.
- *              - const uint8                 *m:       t.b.d.
- *              -       uint32                 mlen:    t.b.d.
- *              - const sphincs_sha2_128f_ctx *ctx:     t.b.d.
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
                                                    uint32 mlen, const sphincs_sha2_128f_ctx *ctx)
 {
@@ -251,24 +271,24 @@ void FsmSw_SphincsSha2_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf
 
   shaX(buf, buf, SPX_SHAX_BLOCK_BYTES + SPX_SHAX_OUTPUT_BYTES);
   FsmSw_CommonLib_MemCpy(R, buf, FSMSW_SPHINCSSHA2_128FSIMPLE_N);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_GenMessageRandom
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_128fSimple_HashMessage
+/*====================================================================================================================*/
+/**
+ * \brief Computes the message hash using R, the public key, and the message. Outputs the message digest and the
+ *        index of the leaf. The index is split in the tree index and the leaf index, for convenient copying to
+ *        an address.
  *
- * Description: Computes the message hash using R, the public key, and the message. Outputs the message digest and the
- *              index of the leaf. The index is split in the tree index and the leaf index, for convenient copying to
- *              an address.
+ * \param[out] uint8                    *digest : t.b.d.
+ * \param[out] uint64                     *tree : t.b.d.
+ * \param[out] uint32                 *leaf_idx : t.b.d.
+ * \param[in]  const uint8                   *R : t.b.d.
+ * \param[in]  const uint8                  *pk : t.b.d.
+ * \param[in]  const uint8                   *m : t.b.d.
+ * \param[in]  uint32                      mlen : t.b.d.
+ * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
  *
- * Arguments:   -       uint8                 *digest:   t.b.d.
- *              -       uint64                *tree:     t.b.d.
- *              -       uint32                *leaf_idx: t.b.d.
- *              - const uint8                 *R:        t.b.d.
- *              - const uint8                 *pk:       t.b.d.
- *              - const uint8                 *m:        t.b.d.
- *              -       uint32                 mlen:     t.b.d.
- *              - const sphincs_sha2_128f_ctx *ctx:      t.b.d.
- **********************************************************************************************************************/
+ */
 void FsmSw_SphincsSha2_128fSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
                                               const uint8 *pk, const uint8 *m, uint32 mlen,
                                               const sphincs_sha2_128f_ctx *ctx)
@@ -341,4 +361,8 @@ void FsmSw_SphincsSha2_128fSimple_HashMessage(uint8 *digest, uint64 *tree, uint3
 
   *leaf_idx = (uint32)FsmSw_Sphincs_BytesToUll(bufp, SPX_LEAF_BYTES);
   *leaf_idx &= (~(uint32)0) >> (32u - SPX_LEAF_BITS);
-}
+} // end: FsmSw_SphincsSha2_128fSimple_HashMessage
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

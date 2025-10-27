@@ -1,27 +1,45 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_codec
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_code.c
+* \brief  description of FsmSw_Falcon_code.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Encoding/decoding of keys and signatures. */
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-
 #include "FsmSw_Falcon_codec.h"
+#include "FsmSw_CommonLib.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -84,6 +102,10 @@ const uint8 FsmSw_Falcon_max_big_FG_bits[11]   = {0, /* unused */ 8, 8, 8, 8, 8,
 const uint8 FsmSw_Falcon_max_sig_bits[11] = {0, /* unused */ 10, 11, 11, 12, 12, 12, 12, 12, 12, 12};
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -98,24 +120,24 @@ const uint8 FsmSw_Falcon_max_sig_bits[11] = {0, /* unused */ 10, 11, 11, 12, 12,
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_ModqEncode
+
+/*====================================================================================================================*/
+/**
+* \brief Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
+*        returned value is the actual number of bytes which have been written. If the output buffer is not large
+*        enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
+*        'max_out_len' is ignored; instead, the function computes and returns the actual required output length
+*        (in bytes).
 *
-* Description: Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
-*              returned value is the actual number of bytes which have been written. If the output buffer is not large
-*              enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
-*              'max_out_len' is ignored; instead, the function computes and returns the actual required output length
-*              (in bytes).
+* \param[out] void           *out : t.b.d.
+* \param[in]  uint32  max_out_len : t.b.d.
+* \param[in]  const uint16     *x : t.b.d.
+* \param[in]  uint32         logn : t.b.d.
 *
-* Arguments:   -       void   *out:         t.b.d.
-*              -       uint32  max_out_len: t.b.d.
-*              - const uint16 *x:           t.b.d.
-*              -       uint32  logn:        t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
-uint32 FsmSw_Falcon_ModqEncode(void *out, uint32 max_out_len, const uint16 *x, uint32 logn)
+*/
+uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn)
 {
   uint32 n          = 0;
   uint32 u          = 0;
@@ -153,6 +175,8 @@ uint32 FsmSw_Falcon_ModqEncode(void *out, uint32 max_out_len, const uint16 *x, u
       out_len = 0;
     }
 
+    /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
     buf     = out;
@@ -178,24 +202,23 @@ uint32 FsmSw_Falcon_ModqEncode(void *out, uint32 max_out_len, const uint16 *x, u
     }
   }
   return out_len;
-}
+} // end: FsmSw_Falcon_ModqEncode
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_ModqDecode
+/*====================================================================================================================*/
+/**
+* \brief Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
+*        returned value is the actual number of bytes that have been read from the buffer. If the provided length
+*        is too short, then 0 is returned.
 *
-* Description: Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
-*              returned value is the actual number of bytes that have been read from the buffer. If the provided length
-*              is too short, then 0 is returned.
+* \param[out] sint16         *x : t.b.d.
+* \param[in]  uint32       logn : t.b.d.
+* \param[in]  const void    *in : t.b.d.
+* \param[in]  uint32 max_in_len : t.b.d.
 *
-* Arguments:   -       sint16 *x:          t.b.d.
-*              -       uint32  logn:       t.b.d.
-*              - const void   *in:         t.b.d.
-*              -       uint32  max_in_len: t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
-uint32 FsmSw_Falcon_ModqDecode(uint16 *x, uint32 logn, const void *in, uint32 max_in_len)
+*/
+uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
 {
   uint32 n          = 0;
   uint32 in_len     = 0;
@@ -250,29 +273,28 @@ uint32 FsmSw_Falcon_ModqDecode(uint16 *x, uint32 logn, const void *in, uint32 ma
     }
   }
   return in_len;
-}
+} // end: FsmSw_Falcon_ModqDecode
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_TrimI8Encode
+/*====================================================================================================================*/
+/**
+* \brief Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
+*        returned value is the actual number of bytes which have been written. If the output buffer is not large
+*        enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
+*        'max_out_len' is ignored; instead, the function computes and returns the actual required output length
+*        (in bytes).
 *
-* Description: Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
-*              returned value is the actual number of bytes which have been written. If the output buffer is not large
-*              enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
-*              'max_out_len' is ignored; instead, the function computes and returns the actual required output length
-*              (in bytes).
+* \param[out] void           *out : t.b.d.
+* \param[in]  uint32  max_out_len : t.b.d.
+* \param[in]  const sint8      *x : t.b.d.
+* \param[in]  uint32         logn : t.b.d.
+* \param[in]  uint32         bits : t.b.d.
 *
-* Arguments:   -       void   *out:         t.b.d.
-*              -       uint32  max_out_len: t.b.d.
-*              - const sint8  *x:           t.b.d.
-*              -       uint32  logn:        t.b.d.
-*              -       uint32  bits:        t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +2 CODE-METRICS:LEVEL [Justified:]"[Value: 5]Additional call levels are required 
 to resolve a MISRA 15 warning." */
-uint32 FsmSw_Falcon_TrimI8Encode(void *out, uint32 max_out_len, const sint8 *x, uint32 logn, uint32 bits)
+uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits)
 {
   uint32 n          = 0;
   uint32 u          = 0;
@@ -315,6 +337,8 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *out, uint32 max_out_len, const sint8 *x, 
     }
     else
     {
+      /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+        Ensured proper alignment and validity." */
       /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     		Ensured proper alignment and validity." */
       buf     = out;
@@ -342,25 +366,24 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *out, uint32 max_out_len, const sint8 *x, 
     }
   }
   return out_len;
-}
+} // end: FsmSw_Falcon_TrimI8Encode
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_TrimI8Decode
+/*====================================================================================================================*/
+/**
+* \brief Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
+*        returned value is the actual number of bytes that have been read from the buffer. If the provided length
+*        is too short, then 0 is returned.
 *
-* Description: Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
-*              returned value is the actual number of bytes that have been read from the buffer. If the provided length
-*              is too short, then 0 is returned.
+* \param[out] sint8          *x : t.b.d.
+* \param[in]  uint32       logn : t.b.d.
+* \param[in]  uint32       bits : t.b.d.
+* \param[in]  const void    *in : t.b.d.
+* \param[in]  uint32 max_in_len : t.b.d.
 *
-* Arguments:   -       sint8  *x:          t.b.d.
-*              -       uint32  logn:       t.b.d.
-*              -       uint32  bits:       t.b.d.
-*              - const void   *in:         t.b.d.
-*              -       uint32  max_in_len: t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
-uint32 FsmSw_Falcon_TrimI8Decode(sint8 *x, uint32 logn, uint32 bits, const void *in, uint32 max_in_len)
+*/
+uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len)
 {
   uint32 n          = 0;
   uint32 in_len     = 0;
@@ -423,28 +446,27 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *x, uint32 logn, uint32 bits, const void 
     }
   }
   return in_len;
-}
+} // end: FsmSw_Falcon_TrimI8Decode
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_CompEncode
+/*====================================================================================================================*/
+/**
+* \brief Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
+*        returned value is the actual number of bytes which have been written. If the output buffer is not large
+*        enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
+*        'max_out_len' is ignored; instead, the function computes and returns the actual required output length
+*        (in bytes).
 *
-* Description: Encoding functions take as parameters an output buffer (out) with a given maximum length (max_out_len);
-*              returned value is the actual number of bytes which have been written. If the output buffer is not large
-*              enough, then 0 is returned (some bytes may have been written to the buffer). If 'out' is NULL, then
-*              'max_out_len' is ignored; instead, the function computes and returns the actual required output length
-*              (in bytes).
+* \param[out] void           *out : t.b.d.
+* \param[in]  uint32  max_out_len : t.b.d.
+* \param[in]  const sint16     *x : t.b.d.
+* \param[in]  uint32         logn : t.b.d.
 *
-* Arguments:   -       void   *out:         t.b.d.
-*              -       uint32  max_out_len: t.b.d.
-*              - const sint16  *x:          t.b.d.
-*              -       uint32  logn:        t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +2 CODE-METRICS:LEVEL [Justified:]"[Value: 5]Additional call levels are required 
 to resolve a MISRA 15 warning." */
-uint32 FsmSw_Falcon_CompEncode(void *out, uint32 max_out_len, const sint16 *x, uint32 logn)
+uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn)
 {
   uint8 *buf        = (uint8 *)NULL_PTR;
   uint32 n          = 0;
@@ -455,6 +477,8 @@ uint32 FsmSw_Falcon_CompEncode(void *out, uint32 max_out_len, const sint16 *x, u
   boolean bStopFunc = FALSE;
 
   n = (uint32)1 << logn;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   buf = out;
@@ -543,27 +567,26 @@ uint32 FsmSw_Falcon_CompEncode(void *out, uint32 max_out_len, const sint16 *x, u
     }
   }
   return v;
-}
+} // end: FsmSw_Falcon_CompEncode
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_CompDecode
+/*====================================================================================================================*/
+/**
+* \brief Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
+*        returned value is the actual number of bytes that have been read from the buffer. If the provided length
+*        is too short, then 0 is returned.
 *
-* Description: Decoding functions take as parameters an input buffer (in) with its maximum length (max_in_len);
-*              returned value is the actual number of bytes that have been read from the buffer. If the provided length
-*              is too short, then 0 is returned.
+* \param[out] sint16         *x : t.b.d.
+* \param[in]  uint32       logn : t.b.d.
+* \param[in]  const void    *in : t.b.d.
+* \param[in]  uint32 max_in_len : t.b.d.
 *
-* Arguments:   -       sint16 *x:           t.b.d.
-*              -       uint32  logn:        t.b.d.
-*              - const void   *in:           t.b.d.
-*              -       uint32  max_in_len: t.b.d.
+* \returns out_len.
 *
-* Returns out_len.
-*
-***********************************************************************************************************************/
+*/
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-uint32 FsmSw_Falcon_CompDecode(sint16 *x, uint32 logn, const void *in, uint32 max_in_len)
+uint32 FsmSw_Falcon_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
 {
   const uint8 *buf = (uint8 *)NULL_PTR;
   uint32 n         = 0;
@@ -644,4 +667,8 @@ uint32 FsmSw_Falcon_CompDecode(sint16 *x, uint32 logn, const void *in, uint32 ma
   }
 
   return v;
-}
+} // end: FsmSw_Falcon_CompDecode
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

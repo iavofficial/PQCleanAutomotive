@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Kyber_reduce
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Kyber_reduce.c
+* \brief  description of FsmSw_Kyber_reduce.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
  *
  *  $File$
@@ -35,6 +54,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -49,17 +72,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_MontgomeryReduce
+
+/*====================================================================================================================*/
+/**
+* \brief Montgomery reduction; given a 32-bit integer a, computes
+*        16-bit integer congruent to a * R^-1 mod q, where R=2^16
 *
-* Description: Montgomery reduction; given a 32-bit integer a, computes
-*              16-bit integer congruent to a * R^-1 mod q, where R=2^16
+* \param[in] sint32 a : input integer to be reduced;
+*                       has to be in {-q2^15,...,q2^15-1}
 *
-* Arguments:   - sint32 a: input integer to be reduced;
-*                          has to be in {-q2^15,...,q2^15-1}
-*
-* Returns:     integer in {-q+1,...,q-1} congruent to a * R^-1 modulo q.
-***********************************************************************************************************************/
+* \returns integer in {-q+1,...,q-1} congruent to a * R^-1 modulo q.
+*/
 sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a)
 {
   sint16 t = 0;
@@ -67,18 +90,17 @@ sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a)
   t = (sint16)a * QINV;
   t = (sint16)((uint16)(((uint32)a - ((uint32)t * KYBER_Q)) >> 16));
   return t;
-}
+} // end: FsmSw_Kyber_MontgomeryReduce
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Kyber_BarrettReduce
+/*====================================================================================================================*/
+/**
+* \brief Barrett reduction; given a 16-bit integer a, computes
+*        centered representative congruent to a mod q in {-(q-1)/2,...,(q-1)/2}
 *
-* Description: Barrett reduction; given a 16-bit integer a, computes
-*              centered representative congruent to a mod q in {-(q-1)/2,...,(q-1)/2}
+* \param[in] sint16 a : input integer to be reduced
 *
-* Arguments:   - sint16 a: input integer to be reduced
-*
-* Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
-***********************************************************************************************************************/
+* \returns integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
+*/
 sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
 {
   sint16 t       = 0;
@@ -104,4 +126,8 @@ sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
   t = (sint16)((uint16)(((uint32)t * KYBER_Q)));
 
   return a - t;
-}
+} // end: FsmSw_Kyber_BarrettReduce
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,8 +1,27 @@
 /***********************************************************************************************************************
  *
- *                                          IAV GmbH
+ *                                                    IAV GmbH
+ *
  *
  **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsSha2_256sSimple
+*    includes the modules for SphincsSha2_256sSimple
+ ** @{ */
+/** \addtogroup SphincsSha2_256sSimple_sign
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsSha2_256sSimple_sign.c
+* \brief  description of FsmSw_SphincsSha2_256sSimple_sign.c
+*
+* \details
+*
+*
+*/
 /*
  *
  *  $File$
@@ -31,7 +50,6 @@
 #include "FsmSw_Sphincs_sha2_address.h"
 
 #include "FsmSw_SphincsSha2_256sSimple_sign.h"
-
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -45,31 +63,33 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static sint8 fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed);
+static void fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair
+
+/*====================================================================================================================*/
+/**
+ * \brief Generates an SPX key pair given a seed of length
+ *        Format sk: [SK_SEED  || SK_PRF || PUB_SEED || root]
+ *        Format pk: [PUB_SEED || root]
  *
- * Description: Generates an SPX key pair given a seed of length
- *              Format sk: [SK_SEED  || SK_PRF || PUB_SEED || root]
- *              Format pk: [PUB_SEED || root]
+ * \param[out] uint8         *pk : t.b.d.
+ * \param[out] uint8         *sk : t.b.d.
+ * \param[in]  const uint8 *seed : t.b.d.
  *
- * Arguments:   -       uint8 *pk:   t.b.d.
- *              -       uint8 *sk:   t.b.d.
- *              - const uint8 *seed: t.b.d.
- *
- * Returns 0.
- *
- **********************************************************************************************************************/
-static sint8 fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed)
+ */
+static void fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed)
 {
   sphincs_sha2_256s_ctx ctx = {{0}};
 
@@ -91,55 +111,56 @@ static sint8 fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(uint8 *pk, uin
   FsmSw_CommonLib_MemCpy(&pk[FSMSW_SPHINCSSHA2_256SSIMPLE_N], &sk[3u * FSMSW_SPHINCSSHA2_256SSIMPLE_N],
                          FSMSW_SPHINCSSHA2_256SSIMPLE_N);
 
-  return 0;
-}
+  return;
+} // end: fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Crypto_Sign_KeyPair
+
+/*====================================================================================================================*/
+/**
+ * \brief Generates an SPX key pair.
+ *        Format sk: [SK_SEED  || SK_PRF || PUB_SEED || root]
+ *        Format pk: [PUB_SEED || root]
  *
- * Description: Generates an SPX key pair.
- *              Format sk: [SK_SEED  || SK_PRF || PUB_SEED || root]
- *              Format pk: [PUB_SEED || root]
+ * \param[out] uint8 *pk : t.b.d.
+ * \param[out] uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8 *pk:   t.b.d.
- *              -       uint8 *sk:   t.b.d.
- *
- * Returns 0.
- *
- **********************************************************************************************************************/
-sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+ */
+void FsmSw_SphincsSha2_256sSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
 {
   uint8 seed[FSMSW_SPHINCSSHA2_256SSIMPLE_CRYPTO_SEEDBYTES] = {0};
   (void)FsmSw_CommonLib_RandomBytes(seed, FSMSW_SPHINCSSHA2_256SSIMPLE_CRYPTO_SEEDBYTES);
-  (void)fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(pk, sk, seed);
+  fsmsw_sphincssha2_256ssimple_crypto_sign_SeedKeyPair(pk, sk, seed);
 
-  return 0;
-}
+  return;
+} // end: FsmSw_SphincsSha2_256sSimple_Crypto_Sign_KeyPair
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Signature
+/*====================================================================================================================*/
+/**
+ * \brief Returns an array containing a detached signature.
  *
- * Description: Returns an array containing a detached signature.
+ * \param[out] uint8      *sig : t.b.d.
+ * \param[out] uint32  *siglen : t.b.d.
+ * \param[in]  const uint8  *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8  *sig:    t.b.d.
- *              -       uint32 *siglen: t.b.d.
- *              - const uint8  *m:      t.b.d.
- *              -       uint32  mlen:   t.b.d.
- *              - const uint8  *sk:     t.b.d.
- *
- * Returns 0.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +12 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
+/* polyspace +10 CERT-C:DCL15-C [Justified:]"This is an interface function
+designed for use by other systems that aim to integrate the Sphincs." */
+/* polyspace +8 CERT-C:DCL19-C [Justified:]"This is an interface function
+designed for use by other systems that aim to integrate the Sphincs." */
 /* polyspace +6 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Sphincs." */
-sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
-                                                         const uint8 *sk)
+void FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
+                                                        const uint8 *sk)
 {
   sphincs_sha2_256s_ctx ctx = {{0}};
 
@@ -204,30 +225,35 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *sig
 
   *siglen = FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES;
 
-  return 0;
-}
+  return;
+} // end: FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Signature
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify
+/*====================================================================================================================*/
+/**
+ * \brief Verifies a detached signature and message under a given public key.
  *
- * Description: Verifies a detached signature and message under a given public key.
+ * \param[out] uint8      *sig : t.b.d.
+ * \param[out] uint32   siglen : t.b.d.
+ * \param[in]  const uint8  *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *pk : t.b.d.
  *
- * Arguments:   -       uint8  *sig:    t.b.d.
- *              -       uint32  siglen: t.b.d.
- *              - const uint8  *m:      t.b.d.
- *              -       uint32  mlen:   t.b.d.
- *              - const uint8  *pk:     t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +12 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
+/* polyspace +10 CERT-C:DCL15-C [Justified:]"This is an interface function
+designed for use by other systems that aim to integrate the Sphincs." */
+/* polyspace +8 CERT-C:DCL19-C [Justified:]"This is an interface function
+designed for use by other systems that aim to integrate the Sphincs." */
 /* polyspace +6 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Sphincs." */
-sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
+uint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
                                                       const uint8 *pk)
 {
   sphincs_sha2_256s_ctx ctx                                = {{0}};
@@ -242,14 +268,14 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 s
   uint32 wots_addr[8]                                      = {0};
   uint32 tree_addr[8]                                      = {0};
   uint32 wots_pk_addr[8]                                   = {0};
-  sint8 retVal                                             = 0;
+  uint8 retVal                                             = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */
   const uint8 *sig_temp = sig;
 
   if (siglen != FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   FsmSw_CommonLib_MemCpy(ctx.pub_seed, pk, FSMSW_SPHINCSSHA2_256SSIMPLE_N);
@@ -307,31 +333,30 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 s
   /* Check if the root node equals the root node in the public key. */
   if (FsmSw_CommonLib_MemCmp(root, pub_root, FSMSW_SPHINCSSHA2_256SSIMPLE_N) != 0u)
   {
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   return retVal;
-}
+} // end: FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Verify
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Crypto_Sign
+/*====================================================================================================================*/
+/**
+ * \brief Returns an array containing the signature followed by the message.
  *
- * Description: Returns an array containing the signature followed by the message.
+ * \param[out] uint8       *sm : t.b.d.
+ * \param[out] uint32   *smlen : t.b.d.
+ * \param[in]  const uint8  *m : t.b.d.
+ * \param[in]  uint32     mlen : t.b.d.
+ * \param[in]  const uint8 *sk : t.b.d.
  *
- * Arguments:   -       uint8  *sm:    t.b.d.
- *              -       uint32 *smlen: t.b.d.
- *              - const uint8  *m:     t.b.d.
- *              -       uint32  mlen:  t.b.d.
- *              - const uint8  *sk:    t.b.d.
- *
- * Returns 0.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+void FsmSw_SphincsSha2_256sSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
 {
   uint32 siglen = 0;
 
@@ -340,31 +365,32 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const u
   FsmSw_CommonLib_MemMove(&sm[FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES], m, mlen);
   *smlen = siglen + mlen;
 
-  return 0;
-}
+  return;
+} // end: FsmSw_SphincsSha2_256sSimple_Crypto_Sign
 
-/***********************************************************************************************************************
- * Name:        FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open
+/*====================================================================================================================*/
+/**
+ * \brief Verifies a given signature-message pair under a given public key.
  *
- * Description: Verifies a given signature-message pair under a given public key.
+ * \param[out] uint8        *m : t.b.d.
+ * \param[out] uint32    *mlen : t.b.d.
+ * \param[in]  const uint8 *sm : t.b.d.
+ * \param[in]  uint32    smlen : t.b.d.
+ * \param[in]  const uint8 *pk : t.b.d.
  *
- * Arguments:   -       uint8  *m:     t.b.d.
- *              -       uint32 *mlen:  t.b.d.
- *              - const uint8  *sm:    t.b.d.
- *              -       uint32  smlen: t.b.d.
- *              - const uint8  *pk:    t.b.d.
+ * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
- * Returns 0.
- *
- **********************************************************************************************************************/
+ */
+/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
+uint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
                                                     const uint8 *pk)
 {
-  sint8 retVal = 0;
+  uint8 retVal = ERR_OK;
 
   /* The API caller does not necessarily know what size a signature should be
      but SPHINCS+ signatures are always exactly FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES. */
@@ -372,7 +398,7 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, cons
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   *mlen = smlen - FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES;
@@ -382,11 +408,15 @@ sint8 FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, cons
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;
-    retVal = -1;
+    retVal = ERR_NOT_OK;
   }
 
   /* If verification was successful, move the message to the right place. */
   FsmSw_CommonLib_MemMove(m, &sm[FSMSW_SPHINCSSHA2_256SSIMPLE_BYTES], *mlen);
 
   return retVal;
-}
+} // end: FsmSw_SphincsSha2_256sSimple_Crypto_Sign_Open
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

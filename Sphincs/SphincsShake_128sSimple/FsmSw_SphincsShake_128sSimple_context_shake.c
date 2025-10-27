@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup SphincsShake_128sSimple
+*    includes the modules for SphincsShake_128sSimple
+ ** @{ */
+/** \addtogroup SphincsShake_128sSimple_context
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_SphincsShake_128sSimple_context_shake.c
+* \brief  description of FsmSw_SphincsShake_128sSimple_context_shake.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -33,6 +52,10 @@
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
@@ -47,32 +70,38 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_SphincsShake_128sSimple_InitializeHashFunction
+
+/*====================================================================================================================*/
+/**
+* \brief For SHAKE256, there is no immediate reason to initialize at the start, so this function is an empty
+*        operation.
 *
-* Description: For SHAKE256, there is no immediate reason to initialize at the start, so this function is an empty
-*              operation.
+* \param[out] sphincs_shake_128s_ctx *ctx : t.b.d.
 *
-* Arguments:   - sphincs_shake_128s_ctx *ctx: t.b.d.
-*
-***********************************************************************************************************************/
+*/
+/* polyspace +4 CERT-C:DCL13-C [Justified:]"For SHAKE256, there is no immediate reason to initialize at the start, 
+so this function is an empty operation." */
 /* polyspace +2 MISRA2012:8.13 [Justified:]"For SHAKE256, there is no immediate reason to initialize at the start, 
 so this function is an empty operation." */
 void FsmSw_SphincsShake_128sSimple_InitializeHashFunction(sphincs_shake_128s_ctx *ctx)
 {
   (void)ctx; /* Suppress an 'unused parameter' warning. */
-}
+} // end: FsmSw_SphincsShake_128sSimple_InitializeHashFunction
 
-/***********************************************************************************************************************
-* Name:        FsmSw_SphincsShake_128sSimple_1FreeHashFunction
+/*====================================================================================================================*/
+/**
+* \brief in case the hash function api is heap-based.
 *
-* Description: in case the hash function api is heap-based.
+* \param[out] sphincs_shake_128s_ctx *ctx: t.b.d.
 *
-* Arguments:   - sphincs_shake_128s_ctx *ctx: t.b.d.
-*
-***********************************************************************************************************************/
+*/
+/* polyspace +2 CERT-C:DCL13-C [Justified:]"in case the hash function api is heap-based." */
 /* polyspace +1 MISRA2012:8.13 [Justified:]"in case the hash function api is heap-based." */
 void FsmSw_SphincsShake_128sSimple_1FreeHashFunction(sphincs_shake_128s_ctx *ctx)
 {
   (void)ctx;
-}
+} // end: FsmSw_SphincsShake_128sSimple_1FreeHashFunction
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

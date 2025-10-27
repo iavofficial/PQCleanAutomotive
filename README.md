@@ -28,7 +28,7 @@ PQCleanAutomotive includes some third party libraries or modules that are licens
 * Fips202: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
 * CommonLib: Apache License, Version 2.0
 
-Copyright [2024] [IAV GmbH]
+Copyright [2025] [IAV GmbH]
 
 Licensed under the Apache License, Version 2.0 (the "License");\
 you may not use this file except in compliance with the License.\
@@ -45,6 +45,9 @@ limitations under the License.
 ## MISRA
 PQCleanAutomotive and the post-quantum cryptographic algorithms are checked with the 2012 version of [MISRA](https://misra.org.uk/app/uploads/2021/06/MISRA-C-2012-Permits-First-Edition.pdf). Not all MISRA findings could be resolved. An explanation has been written in the relevant places.
 Note: Rule 1.1 of MISRA was globally disabled because the IAV headers in each file are detected as macros, leading to numerous false positives. Disabling this rule ensures that these headers are not incorrectly flagged as violations.
+
+## Doxygen
+The post-quantum cryptographic algorithms have been labelled with doxygen comments for documentation reasons.
 
 ## Compiler
 In this repository the post-quantum cryptographic algorithms are warning free compiled with TASKING Compiler with standard flags. 

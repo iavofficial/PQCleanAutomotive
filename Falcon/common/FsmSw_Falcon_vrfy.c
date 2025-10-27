@@ -1,19 +1,38 @@
 /***********************************************************************************************************************
+ *
+ *                                                    IAV GmbH
+ *
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup Falcon_vrfy
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file FsmSw_Falcon_vrfy.c
+* \brief  description of FsmSw_Falcon_vrfy.c
 *
-*                                          IAV GmbH
+* \details
 *
-***********************************************************************************************************************/
+*
+*/
 /*
-*
-*  $File$
-*
-*  $Author$
-*
-*  $Date$
-*
-*  $Rev$
-*
-***********************************************************************************************************************/
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
 /* Falcon signature verification. */
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -23,13 +42,12 @@
 
 #include "FsmSw_Falcon_vrfy.h"
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                            */
+/* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define Q   12289u
 #define Q0I 12287u
 #define R   4091u
 #define R2  10952u
-
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -174,6 +192,9 @@ static const uint16 iGMb[] = {
     8573,  9508,  6630,  11437, 11595, 5850,  3950,  4775,  11941, 1446,  6018,  3386,  11470, 5310,  5476,  553,
     9474,  2586,  1431,  2741,  473,   11383, 4745,  836,   4062,  10666, 7727,  11752, 5534,  312,   4307,  4351,
     5764,  8679,  8381,  8187,  5,     7395,  4363,  1152,  5421,  5231,  6473,  436,   7567,  8603,  6229,  8230};
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
 /* MACROS                                                                                                             */
@@ -189,25 +210,24 @@ static uint32 fsmsw_falcon_MqRShifT1(uint32 x);
 static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y);
 static uint32 fsmsw_falcon_MqMontySqr(uint32 x);
 static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y);
-static void fsmsw_falcon_MqNtt(uint16 *a, uint32 logn);
-static void fsmsw_falcon_MqIntt(uint16 *a, uint32 logn);
-static void fsmsw_falcon_MqPolyTomonty(uint16 *f, uint32 logn);
-static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *f, const uint16 *g, uint32 logn);
-static void fsmsw_falcon_MqPolySub(uint16 *f, const uint16 *g, uint32 logn);
-
+static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn);
+static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn);
+static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn);
+static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn);
+static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqConvSmall
+
+/*====================================================================================================================*/
+/**
+* \brief Reduce a small signed integer modulo q. The source integer MUST be between -q/2 and +q/2.
 *
-* Description: Reduce a small signed integer modulo q. The source integer MUST be between -q/2 and +q/2.
+* \param[in] sint32 x : t.b.d.
 *
-* Arguments:   - sint32 x: t.b.d.
+* \returns y
 *
-* Returns y
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
 {
   /* If x < 0, the cast to uint32 will set the high bit to 1. */
@@ -217,19 +237,18 @@ static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
   y += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(y >> 31))));
 
   return y;
-}
+} // end: fsmsw_falcon_MqConvSmall
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqAdd
+/*====================================================================================================================*/
+/**
+* \brief Addition modulo q. Operands must be in the 0..q-1 range.
 *
-* Description: Addition modulo q. Operands must be in the 0..q-1 range.
+* \param[in] uint32 x : t.b.d.
+* \param[in] uint32 y : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
-*              - uint32 y: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
 {
   /* We compute x + y - q. If the result is negative, then the high bit will be set, and 'd >> 31' will be equal to 1;
@@ -241,19 +260,18 @@ static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-}
+} // end: fsmsw_falcon_MqAdd
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqSub
+/*====================================================================================================================*/
+/**
+* \brief Subtraction modulo q. Operands must be in the 0..q-1 range.
 *
-* Description: Subtraction modulo q. Operands must be in the 0..q-1 range.
+* \param[in] uint32 x : t.b.d.
+* \param[in] uint32 y : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
-*              - uint32 y: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
 {
   /* As in fsmsw_falcon_MqAdd(), we use a conditional addition to ensure the result is in the 0..q-1 range. */
@@ -263,18 +281,17 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-}
+} // end: fsmsw_falcon_MqSub
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqRShifT1
+/*====================================================================================================================*/
+/**
+* \brief Division by 2 modulo q. Operand must be in the 0..q-1 range.
 *
-* Description: Division by 2 modulo q. Operand must be in the 0..q-1 range.
+* \param[in] uint32 x : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqRShifT1(uint32 x)
 {
   /* x_temp is used to avoid modifying the input. */
@@ -282,20 +299,19 @@ static uint32 fsmsw_falcon_MqRShifT1(uint32 x)
 
   x_temp += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(x_temp & 1u))));
   return (x_temp >> 1);
-}
+} // end: fsmsw_falcon_MqRShifT1
 
-/***********************************************************************************************************************
-* Name:        mq_montymul
+/*====================================================================================================================*/
+/**
+* \brief Montgomery multiplication modulo q. If we set R = 2^16 mod q, then this function computes: x * y / R
+*        mod q * Operands must be in the 0..q-1 range.
 *
-* Description: Montgomery multiplication modulo q. If we set R = 2^16 mod q, then this function computes: x * y / R
-*              mod q * Operands must be in the 0..q-1 range.
+* \param[in] uint32 x : t.b.d.
+* \param[in] uint32 y : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
-*              - uint32 y: t.b.d.
+* \returns z
 *
-* Returns z
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
 {
   uint32 z = 0;
@@ -317,34 +333,32 @@ static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
   z -= Q;
   z += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(z >> 31))));
   return z;
-}
+} // end: fsmsw_falcon_MqMontymul
 
-/***********************************************************************************************************************
-* Name:        mq_montysqr
+/*====================================================================================================================*/
+/**
+* \brief Montgomery squaring (computes (x^2)/R).
 *
-* Description: Montgomery squaring (computes (x^2)/R).
+* \param[in] uint32 x : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
+* \returns t.b.d.
 *
-* Returns t.b.d.
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqMontySqr(uint32 x)
 {
   return fsmsw_falcon_MqMontymul(x, x);
-}
+} // end: fsmsw_falcon_MqMontySqr
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqDiv12289
+/*====================================================================================================================*/
+/**
+* \brief Divide x by y modulo q = 12289.
 *
-* Description: Divide x by y modulo q = 12289.
+* \param[in] uint32 x : t.b.d.
+* \param[in] uint32 y : t.b.d.
 *
-* Arguments:   - uint32 x: t.b.d.
-*              - uint32 y: t.b.d.
+* \returns d
 *
-* Returns d
-*
-***********************************************************************************************************************/
+*/
 static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y)
 {
   /*
@@ -414,18 +428,17 @@ static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y)
 
   /* Final multiplication with x, which is not in Montgomery representation, computes the correct division result. */
   return fsmsw_falcon_MqMontymul(y18, x);
-}
+} // end: fsmsw_falcon_MqDiv12289
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqNtt
+/*====================================================================================================================*/
+/**
+* \brief Compute NTT on a ring element.
 *
-* Description: Compute NTT on a ring element.
+* \param[out] uint16   *a : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - uint16   *a: t.b.d.
-*              - uint32    logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MqNtt(uint16 *a, uint32 logn)
+*/
+static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn)
 {
   uint32 n  = 0;
   uint32 t  = 0;
@@ -465,18 +478,17 @@ static void fsmsw_falcon_MqNtt(uint16 *a, uint32 logn)
 
     t = ht;
   }
-}
+} // end: fsmsw_falcon_MqNtt
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqIntt
+/*====================================================================================================================*/
+/**
+* \brief Compute the inverse NTT on a ring element, binary case.
 *
-* Description: Compute the inverse NTT on a ring element, binary case.
+* \param[out] uint16   *a : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - uint16 *a:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MqIntt(uint16 *a, uint32 logn)
+*/
+static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
 {
   uint32 n  = 0;
   uint32 t  = 0;
@@ -538,18 +550,17 @@ static void fsmsw_falcon_MqIntt(uint16 *a, uint32 logn)
   {
     a[m] = (uint16)fsmsw_falcon_MqMontymul(a[m], ni);
   }
-}
+} // end: fsmsw_falcon_MqIntt
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqPolyTomonty
+/*====================================================================================================================*/
+/**
+* \brief Convert a polynomial (mod q) to Montgomery representation.
 *
-* Description: Convert a polynomial (mod q) to Montgomery representation.
+* \param[out] uint16   *a : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - uint16 *a:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MqPolyTomonty(uint16 *f, uint32 logn)
+*/
+static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -559,20 +570,19 @@ static void fsmsw_falcon_MqPolyTomonty(uint16 *f, uint32 logn)
   {
     f[u] = (uint16)fsmsw_falcon_MqMontymul(f[u], R2);
   }
-}
+} // end: fsmsw_falcon_MqPolyTomonty
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqPolyMontymulNtt
+/*====================================================================================================================*/
+/**
+* \brief Multiply two polynomials together (NTT representation, and using a Montgomery multiplication).
+*        Result f*g is written over f.
 *
-* Description: Multiply two polynomials together (NTT representation, and using a Montgomery multiplication).
-*              Result f*g is written over f.
+* \param[out] uint16       *f : t.b.d.
+* \param[in]  const uint16 *g : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
 *
-* Arguments:   -       uint16   *f:    t.b.d.
-*              - const uint16   *g:    t.b.d.
-*              -       uint32    logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *f, const uint16 *g, uint32 logn)
+*/
+static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -582,19 +592,18 @@ static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *f, const uint16 *g, uint32 lo
   {
     f[u] = (uint16)fsmsw_falcon_MqMontymul(f[u], g[u]);
   }
-}
+} // end: fsmsw_falcon_MqPolyMontymulNtt
 
-/***********************************************************************************************************************
-* Name:        fsmsw_falcon_MqPolySub
+/*====================================================================================================================*/
+/**
+* \brief Subtract polynomial g from polynomial f.
 *
-* Description: Subtract polynomial g from polynomial f.
+* \param[out] uint16       *f : t.b.d.
+* \param[in]  const uint16 *g : t.b.d.
+* \param[in]  uint32     logn : t.b.d.
 *
-* Arguments:   -       uint16   *f:    t.b.d.
-*              - const uint16   *g:    t.b.d.
-*              -       uint32    logn: t.b.d.
-*
-***********************************************************************************************************************/
-static void fsmsw_falcon_MqPolySub(uint16 *f, const uint16 *g, uint32 logn)
+*/
+static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -604,41 +613,41 @@ static void fsmsw_falcon_MqPolySub(uint16 *f, const uint16 *g, uint32 logn)
   {
     f[u] = (uint16)fsmsw_falcon_MqSub(f[u], g[u]);
   }
-}
+} // end: fsmsw_falcon_MqPolySub
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_ToNttMonty
+
+/*====================================================================================================================*/
+/**
+* \brief Convert a public key to NTT + Montgomery format. Conversion is done in place.
 *
-* Description: Convert a public key to NTT + Montgomery format. Conversion is done in place.
+* \param[out] uint16   *h : t.b.d.
+* \param[in]  uint32 logn : t.b.d.
 *
-* Arguments:   - uint16 *h:    t.b.d.
-*              - uint32  logn: t.b.d.
-*
-***********************************************************************************************************************/
-void FsmSw_Falcon_ToNttMonty(uint16 *h, uint32 logn)
+*/
+void FsmSw_Falcon_ToNttMonty(uint16 *const h, uint32 logn)
 {
   fsmsw_falcon_MqNtt(h, logn);
   fsmsw_falcon_MqPolyTomonty(h, logn);
-}
+} // end: FsmSw_Falcon_ToNttMonty
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_VerifyRaw
+/*====================================================================================================================*/
+/**
+* \brief t.b.d.
 *
-* Description: t.b.d.
+* \param[in]  const uint16 *c0 : c0[] contains the hashed nonce+message
+* \param[in]  const sint16 *s2 : s2[] is the decoded signature
+* \param[in]  const sint16  *h : h[] contains the public key, in NTT + Montgomery format
+* \param[in]  uint32      logn : is the degree log
+* \param[out] uint8       *tmp : tmp[] temporary, must have at least 2*2^logn bytes (must have 16-bit alignment)
 *
-* Arguments:   - const uint16   *c0:   c0[]      contains the hashed nonce+message
-*              - const sint16   *s2:   s2[]      is the decoded signature
-*              - const sint16   *h:    h[]       contains the public key, in NTT + Montgomery format
-*              -       uint32    logn: is the degree log
-*              -       uint8    *tmp:  tmp[]  temporary, must have at least 2*2^logn bytes (must have 16-bit alignment)
+* \returns 1 on success, 0 on error.
 *
-* Returns 1 on success, 0 on error.
-*
-***********************************************************************************************************************/
-sint32 FsmSw_Falcon_VerifyRaw(const uint16 *c0, const sint16 *s2, const uint16 *h, uint32 logn, uint8 *tmp)
+*/
+sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
+                              uint8 *const tmp)
 {
   uint32 u   = 0;
   uint32 n   = 0;
@@ -647,8 +656,10 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *c0, const sint16 *s2, const uint16 *
   sint32 w2  = 0;
 
   n = (uint32)1 << logn;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   tt = (uint16 *)((void *)tmp);
 
   /* Reduce s2 elements modulo q ([0..q-1] range). */
@@ -674,29 +685,31 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *c0, const sint16 *s2, const uint16 *
     tt[u] = (uint16)w2;
   }
 
+  /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   /* Signature is valid if and only if the aggregate (-s1,s2) vector is short enough. */
   return FsmSw_Falcon_IsShort((sint16 *)((void *)tt), s2, logn);
-}
+} // end: FsmSw_Falcon_VerifyRaw
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_ComputePublic
+/*====================================================================================================================*/
+/**
+* \brief Compute the public key h[], given the private key elements f[] and g[]. This computes h = g/f mod phi
+*        mod q, where phi is the polynomial modulus.
+*        The tmp[] array must have room for at least 2*2^logn elements. tmp[] must have 16-bit alignment.
 *
-* Description: Compute the public key h[], given the private key elements f[] and g[]. This computes h = g/f mod phi
-*              mod q, where phi is the polynomial modulus.
-*              The tmp[] array must have room for at least 2*2^logn elements. tmp[] must have 16-bit alignment.
+* \param[out] uint16      *h : public key h[]
+* \param[in]  const sint8 *f : private key element
+* \param[in]  const sint8 *g : private key element
+* \param[in]  uint32    logn : t.b.d.
+* \param[in]  uint8     *tmp : tmp[]  temporary, must have at least 2*2^logn bytes (must have 16-bit alignment)
 *
-* Arguments:   -       uint16   *h:    public key h[]
-*              - const sint8    *f:    private key element
-*              - const sint8    *g:    private key element
-*              -       uint32    logn: t.b.d.
-*              -       uint8    *tmp:  tmp[]  temporary, must have at least 2*2^logn bytes (must have 16-bit alignment)
+* \returns 1 on success, 0 on error (an error is reported if f is not invertible mod phi mod q).
 *
-* Returns 1 on success, 0 on error (an error is reported if f is not invertible mod phi mod q).
-*
-***********************************************************************************************************************/
-sint32 FsmSw_Falcon_ComputePublic(uint16 *h, const sint8 *f, const sint8 *g, uint32 logn, uint8 *tmp)
+*/
+sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
+                                  uint8 *const tmp)
 {
   uint32 u      = 0;
   uint32 n      = 0;
@@ -704,8 +717,10 @@ sint32 FsmSw_Falcon_ComputePublic(uint16 *h, const sint8 *f, const sint8 *g, uin
   sint32 retVal = 1;
 
   n = (uint32)1 << logn;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   tt = (uint16 *)((void *)tmp);
 
   for (u = 0; u < n; u++)
@@ -730,27 +745,27 @@ sint32 FsmSw_Falcon_ComputePublic(uint16 *h, const sint8 *f, const sint8 *g, uin
   fsmsw_falcon_MqIntt(h, logn);
 
   return retVal;
-}
+} // end: FsmSw_Falcon_ComputePublic
 
-/***********************************************************************************************************************
-* Name:        FsmSw_Falcon_CompletePrivate
+/*====================================================================================================================*/
+/**
+* \brief Recompute the fourth private key element. Private key consists in four polynomials with small
+*        coefficients f, g, F and G, which are such that fG - gF = q mod phi; furthermore, f is invertible
+*        modulo phi and modulo q. This function recomputes G from f, g and F.
 *
-* Description: Recompute the fourth private key element. Private key consists in four polynomials with small
-*              coefficients f, g, F and G, which are such that fG - gF = q mod phi; furthermore, f is invertible
-*              modulo phi and modulo q. This function recomputes G from f, g and F.
+* \param[out] sint8       *G : t.b.d.
+* \param[in]  const sint8 *f : t.b.d.
+* \param[in]  const sint8 *g : t.b.d.
+* \param[in]  const sint8 *F : t.b.d.
+* \param[in]  uint32    logn : t.b.d.
+* \param[in]  uint8     *tmp : tmp[] array must have room for at least 4*2^logn bytes
+*                              (must have 16-bit alignment)
 *
-* Arguments:   -       sint8    *G:    t.b.d.
-*              - const sint8    *f:    t.b.d.
-*              - const sint8    *g:    t.b.d.
-*              - const sint8    *F:    t.b.d.
-*              -       uint32    logn: t.b.d.
-*              -       uint8    *tmp:  tmp[] array must have room for at least 4*2^logn bytes
-*                                      (must have 16-bit alignment)
+* \returns 1 on success, 0 on error (f not invertible).
 *
-* Returns 1 on success, 0 on error (f not invertible).
-*
-***********************************************************************************************************************/
-sint32 FsmSw_Falcon_CompletePrivate(sint8 *G, const sint8 *f, const sint8 *g, const sint8 *F, uint32 logn, uint8 *tmp)
+*/
+sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
+                                    uint32 logn, uint8 *const tmp)
 {
   uint32 u      = 0;
   uint32 n      = 0;
@@ -761,8 +776,10 @@ sint32 FsmSw_Falcon_CompletePrivate(sint8 *G, const sint8 *f, const sint8 *g, co
   sint32 retVal = 1;
 
   n = (uint32)1 << logn;
+  /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
+    Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
-  Ensured proper alignment and validity." */
+    Ensured proper alignment and validity." */
   t1 = (uint16 *)((void *)tmp);
   t2 = &t1[n];
 
@@ -812,4 +829,8 @@ sint32 FsmSw_Falcon_CompletePrivate(sint8 *G, const sint8 *f, const sint8 *g, co
   }
 
   return retVal;
-}
+} // end: FsmSw_Falcon_CompletePrivate
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
