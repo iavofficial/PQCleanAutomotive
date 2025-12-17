@@ -91,9 +91,9 @@
  * \param[in]  uint32                   addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_256sSimple_ComputeRoot(uint8 *root, const uint8 *leaf, uint32 leaf_idx, uint32 idx_offset,
-                                              const uint8 *auth_path, uint32 tree_height,
-                                              const sphincs_sha2_256s_ctx *ctx, uint32 addr[8])
+void FsmSw_SphincsSha2_256sSimple_ComputeRoot(uint8 *const root, const uint8 *const leaf, uint32 leaf_idx,
+                                              uint32 idx_offset, const uint8 *const auth_path, uint32 tree_height,
+                                              const sphincs_sha2_256s_ctx *const ctx, uint32 addr[8])
 {
   uint32 i                                          = 0;
   uint8 buffer[2u * FSMSW_SPHINCSSHA2_256SSIMPLE_N] = {0};
@@ -172,10 +172,11 @@ void FsmSw_SphincsSha2_256sSimple_ComputeRoot(uint8 *root, const uint8 *leaf, ui
  *
  * Note:        This function is currently not used.
  */
-void FsmSw_SphincsSha2_256sSimple_TreeHash(uint8 *root, uint8 *auth_path, const sphincs_sha2_256s_ctx *ctx,
-                                           uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
-                                           void (*gen_leaf)(uint8 *leaf, const sphincs_sha2_256s_ctx *ctx,
-                                                            uint32 addr_idx, const uint32 tree_addr[8]),
+void FsmSw_SphincsSha2_256sSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
+                                           const sphincs_sha2_256s_ctx *const ctx, uint32 leaf_idx, uint32 idx_offset,
+                                           uint32 tree_height,
+                                           void (*const gen_leaf)(uint8 *leaf, const sphincs_sha2_256s_ctx *ctx,
+                                                                  uint32 addr_idx, const uint32 tree_addr[8]),
                                            uint32 tree_addr[8])
 {
   uint8 stack[(FSMSW_SPHINCSSHA2_256SSIMPLE_TREEHASH_BUF_LEN + 1u) * FSMSW_SPHINCSSHA2_256SSIMPLE_N] = {0};

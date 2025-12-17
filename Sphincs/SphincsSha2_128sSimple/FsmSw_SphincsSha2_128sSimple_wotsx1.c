@@ -50,7 +50,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_UINT32_MAX_VALUE 0xFFFFFFFFu
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -97,16 +97,16 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_128sSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2_128s_ctx *ctx, uint32 leaf_idx,
-                                                 void *v_info)
+void FsmSw_SphincsSha2_128sSimple_Wots_GenLeafX1(uint8 *const dest, const sphincs_sha2_128s_ctx *const ctx,
+                                                 uint32 leaf_idx, void *const v_info)
 {
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
   Fsmsw_Sphincssha2_128sSimple_LeafInfoX1_T *info          = v_info;
-  uint32 *leaf_addr                                        = info->leaf_addr;
-  uint32 *pk_addr                                          = info->pk_addr;
+  uint32 *const leaf_addr                                  = info->leaf_addr;
+  uint32 *const pk_addr                                    = info->pk_addr;
   uint32 i                                                 = 0;
   uint32 k                                                 = 0;
   uint8 pk_buffer[FSMSW_SPHINCSSHA2_128SSIMPLE_WOTS_BYTES] = {0};
@@ -132,7 +132,7 @@ void FsmSw_SphincsSha2_128sSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2
   for (i = 0; i < FSMSW_SPHINCSSHA2_128SSIMPLE_WOTS_LEN; i++)
   {
     /* Set wots_k to the step if we're generating a signature, ~0 if we're not */
-    uint32 wots_k = info->wots_steps[i] | wots_k_mask;
+    uint32 const wots_k = info->wots_steps[i] | wots_k_mask;
 
     /* Start with the secret seed */
     FsmSw_SphincsSha2_SetChainAddr(leaf_addr, i);
@@ -144,7 +144,7 @@ void FsmSw_SphincsSha2_128sSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2
     FsmSw_SphincsSha2_SetType(leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_WOTS);
 
     /* Iterate down the WOTS chain */
-    for (k = 0; k < 0xFFFFFFFFu; k++)
+    for (k = 0; k < FSMSW_SPHINCS_UINT32_MAX_VALUE; k++)
     {
       /* Check if this is the value that needs to be saved as a part of the WOTS signature */
       if (k == wots_k)

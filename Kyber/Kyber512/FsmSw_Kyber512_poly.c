@@ -49,7 +49,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_KYBER512_POLY_BLOCK_SIZE 8u
+#define FSMSW_KYBER512_POLY_T_SIZE     8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -87,17 +88,17 @@
 */
 void FsmSw_Kyber512_Poly_Compress(uint8 r[KYBER512_POLYCOMPRESSEDBYTES], const poly *const a)
 {
-  uint16 i   = 0;
-  sint16 u   = 0;
-  uint8 j    = 0;
-  uint8 t[8] = {0};
+  uint16 i                            = 0;
+  sint16 u                            = 0;
+  uint8 j                             = 0;
+  uint8 t[FSMSW_KYBER512_POLY_T_SIZE] = {0};
 
   /* r_temp is used to avoid modifying the input. */
   uint8 *r_temp = r;
 
   for (i = 0; i < (KYBER_N / 8u); i++)
   {
-    for (j = 0; j < 8u; j++)
+    for (j = 0; j < FSMSW_KYBER512_POLY_BLOCK_SIZE; j++)
     {
       /* map to positive standard representatives */
       u    = a->coeffs[(8u * i) + j];
@@ -157,7 +158,7 @@ void FsmSw_Kyber512_Poly_FromMsg(poly *const r, const uint8 msg[KYBER512_INDCPA_
 
   for (i = 0; i < (KYBER_N / 8u); i++)
   {
-    for (j = 0; j < 8u; j++)
+    for (j = 0; j < FSMSW_KYBER512_POLY_BLOCK_SIZE; j++)
     {
       mask                    = -(sint16)((uint16)(((uint32)msg[i] >> j) & 1u));
       r->coeffs[(8u * i) + j] = (sint16)((uint16)((uint16)mask & ((uint16)((KYBER_Q + 1u) / 2u))));
@@ -181,7 +182,7 @@ void FsmSw_Kyber512_Poly_ToMsg(uint8 msg[KYBER512_INDCPA_MSGBYTES], const poly *
   for (i = 0; i < (KYBER_N / 8u); i++)
   {
     msg[i] = 0;
-    for (j = 0; j < 8u; j++)
+    for (j = 0; j < FSMSW_KYBER512_POLY_BLOCK_SIZE; j++)
     {
       t = (uint16)(a->coeffs[(8u * i) + j]);
       /* Shift to get the first bit */

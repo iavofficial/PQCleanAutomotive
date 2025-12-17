@@ -45,7 +45,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_KYBER_NTT_ZETAS_SIZE 128
+#define FSMSW_KYBER_NTT_R_SIZE     256u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -59,7 +60,7 @@ and external linkage is required for proper functionality." */
 and external linkage is required for proper functionality." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"The variable is used across multiple translation units, 
 and external linkage is required for proper functionality." */
-const sint16 FsmSw_Kyber_zetas[128] = {
+const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE] = {
     -1044, -758,  -359,  -1517, 1493,  1422,  287,   202,   -171,  622,  1577,  182,   962,   -1202, -1474, 1468,
     573,   -1325, 264,   383,   -829,  1458,  -1602, -130,  -681,  1017, 732,   608,   -1542, 411,   -205,  -1571,
     1223,  652,   -552,  1015,  -1293, 1491,  -282,  -1544, 516,   -8,   -320,  -666,  -1618, -1162, 126,   1469,
@@ -168,7 +169,7 @@ void FsmSw_Kyber_Invntt(sint16 r[256])
     }
   }
 
-  for (j = 0; j < 256u; j++)
+  for (j = 0; j < FSMSW_KYBER_NTT_R_SIZE; j++)
   {
     r[j] = fsmsw_kyber_Fqmul(r[j], f);
   }

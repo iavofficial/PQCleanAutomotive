@@ -109,7 +109,7 @@ static void fsmsw_sphincssha2_256ssimple_SeedState(sphincs_sha2_256s_ctx *ctx)
  *
  *
  */
-void FsmSw_SphincsSha2_256sSimple_InitializeHashFunction(sphincs_sha2_256s_ctx *ctx)
+void FsmSw_SphincsSha2_256sSimple_InitializeHashFunction(sphincs_sha2_256s_ctx *const ctx)
 {
   fsmsw_sphincssha2_256ssimple_SeedState(ctx);
 } // end: FsmSw_SphincsSha2_256sSimple_InitializeHashFunction

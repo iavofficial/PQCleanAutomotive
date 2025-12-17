@@ -67,16 +67,15 @@
 /**********************************************************************************************************************/
 
 void FsmSw_Dilithium5_Challenge(poly_D5 *c, const uint8 seed[SEEDBYTES_DILITHIUM]);
-
-void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
-
-void FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk);
-
-void FsmSw_Dilithium5_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
-
-uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
-                                          const uint8 *pk);
-uint8 FsmSw_Dilithium5_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk);
+void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
+void FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                            const uint8 *const sk);
+void FsmSw_Dilithium5_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                  const uint8 *const sk);
+uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                          const uint8 *const pk);
+uint8 FsmSw_Dilithium5_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                        const uint8 *const pk);
 
 #endif /* FSMSW_DILITHIUM5_SIGN_H */
 

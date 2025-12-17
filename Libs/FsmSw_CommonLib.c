@@ -105,7 +105,7 @@ static uint32 iav_commonlib_rand(void)
 * \param[in]  const uint32  n : number of  values
 *
 */
-/* polyspace +2 CODE-METRICS:CALLING [Justified:]"[Value: 175]The increase to 175 is due 
+/* polyspace +2 CODE-METRICS:CALLING [Justified:]"[Value: 220]The increase to 220 is due 
 to recent refactoring and code improvements." */
 void FsmSw_CommonLib_MemCpy(void *const dest, const void *const src, const uint32 n)
 {
@@ -246,6 +246,102 @@ void FsmSw_CommonLib_SRand(const uint32 seed)
 {
   next = seed;
 } // end: FsmSw_CommonLib_SRand
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint16 type from initial uint8
+*
+* \param[in] value : returned with uint16 type
+* 
+*/
+uint16 FsmSw_Convert_u8_to_u16(uint8 value)
+{
+  return (uint16)value;
+} // end: FsmSw_Convert_u8_to_u16
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint32 type from initial uint8
+*
+* \param[in] value : returned with uint32 type
+* 
+*/
+uint32 FsmSw_Convert_u8_to_u32(uint8 value)
+{
+  return (uint32)value;
+} // end: FsmSw_Convert_u8_to_u16
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint32 type from initial uint16
+*
+* \param[in] value : returned with uint32 type
+* 
+*/
+uint32 FsmSw_Convert_u16_to_u32(uint16 value)
+{
+  return (uint32)value;
+} // end: FsmSw_Convert_u8_to_u16
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint64 type from initial size_t
+*
+* \param[in] value : returned with uint64 type
+* 
+*/
+uint64 FsmSw_Convert_u32_to_u64(uint32 value)
+{
+  return (uint64)value;
+} // end: FsmSw_Convert_u8_to_u16
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint64 type from initial uint16
+*
+* \param[in] value : returned with uint64 type
+* 
+*/
+uint64 FsmSw_Convert_u16_to_u64(uint16 value)
+{
+  return (uint64)value;
+} // end: FsmSw_Convert_u16_to_u64
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint64 type from initial uint8
+*
+* \param[in] value : returned with uint64 type
+* 
+*/
+uint64 FsmSw_Convert_u8_to_u64(uint8 value)
+{
+  return (uint64)value;
+} // end: FsmSw_Convert_u8_to_u64
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint32 type from initial uint64
+*
+* \param[in] value : returned with uint32 type
+* 
+*/
+uint32 FsmSw_Convert_u64_to_u32(uint64 value)
+{
+  return (uint32)(value & 0xFFFFFFFFU);
+} // end: FsmSw_Convert_u64_to_u32
+
+/*====================================================================================================================*/
+/**
+* \brief Returns value of uint8 type from initial uint16
+*
+* \param[in] value : returned with uint8 type
+* 
+*/
+uint8 FsmSw_Convert_u16_to_u8(uint16 value)
+{
+  return (uint8)(value & 0xFFU);
+} // end: FsmSw_Convert_u64_to_u32
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

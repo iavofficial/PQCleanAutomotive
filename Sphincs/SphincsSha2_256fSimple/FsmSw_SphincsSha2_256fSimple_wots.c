@@ -73,10 +73,11 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_sphincssha2_256fsimple_wots_GenChain(uint8 *out, const uint8 *in, uint32 start, uint32 steps,
-                                                       const sphincs_sha2_256f_ctx *ctx, uint32 addr[8]);
-static void fsmsw_sphincssha2_256fsimple_wots_BaseW(uint32 *output, sint32 out_len, const uint8 *input);
-static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *csum_base_w, const uint32 *msg_base_w);
+static void fsmsw_sphincssha2_256fsimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
+                                                       uint32 steps, const sphincs_sha2_256f_ctx *const ctx,
+                                                       uint32 addr[8]);
+static void fsmsw_sphincssha2_256fsimple_wots_BaseW(uint32 *const output, sint32 out_len, const uint8 *const input);
+static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -94,8 +95,9 @@ static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *csum_base_w, cons
  * \param[in]  uint32                   addr[8] : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_wots_GenChain(uint8 *out, const uint8 *in, uint32 start, uint32 steps,
-                                                       const sphincs_sha2_256f_ctx *ctx, uint32 addr[8])
+static void fsmsw_sphincssha2_256fsimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
+                                                       uint32 steps, const sphincs_sha2_256f_ctx *const ctx,
+                                                       uint32 addr[8])
 {
   uint32 i = 0;
 
@@ -120,7 +122,7 @@ static void fsmsw_sphincssha2_256fsimple_wots_GenChain(uint8 *out, const uint8 *
  * \param[in]  const uint8 *input : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_wots_BaseW(uint32 *output, sint32 out_len, const uint8 *input)
+static void fsmsw_sphincssha2_256fsimple_wots_BaseW(uint32 *const output, sint32 out_len, const uint8 *const input)
 {
   sint32 in       = 0;
   sint32 out      = 0;
@@ -150,7 +152,7 @@ static void fsmsw_sphincssha2_256fsimple_wots_BaseW(uint32 *output, sint32 out_l
  * \param[in]  const uint32 *msg_base_w : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *csum_base_w, const uint32 *msg_base_w)
+static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w)
 {
   uint32 csum                                                                                                     = 0;
   uint8 csum_bytes[((FSMSW_SPHINCSSHA2_256FSIMPLE_WOTS_LEN2 * FSMSW_SPHINCSSHA2_256FSIMPLE_WOTS_LOGW) + 7u) / 8u] = {0};
@@ -179,7 +181,7 @@ static void fsmsw_sphincssha2_256fsimple_wots_Checksum(uint32 *csum_base_w, cons
  * \param[in]  const uint8 *msg : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_256fSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg)
+void FsmSw_SphincsSha2_256fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg)
 {
   fsmsw_sphincssha2_256fsimple_wots_BaseW(lengths, (sint32)FSMSW_SPHINCSSHA2_256FSIMPLE_WOTS_LEN1, msg);
   fsmsw_sphincssha2_256fsimple_wots_Checksum(&lengths[FSMSW_SPHINCSSHA2_256FSIMPLE_WOTS_LEN1], lengths);
@@ -203,8 +205,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256fSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *msg,
-                                                 const sphincs_sha2_256f_ctx *ctx, uint32 addr[8])
+void FsmSw_SphincsSha2_256fSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
+                                                 const sphincs_sha2_256f_ctx *const ctx, uint32 addr[8])
 {
   uint32 lengths[FSMSW_SPHINCSSHA2_256FSIMPLE_WOTS_LEN] = {0};
   uint32 i                                              = 0;

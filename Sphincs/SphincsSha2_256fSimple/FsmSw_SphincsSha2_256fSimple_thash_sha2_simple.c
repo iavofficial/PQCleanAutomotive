@@ -88,8 +88,8 @@
  * \param[in]  const uint32             addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_256fSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks, const sphincs_sha2_256f_ctx *ctx,
-                                        const uint32 addr[8])
+void FsmSw_SphincsSha2_256fSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                        const sphincs_sha2_256f_ctx *const ctx, const uint32 addr[8])
 {
   uint8 outbuf[FSMSW_SPHINCS_SHA256_OUTPUT_BYTES] = {0};
   sha256ctx sha2_state                            = {{0}};

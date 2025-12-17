@@ -47,7 +47,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_UINT32_MAX_VALUE 0xFFFFFFFFu
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -108,18 +108,20 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256fSimple_TreeHashX1(uint8 *root, uint8 *auth_path, const sphincs_sha2_256f_ctx *ctx,
-                                             uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
-                                             void (*gen_leaf)(uint8 *leave /* Where to write the leaves */,
-                                                              const sphincs_sha2_256f_ctx *ctx, uint32 idx, void *info),
-                                             uint32 tree_addr[8], void *info)
+void FsmSw_SphincsSha2_256fSimple_TreeHashX1(uint8 *const root, uint8 *const auth_path,
+                                             const sphincs_sha2_256f_ctx *const ctx, uint32 leaf_idx, uint32 idx_offset,
+                                             uint32 tree_height,
+                                             void (*const gen_leaf)(uint8 *const leave /* Where to write the leaves */,
+                                                                    const sphincs_sha2_256f_ctx *const ctx, uint32 idx,
+                                                                    void *const info),
+                                             uint32 tree_addr[8], void *const info)
 {
   uint8 stack[FSMSW_SPHINCSSHA2_256FSIMPLE_TREEHASHX1_BUF_LEN * FSMSW_SPHINCSSHA2_256FSIMPLE_N] = {0};
 
-  uint32 idx        = 0;
-  uint32 max_idx    = ((uint32)1u << tree_height) - 1u;
-  boolean bStopFunc = FALSE;
-  for (idx = 0; idx < 0xFFFFFFFFu; idx++)
+  uint32 idx           = 0;
+  uint32 const max_idx = ((uint32)1u << tree_height) - 1u;
+  boolean bStopFunc    = FALSE;
+  for (idx = 0; idx < FSMSW_SPHINCS_UINT32_MAX_VALUE; idx++)
   {
     if (TRUE == bStopFunc)
     {
@@ -136,7 +138,7 @@ void FsmSw_SphincsSha2_256fSimple_TreeHashX1(uint8 *root, uint8 *auth_path, cons
     uint32 internal_leaf       = leaf_idx;
     /* The height we are in the Merkle tree */
     uint32 h;
-    for (h = 0; h < 0xFFFFFFFFu; h++)
+    for (h = 0; h < FSMSW_SPHINCS_UINT32_MAX_VALUE; h++)
     {
       /* Check if we hit the top of the tree */
       if (h == tree_height)
@@ -166,7 +168,7 @@ void FsmSw_SphincsSha2_256fSimple_TreeHashX1(uint8 *root, uint8 *auth_path, cons
       FsmSw_SphincsSha2_SetTreeHeight(tree_addr, h + 1u);
       FsmSw_SphincsSha2_SetTreeIndex(tree_addr, (internal_idx / 2u) + internal_idx_offset);
 
-      uint8 *left = &stack[h * FSMSW_SPHINCSSHA2_256FSIMPLE_N];
+      uint8 *const left = &stack[h * FSMSW_SPHINCSSHA2_256FSIMPLE_N];
       FsmSw_CommonLib_MemCpy(&current[0], left, FSMSW_SPHINCSSHA2_256FSIMPLE_N);
       FsmSw_SphincsSha2_256fSimple_Thash(&current[FSMSW_SPHINCSSHA2_256FSIMPLE_N],
                                          &current[0u * FSMSW_SPHINCSSHA2_256FSIMPLE_N], 2u, ctx, tree_addr);

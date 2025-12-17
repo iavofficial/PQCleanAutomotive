@@ -109,6 +109,9 @@ sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
   uint32 temp2   = 0;
   const sint16 v = (sint16)((uint16)((((uint32)1 << 26u) + KYBER_Q / 2u) / KYBER_Q));
 
+  /* polyspace +3 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
+  be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+  additional benefit and could compromise the stability of the system. */
   temp0 = (sint16)(uint16)((uint32)1u << (uint16)25u);
   /* Polyspace cannot resolve the operation if the shift operation is inserted instead of temp0. */
   temp1 = ((sint32)v * a) + temp0;

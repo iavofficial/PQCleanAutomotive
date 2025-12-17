@@ -42,7 +42,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-
+#define FSMSW_FALCON_BUFFER_SIZE 11
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -52,11 +52,11 @@
 /**********************************************************************************************************************/
 /* Number of bits for key elements, indexed by logn (1 to 10). This is at most 8 bits for all degrees, but some degrees
  * may have shorter elements. */
-extern const uint8 FsmSw_Falcon_max_small_fg_bits[11];
-extern const uint8 FsmSw_Falcon_max_big_FG_bits[11];
+extern const uint8 FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON_BUFFER_SIZE];
+extern const uint8 FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON_BUFFER_SIZE];
 
 /* Maximum size, in bits, of elements in a signature, indexed by logn (1 to 10). The size includes the sign bit. */
-extern const uint8 FsmSw_Falcon_max_sig_bits[11];
+extern const uint8 FsmSw_Falcon_max_sig_bits[FSMSW_FALCON_BUFFER_SIZE];
 
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */

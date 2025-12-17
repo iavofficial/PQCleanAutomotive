@@ -64,14 +64,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *out, const sphincs_shake_192s_ctx *ctx, const uint32 addr[8]);
+void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *const out, const sphincs_shake_192s_ctx *const ctx,
+                                           const uint32 addr[8]);
 
-void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
-                                                    uint32 mlen, const sphincs_shake_192s_ctx *ctx);
+void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const sphincs_shake_192s_ctx *const ctx);
 
-void FsmSw_SphincsShake_192sSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                               const uint8 *pk, const uint8 *m, uint32 mlen,
-                                               const sphincs_shake_192s_ctx *ctx);
+void FsmSw_SphincsShake_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const sphincs_shake_192s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHAKE_192SSIMPLE_HASH_H */
 

@@ -49,7 +49,14 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define NROUNDS 24u
+#define NROUNDS                        24u
+#define FSMSW_FIPS202_BYTE_ARRAY_SIZE  8u
+#define FSMSW_FIPS202_T_SIZE           200
+#define FSMSW_FIPS202_S_SIZE           25
+#define FSMSW_FIPS202_S_SIZE_U         25u
+#define FSMSW_FIPS202_BUFFER_SIZE_32_U 32u
+#define FSMSW_FIPS202_BUFFER_SIZE_64_U 64u
+#define FSMSW_FIPS202_BUFFER_SIZE_48_U 48u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -107,7 +114,7 @@ static uint64 fsmsw_fips202_Load64(const uint8 *const x)
 {
   uint64 r = 0;
 
-  for (uint32 i = 0; i < 8u; ++i)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BYTE_ARRAY_SIZE; ++i)
   {
     r |= (uint64)x[i] << (8u * i);
   }
@@ -125,7 +132,7 @@ static uint64 fsmsw_fips202_Load64(const uint8 *const x)
 */
 static void fsmsw_fips202_Store64(uint8 *const x, uint64 u)
 {
-  for (uint32 i = 0; i < 8u; ++i)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BYTE_ARRAY_SIZE; ++i)
   {
     x[i] = (uint8)(u >> (8u * i));
   }
@@ -416,15 +423,15 @@ static void fsmsw_fips202_KeccakF1600StatePermute(uint64 *const state)
 */
 static void fsmsw_fips202_KeccakAbsorb(uint64 *const s, uint32 r, const uint8 *const m, uint32 mlen, uint8 p)
 {
-  uint32 i     = 0;
-  uint8 t[200] = {0};
+  uint32 i                      = 0;
+  uint8 t[FSMSW_FIPS202_T_SIZE] = {0};
 
   /* m_temp and mlen_temp are used to avoid modifying the input. */
   const uint8 *m_temp = m;
   uint32 mlen_temp    = mlen;
 
   /* Zero state */
-  for (i = 0; i < 25u; ++i)
+  for (i = 0; i < FSMSW_FIPS202_S_SIZE_U; ++i)
   {
     s[i] = 0;
   }
@@ -504,7 +511,7 @@ static void fsmsw_fips202_keccak_inc_init(uint64 *const s_inc)
 {
   uint32 i = 0;
 
-  for (i = 0; i < 25u; ++i)
+  for (i = 0; i < FSMSW_FIPS202_S_SIZE_U; ++i)
   {
     s_inc[i] = 0;
   }
@@ -970,7 +977,7 @@ void FsmSw_Fips202_Sha3_256_IncFinalize(uint8 *const output, sha3_256incctx *sta
 
   fsmsw_fips202_keccak_squeezeblocks(t, 1, state->ctx, SHA3_256_RATE);
 
-  for (uint32 i = 0; i < 32u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_32_U; i++)
   {
     output[i] = t[i];
   }
@@ -987,7 +994,7 @@ void FsmSw_Fips202_Sha3_256_IncFinalize(uint8 *const output, sha3_256incctx *sta
 */
 void FsmSw_Fips202_Sha3_256(uint8 *const output, const uint8 *const input, uint32 inlen)
 {
-  uint64 s[25];
+  uint64 s[FSMSW_FIPS202_S_SIZE];
   uint8 t[SHA3_256_RATE];
 
   /* Absorb input */
@@ -996,7 +1003,7 @@ void FsmSw_Fips202_Sha3_256(uint8 *const output, const uint8 *const input, uint3
   /* Squeeze output */
   fsmsw_fips202_keccak_squeezeblocks(t, 1, s, SHA3_256_RATE);
 
-  for (uint32 i = 0; i < 32u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_32_U; i++)
   {
     output[i] = t[i];
   }
@@ -1056,7 +1063,7 @@ void FsmSw_Fips202_Sha3_384_IncFinalize(uint8 *const output, sha3_384incctx *sta
 
   fsmsw_fips202_keccak_squeezeblocks(t, 1, state->ctx, SHA3_384_RATE);
 
-  for (uint32 i = 0; i < 48u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_48_U; i++)
   {
     output[i] = t[i];
   }
@@ -1073,8 +1080,8 @@ void FsmSw_Fips202_Sha3_384_IncFinalize(uint8 *const output, sha3_384incctx *sta
 */
 void FsmSw_Fips202_Sha3_384(uint8 *const output, const uint8 *const input, uint32 inlen)
 {
-  uint64 s[25]           = {0};
-  uint8 t[SHA3_384_RATE] = {0};
+  uint64 s[FSMSW_FIPS202_S_SIZE] = {0};
+  uint8 t[SHA3_384_RATE]         = {0};
 
   /* Absorb input */
   fsmsw_fips202_KeccakAbsorb(s, SHA3_384_RATE, input, inlen, 0x06);
@@ -1082,7 +1089,7 @@ void FsmSw_Fips202_Sha3_384(uint8 *const output, const uint8 *const input, uint3
   /* Squeeze output */
   fsmsw_fips202_keccak_squeezeblocks(t, 1u, s, SHA3_384_RATE);
 
-  for (uint32 i = 0; i < 48u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_48_U; i++)
   {
     output[i] = t[i];
   }
@@ -1142,7 +1149,7 @@ void FsmSw_Fips202_Sha3_512_IncFinalize(uint8 *const output, sha3_512incctx *sta
 
   fsmsw_fips202_keccak_squeezeblocks(t, 1, state->ctx, SHA3_512_RATE);
 
-  for (uint32 i = 0; i < 64u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_64_U; i++)
   {
     output[i] = t[i];
   }
@@ -1159,8 +1166,8 @@ void FsmSw_Fips202_Sha3_512_IncFinalize(uint8 *const output, sha3_512incctx *sta
 */
 void FsmSw_Fips202_Sha3_512(uint8 *const output, const uint8 *const input, uint32 inlen)
 {
-  uint64 s[25]           = {0};
-  uint8 t[SHA3_512_RATE] = {0};
+  uint64 s[FSMSW_FIPS202_S_SIZE] = {0};
+  uint8 t[SHA3_512_RATE]         = {0};
 
   /* Absorb input */
   fsmsw_fips202_KeccakAbsorb(s, SHA3_512_RATE, input, inlen, 0x06);
@@ -1168,7 +1175,7 @@ void FsmSw_Fips202_Sha3_512(uint8 *const output, const uint8 *const input, uint3
   /* Squeeze output */
   fsmsw_fips202_keccak_squeezeblocks(t, 1, s, SHA3_512_RATE);
 
-  for (uint32 i = 0; i < 64u; i++)
+  for (uint32 i = 0; i < FSMSW_FIPS202_BUFFER_SIZE_64_U; i++)
   {
     output[i] = t[i];
   }

@@ -73,9 +73,9 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_192sSimple_InitializeHashFunction(sphincs_shake_192s_ctx *ctx);
+void FsmSw_SphincsShake_192sSimple_InitializeHashFunction(sphincs_shake_192s_ctx *const ctx);
 
-void FsmSw_SphincsShake_192sSimple_4FreeHashFunction(sphincs_shake_192s_ctx *ctx);
+void FsmSw_SphincsShake_192sSimple_4FreeHashFunction(sphincs_shake_192s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHAKE_192SSIMPLE_CONTEXT_H */
 

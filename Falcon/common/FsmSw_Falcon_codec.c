@@ -43,7 +43,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_FALCON_BITS_PER_BYTE   8
+#define FSMSW_FALCON_BITS_PER_BYTE_U 8u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -188,7 +189,7 @@ uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16
       acc = (acc << 14) | x[u];
       acc_len += 14;
 
-      while (acc_len >= 8)
+      while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE)
       {
         acc_len -= 8;
         *buf = (uint8)(acc >> (uint32)acc_len);
@@ -351,7 +352,7 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint
         acc = (acc << bits) | ((uint8)x[u] & mask);
         acc_len += bits;
 
-        while (acc_len >= 8u)
+        while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE_U)
         {
           acc_len -= 8u;
           *buf = (uint8)(acc >> acc_len);
@@ -425,7 +426,12 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const
         acc_len -= bits;
         w = (acc >> acc_len) & mask1;
         w |= (uint32)((sint32)((-1) * (sint32)((uint32)(w & mask2))));
-
+        /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+        be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system. */
+        /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+        be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system. */
         if (w == (uint32)((sint32)((-1) * (sint32)mask2)))
         {
           /* The -2^(bits-1) value is forbidden. */
@@ -531,7 +537,7 @@ uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16
       acc_len += w + 1u;
 
       /* Produce all full bytes. */
-      while (acc_len >= 8u)
+      while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE_U)
       {
         acc_len -= 8u;
         if (buf != ((void *)0))

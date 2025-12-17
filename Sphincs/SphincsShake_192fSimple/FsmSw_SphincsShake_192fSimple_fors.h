@@ -64,8 +64,8 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_192fSimple_Fors_Sign(uint8 *sig, uint8 *pk, const uint8 *m, const sphincs_shake_192f_ctx *ctx,
-                                             const uint32 fors_addr[8]);
+void FsmSw_SphincsShake_192fSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
+                                             const sphincs_shake_192f_ctx *const ctx, const uint32 fors_addr[8]);
 
 /* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
@@ -73,8 +73,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_192fSimple_Fors_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *m,
-                                                  const sphincs_shake_192f_ctx *ctx, const uint32 fors_addr[8]);
+void FsmSw_SphincsShake_192fSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
+                                                  const sphincs_shake_192f_ctx *const ctx, const uint32 fors_addr[8]);
 
 #endif /* FSMSW_SPHINCSSHAKE_192FSIMPLE_FORS_H */
 

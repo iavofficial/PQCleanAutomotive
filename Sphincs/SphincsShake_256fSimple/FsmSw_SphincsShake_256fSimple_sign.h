@@ -62,18 +62,19 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_256fSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk);
+void FsmSw_SphincsShake_256fSimple_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
 
-void FsmSw_SphincsShake_256fSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
-                                                         const uint8 *sk);
+void FsmSw_SphincsShake_256fSimple_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m,
+                                                         uint32 mlen, const uint8 *const sk);
 
-uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
-                                                       const uint8 *pk);
+uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m,
+                                                       uint32 mlen, const uint8 *const pk);
 
-void FsmSw_SphincsShake_256fSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk);
+void FsmSw_SphincsShake_256fSimple_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                               const uint8 *const sk);
 
-uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
-                                                     const uint8 *pk);
+uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm,
+                                                     uint32 smlen, const uint8 *const pk);
 
 #endif /* FSMSW_SPHINCSSHAKE_256FSIMPLE_SIGN_H */
 

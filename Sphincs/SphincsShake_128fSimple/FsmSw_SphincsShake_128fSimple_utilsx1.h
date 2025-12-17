@@ -70,12 +70,13 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_128fSimple_TreeHashX1(uint8 *root, uint8 *auth_path, const sphincs_shake_128f_ctx *ctx,
-                                              uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
-                                              void (*gen_leaf)(uint8 *leaf /* Where to write the leaf */,
-                                                               const sphincs_shake_128f_ctx *ctx, uint32 addr_idx,
-                                                               void *info),
-                                              uint32 tree_addr[8], void *info);
+void FsmSw_SphincsShake_128fSimple_TreeHashX1(uint8 *const root, uint8 *const auth_path,
+                                              const sphincs_shake_128f_ctx *const ctx, uint32 leaf_idx,
+                                              uint32 idx_offset, uint32 tree_height,
+                                              void (*const gen_leaf)(uint8 *const leaf /* Where to write the leaf */,
+                                                                     const sphincs_shake_128f_ctx *const ctx,
+                                                                     uint32 addr_idx, void *const info),
+                                              uint32 tree_addr[8], void *const info);
 
 #endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_UTILSX4_H */
 

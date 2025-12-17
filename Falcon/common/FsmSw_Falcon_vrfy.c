@@ -234,6 +234,9 @@ static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
   uint32 y = 0;
 
   y = (uint32)x;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   y += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(y >> 31))));
 
   return y;
@@ -257,6 +260,9 @@ static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
   uint32 d = 0;
 
   d = x + y - Q;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
@@ -278,6 +284,9 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
   uint32 d = 0;
 
   d = x - y;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
@@ -296,8 +305,8 @@ static uint32 fsmsw_falcon_MqRShifT1(uint32 x)
 {
   /* x_temp is used to avoid modifying the input. */
   uint32 x_temp = x;
-
-  x_temp += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(x_temp & 1u))));
+  uint32 bit    = ((x_temp & 1U) == 1) ? 0xFFFFFFFFU : 0x00000000U;
+  x_temp += Q & bit;
   return (x_temp >> 1);
 } // end: fsmsw_falcon_MqRShifT1
 
@@ -331,6 +340,9 @@ static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
   /* After the shift, analysis shows that the value will be less than 2q. We do a subtraction then conditional
    * subtraction to ensure the result is in the expected range. */
   z -= Q;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   z += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(z >> 31))));
   return z;
 } // end: fsmsw_falcon_MqMontymul
@@ -666,6 +678,9 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, co
   for (u = 0; u < n; u++)
   {
     w1 = (uint32)s2[u];
+    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
     w1 += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(w1 >> 31))));
     tt[u] = (uint16)w1;
   }

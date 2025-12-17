@@ -76,13 +76,13 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256sSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *msg,
-                                                 const sphincs_sha2_256s_ctx *ctx, uint32 addr[8]);
+void FsmSw_SphincsSha2_256sSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
+                                                 const sphincs_sha2_256s_ctx *const ctx, uint32 addr[8]);
 
 /*
  * Compute the chain lengths needed for a given message hash
  */
-void FsmSw_SphincsSha2_256sSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg);
+void FsmSw_SphincsSha2_256sSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
 
 #endif /* FSMSW_SPHINCSSHA2_256SSIMPLE_WOTS_H */
 

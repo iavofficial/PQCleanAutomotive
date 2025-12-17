@@ -48,6 +48,10 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
+#define POLY_ZPACK_BUFFER_SIZE      4
+#define POLY_CHALLENGE_SIGN_BYTES   8u
+#define POLY_ETA_BUFFER_SIZE        8
+#define POLY_T0PACK_BUFFER_SIZE     8
 #define POLY_UNIFORM_NBLOCKS        ((768u + STREAM128_BLOCKBYTES - 1u) / STREAM128_BLOCKBYTES)
 #define POLY_UNIFORM_ETA_NBLOCKS    ((227u + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
 #define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES_DILITHIUM3 + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
@@ -98,13 +102,13 @@ static uint32 fsmsw_dilithium3_RejEta(sint32 *const a, uint32 len, const uint8 *
 
     if (t0 < 9u)
     {
-      a[ctr] = (sint32)((uint32)(4u - t0));
+      a[ctr] = (sint32)4 - (sint32)t0;
       ctr++;
     }
 
     if ((t1 < 9u) && (ctr < len))
     {
-      a[ctr] = (sint32)((uint32)(4u - t1));
+      a[ctr] = (sint32)4 - (sint32)t1;
       ctr++;
     }
   }
@@ -488,9 +492,9 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
   FsmSw_Fips202_Shake256_IncFinalize(&state);
   FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), &state);
 
-  for (i = 0; i < 8u; ++i)
+  for (i = 0; i < POLY_CHALLENGE_SIGN_BYTES; ++i)
   {
-    signs |= (uint64)buf[i] << (8u * i);
+    signs |= (uint64)buf[i] << (POLY_CHALLENGE_SIGN_BYTES * i);
   }
 
   pos = 8;
@@ -528,8 +532,8 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
 */
 void FsmSw_Dilithium3_Polyeta_EtaPack(uint8 *const r, const poly_D3 *const a)
 {
-  uint16 i   = 0;
-  uint8 t[8] = {0};
+  uint16 i                      = 0;
+  uint8 t[POLY_ETA_BUFFER_SIZE] = {0};
 
   for (i = 0; i < (N_DILITHIUM / 2u); ++i)
   {
@@ -613,8 +617,8 @@ void FsmSw_Dilithium3_Poly_T1Unpack(poly_D3 *const r, const uint8 *const a)
 */
 void FsmSw_Dilithium3_Poly_T0Pack(uint8 *const r, const poly_D3 *const a)
 {
-  uint16 i    = 0;
-  uint32 t[8] = {0};
+  uint16 i                          = 0;
+  uint32 t[POLY_T0PACK_BUFFER_SIZE] = {0};
 
   for (i = 0; i < (N_DILITHIUM / 8u); ++i)
   {
@@ -734,8 +738,8 @@ void FsmSw_Dilithium3_Poly_T0Unpack(poly_D3 *const r, const uint8 *const a)
 */
 void FsmSw_Dilithium3_Poly_ZPack(uint8 *const r, const poly_D3 *const a)
 {
-  uint16 i    = 0;
-  uint32 t[4] = {0};
+  uint16 i                         = 0;
+  uint32 t[POLY_ZPACK_BUFFER_SIZE] = {0};
 
   for (i = 0; i < (N_DILITHIUM / 2u); ++i)
   {

@@ -45,7 +45,7 @@
 
 #include "FsmSw_SphincsShake_192sSimple_thash.h"
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                     */
+/* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -87,8 +87,8 @@
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks,
-                                         const sphincs_shake_192s_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsShake_192sSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                         const sphincs_shake_192s_ctx *const ctx, const uint32 addr[8])
 {
   uint8 buf[FSMSW_SPHINCSSHAKE_192SSIMPLE_N + FSMSW_SPHINCSSHAKE_192SSIMPLE_ADDR_BYTES +
             (FSMSW_SPHINCSSHAKE_192SSIMPLE_THASH_BUF_LEN * FSMSW_SPHINCSSHAKE_192SSIMPLE_N)] = {0};

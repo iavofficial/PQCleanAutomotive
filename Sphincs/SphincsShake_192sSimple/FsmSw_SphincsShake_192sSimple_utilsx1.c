@@ -47,7 +47,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_UINT32_MAX_VALUE 0xFFFFFFFFu
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -102,20 +102,20 @@
  * \param[in]  uint32               tree_addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(uint8 *root, uint8 *auth_path, const sphincs_shake_192s_ctx *ctx,
-                                                uint32 leaf_idx, uint32 idx_offset, uint32 tree_height,
-                                                void (*gen_leaf)(uint8 *leave /* Where to write the leaves */,
-                                                                 const sphincs_shake_192s_ctx *ctx, uint32 idx,
-                                                                 void *info),
-                                                uint32 tree_addr[8], void *info)
+void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(
+    uint8 *const root, uint8 *const auth_path, const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx,
+    uint32 idx_offset, uint32 tree_height,
+    void (*const gen_leaf)(uint8 *const leave /* Where to write the leaves */, const sphincs_shake_192s_ctx *const ctx,
+                           uint32 idx, void *const info),
+    uint32 tree_addr[8], void *const info)
 {
   /* This is where we keep the intermediate nodes */
   uint8 stack[FSMSW_SPHINCSSHAKE_192SSIMPLE_TREEHASHX1_BUF_LEN * FSMSW_SPHINCSSHAKE_192SSIMPLE_N] = {0};
 
-  uint32 idx        = 0;
-  uint32 max_idx    = ((uint32)1u << tree_height) - 1u;
-  boolean bStopFunc = FALSE;
-  for (idx = 0; idx < 0xFFFFFFFFu; idx++)
+  uint32 idx           = 0;
+  uint32 const max_idx = ((uint32)1u << tree_height) - 1u;
+  boolean bStopFunc    = FALSE;
+  for (idx = 0; idx < FSMSW_SPHINCS_UINT32_MAX_VALUE; idx++)
   {
     if (TRUE == bStopFunc)
     {
@@ -133,7 +133,7 @@ void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(uint8 *root, uint8 *auth_path, c
     uint32 internal_leaf       = leaf_idx;
     /* The height we are in the Merkle tree */
     uint32 h;
-    for (h = 0; h < 0xFFFFFFFFu; h++)
+    for (h = 0; h < FSMSW_SPHINCS_UINT32_MAX_VALUE; h++)
     {
 
       /* Check if we hit the top of the tree */
@@ -164,7 +164,7 @@ void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(uint8 *root, uint8 *auth_path, c
       FsmSw_SphincsShake_SetTreeHeight(tree_addr, h + 1u);
       FsmSw_SphincsShake_SetTreeIndex(tree_addr, (internal_idx / 2u) + internal_idx_offset);
 
-      uint8 *left = &stack[h * FSMSW_SPHINCSSHAKE_192SSIMPLE_N];
+      uint8 *const left = &stack[h * FSMSW_SPHINCSSHAKE_192SSIMPLE_N];
       FsmSw_CommonLib_MemCpy(&current[0], left, FSMSW_SPHINCSSHAKE_192SSIMPLE_N);
       FsmSw_SphincsShake_192sSimple_Thash(&current[FSMSW_SPHINCSSHAKE_192SSIMPLE_N],
                                           &current[0u * FSMSW_SPHINCSSHAKE_192SSIMPLE_N], 2u, ctx, tree_addr);

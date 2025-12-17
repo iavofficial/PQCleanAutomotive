@@ -49,14 +49,18 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON512_NONCELEN 40u
-
+#define FSMSW_FALCON512_NONCELEN                40u
+#define FSMSW_UINT32_MAX_VALUE                  0xFFFFFFFFu
+#define FSMSW_FALCON512_TMP1_STRUCT_BUFFER_SIZE 36864
+#define FSMSW_FALCON512_TMP3_STRUCT_BUFFER_SIZE 1024
+#define FSMSW_FALCON512_BUFFER_SIZE             512
+#define FSMSW_FALCON512_SEED_BUFFER_SIZE        48
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint8 b[72 * 512];
+  uint8 b[FSMSW_FALCON512_TMP1_STRUCT_BUFFER_SIZE];
 } tmp1_512_struct;
 
 typedef struct
@@ -66,13 +70,13 @@ typedef struct
 
 typedef struct
 {
-  uint8 b[2 * 512];
+  uint8 b[FSMSW_FALCON512_TMP3_STRUCT_BUFFER_SIZE];
 } tmp3_512_struct;
 
 typedef struct
 {
-  sint16 sig[512];
-  uint16 hm[512];
+  sint16 sig[FSMSW_FALCON512_BUFFER_SIZE];
+  uint16 hm[FSMSW_FALCON512_BUFFER_SIZE];
 } r_512_struct;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -116,16 +120,16 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
 static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
                                      const uint8 *const m, uint32 mlen, const uint8 *const sk)
 {
-  sint8 f[512]              = {0};
-  sint8 g[512]              = {0};
-  sint8 F[512]              = {0};
-  sint8 G[512]              = {0};
-  uint8 seed[48]            = {0};
-  inner_shake256_context sc = {{0}};
-  uint32 u                  = 0;
-  uint32 v                  = 0;
-  boolean bStopFunc         = FALSE;
-  sint8 retVal              = -1;
+  sint8 f[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  sint8 g[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  sint8 F[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  sint8 G[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  uint8 seed[FSMSW_FALCON512_SEED_BUFFER_SIZE] = {0};
+  inner_shake256_context sc                    = {{0}};
+  uint32 u                                     = 0;
+  uint32 v                                     = 0;
+  boolean bStopFunc                            = FALSE;
+  sint8 retVal                                 = -1;
   tmp1_512_struct tmp1_512;
 
   /* Decode the private key. */
@@ -194,7 +198,7 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
 
     /* Compute and return the signature. This loops until a signature value is found that fits in the provided
      * buffer. */
-    for (uint32 i = 0; i < 0xFFFFFFFFu; i++)
+    for (uint32 i = 0; i < FSMSW_UINT32_MAX_VALUE; i++)
     {
       FsmSw_Falcon_Sign_Dyn(r_512.sig, &sc, f, g, F, G, r_512.hm, 9, tmp1_512.b);
       v = FsmSw_Falcon_CompEncode(sigbuf, *sigbuflen, r_512.sig, 9);
@@ -228,13 +232,13 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
 static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
                                        const uint8 *const m, uint32 mlen, const uint8 *const pk)
 {
-  uint16 h[512]             = {0};
-  uint16 hm[512]            = {0};
-  sint16 sig[512]           = {0};
-  inner_shake256_context sc = {{0}};
-  boolean bStopFunc         = FALSE;
-  sint8 retVal              = 0;
-  tmp3_512_struct tmp3_512  = {{0}};
+  uint16 h[FSMSW_FALCON512_BUFFER_SIZE]   = {0};
+  uint16 hm[FSMSW_FALCON512_BUFFER_SIZE]  = {0};
+  sint16 sig[FSMSW_FALCON512_BUFFER_SIZE] = {0};
+  inner_shake256_context sc               = {{0}};
+  boolean bStopFunc                       = FALSE;
+  sint8 retVal                            = 0;
+  tmp3_512_struct tmp3_512                = {{0}};
 
   /* Decode public key. */
   if (pk[0] != (9u))
@@ -327,19 +331,19 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
-  sint8 f[512]               = {0};
-  sint8 g[512]               = {0};
-  sint8 F[512]               = {0};
-  uint16 h[512]              = {0};
-  uint8 seed[48]             = {0};
-  inner_shake256_context rng = {{0}};
-  uint32 u                   = 0;
-  uint32 v                   = 0;
-  uint8 retVal               = ERR_OK;
-  boolean bStopFunc          = FALSE;
-  tmp2_512_struct tmp2_512   = {{0}};
+  sint8 f[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  sint8 g[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  sint8 F[FSMSW_FALCON512_BUFFER_SIZE]         = {0};
+  uint16 h[FSMSW_FALCON512_BUFFER_SIZE]        = {0};
+  uint8 seed[FSMSW_FALCON512_SEED_BUFFER_SIZE] = {0};
+  inner_shake256_context rng                   = {{0}};
+  uint32 u                                     = 0;
+  uint32 v                                     = 0;
+  uint8 retVal                                 = ERR_OK;
+  boolean bStopFunc                            = FALSE;
+  tmp2_512_struct tmp2_512                     = {{0}};
 
   /* Generate key pair. */
   (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
@@ -416,7 +420,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
+uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                            const uint8 *const sk)
 {
   /*The FSMSW_FALCON512_CRYPTO_BYTES constant is used for the signed message object (as produced by crypto_sign())
    * and includes a two-byte length value, so we take care here to only generate signatures that are two bytes shorter
@@ -458,7 +463,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const ui
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
+uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                         const uint8 *const pk)
 {
   uint8 retVal = ERR_OK;
 
@@ -497,7 +503,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const 
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                  const uint8 *const sk)
 {
   uint8 *pm         = (uint8 *)NULL_PTR;
   uint8 *sigbuf     = (uint8 *)NULL_PTR;
@@ -546,7 +553,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
+uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                       const uint8 *const pk)
 {
   const uint8 *sigbuf = (uint8 *)NULL_PTR;
   uint32 pmlen        = 0;

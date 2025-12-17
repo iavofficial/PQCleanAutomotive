@@ -48,13 +48,13 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint32 leaf_addrx[8];
+  uint32 leaf_addrx[FSMSW_SPHINCS_ADDR_SIZE];
 } Fsmsw_Sphincssha2_256fSimple_ForsGenLeafInfo_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -71,13 +71,14 @@ typedef struct
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_sphincssha2_256fsimple_fors_GenSk(uint8 *sk, const sphincs_sha2_256f_ctx *ctx,
+static void fsmsw_sphincssha2_256fsimple_fors_GenSk(uint8 *const sk, const sphincs_sha2_256f_ctx *const ctx,
                                                     const uint32 fors_leaf_addr[8]);
-static void fsmsw_sphincssha2_256fsimple_fors_SkToLeaf(uint8 *leaf, const uint8 *sk, const sphincs_sha2_256f_ctx *ctx,
+static void fsmsw_sphincssha2_256fsimple_fors_SkToLeaf(uint8 *const leaf, const uint8 *const sk,
+                                                       const sphincs_sha2_256f_ctx *const ctx,
                                                        const uint32 fors_leaf_addr[8]);
-static void fsmsw_sphincssha2_256fsimple_fors_GenLeafx1(uint8 *leaf, const sphincs_sha2_256f_ctx *ctx, uint32 addr_idx,
-                                                        void *info);
-static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *indices, const uint8 *m);
+static void fsmsw_sphincssha2_256fsimple_fors_GenLeafx1(uint8 *const leaf, const sphincs_sha2_256f_ctx *const ctx,
+                                                        uint32 addr_idx, void *const info);
+static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *const indices, const uint8 *const m);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -91,7 +92,7 @@ static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *indices, 
  * \param[in]  const uint32   fors_leaf_addr[8] : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_fors_GenSk(uint8 *sk, const sphincs_sha2_256f_ctx *ctx,
+static void fsmsw_sphincssha2_256fsimple_fors_GenSk(uint8 *const sk, const sphincs_sha2_256f_ctx *const ctx,
                                                     const uint32 fors_leaf_addr[8])
 {
   FsmSw_SphincsSha2_256fSimple_PrfAddr(sk, ctx, fors_leaf_addr);
@@ -107,7 +108,8 @@ static void fsmsw_sphincssha2_256fsimple_fors_GenSk(uint8 *sk, const sphincs_sha
  * \param[in]  const uint32   fors_leaf_addr[8] : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_fors_SkToLeaf(uint8 *leaf, const uint8 *sk, const sphincs_sha2_256f_ctx *ctx,
+static void fsmsw_sphincssha2_256fsimple_fors_SkToLeaf(uint8 *const leaf, const uint8 *const sk,
+                                                       const sphincs_sha2_256f_ctx *const ctx,
                                                        const uint32 fors_leaf_addr[8])
 {
   FsmSw_SphincsSha2_256fSimple_Thash(leaf, sk, 1, ctx, fors_leaf_addr);
@@ -123,15 +125,15 @@ static void fsmsw_sphincssha2_256fsimple_fors_SkToLeaf(uint8 *leaf, const uint8 
  * \param[in]  void                       *info : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_fors_GenLeafx1(uint8 *leaf, const sphincs_sha2_256f_ctx *ctx, uint32 addr_idx,
-                                                        void *info)
+static void fsmsw_sphincssha2_256fsimple_fors_GenLeafx1(uint8 *const leaf, const sphincs_sha2_256f_ctx *const ctx,
+                                                        uint32 addr_idx, void *const info)
 {
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
   Fsmsw_Sphincssha2_256fSimple_ForsGenLeafInfo_T *fors_info = info;
-  uint32 *fors_leaf_addr                                    = fors_info->leaf_addrx;
+  uint32 *const fors_leaf_addr                              = fors_info->leaf_addrx;
 
   /* Only set the parts that the caller doesn't set */
   FsmSw_SphincsSha2_SetTreeIndex(fors_leaf_addr, addr_idx);
@@ -152,7 +154,7 @@ static void fsmsw_sphincssha2_256fsimple_fors_GenLeafx1(uint8 *leaf, const sphin
  * \param[in]  const uint8  *m : t.b.d.
  *
  */
-static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *indices, const uint8 *m)
+static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *const indices, const uint8 *const m)
 {
   uint32 i      = 0;
   uint32 j      = 0;
@@ -184,15 +186,15 @@ static void fsmsw_sphincssha2_256fsimple_fors_MessageToIndices(uint32 *indices, 
  * \param[in]  const uint32        fors_addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_256fSimple_Fors_Sign(uint8 *sig, uint8 *pk, const uint8 *m, const sphincs_sha2_256f_ctx *ctx,
-                                            const uint32 fors_addr[8])
+void FsmSw_SphincsSha2_256fSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
+                                            const sphincs_sha2_256f_ctx *const ctx, const uint32 fors_addr[8])
 {
   uint32 indices[FSMSW_SPHINCSSHA2_256FSIMPLE_FORS_TREES]                               = {0};
   uint8 roots[FSMSW_SPHINCSSHA2_256FSIMPLE_FORS_TREES * FSMSW_SPHINCSSHA2_256FSIMPLE_N] = {0};
-  uint32 fors_tree_addr[8]                                                              = {0};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                        = {0};
   Fsmsw_Sphincssha2_256fSimple_ForsGenLeafInfo_T fors_info                              = {{0}};
-  uint32 *fors_leaf_addr                                                                = fors_info.leaf_addrx;
-  uint32 fors_pk_addr[8]                                                                = {0};
+  uint32 *const fors_leaf_addr                                                          = fors_info.leaf_addrx;
+  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
   uint32 idx_offset                                                                     = 0;
   uint32 i                                                                              = 0;
 
@@ -252,14 +254,14 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256fSimple_Fors_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *m,
-                                                 const sphincs_sha2_256f_ctx *ctx, const uint32 fors_addr[8])
+void FsmSw_SphincsSha2_256fSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
+                                                 const sphincs_sha2_256f_ctx *const ctx, const uint32 fors_addr[8])
 {
   uint32 indices[FSMSW_SPHINCSSHA2_256FSIMPLE_FORS_TREES]                               = {0};
   uint8 roots[FSMSW_SPHINCSSHA2_256FSIMPLE_FORS_TREES * FSMSW_SPHINCSSHA2_256FSIMPLE_N] = {0};
   uint8 leaf[FSMSW_SPHINCSSHA2_256FSIMPLE_N]                                            = {0};
-  uint32 fors_tree_addr[8]                                                              = {0};
-  uint32 fors_pk_addr[8]                                                                = {0};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                        = {0};
+  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
   uint32 idx_offset                                                                     = 0;
   uint32 i                                                                              = 0;
 
@@ -294,3 +296,7 @@ void FsmSw_SphincsSha2_256fSimple_Fors_PkFromSig(uint8 *pk, const uint8 *sig, co
   /* Hash horizontally across all tree roots to derive the public key. */
   FsmSw_SphincsSha2_256fSimple_Thash(pk, roots, FSMSW_SPHINCSSHA2_256FSIMPLE_FORS_TREES, ctx, fors_pk_addr);
 } // end: FsmSw_SphincsSha2_256fSimple_Fors_PkFromSig
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

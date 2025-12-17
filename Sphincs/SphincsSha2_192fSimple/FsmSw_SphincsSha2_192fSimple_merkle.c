@@ -48,7 +48,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -91,10 +91,11 @@
  * \param[in]  uint32                  idx_leaf : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_192fSimple_Merkle_Sign(uint8 *sig, uint8 *root, const sphincs_sha2_192f_ctx *ctx,
-                                              const uint32 wots_addr[8], uint32 tree_addr[8], uint32 idx_leaf)
+void FsmSw_SphincsSha2_192fSimple_Merkle_Sign(uint8 *const sig, uint8 *const root,
+                                              const sphincs_sha2_192f_ctx *const ctx, const uint32 wots_addr[8],
+                                              uint32 tree_addr[8], uint32 idx_leaf)
 {
-  uint8 *auth_path = &sig[FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_BYTES];
+  uint8 *const auth_path = &sig[FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_BYTES];
 
   Fsmsw_Sphincssha2_192fSimple_LeafInfoX1_T info = {
       ((void *)0),
@@ -135,15 +136,15 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_192fSimple_Merkle_GenRoot(uint8 *root, const sphincs_sha2_192f_ctx *ctx)
+void FsmSw_SphincsSha2_192fSimple_Merkle_GenRoot(uint8 *const root, const sphincs_sha2_192f_ctx *const ctx)
 {
   /* We do not need the auth path in key generation, but it simplifies the
      code to have just one treehash routine that computes both root and path
      in one function. */
   uint8 auth_path[(FSMSW_SPHINCSSHA2_192FSIMPLE_TREE_HEIGHT * FSMSW_SPHINCSSHA2_192FSIMPLE_N) +
                   FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_BYTES] = {0};
-  uint32 top_tree_addr[8]                                  = {0};
-  uint32 wots_addr[8]                                      = {0};
+  uint32 top_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]            = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                = {0};
 
   FsmSw_SphincsSha2_SetLayerAddr(top_tree_addr, FSMSW_SPHINCSSHA2_192FSIMPLE_D - 1u);
   FsmSw_SphincsSha2_SetLayerAddr(wots_addr, FSMSW_SPHINCSSHA2_192FSIMPLE_D - 1u);
