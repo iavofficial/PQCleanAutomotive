@@ -15,7 +15,7 @@ The PQCleanAutomotive is a fork of the PQClean repository. It includes the follo
 * HQC
 
 CRYSTALS-KYBER, CRYSTALS-DILITHIUM, SPHINCS+ and FALCON based on the commit [#504](https://github.com/PQClean/PQClean/commit/fb003a2a625c49f3090eec546b2383dcfa2c75d8). 
-HQC based on the commit [#587] (https://github.com/PQClean/PQClean/commit/448c71a8f590343e681d0d0cec94f29947b0ff18)
+HQC based on the commit [#587](https://github.com/PQClean/PQClean/commit/448c71a8f590343e681d0d0cec94f29947b0ff18).
 
 ## Implementation
 For the integration of PQCleanAutomotive, the file Crypto.c in the IAV_quantumSAR repository contains an example of the use of the CRYSTALS-KYBER, HQC, CRYSTALS-DILITHIUM, SPHINCS+ and FALCON algorithm.
@@ -28,7 +28,7 @@ PQCleanAutomotive includes some third party libraries or modules that are licens
 * CRYSTALS-KYBER: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
 * CRYSTALS-DILITHIUM: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
 * SPHINCS+: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* FALCON: MIT License
+* FALCON: MIT License (https://github.com/PQClean/PQClean/blob/master/crypto_sign/falcon-1024/clean/LICENSE)
 * Fips202: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
 * HQC: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
 * CommonLib: Apache License, Version 2.0
@@ -60,5 +60,5 @@ In this repository the post-quantum cryptographic algorithms are warning free co
 ## Measurement results
 Our measurement results are documented in our open access paper for the 23rd escar Europe 2025:\
 \
-&nbsp;&nbsp;&nbsp;[https://hss-opus.ub.ruhr-uni-bochum.de/opus4/frontdoor/index/index/year/2025/docId/13649 \
-\
+&nbsp;&nbsp;&nbsp;https://hss-opus.ub.ruhr-uni-bochum.de/opus4/frontdoor/index/index/year/2025/docId/13649
+
