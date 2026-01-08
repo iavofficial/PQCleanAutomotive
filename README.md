@@ -2,7 +2,7 @@
 PQCleanAutomotive is planned as a collection of post-quantum cryptographic algorithms for automotive microcontrollers. The post-quantum cryptographic algorithms are based on the [PQClean](https://github.com/PQClean/PQClean) repository, which is a clean collection of the [NIST post-quantum project](https://csrc.nist.gov/projects/post-quantum-cryptography).
 
 ## Security Note
-There was no security risk analysis like TARA or similar carried out for QuantumSAR. The post-quantum cryptographic algorithms itself were evaluated by NIST.
+There was no security risk analysis like TARA or similar carried out for [IAV_quantumSAR](https://github.com/iavofficial/IAV_quantumSAR/tree/main). The post-quantum cryptographic algorithms itself were evaluated by NIST.
 The required random numbers are calculated using a software solution, which is only intended to serve as an example.
 
 ## Content
@@ -18,7 +18,7 @@ CRYSTALS-KYBER, CRYSTALS-DILITHIUM, SPHINCS+ and FALCON based on the commit [#50
 HQC based on the commit [#587](https://github.com/PQClean/PQClean/commit/448c71a8f590343e681d0d0cec94f29947b0ff18).
 
 ## Implementation
-For the integration of PQCleanAutomotive, the file Crypto.c in the IAV_quantumSAR repository contains an example of the use of the CRYSTALS-KYBER, HQC, CRYSTALS-DILITHIUM, SPHINCS+ and FALCON algorithm.
+For the integration of PQCleanAutomotive, the file Crypto.c in the [IAV_quantumSAR](https://github.com/iavofficial/IAV_quantumSAR/tree/main) repository contains an example of the use of the CRYSTALS-KYBER, HQC, CRYSTALS-DILITHIUM, SPHINCS+ and FALCON algorithm.
 
 In the SPHINCS+ algorithm, dynamic arrays had to be replaced by static arrays in various functions for the microcontroller implementation.
 
