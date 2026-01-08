@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_WOTSX1_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -53,8 +53,8 @@ typedef struct
   uint8 *wots_sig;
   uint32 wots_sign_leaf; /* The index of the WOTS we're using to sign */
   uint32 *wots_steps;
-  uint32 leaf_addr[8];
-  uint32 pk_addr[8];
+  uint32 leaf_addr[FSMSW_SPHINCS_WOTSX1_ADDR_SIZE];
+  uint32 pk_addr[FSMSW_SPHINCS_WOTSX1_ADDR_SIZE];
 } Fsmsw_Sphincssha2_128fSimple_LeafInfoX1_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -78,8 +78,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_128fSimple_Wots_GenLeafX1(uint8 *dest, const sphincs_sha2_128f_ctx *ctx, uint32 leaf_idx,
-                                                 void *v_info);
+void FsmSw_SphincsSha2_128fSimple_Wots_GenLeafX1(uint8 *const dest, const sphincs_sha2_128f_ctx *const ctx,
+                                                 uint32 leaf_idx, void *const v_info);
 
 #endif /* FSMSW_SPHINCSSHA2_128FSIMPLE_WOTSX1_H */
 

@@ -51,7 +51,8 @@ inline functions would not provide significant benefits." */
 /* polyspace +3 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 /* Compute degree N from logarithm 'logn'. */
-#define MKN(logn) ((uint32)1 << (logn))
+#define MKN(logn)               ((uint32)1 << (logn))
+#define FSMSW_FALCON_MAX_UINT32 0xFFFFFFFFu
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -71,11 +72,11 @@ typedef struct
   fpr sigma_min;
 } sampler_context;
 
-typedef sint32 (*samplerZ)(void *ctx, fpr mu, fpr sigma);
+typedef sint32 (*samplerZ)(void *const ctx, fpr mu, fpr sigma);
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-static const uint32 dist[] = {
+static const uint32 falcon_dist[] = {
     10745844u, 3068844u,  3741698u, 5559083u, 1580863u, 8248194u,  2260429u,  13669192u, 2736639u,  708981u,  4421575u,
     10046180u, 169348u,   7122675u, 4136815u, 30538u,   13063405u, 7650655u,  4132u,     14505003u, 7826148u, 417u,
     16768101u, 11363290u, 31u,      8444042u, 8086568u, 1u,        12844466u, 265321u,   0u,        1232676u, 13644283u,
@@ -97,7 +98,7 @@ static void fsmsw_falcon_FfldlFftInner(fpr *const tree, fpr *const g0, fpr *cons
 static void fsmsw_falcon_FfldlBinaryNormalize(fpr *const tree, uint32 orig_logn, uint32 logn);
 static void fsmsw_falcon_SmallintsToFpr(fpr *const r, const sint8 *const t, uint32 logn);
 static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs);
-static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma);
+static sint32 fsmsw_falcon_SignSampler(void *const ctx, fpr mu, fpr isigma);
 static sint32 fsmsw_falcon_Gaussian0Sampler(prng *const p);
 static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ctx, fpr *const t0, fpr *const t1,
                                               fpr *const g00, fpr *const g01, fpr *const g11, uint32 orig_logn,
@@ -263,6 +264,9 @@ static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs)
    * which is approximatively equal to 2^(-32). In any case, if s >= 64, then fsmsw_falcon_BerExp will be non-zero with probability
    * less than 2^(-64), so we can simply saturate s at 63. */
   sw = (uint32)s;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   sw ^= (sw ^ 63u) & ((uint32)((sint32)((-1) * (sint32)((uint32)((63u - sw) >> 31)))));
   s = (sint32)sw;
 
@@ -300,7 +304,7 @@ static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs)
 * \returns t.b.d.
 *
 */
-static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma)
+static sint32 fsmsw_falcon_SignSampler(void *const ctx, fpr mu, fpr isigma)
 {
   sampler_context *spc = (sampler_context *)NULL_PTR;
   sint32 s             = 0;
@@ -330,7 +334,7 @@ static sint32 fsmsw_falcon_SignSampler(void *ctx, fpr mu, fpr isigma)
   ccs = FsmSw_Falcon_Fpr_Mul(isigma, spc->sigma_min);
 
   /* We now need to sample on center r. */
-  for (uint32 i = 0; i < 0xFFFFFFFFu; i++)
+  for (uint32 i = 0; i < FSMSW_FALCON_MAX_UINT32; i++)
   {
     /* Sample z for a Gaussian distribution. Then get a random bit b to turn the sampling into a bimodal
        * distribution: if b = 1, we use z+1, otherwise we use -z. We thus have two situations:
@@ -402,13 +406,13 @@ static sint32 fsmsw_falcon_Gaussian0Sampler(prng *const p)
   /* Sampled value is z, such that v0..v2 is lower than the first z elements of the table. */
   z = 0;
 
-  for (u = 0; u < ((sizeof(dist)) / sizeof(dist[0])); u += 3u)
+  for (u = 0; u < ((sizeof(falcon_dist)) / sizeof(falcon_dist[0])); u += 3u)
   {
     uint32 w0, w1, w2, cc;
 
-    w0 = dist[u + 2u];
-    w1 = dist[u + 1u];
-    w2 = dist[u];
+    w0 = falcon_dist[u + 2u];
+    w1 = falcon_dist[u + 1u];
+    w2 = falcon_dist[u];
     cc = (v0 - w0) >> 31;
     cc = (v1 - w1 - cc) >> 31;
     cc = (v2 - w2 - cc) >> 31;
@@ -496,6 +500,9 @@ static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ const samp, void *const s
    * In the end, z1 is written over t1, and tb0 is in t0. */
     FsmSw_CommonLib_MemCpy(z1, t1, n * sizeof(*t1));
     FsmSw_Falcon_Poly_Sub(z1, &tmp[(n << 1)], logn);
+    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
     FsmSw_CommonLib_MemCpy(t1, &tmp[(n << 1)], n * sizeof(*tmp));
     FsmSw_Falcon_Poly_MulFFT(tmp, z1, logn);
     FsmSw_Falcon_Poly_Add(t0, tmp, logn);
@@ -745,26 +752,26 @@ static sint32 fsmsw_falcon_DoSignDyn(samplerZ const samp, void *const samp_ctx, 
                                      const sint8 *const g, const sint8 *const F, const sint8 *const G,
                                      const uint16 *const hm, uint32 logn, fpr *const tmp)
 {
-  uint32 n      = 0;
-  uint32 u      = 0;
-  fpr *t0       = (uint64 *)NULL_PTR;
-  fpr *t1       = (uint64 *)NULL_PTR;
-  fpr *tx       = (uint64 *)NULL_PTR;
-  fpr *ty       = (uint64 *)NULL_PTR;
-  fpr *b00      = (uint64 *)NULL_PTR;
-  fpr *b01      = (uint64 *)NULL_PTR;
-  fpr *b10      = (uint64 *)NULL_PTR;
-  fpr *b11      = (uint64 *)NULL_PTR;
-  fpr *g00      = (uint64 *)NULL_PTR;
-  fpr *g01      = (uint64 *)NULL_PTR;
-  fpr *g11      = (uint64 *)NULL_PTR;
-  fpr ni        = 0;
-  uint32 sqn    = 0;
-  uint32 ng     = 0;
-  sint16 *s1tmp = (sint16 *)NULL_PTR;
-  sint16 *s2tmp = (sint16 *)NULL_PTR;
-  sint32 z      = 0;
-  sint32 retVal = 0;
+  uint32 n         = 0;
+  uint32 u         = 0;
+  fpr *t0          = (uint64 *)NULL_PTR;
+  fpr *t1          = (uint64 *)NULL_PTR;
+  fpr *tx          = (uint64 *)NULL_PTR;
+  fpr *ty          = (uint64 *)NULL_PTR;
+  fpr *b00         = (uint64 *)NULL_PTR;
+  fpr *b01         = (uint64 *)NULL_PTR;
+  fpr *b10         = (uint64 *)NULL_PTR;
+  fpr *b11         = (uint64 *)NULL_PTR;
+  fpr *g00         = (uint64 *)NULL_PTR;
+  fpr *g01         = (uint64 *)NULL_PTR;
+  fpr *g11         = (uint64 *)NULL_PTR;
+  fpr ni_doSignDyn = 0;
+  uint32 sqn       = 0;
+  uint32 ng        = 0;
+  sint16 *s1tmp    = (sint16 *)NULL_PTR;
+  sint16 *s2tmp    = (sint16 *)NULL_PTR;
+  sint32 z         = 0;
+  sint32 retVal    = 0;
 
   n = MKN(logn);
 
@@ -834,12 +841,12 @@ static sint32 fsmsw_falcon_DoSignDyn(samplerZ const samp, void *const samp_ctx, 
 
   /* Apply the lattice basis to obtain the real target vector (after normalization with regards to modulus). */
   FsmSw_Falcon_FFT(t0, logn);
-  ni = fpr_inverse_of_q;
+  ni_doSignDyn = fpr_inverse_of_q;
   FsmSw_CommonLib_MemCpy(t1, t0, n * sizeof(*t0));
   FsmSw_Falcon_Poly_MulFFT(t1, b01, logn);
-  FsmSw_Falcon_Poly_Mulconst(t1, FsmSw_Falcon_Fpr_Neg(ni), logn);
+  FsmSw_Falcon_Poly_Mulconst(t1, FsmSw_Falcon_Fpr_Neg(ni_doSignDyn), logn);
   FsmSw_Falcon_Poly_MulFFT(t0, b11, logn);
-  FsmSw_Falcon_Poly_Mulconst(t0, ni, logn);
+  FsmSw_Falcon_Poly_Mulconst(t0, ni_doSignDyn, logn);
 
   /* b01 and b11 can be discarded, so we move back (t0,t1). Memory layout is now: g00 g01 g11 t0 t1 */
   FsmSw_CommonLib_MemCpy(b11, t0, n * 2u * sizeof(*t0));
@@ -967,7 +974,7 @@ void FsmSw_Falcon_Sign_Dyn(sint16 *const sig, inner_shake256_context *const rng,
     Ensured proper alignment and validity." */
   ftmp = (fpr *)((void *)tmp);
 
-  for (uint32 i = 0; i < 0xFFFFFFFFu; i++)
+  for (uint32 i = 0; i < FSMSW_FALCON_MAX_UINT32; i++)
   {
     /* Signature produces short vectors s1 and s2. The signature is acceptable only if the aggregate vector s1,s2 is
      * short; we must use the same bound as the verifier.

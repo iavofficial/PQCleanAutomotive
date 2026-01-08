@@ -108,7 +108,7 @@ static void fsmsw_sphincssha2_192fsimple_SeedState(sphincs_sha2_192f_ctx *ctx)
  * \param[in] sphincs_sha2_192f_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_192fSimple_InitializeHashFunction(sphincs_sha2_192f_ctx *ctx)
+void FsmSw_SphincsSha2_192fSimple_InitializeHashFunction(sphincs_sha2_192f_ctx *const ctx)
 {
   fsmsw_sphincssha2_192fsimple_SeedState(ctx);
 } // end: FsmSw_SphincsSha2_192fSimple_InitializeHashFunction

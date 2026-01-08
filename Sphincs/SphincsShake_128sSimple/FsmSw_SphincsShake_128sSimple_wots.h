@@ -70,10 +70,10 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_128sSimple_Wots_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *msg,
-                                                  const sphincs_shake_128s_ctx *ctx, uint32 addr[8]);
+void FsmSw_SphincsShake_128sSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
+                                                  const sphincs_shake_128s_ctx *const ctx, uint32 addr[8]);
 
-void FsmSw_SphincsShake_128sSimple_Wots_ChainLengths(uint32 *lengths, const uint8 *msg);
+void FsmSw_SphincsShake_128sSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
 
 #endif /* FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_H */
 

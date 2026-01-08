@@ -134,6 +134,29 @@ inline functions would not provide significant benefits." */
     b  = a;                                                                                                            \
     a  = T1 + T2;                                                                                                      \
   } while (0)
+#define FSMSW_SHA2_STATE_SIZE         8
+#define FSMSW_SHA2_28_U               28u
+#define FSMSW_SHA2_32_U               32u
+#define FSMSW_SHA2_64_U               64u
+#define FSMSW_SHA2_40_U               40u
+#define FSMSW_SHA2_48_U               48u
+#define FSMSW_SHA2_72_U               72u
+#define FSMSW_SHA2_128_U              128u
+#define FSMSW_SHA2_SHA224_TMP_SIZE    32
+#define FSMSW_SHA2_IV_224_SIZE        32
+#define FSMSW_SHA2_IV_256_SIZE        32
+#define FSMSW_SHA2_SHA384_TMP_SIZE    64
+#define FSMSW_SHA2_IV_384_SIZE        64
+#define FSMSW_SHA2_IV_512_SIZE        64
+#define FSMSW_SHA2_SHA256_DIGEST_SIZE 32u
+#define FSMSW_SHA2_SHA512_DIGEST_SIZE 64u
+#define FSMSW_SHA2_BLOCK_SIZE         64u
+#define FSMSW_SHA2_PADDED_56_U        56u
+#define FSMSW_SHA2_PADDED_119_U       119u
+#define FSMSW_SHA2_PADDED_120_U       120u
+#define FSMSW_SHA2_PADDED_247_U       247u
+#define FSMSW_SHA2_SHA256_PADDED_SIZE 128
+#define FSMSW_SHA2_SHA512_PADDED_SIZE 256
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -141,25 +164,25 @@ inline functions would not provide significant benefits." */
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-static const uint8 iv_224[32] = {0xc1, 0x05, 0x9e, 0xd8, 0x36, 0x7c, 0xd5, 0x07, 0x30, 0x70, 0xdd,
-                                 0x17, 0xf7, 0x0e, 0x59, 0x39, 0xff, 0xc0, 0x0b, 0x31, 0x68, 0x58,
-                                 0x15, 0x11, 0x64, 0xf9, 0x8f, 0xa7, 0xbe, 0xfa, 0x4f, 0xa4};
+static const uint8 iv_224[FSMSW_SHA2_IV_224_SIZE] = {0xc1, 0x05, 0x9e, 0xd8, 0x36, 0x7c, 0xd5, 0x07, 0x30, 0x70, 0xdd,
+                                                     0x17, 0xf7, 0x0e, 0x59, 0x39, 0xff, 0xc0, 0x0b, 0x31, 0x68, 0x58,
+                                                     0x15, 0x11, 0x64, 0xf9, 0x8f, 0xa7, 0xbe, 0xfa, 0x4f, 0xa4};
 
-static const uint8 iv_256[32] = {0x6a, 0x09, 0xe6, 0x67, 0xbb, 0x67, 0xae, 0x85, 0x3c, 0x6e, 0xf3,
-                                 0x72, 0xa5, 0x4f, 0xf5, 0x3a, 0x51, 0x0e, 0x52, 0x7f, 0x9b, 0x05,
-                                 0x68, 0x8c, 0x1f, 0x83, 0xd9, 0xab, 0x5b, 0xe0, 0xcd, 0x19};
+static const uint8 iv_256[FSMSW_SHA2_IV_256_SIZE] = {0x6a, 0x09, 0xe6, 0x67, 0xbb, 0x67, 0xae, 0x85, 0x3c, 0x6e, 0xf3,
+                                                     0x72, 0xa5, 0x4f, 0xf5, 0x3a, 0x51, 0x0e, 0x52, 0x7f, 0x9b, 0x05,
+                                                     0x68, 0x8c, 0x1f, 0x83, 0xd9, 0xab, 0x5b, 0xe0, 0xcd, 0x19};
 
-static const uint8 iv_384[64] = {0xcb, 0xbb, 0x9d, 0x5d, 0xc1, 0x05, 0x9e, 0xd8, 0x62, 0x9a, 0x29, 0x2a, 0x36,
-                                 0x7c, 0xd5, 0x07, 0x91, 0x59, 0x01, 0x5a, 0x30, 0x70, 0xdd, 0x17, 0x15, 0x2f,
-                                 0xec, 0xd8, 0xf7, 0x0e, 0x59, 0x39, 0x67, 0x33, 0x26, 0x67, 0xff, 0xc0, 0x0b,
-                                 0x31, 0x8e, 0xb4, 0x4a, 0x87, 0x68, 0x58, 0x15, 0x11, 0xdb, 0x0c, 0x2e, 0x0d,
-                                 0x64, 0xf9, 0x8f, 0xa7, 0x47, 0xb5, 0x48, 0x1d, 0xbe, 0xfa, 0x4f, 0xa4};
+static const uint8 iv_384[FSMSW_SHA2_IV_384_SIZE] = {
+    0xcb, 0xbb, 0x9d, 0x5d, 0xc1, 0x05, 0x9e, 0xd8, 0x62, 0x9a, 0x29, 0x2a, 0x36, 0x7c, 0xd5, 0x07,
+    0x91, 0x59, 0x01, 0x5a, 0x30, 0x70, 0xdd, 0x17, 0x15, 0x2f, 0xec, 0xd8, 0xf7, 0x0e, 0x59, 0x39,
+    0x67, 0x33, 0x26, 0x67, 0xff, 0xc0, 0x0b, 0x31, 0x8e, 0xb4, 0x4a, 0x87, 0x68, 0x58, 0x15, 0x11,
+    0xdb, 0x0c, 0x2e, 0x0d, 0x64, 0xf9, 0x8f, 0xa7, 0x47, 0xb5, 0x48, 0x1d, 0xbe, 0xfa, 0x4f, 0xa4};
 
-static const uint8 iv_512[64] = {0x6a, 0x09, 0xe6, 0x67, 0xf3, 0xbc, 0xc9, 0x08, 0xbb, 0x67, 0xae, 0x85, 0x84,
-                                 0xca, 0xa7, 0x3b, 0x3c, 0x6e, 0xf3, 0x72, 0xfe, 0x94, 0xf8, 0x2b, 0xa5, 0x4f,
-                                 0xf5, 0x3a, 0x5f, 0x1d, 0x36, 0xf1, 0x51, 0x0e, 0x52, 0x7f, 0xad, 0xe6, 0x82,
-                                 0xd1, 0x9b, 0x05, 0x68, 0x8c, 0x2b, 0x3e, 0x6c, 0x1f, 0x1f, 0x83, 0xd9, 0xab,
-                                 0xfb, 0x41, 0xbd, 0x6b, 0x5b, 0xe0, 0xcd, 0x19, 0x13, 0x7e, 0x21, 0x79};
+static const uint8 iv_512[FSMSW_SHA2_IV_512_SIZE] = {
+    0x6a, 0x09, 0xe6, 0x67, 0xf3, 0xbc, 0xc9, 0x08, 0xbb, 0x67, 0xae, 0x85, 0x84, 0xca, 0xa7, 0x3b,
+    0x3c, 0x6e, 0xf3, 0x72, 0xfe, 0x94, 0xf8, 0x2b, 0xa5, 0x4f, 0xf5, 0x3a, 0x5f, 0x1d, 0x36, 0xf1,
+    0x51, 0x0e, 0x52, 0x7f, 0xad, 0xe6, 0x82, 0xd1, 0x9b, 0x05, 0x68, 0x8c, 0x2b, 0x3e, 0x6c, 0x1f,
+    0x1f, 0x83, 0xd9, 0xab, 0xfb, 0x41, 0xbd, 0x6b, 0x5b, 0xe0, 0xcd, 0x19, 0x13, 0x7e, 0x21, 0x79};
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
@@ -196,17 +219,17 @@ static void fsmsw_sha384_IncFinalize(uint8 *const out, sha384ctx *const state, c
 */
 static uint32 fsmsw_sha2_crypto_HashBlocksSha256(uint8 *const statebytes, const uint8 *const in, uint32 inlen)
 {
-  uint32 state[8] = {0};
-  uint32 a        = 0;
-  uint32 b        = 0;
-  uint32 c        = 0;
-  uint32 d        = 0;
-  uint32 e        = 0;
-  uint32 f        = 0;
-  uint32 g        = 0;
-  uint32 h        = 0;
-  uint32 T1       = 0;
-  uint32 T2       = 0;
+  uint32 state[FSMSW_SHA2_STATE_SIZE] = {0};
+  uint32 a                            = 0;
+  uint32 b                            = 0;
+  uint32 c                            = 0;
+  uint32 d                            = 0;
+  uint32 e                            = 0;
+  uint32 f                            = 0;
+  uint32 g                            = 0;
+  uint32 h                            = 0;
+  uint32 T1                           = 0;
+  uint32 T2                           = 0;
 
   /* in_temp and inlen_temp are used to avoid modifying the input. */
   const uint8 *in_temp = in;
@@ -229,7 +252,7 @@ static uint32 fsmsw_sha2_crypto_HashBlocksSha256(uint8 *const statebytes, const 
   h        = fsmsw_sha2_LoadBigendian32(&statebytes[28]);
   state[7] = h;
 
-  while (inlen_temp >= 64u)
+  while (inlen_temp >= FSMSW_SHA2_BLOCK_SIZE)
   {
     uint32 w0  = fsmsw_sha2_LoadBigendian32(&in_temp[0]);
     uint32 w1  = fsmsw_sha2_LoadBigendian32(&in_temp[4]);
@@ -370,7 +393,7 @@ static uint32 fsmsw_sha2_crypto_HashBlocksSha256(uint8 *const statebytes, const 
 because the MISRA 17.8 warnings require temporary variables to be fixed." */
 static uint32 fsmsw_sha2_crypto_HashBlocksSha512(uint8 *const statebytes, const uint8 *const in, uint32 inlen)
 {
-  uint64 state[8];
+  uint64 state[FSMSW_SHA2_STATE_SIZE];
   uint64 a;
   uint64 b;
   uint64 c;
@@ -403,7 +426,7 @@ static uint32 fsmsw_sha2_crypto_HashBlocksSha512(uint8 *const statebytes, const 
   h        = fsmsw_sha2_LoadBigendian64(&statebytes[56]);
   state[7] = h;
 
-  while (inlen_temp >= 128u)
+  while (inlen_temp >= FSMSW_SHA2_128_U)
   {
     uint64 w0  = fsmsw_sha2_LoadBigendian64(&in_temp[0]);
     uint64 w1  = fsmsw_sha2_LoadBigendian64(&in_temp[8]);
@@ -635,11 +658,11 @@ static void fsmsw_sha2_StoreBigendian64(uint8 *const x, uint64 u)
 */
 static void fsmsw_sha224_IncInit(sha224ctx *const state)
 {
-  for (uint32 i = 0; i < 32u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_32_U; ++i)
   {
     state->ctx[i] = iv_224[i];
   }
-  for (uint32 i = 32; i < 40u; ++i)
+  for (uint32 i = 32; i < FSMSW_SHA2_40_U; ++i)
   {
     state->ctx[i] = 0;
   }
@@ -654,11 +677,11 @@ static void fsmsw_sha224_IncInit(sha224ctx *const state)
 */
 static void fsmsw_sha384_IncInit(sha384ctx *const state)
 {
-  for (uint32 i = 0; i < 64u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_64_U; ++i)
   {
     state->ctx[i] = iv_384[i];
   }
-  for (uint32 i = 64; i < 72u; ++i)
+  for (uint32 i = 64; i < FSMSW_SHA2_72_U; ++i)
   {
     state->ctx[i] = 0;
   }
@@ -677,7 +700,7 @@ static void fsmsw_sha384_IncInit(sha384ctx *const state)
 */
 static void fsmsw_sha224_IncFinalize(uint8 *const out, sha224ctx *const state, const uint8 *const in, uint32 inlen)
 {
-  uint8 tmp[32] = {0};
+  uint8 tmp[FSMSW_SHA2_SHA224_TMP_SIZE] = {0};
 
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
       Ensured proper alignment and validity." */
@@ -685,7 +708,7 @@ static void fsmsw_sha224_IncFinalize(uint8 *const out, sha224ctx *const state, c
       Ensured proper alignment and validity." */
   FsmSw_Sha256_IncFinalize(tmp, (sha256ctx *)((void *)state), in, inlen);
 
-  for (uint32 i = 0; i < 28u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_28_U; ++i)
   {
     out[i] = tmp[i];
   }
@@ -704,7 +727,7 @@ static void fsmsw_sha224_IncFinalize(uint8 *const out, sha224ctx *const state, c
 */
 static void fsmsw_sha384_IncFinalize(uint8 *const out, sha384ctx *const state, const uint8 *const in, uint32 inlen)
 {
-  uint8 tmp[64] = {0};
+  uint8 tmp[FSMSW_SHA2_SHA384_TMP_SIZE] = {0};
 
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
       Ensured proper alignment and validity." */
@@ -712,7 +735,7 @@ static void fsmsw_sha384_IncFinalize(uint8 *const out, sha384ctx *const state, c
       Ensured proper alignment and validity." */
   FsmSw_Sha512_IncFinalize(tmp, (sha512ctx *)((void *)state), in, inlen);
 
-  for (uint32 i = 0; i < 48u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_48_U; ++i)
   {
     out[i] = tmp[i];
   }
@@ -730,11 +753,11 @@ static void fsmsw_sha384_IncFinalize(uint8 *const out, sha384ctx *const state, c
 */
 void FsmSw_Sha256_IncInit(sha256ctx *const state)
 {
-  for (uint32 i = 0; i < 32u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_32_U; ++i)
   {
     state->ctx[i] = iv_256[i];
   }
-  for (uint32 i = 32; i < 40u; ++i)
+  for (uint32 i = 32; i < FSMSW_SHA2_40_U; ++i)
   {
     state->ctx[i] = 0;
   }
@@ -749,11 +772,11 @@ void FsmSw_Sha256_IncInit(sha256ctx *const state)
 */
 void FsmSw_Sha512_IncInit(sha512ctx *const state)
 {
-  for (uint32 i = 0; i < 64u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_64_U; ++i)
   {
     state->ctx[i] = iv_512[i];
   }
-  for (uint32 i = 64; i < 72u; ++i)
+  for (uint32 i = 64; i < FSMSW_SHA2_72_U; ++i)
   {
     state->ctx[i] = 0;
   }
@@ -898,9 +921,9 @@ void FsmSw_Sha384_IncBlocks(sha384ctx *const state, const uint8 *const in, uint3
 */
 void FsmSw_Sha256_IncFinalize(uint8 *const out, sha256ctx *state, const uint8 *const in, uint32 inlen)
 {
-  uint8 padded[128]  = {0};
-  uint32 inlen_temp  = 0;
-  uint64 const bytes = fsmsw_sha2_LoadBigendian64(&state->ctx[32]) + inlen;
+  uint8 padded[FSMSW_SHA2_SHA256_PADDED_SIZE] = {0};
+  uint32 inlen_temp                           = 0;
+  uint64 const bytes                          = fsmsw_sha2_LoadBigendian64(&state->ctx[32]) + inlen;
 
   /* in_temp and inlen_temp_input are used to avoid modifying the input. */
   const uint8 *in_temp    = in;
@@ -920,7 +943,7 @@ void FsmSw_Sha256_IncFinalize(uint8 *const out, sha256ctx *state, const uint8 *c
 
   if (inlen_temp_input < 56u)
   {
-    for (uint32 i = inlen_temp_input + 1u; i < 56u; ++i)
+    for (uint32 i = inlen_temp_input + 1u; i < FSMSW_SHA2_PADDED_56_U; ++i)
     {
       padded[i] = 0;
     }
@@ -936,7 +959,7 @@ void FsmSw_Sha256_IncFinalize(uint8 *const out, sha256ctx *state, const uint8 *c
   }
   else
   {
-    for (uint32 i = inlen_temp_input + 1u; i < 120u; ++i)
+    for (uint32 i = inlen_temp_input + 1u; i < FSMSW_SHA2_PADDED_120_U; ++i)
     {
       padded[i] = 0;
     }
@@ -951,7 +974,7 @@ void FsmSw_Sha256_IncFinalize(uint8 *const out, sha256ctx *state, const uint8 *c
     (void)fsmsw_sha2_crypto_HashBlocksSha256(state->ctx, padded, 128);
   }
 
-  for (uint32 i = 0; i < 32u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_SHA256_DIGEST_SIZE; ++i)
   {
     out[i] = state->ctx[i];
   }
@@ -970,9 +993,9 @@ void FsmSw_Sha256_IncFinalize(uint8 *const out, sha256ctx *state, const uint8 *c
 */
 void FsmSw_Sha512_IncFinalize(uint8 *const out, sha512ctx *state, const uint8 *const in, uint32 inlen)
 {
-  uint8 padded[256]  = {0};
-  uint32 inlen_temp  = 0;
-  uint64 const bytes = fsmsw_sha2_LoadBigendian64(&state->ctx[64]) + inlen;
+  uint8 padded[FSMSW_SHA2_SHA512_PADDED_SIZE] = {0};
+  uint32 inlen_temp                           = 0;
+  uint64 const bytes                          = fsmsw_sha2_LoadBigendian64(&state->ctx[64]) + inlen;
 
   /* in_temp and inlen_temp_input are used to avoid modifying the input. */
   const uint8 *in_temp    = in;
@@ -992,7 +1015,7 @@ void FsmSw_Sha512_IncFinalize(uint8 *const out, sha512ctx *state, const uint8 *c
 
   if (inlen_temp_input < 112u)
   {
-    for (uint32 i = inlen_temp_input + 1u; i < 119u; ++i)
+    for (uint32 i = inlen_temp_input + 1u; i < FSMSW_SHA2_PADDED_119_U; ++i)
     {
       padded[i] = 0;
     }
@@ -1004,12 +1027,12 @@ void FsmSw_Sha512_IncFinalize(uint8 *const out, sha512ctx *state, const uint8 *c
     padded[124] = (uint8)(bytes >> 21);
     padded[125] = (uint8)(bytes >> 13);
     padded[126] = (uint8)(bytes >> 5);
-    padded[127] = (uint8)(bytes << 3);
+    padded[127] = (uint8)((bytes << 3) & 0xFFU);
     (void)fsmsw_sha2_crypto_HashBlocksSha512(state->ctx, padded, 128);
   }
   else
   {
-    for (uint32 i = inlen_temp_input + 1u; i < 247u; ++i)
+    for (uint32 i = inlen_temp_input + 1u; i < FSMSW_SHA2_PADDED_247_U; ++i)
     {
       padded[i] = 0;
     }
@@ -1021,11 +1044,11 @@ void FsmSw_Sha512_IncFinalize(uint8 *const out, sha512ctx *state, const uint8 *c
     padded[252] = (uint8)(bytes >> 21);
     padded[253] = (uint8)(bytes >> 13);
     padded[254] = (uint8)(bytes >> 5);
-    padded[255] = (uint8)(bytes << 3);
+    padded[255] = (uint8)((bytes << 3) & 0xFFU);
     (void)fsmsw_sha2_crypto_HashBlocksSha512(state->ctx, padded, 256);
   }
 
-  for (uint32 i = 0; i < 64u; ++i)
+  for (uint32 i = 0; i < FSMSW_SHA2_SHA512_DIGEST_SIZE; ++i)
   {
     out[i] = state->ctx[i];
   }

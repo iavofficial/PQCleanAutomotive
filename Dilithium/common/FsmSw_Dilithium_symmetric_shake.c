@@ -44,7 +44,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define SHAKE256_STREAMINIT_BUFFER_SIZE 2
+#define SHAKE128_STREAMINIT_BUFFER_SIZE 2
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -79,7 +80,7 @@
 void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_DILITHIUM],
                                          uint16 nonce)
 {
-  uint8 t[2];
+  uint8 t[SHAKE128_STREAMINIT_BUFFER_SIZE];
 
   t[0] = (uint8)nonce;
   t[1] = (uint8)(nonce >> 8);
@@ -101,7 +102,7 @@ void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint
 void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_DILITHIUM],
                                          uint16 nonce)
 {
-  uint8 t[2];
+  uint8 t[SHAKE256_STREAMINIT_BUFFER_SIZE];
 
   t[0] = (uint8)nonce;
   t[1] = (uint8)(nonce >> 8);

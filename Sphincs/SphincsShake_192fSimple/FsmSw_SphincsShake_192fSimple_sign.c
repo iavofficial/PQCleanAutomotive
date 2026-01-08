@@ -53,7 +53,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_SPHINCS_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -73,7 +73,8 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed);
+static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *const pk, uint8 *const sk,
+                                                                  const uint8 *const seed);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -89,7 +90,8 @@ static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *pk, uin
  * \param[in]  const uint8 *seed : t.b.d.
  *
  */
-static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *pk, uint8 *sk, const uint8 *seed)
+static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *const pk, uint8 *const sk,
+                                                                  const uint8 *const seed)
 {
   sphincs_shake_192f_ctx ctx = {{0}};
 
@@ -130,7 +132,7 @@ static void fsmsw_sphincsshake_192fsimple_crypto_sign_SeedKeyPair(uint8 *pk, uin
  * \param[out] uint8 *sk:   t.b.d.
  *
  */
-void FsmSw_SphincsShake_192fSimple_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
   uint8 seed[FSMSW_SPHINCSSHAKE_192FSIMPLE_CRYPTO_SEEDBYTES] = {0};
   (void)FsmSw_CommonLib_RandomBytes(seed, FSMSW_SPHINCSSHAKE_192FSIMPLE_CRYPTO_SEEDBYTES);
@@ -162,13 +164,13 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Sphincs." */
-void FsmSw_SphincsShake_192fSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen,
-                                                         const uint8 *sk)
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m,
+                                                         uint32 mlen, const uint8 *const sk)
 {
   sphincs_shake_192f_ctx ctx = {{0}};
 
-  const uint8 *sk_prf = &sk[FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
-  const uint8 *pk     = &sk[2u * FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
+  const uint8 *const sk_prf = &sk[FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
+  const uint8 *const pk     = &sk[2u * FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
 
   uint8 optrand[FSMSW_SPHINCSSHAKE_192FSIMPLE_N]            = {0};
   uint8 mhash[FSMSW_SPHINCSSHAKE_192FSIMPLE_FORS_MSG_BYTES] = {0};
@@ -176,8 +178,8 @@ void FsmSw_SphincsShake_192fSimple_Crypto_Sign_Signature(uint8 *sig, uint32 *sig
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[8]                                       = {0};
-  uint32 tree_addr[8]                                       = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
 
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
@@ -258,11 +260,11 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Sphincs." */
-uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen,
-                                                       const uint8 *pk)
+uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m,
+                                                       uint32 mlen, const uint8 *const pk)
 {
   sphincs_shake_192f_ctx ctx                                = {{0}};
-  const uint8 *pub_root                                     = &pk[FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
+  const uint8 *const pub_root                               = &pk[FSMSW_SPHINCSSHAKE_192FSIMPLE_N];
   uint8 mhash[FSMSW_SPHINCSSHAKE_192FSIMPLE_FORS_MSG_BYTES] = {0};
   uint8 wots_pk[FSMSW_SPHINCSSHAKE_192FSIMPLE_WOTS_BYTES]   = {0};
   uint8 root[FSMSW_SPHINCSSHAKE_192FSIMPLE_N]               = {0};
@@ -270,9 +272,9 @@ uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Verify(const uint8 *sig, uint32 
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[8]                                       = {0};
-  uint32 tree_addr[8]                                       = {0};
-  uint32 wots_pk_addr[8]                                    = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 wots_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]              = {0};
   uint8 retVal                                              = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */
@@ -363,7 +365,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_192fSimple_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                               const uint8 *const sk)
 {
   uint32 siglen = 0;
 
@@ -394,8 +397,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen,
-                                                     const uint8 *pk)
+uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm,
+                                                     uint32 smlen, const uint8 *const pk)
 {
   uint8 retVal = ERR_OK;
 
@@ -423,3 +426,7 @@ uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Open(uint8 *m, uint32 *mlen, con
 
   return retVal;
 } // end: FsmSw_SphincsShake_192fSimple_Crypto_Sign_Open
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

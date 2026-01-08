@@ -51,6 +51,10 @@
 #define POLY_UNIFORM_NBLOCKS        ((768u + STREAM128_BLOCKBYTES - 1u) / STREAM128_BLOCKBYTES)
 #define POLY_UNIFORM_ETA_NBLOCKS    ((136u + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
 #define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES_DILITHIUM2 + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
+#define POLY_CHALLENGE_SIGN_BYTES   8u
+#define POLY_T0PACK_BUFFER_SIZE     8
+#define POLY_ETA_BUFFER_SIZE        8
+#define POLY_ZPACK_BUFFER_SIZE      4
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -104,14 +108,14 @@ static uint32 fsmsw_dilithium2_RejEta(sint32 *const a, uint32 len, const uint8 *
     if (t0 < 15u)
     {
       t0     = t0 - (uint32)(((205u * t0) >> 10) * 5u);
-      a[ctr] = (sint32)((uint32)(2u - t0));
+      a[ctr] = (sint32)2 - (sint32)t0;
       ctr++;
     }
 
     if ((t1 < 15u) && (ctr < len))
     {
       t1     = t1 - (((205u * t1) >> 10) * 5u);
-      a[ctr] = (sint32)((uint32)(2u - t1));
+      a[ctr] = (sint32)2 - (sint32)t1;
       ctr++;
     }
   }
@@ -504,7 +508,7 @@ void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *const c, const uint8 seed[SEEDBYTE
   FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), &state);
 
   signs = 0;
-  for (i = 0; i < 8u; ++i)
+  for (i = 0; i < POLY_CHALLENGE_SIGN_BYTES; ++i)
   {
     signs |= (uint64)buf[i] << (8u * i);
   }
@@ -545,7 +549,7 @@ void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *const c, const uint8 seed[SEEDBYTE
 void FsmSw_Dilithium2_Polyeta_EtaPack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
-  uint8 t[8];
+  uint8 t[POLY_ETA_BUFFER_SIZE];
 
   for (i = 0; i < (N_DILITHIUM / 8u); ++i)
   {
@@ -654,7 +658,7 @@ void FsmSw_Dilithium2_Poly_T1Unpack(poly_D2 *const r, const uint8 *const a)
 void FsmSw_Dilithium2_Poly_T0Pack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
-  uint32 t[8];
+  uint32 t[POLY_T0PACK_BUFFER_SIZE];
 
   for (i = 0; i < (N_DILITHIUM / 8u); ++i)
   {
@@ -776,7 +780,7 @@ void FsmSw_Dilithium2_Poly_T0Unpack(poly_D2 *const r, const uint8 *const a)
 void FsmSw_Dilithium2_Poly_ZPack(uint8 *const r, const poly_D2 *const a)
 {
   uint16 i;
-  uint32 t[4];
+  uint32 t[POLY_ZPACK_BUFFER_SIZE];
 
   for (i = 0; i < (N_DILITHIUM / 4u); ++i)
   {

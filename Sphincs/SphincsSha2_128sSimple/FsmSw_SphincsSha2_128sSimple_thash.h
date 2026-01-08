@@ -64,8 +64,8 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_128sSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks, const sphincs_sha2_128s_ctx *ctx,
-                                        const uint32 addr[8]);
+void FsmSw_SphincsSha2_128sSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                        const sphincs_sha2_128s_ctx *const ctx, const uint32 addr[8]);
 
 #endif /* FSMSW_SPHINCSSHA2_128SSIMPLE_THASH_H */
 

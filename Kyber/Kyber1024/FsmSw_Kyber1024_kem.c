@@ -85,7 +85,7 @@
 * \param[out] uint8 *pk : pointer to output public key (of length KYBER1024_PUBLICKEYBYTES bytes)
 * \param[out] uint8 *sk : pointer to output private key (of length KYBER1024_SECRETKEYBYTES bytes)
 */
-void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk)
+void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk)
 {
   uint32 i = 0;
 
@@ -113,7 +113,7 @@ void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk)
 * \param[out] uint8       *ss : pointer to output shared secret (of length KYBER_SSBYTES bytes)
 * \param[in]  const uint8 *pk : pointer to input public key (of length KYBER1024_PUBLICKEYBYTES bytes)
 */
-void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk)
+void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk)
 {
   uint8 buf[2u * KYBER_SYMBYTES] = {0};
   /* Will contain key, coins */
@@ -149,7 +149,7 @@ void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk)
 *
 * On failure, ss will contain a pseudo-random value.
 */
-void FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk)
+void FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk)
 {
   uint32 i                       = 0;
   uint8 fail                     = 0;

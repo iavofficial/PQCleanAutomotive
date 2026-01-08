@@ -80,7 +80,13 @@ inline functions would not provide significant benefits." */
 #define RNG_CONTEXT inner_shake256_context
 
 /* Minimal recursion depth at which we rebuild intermediate values when reconstructing f and g. */
-#define DEPTH_INT_FG 4u
+#define DEPTH_INT_FG                    4u
+#define FSMSW_FALCON_MIN_DEPTH          2u
+#define FSMSW_FALCON_MODPDIV_INDEX      30
+#define FSMSW_FALCON_MAX_LOGN_SUPPORTED 10u
+#define FSMSW_FALCON_ZINTBEZOU_STEPS    31
+#define FSMSW_FALCON_UINT32_MAX_VALUE   0xFFFFFFFFu
+#define FSMSW_FALCON_GETRNG64_TMP_SIZE  8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -836,7 +842,8 @@ static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen
 static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s);
 static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len);
 static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
-                                        const small_prime *const primes, sint32 normalize_signed, uint32 *const tmp);
+                                        const small_prime *const primes_zintRebuildCrt, sint32 normalize_signed,
+                                        uint32 *const tmp);
 static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl);
 static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
                                         sint64 yb);
@@ -850,7 +857,8 @@ static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, con
 static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
                                        uint32 scl);
 static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x);
-static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen, uint32 fstride, uint32 logn);
+static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
+                                     uint32 fstride_polyBigToFp, uint32 logn);
 static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn);
 static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
                                        uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
@@ -897,6 +905,9 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
   uint32 w = 0;
 
   w = (uint32)x;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   w += p & (uint32)((sint32)((-1) * (sint32)((uint32)(w >> 31))));
 
   return w;
@@ -914,6 +925,9 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
 */
 static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 {
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   return (sint32)((uint32)(x - (p & (((x - ((p + 1u) >> 1)) >> 31) - 1u))));
 } // end: fsmsw_falcon_ModpNorm
 
@@ -929,14 +943,19 @@ static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
 {
   uint32 y = 0;
-
-  y = 2u - p;
+  /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
+  be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+  additional benefit and could compromise the stability of the system. */
+  /* polyspace +3 CERT-C:INT18-C [Justified:]The current implementation has been carefully reviewed and determined to
+  be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+  additional benefit and could compromise the stability of the system. */
+  y = (uint32)(2u - p);
   y *= 2u - (p * y);
   y *= 2u - (p * y);
   y *= 2u - (p * y);
   y *= 2u - (p * y);
 
-  return (uint32)(0x7FFFFFFFu & (uint32)((sint32)((-1) * (sint32)y)));
+  return (uint32)(0x7FFFFFFFU & (~y + 1U));
 } // end: fsmsw_falcon_ModpNorm
 
 /*====================================================================================================================*/
@@ -970,6 +989,9 @@ static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
   uint32 d = 0;
 
   d = a + b - p;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
@@ -991,6 +1013,9 @@ static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
   uint32 d = 0;
 
   d = a - b;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
@@ -1018,6 +1043,9 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
   z = (uint64)a * (uint64)b;
   w = ((z * p0i) & (uint64)0x7FFFFFFF) * p;
   d = (uint32)((z + w) >> 31) - p;
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
@@ -1049,6 +1077,9 @@ static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
   z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
 
   /* Halve the value mod p to get 2^62. */
+  /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   z = (z + (p & (uint32)((sint32)((-1) * (sint32)((uint32)(z & 1u)))))) >> 1;
 
   return z;
@@ -1118,12 +1149,15 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
   e = p - 2u;
   z = R;
 
-  for (i = 30; i >= 0; i--)
+  for (i = FSMSW_FALCON_MODPDIV_INDEX; i >= 0; i--)
   {
     uint32 z2;
 
     z  = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
     z2 = fsmsw_falcon_ModpMontymul(z, b, p, p0i);
+    /* polyspace +3 CERT-C:INT31-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
+    be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system." */
     z ^= (z ^ z2) & (uint32)((sint32)((-1) * (sint32)((uint32)((uint32)(e >> (uint32)i) & 1u))));
   }
 
@@ -1168,20 +1202,20 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 l
   uint32 v  = 0;
 
   /* g_temp is used to avoid modifying the input. */
-  uint32 g_temp = g;
+  uint32 g_temp_modpMkgm2 = g;
 
   n = (uint32)1 << logn;
 
   /* We want g such that g^(2N) = 1 mod p, but the provided generator has order 2048. We must square it a few times. */
-  R2     = fsmsw_falcon_ModpR2(p, p0i);
-  g_temp = fsmsw_falcon_ModpMontymul(g_temp, R2, p, p0i);
+  R2               = fsmsw_falcon_ModpR2(p, p0i);
+  g_temp_modpMkgm2 = fsmsw_falcon_ModpMontymul(g_temp_modpMkgm2, R2, p, p0i);
 
-  for (k = logn; k < 10u; k++)
+  for (k = logn; k < FSMSW_FALCON_MAX_LOGN_SUPPORTED; k++)
   {
-    g_temp = fsmsw_falcon_ModpMontymul(g_temp, g_temp, p, p0i);
+    g_temp_modpMkgm2 = fsmsw_falcon_ModpMontymul(g_temp_modpMkgm2, g_temp_modpMkgm2, p, p0i);
   }
 
-  ig = fsmsw_falcon_ModpDiv(R2, g_temp, p, p0i, fsmsw_falcon_ModpR(p));
+  ig = fsmsw_falcon_ModpDiv(R2, g_temp_modpMkgm2, p, p0i, fsmsw_falcon_ModpR(p));
   k  = 10u - logn;
   x1 = fsmsw_falcon_ModpR(p);
   x2 = fsmsw_falcon_ModpR(p);
@@ -1191,7 +1225,7 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 l
     v      = REV10[u << k];
     gm[v]  = x1;
     igm[v] = x2;
-    x1     = fsmsw_falcon_ModpMontymul(x1, g_temp, p, p0i);
+    x1     = fsmsw_falcon_ModpMontymul(x1, g_temp_modpMkgm2, p, p0i);
     x2     = fsmsw_falcon_ModpMontymul(x2, ig, p, p0i);
   }
 } // end: fsmsw_falcon_ModpMkgm2
@@ -1212,19 +1246,19 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 l
 static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
                                      uint32 p0i)
 {
-  uint32 t          = 0;
-  uint32 m          = 0;
-  uint32 n          = 0;
-  uint32 ht         = 0;
-  uint32 u          = 0;
-  uint32 v1         = 0;
-  uint32 s          = 0;
-  uint32 v          = 0;
-  uint32 *r1        = (uint32 *)NULL_PTR;
-  uint32 *r2        = (uint32 *)NULL_PTR;
-  uint32 x          = 0;
-  uint32 y          = 0;
-  boolean bStopFunc = FALSE;
+  uint32 t               = 0;
+  uint32 m               = 0;
+  uint32 n               = 0;
+  uint32 ht              = 0;
+  uint32 u               = 0;
+  uint32 v1              = 0;
+  uint32 s               = 0;
+  uint32 v               = 0;
+  uint32 *r1             = (uint32 *)NULL_PTR;
+  uint32 *r2_ModpNtt2Ext = (uint32 *)NULL_PTR;
+  uint32 x               = 0;
+  uint32 y               = 0;
+  boolean bStopFunc      = FALSE;
 
   if (logn == 0u)
   {
@@ -1243,18 +1277,18 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint3
 
       for (u = 0; u < m; u++)
       {
-        s  = gm[m + u];
-        r1 = &a[v1 * stride];
-        r2 = &r1[ht * stride];
+        s              = gm[m + u];
+        r1             = &a[v1 * stride];
+        r2_ModpNtt2Ext = &r1[ht * stride];
 
         for (v = 0; v < ht; v++)
         {
-          x   = *r1;
-          y   = fsmsw_falcon_ModpMontymul(*r2, s, p, p0i);
-          *r1 = fsmsw_falcon_ModpAdd(x, y, p);
-          *r2 = fsmsw_falcon_ModpSub(x, y, p);
-          r1  = &r1[stride];
-          r2  = &r2[stride];
+          x               = *r1;
+          y               = fsmsw_falcon_ModpMontymul(*r2_ModpNtt2Ext, s, p, p0i);
+          *r1             = fsmsw_falcon_ModpAdd(x, y, p);
+          *r2_ModpNtt2Ext = fsmsw_falcon_ModpSub(x, y, p);
+          r1              = &r1[stride];
+          r2_ModpNtt2Ext  = &r2_ModpNtt2Ext[stride];
         }
 
         v1 += t;
@@ -1279,22 +1313,22 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint3
 static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
                                       uint32 p0i)
 {
-  uint32 t   = 0;
-  uint32 m   = 0;
-  uint32 n   = 0;
-  uint32 k   = 0;
-  uint32 ni  = 0;
-  uint32 *r  = (uint32 *)NULL_PTR;
-  uint32 hm  = 0;
-  uint32 dt  = 0;
-  uint32 u   = 0;
-  uint32 v1  = 0;
-  uint32 s   = 0;
-  uint32 v   = 0;
-  uint32 *r1 = (uint32 *)NULL_PTR;
-  uint32 *r2 = (uint32 *)NULL_PTR;
-  uint32 x   = 0;
-  uint32 y   = 0;
+  uint32 t                = 0;
+  uint32 m                = 0;
+  uint32 n                = 0;
+  uint32 k                = 0;
+  uint32 ni               = 0;
+  uint32 *r               = (uint32 *)NULL_PTR;
+  uint32 hm               = 0;
+  uint32 dt               = 0;
+  uint32 u                = 0;
+  uint32 v1               = 0;
+  uint32 s                = 0;
+  uint32 v                = 0;
+  uint32 *r1              = (uint32 *)NULL_PTR;
+  uint32 *r2_ModpIntt2Ext = (uint32 *)NULL_PTR;
+  uint32 x                = 0;
+  uint32 y                = 0;
 
   if (logn != 0u)
   {
@@ -1309,18 +1343,18 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint
 
       for (u = 0; u < hm; u++)
       {
-        s  = igm[hm + u];
-        r1 = &a[v1 * stride];
-        r2 = &r1[t * stride];
+        s               = igm[hm + u];
+        r1              = &a[v1 * stride];
+        r2_ModpIntt2Ext = &r1[t * stride];
 
         for (v = 0; v < t; v++)
         {
-          x   = *r1;
-          y   = *r2;
-          *r1 = fsmsw_falcon_ModpAdd(x, y, p);
-          *r2 = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpSub(x, y, p), s, p, p0i);
-          r1  = &r1[stride];
-          r2  = &r2[stride];
+          x                = *r1;
+          y                = *r2_ModpIntt2Ext;
+          *r1              = fsmsw_falcon_ModpAdd(x, y, p);
+          *r2_ModpIntt2Ext = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpSub(x, y, p), s, p, p0i);
+          r1               = &r1[stride];
+          r2_ModpIntt2Ext  = &r2_ModpIntt2Ext[stride];
         }
 
         v1 += dt;
@@ -1497,6 +1531,9 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dl
     u--;
     x = fsmsw_falcon_ModpMontymul(x, R2, p, p0i);
     w = d[u] - p;
+    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
     w += p & (uint32)((sint32)((-1) * (sint32)((uint32)(w >> 31))));
     x = fsmsw_falcon_ModpAdd(x, w, p);
   }
@@ -1606,6 +1643,12 @@ static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, ui
     cc = ((uint32)((sint32)((-1) * (sint32)cc)) >> 31) | (uint32)((sint32)((-1) * (sint32)((uint32)(cc >> 31))));
 
     /* If r != 0 then it is either 1 or -1, and we keep its value. Otherwise, if r = 0, then we replace it with cc. */
+    /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
+    be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system. */
+    /* polyspace +3 CERT-C:INT18-C [Justified:]The current implementation has been carefully reviewed and determined to
+    be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system. */
     r |= cc & ((r & 1u) - 1u);
   }
 
@@ -1634,7 +1677,8 @@ static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, ui
 *
 */
 static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
-                                        const small_prime *const primes, sint32 normalize_signed, uint32 *const tmp)
+                                        const small_prime *const primes_zintRebuildCrt, sint32 normalize_signed,
+                                        uint32 *const tmp)
 {
   uint32 u   = 0;
   uint32 *x  = (uint32 *)NULL_PTR;
@@ -1647,7 +1691,7 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
   uint32 xq  = 0;
   uint32 xr  = 0;
 
-  tmp[0] = primes[0].p;
+  tmp[0] = primes_zintRebuildCrt[0].p;
   for (u = 1; u < xlen; u++)
   {
     /* At the entry of each loop iteration:
@@ -1657,8 +1701,8 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
      *
      * We call 'q' the product of all previous primes. */
 
-    p   = primes[u].p;
-    s   = primes[u].s;
+    p   = primes_zintRebuildCrt[u].p;
+    s   = primes_zintRebuildCrt[u].s;
     p0i = fsmsw_falcon_ModpNinv31(p);
     R2  = fsmsw_falcon_ModpR2(p, p0i);
     x   = xx;
@@ -1784,6 +1828,18 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
+      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
       cca = (sint64)((uint64)(((uint64)((uint64)temp >> 31)) | 0xFFFFFFFE00000000u));
     }
 
@@ -1795,6 +1851,18 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
+      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
       ccb = (sint64)((uint64)(((uint64)((uint64)temp >> 31)) | 0xFFFFFFFE00000000u));
     }
   }
@@ -1914,6 +1982,18 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
+      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
       cca = (sint64)((uint64)(((uint64)((uint64)temp >> 31)) | 0xFFFFFFFE00000000u));
     }
 
@@ -1925,6 +2005,18 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
+      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
+      /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system. */
       ccb = (sint64)((uint64)(((uint64)((uint64)temp >> 31)) | 0xFFFFFFFE00000000u));
     }
   }
@@ -2155,7 +2247,7 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
       qa = 0;
       qb = 1;
 
-      for (i = 0; i < 31; i++)
+      for (i = 0; i < FSMSW_FALCON_ZINTBEZOU_STEPS; i++)
       {
         /* At each iteration:
         *   a <- (a-b)/2 if: a is odd, b is odd, a_hi > b_hi
@@ -2193,10 +2285,16 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
         ;
 
         /* Shifting. */
+        /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+        determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+        the rule would provide no additional benefit and could compromise the stability of the system" */
         a_lo += a_lo & (cA - 1u);
         pa += (sint64)((uint64)((uint64)pa & (uint64)((uint64)cA - 1u)));
         pb += (sint64)((uint64)((uint64)pb & (uint64)((uint64)cA - 1u)));
         a_hi ^= (a_hi ^ (a_hi >> 1)) & (uint64)((sint64)((-1) * (sint64)cA));
+        /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+        determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+        the rule would provide no additional benefit and could compromise the stability of the system" */
         b_lo += b_lo & (uint32)((sint32)((-1) * (sint32)cA));
         qa += (sint64)((uint64)((uint64)qa & (uint64)((sint64)((-1) * (sint64)cA))));
         qb += (sint64)((uint64)((uint64)qb & (uint64)((sint64)((-1) * (sint64)cA))));
@@ -2388,8 +2486,9 @@ static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x)
 * \param[in]  uint32  fstride : t.b.d.
 * \param[in]  uint32     logn : t.b.d.
 *
-*/
-static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen, uint32 fstride, uint32 logn)
+***********************************************************************************************************************/
+static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
+                                     uint32 fstride_polyBigToFp, uint32 logn)
 {
   uint32 n   = 0;
   uint32 u   = 0;
@@ -2406,7 +2505,7 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
 
   n = MKN(logn);
 
-  if (flen == 0u)
+  if (flen_polyBgiToFp == 0u)
   {
     for (u = 0; u < n; u++)
     {
@@ -2419,17 +2518,20 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
     {
       /* Get sign of the integer; if it is negative, then we will load its absolute value instead, and negate the
       * result. */
-      neg = (uint32)((sint32)((-1) * (sint32)((uint32)(f_temp[flen - 1u] >> 30))));
+      neg = (uint32)((sint32)((-1) * (sint32)((uint32)(f_temp[flen_polyBgiToFp - 1u] >> 30))));
       xm  = neg >> 1;
       cc  = neg & 1u;
       x   = fpr_zero;
       fsc = fpr_one;
 
-      for (v = 0; v < flen; v++)
+      for (v = 0; v < flen_polyBgiToFp; v++)
       {
         w  = (f_temp[v] ^ xm) + cc;
         cc = w >> 31;
         w &= 0x7FFFFFFFu;
+        /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+        determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+        the rule would provide no additional benefit and could compromise the stability of the system" */
         w -= (w << 1) & neg;
         x   = FsmSw_Falcon_Fpr_Add(x, FsmSw_Falcon_Fpr_Mul(FsmSw_Falcon_Fpr_Of((sint32)w), fsc));
         fsc = FsmSw_Falcon_Fpr_Mul(fsc, fpr_ptwo31);
@@ -2437,7 +2539,7 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
 
       d[u] = x;
 
-      f_temp = &f_temp[fstride];
+      f_temp = &f_temp[fstride_polyBigToFp];
     }
   }
 } // end: fsmsw_falcon_PolyBigToFp
@@ -2654,7 +2756,7 @@ static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 F
 static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng)
 {
   /* We enforce little-endian representation. */
-  uint8 tmp[8] = {0};
+  uint8 tmp[FSMSW_FALCON_GETRNG64_TMP_SIZE] = {0};
 
   FsmSw_Fips202_Shake256_IncSqueeze(tmp, sizeof(tmp), rng);
 
@@ -2889,8 +2991,8 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
   uint32 u                       = 0;
   uint32 slen                    = 0;
   uint32 tlen                    = 0;
-  uint32 *fd                     = (uint32 *)NULL_PTR;
-  uint32 *gd                     = (uint32 *)NULL_PTR;
+  uint32 *fd_makeFgStep          = (uint32 *)NULL_PTR;
+  uint32 *gd_makeFgStep          = (uint32 *)NULL_PTR;
   uint32 *fs                     = (uint32 *)NULL_PTR;
   uint32 *gs                     = (uint32 *)NULL_PTR;
   uint32 *gm                     = (uint32 *)NULL_PTR;
@@ -2913,13 +3015,13 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
   smallPrimes = PRIMES;
 
   /* Prepare room for the result. */
-  fd  = data;
-  gd  = &fd[hn * tlen];
-  fs  = &gd[hn * tlen];
-  gs  = &fs[n * slen];
-  gm  = &gs[n * slen];
-  igm = &gm[n];
-  t1  = &igm[n];
+  fd_makeFgStep = data;
+  gd_makeFgStep = &fd_makeFgStep[hn * tlen];
+  fs            = &gd_makeFgStep[hn * tlen];
+  gs            = &fs[n * slen];
+  gm            = &gs[n * slen];
+  igm           = &gm[n];
+  t1            = &igm[n];
 
   FsmSw_CommonLib_MemMove(fs, data, 2u * n * slen * sizeof(*data));
 
@@ -2943,7 +3045,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
       fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
     }
 
-    x = &fd[u];
+    x = &fd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
@@ -2969,7 +3071,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
       fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
     }
 
-    x = &gd[u];
+    x = &gd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
@@ -2985,8 +3087,8 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     if (0 == out_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&fd[u], tlen, igm, logn - 1u, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gd[u], tlen, igm, logn - 1u, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
     }
   }
 
@@ -3012,7 +3114,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
 
-    x = &fd[u];
+    x = &fd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
@@ -3030,7 +3132,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
 
-    x = &gd[u];
+    x = &gd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
@@ -3041,8 +3143,8 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     if (0 == out_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&fd[u], tlen, igm, logn - 1u, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gd[u], tlen, igm, logn - 1u, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
     }
   }
 } // end: fsmsw_falcon_MakeFgStep
@@ -3070,8 +3172,8 @@ static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const 
 {
   uint32 n                       = 0;
   uint32 u                       = 0;
-  uint32 *ft                     = (uint32 *)NULL_PTR;
-  uint32 *gt                     = (uint32 *)NULL_PTR;
+  uint32 *ft_makeFg              = (uint32 *)NULL_PTR;
+  uint32 *gt_makeFg              = (uint32 *)NULL_PTR;
   uint32 p0                      = 0;
   uint32 d                       = 0;
   const small_prime *smallPrimes = (small_prime *)NULL_PTR;
@@ -3082,26 +3184,26 @@ static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const 
   boolean bStopFunc              = FALSE;
 
   n           = MKN(logn);
-  ft          = data;
-  gt          = &ft[n];
+  ft_makeFg   = data;
+  gt_makeFg   = &ft_makeFg[n];
   smallPrimes = PRIMES;
   p0          = smallPrimes[0].p;
 
   for (u = 0; u < n; u++)
   {
-    ft[u] = fsmsw_falcon_ModpSet(f[u], p0);
-    gt[u] = fsmsw_falcon_ModpSet(g[u], p0);
+    ft_makeFg[u] = fsmsw_falcon_ModpSet(f[u], p0);
+    gt_makeFg[u] = fsmsw_falcon_ModpSet(g[u], p0);
   }
 
   if ((depth == 0u) && (0 < out_ntt))
   {
     p   = smallPrimes[0].p;
     p0i = fsmsw_falcon_ModpNinv31(p);
-    gm  = &gt[n];
+    gm  = &gt_makeFg[n];
     igm = &gm[MKN(logn)];
     fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[0].g, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(ft, 1, gm, logn, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(gt, 1, gm, logn, p, p0i);
+    fsmsw_falcon_ModpNtt2Ext(ft_makeFg, 1, gm, logn, p, p0i);
+    fsmsw_falcon_ModpNtt2Ext(gt_makeFg, 1, gm, logn, p, p0i);
 
     bStopFunc = TRUE;
   }
@@ -3221,32 +3323,32 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
    *  - the F and G values already in fk->tmp (from the deeper
    *    levels) have degree N/2;
    *  - this function should return F and G of degree N. */
-  uint32 logn      = 0;
-  uint32 n         = 0;
-  uint32 hn        = 0;
-  uint32 slen      = 0;
-  uint32 dlen      = 0;
-  uint32 llen      = 0;
-  uint32 rlen      = 0;
-  uint32 FGlen     = 0;
-  uint32 u         = 0;
-  uint32 *Fd       = (uint32 *)NULL_PTR;
-  uint32 *Gd       = (uint32 *)NULL_PTR;
-  uint32 *Ft       = (uint32 *)NULL_PTR;
-  uint32 *Gt       = (uint32 *)NULL_PTR;
-  uint32 *ft1      = (uint32 *)NULL_PTR;
-  uint32 *gt1      = (uint32 *)NULL_PTR;
-  uint32 *t1       = (uint32 *)NULL_PTR;
-  fpr *rt1         = (uint64 *)NULL_PTR;
-  fpr *rt2         = (uint64 *)NULL_PTR;
-  fpr *rt3         = (uint64 *)NULL_PTR;
-  fpr *rt4         = (uint64 *)NULL_PTR;
-  fpr *rt5         = (uint64 *)NULL_PTR;
-  sint32 scale_fg  = 0;
-  sint32 minbl_fg  = 0;
-  sint32 maxbl_fg  = 0;
-  sint32 maxbl_FG1 = 0;
-  sint32 scale_k   = 0;
+  uint32 logn                       = 0;
+  uint32 n                          = 0;
+  uint32 hn                         = 0;
+  uint32 slen                       = 0;
+  uint32 dlen                       = 0;
+  uint32 llen                       = 0;
+  uint32 rlen                       = 0;
+  uint32 FGlen                      = 0;
+  uint32 u                          = 0;
+  uint32 *Fd                        = (uint32 *)NULL_PTR;
+  uint32 *Gd                        = (uint32 *)NULL_PTR;
+  uint32 *Ft                        = (uint32 *)NULL_PTR;
+  uint32 *Gt                        = (uint32 *)NULL_PTR;
+  uint32 *ft1_solveNtruIntermediate = (uint32 *)NULL_PTR;
+  uint32 *gt1_solveNtruIntermediate = (uint32 *)NULL_PTR;
+  uint32 *t1                        = (uint32 *)NULL_PTR;
+  fpr *rt1                          = (uint64 *)NULL_PTR;
+  fpr *rt2                          = (uint64 *)NULL_PTR;
+  fpr *rt3                          = (uint64 *)NULL_PTR;
+  fpr *rt4                          = (uint64 *)NULL_PTR;
+  fpr *rt5                          = (uint64 *)NULL_PTR;
+  sint32 scale_fg                   = 0;
+  sint32 minbl_fg                   = 0;
+  sint32 maxbl_fg                   = 0;
+  sint32 maxbl_FG1                  = 0;
+  sint32 scale_k                    = 0;
   uint32 *x;
   uint32 *y;
   sint32 *k;
@@ -3302,17 +3404,17 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
   Gd = &Fd[dlen * hn];
 
   /* Compute the input f and g for this level. Note that we get f and g in RNS + NTT representation. */
-  ft1 = &Gd[dlen * hn];
-  fsmsw_falcon_MakeFg(ft1, f, g, logn_top, depth, 1);
+  ft1_solveNtruIntermediate = &Gd[dlen * hn];
+  fsmsw_falcon_MakeFg(ft1_solveNtruIntermediate, f, g, logn_top, depth, 1);
 
   /* Move the newly computed f and g to make room for our candidate F and G (unreduced). */
   Ft = tmp;
   Gt = &Ft[n * llen];
   t1 = &Gt[n * llen];
-  FsmSw_CommonLib_MemMove(t1, ft1, 2u * n * slen * sizeof(*ft1));
-  ft1 = t1;
-  gt1 = &ft1[slen * n];
-  t1  = &gt1[slen * n];
+  FsmSw_CommonLib_MemMove(t1, ft1_solveNtruIntermediate, 2u * n * slen * sizeof(*ft1_solveNtruIntermediate));
+  ft1_solveNtruIntermediate = t1;
+  gt1_solveNtruIntermediate = &ft1_solveNtruIntermediate[slen * n];
+  t1                        = &gt1_solveNtruIntermediate[slen * n];
 
   /* Move Fd and Gd _after_ f and g. */
   FsmSw_CommonLib_MemMove(t1, Fd, 2u * hn * dlen * sizeof(*Fd));
@@ -3356,8 +3458,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     /* If we processed slen words, then f and g have been de-NTTized, and are in RNS; we can rebuild them. */
     if (u == slen)
     {
-      fsmsw_falcon_ZintRebuildCrt(ft1, slen, slen, n, smallPrimes, 1, t1);
-      fsmsw_falcon_ZintRebuildCrt(gt1, slen, slen, n, smallPrimes, 1, t1);
+      fsmsw_falcon_ZintRebuildCrt(ft1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
+      fsmsw_falcon_ZintRebuildCrt(gt1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
     }
 
     gm  = t1;
@@ -3369,8 +3471,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
 
     if (u < slen)
     {
-      x = &ft1[u];
-      y = &gt1[u];
+      x = &ft1_solveNtruIntermediate[u];
+      y = &gt1_solveNtruIntermediate[u];
       for (v = 0; v < n; v++)
       {
         fx[v] = *x;
@@ -3379,15 +3481,15 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
         y     = &y[slen];
       }
 
-      fsmsw_falcon_ModpIntt2Ext(&ft1[u], slen, igm, logn, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gt1[u], slen, igm, logn, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&ft1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
+      fsmsw_falcon_ModpIntt2Ext(&gt1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
     }
     else
     {
       Rx = fsmsw_falcon_ModpRx((uint32)slen, p, p0i, R2);
 
-      x = ft1;
-      y = gt1;
+      x = ft1_solveNtruIntermediate;
+      y = gt1_solveNtruIntermediate;
       for (v = 0; v < n; v++)
       {
         fx[v] = fsmsw_falcon_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
@@ -3535,8 +3637,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     rlen = slen;
   }
 
-  fsmsw_falcon_PolyBigToFp(rt3, &ft1[slen - rlen], rlen, slen, logn);
-  fsmsw_falcon_PolyBigToFp(rt4, &gt1[slen - rlen], rlen, slen, logn);
+  fsmsw_falcon_PolyBigToFp(rt3, &ft1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
+  fsmsw_falcon_PolyBigToFp(rt4, &gt1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
 
   /* Values in rt3 and rt4 are downscaled by 2^(scale_fg). */
   scale_fg = 31 * (sint32)((uint32)(slen - rlen));
@@ -3574,7 +3676,7 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
    */
   scale_k = maxbl_FG1 - minbl_fg;
 
-  for (v = 0; v < 0xFFFFFFFFu; v++)
+  for (v = 0; v < FSMSW_FALCON_UINT32_MAX_VALUE; v++)
   {
     /* Convert current F and G into floating-point. We apply scaling if the current length is more than 10 words. */
     if (FGlen > 10u)
@@ -3656,13 +3758,13 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
       scl = ((uint32)scale_k % 31u);
       if (depth <= DEPTH_INT_FG)
       {
-        fsmsw_falcon_PolySubScaledNtt(Ft, FGlen, llen, ft1, slen, slen, k, sch, scl, logn, t1);
-        fsmsw_falcon_PolySubScaledNtt(Gt, FGlen, llen, gt1, slen, slen, k, sch, scl, logn, t1);
+        fsmsw_falcon_PolySubScaledNtt(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
+        fsmsw_falcon_PolySubScaledNtt(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
       }
       else
       {
-        fsmsw_falcon_PolySubScaled(Ft, FGlen, llen, ft1, slen, slen, k, sch, scl, logn);
-        fsmsw_falcon_PolySubScaled(Gt, FGlen, llen, gt1, slen, slen, k, sch, scl, logn);
+        fsmsw_falcon_PolySubScaled(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
+        fsmsw_falcon_PolySubScaled(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
       }
 
       /* We compute the new maximum size of (F,G), assuming that (f,g) has _maximal_ length (i.e. that reduction is
@@ -3751,53 +3853,53 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   /* The first half of this function is a copy of the corresponding part in fsmsw_falcon_SolveNtruIntermediate(), for the
    * reconstruction of the unreduced F and G. The second half (Babai reduction) is done differently, because the
    * unreduced F and G fit in 53 bits of precision, allowing a much simpler process with lower RAM usage. */
-  uint32 depth = 0;
-  uint32 logn  = 0;
-  uint32 n_top = 0;
-  uint32 n     = 0;
-  uint32 hn    = 0;
-  uint32 slen  = 0;
-  uint32 dlen  = 0;
-  uint32 llen  = 0;
-  uint32 u     = 0;
-  uint32 *Fd   = (uint32 *)NULL_PTR;
-  uint32 *Gd   = (uint32 *)NULL_PTR;
-  uint32 *Ft   = (uint32 *)NULL_PTR;
-  uint32 *Gt   = (uint32 *)NULL_PTR;
-  uint32 *ft1  = (uint32 *)NULL_PTR;
-  uint32 *gt1  = (uint32 *)NULL_PTR;
-  uint32 *t1   = (uint32 *)NULL_PTR;
-  fpr *rt1     = (uint64 *)NULL_PTR;
-  fpr *rt2     = (uint64 *)NULL_PTR;
-  fpr *rt3     = (uint64 *)NULL_PTR;
-  fpr *rt4     = (uint64 *)NULL_PTR;
-  fpr *rt5     = (uint64 *)NULL_PTR;
-  fpr *rt6     = (uint64 *)NULL_PTR;
-  uint32 *x    = (uint32 *)NULL_PTR;
-  uint32 *y    = (uint32 *)NULL_PTR;
-  uint32 p     = 0;
-  uint32 p0i   = 0;
-  uint32 R2    = 0;
-  uint32 Rx    = 0;
-  uint32 v     = 0;
-  uint32 *xs   = (uint32 *)NULL_PTR;
-  uint32 *ys   = (uint32 *)NULL_PTR;
-  uint32 *xd   = (uint32 *)NULL_PTR;
-  uint32 *yd   = (uint32 *)NULL_PTR;
-  uint32 ftA   = 0;
-  uint32 ftB   = 0;
-  uint32 gtA   = 0;
-  uint32 gtB   = 0;
-  uint32 mFp   = 0;
-  uint32 mGp   = 0;
-  uint32 *gm   = (uint32 *)NULL_PTR;
-  uint32 *igm  = (uint32 *)NULL_PTR;
-  uint32 *fx   = (uint32 *)NULL_PTR;
-  uint32 *gx   = (uint32 *)NULL_PTR;
-  uint32 *Fp   = (uint32 *)NULL_PTR;
-  uint32 *Gp   = (uint32 *)NULL_PTR;
-  uint32 e     = 0;
-  fpr z        = 0;
+  uint32 depth                      = 0;
+  uint32 logn                       = 0;
+  uint32 n_top                      = 0;
+  uint32 n                          = 0;
+  uint32 hn                         = 0;
+  uint32 slen                       = 0;
+  uint32 dlen                       = 0;
+  uint32 llen                       = 0;
+  uint32 u                          = 0;
+  uint32 *Fd                        = (uint32 *)NULL_PTR;
+  uint32 *Gd                        = (uint32 *)NULL_PTR;
+  uint32 *Ft                        = (uint32 *)NULL_PTR;
+  uint32 *Gt                        = (uint32 *)NULL_PTR;
+  uint32 *ft1_solveNtruBinaryDepth1 = (uint32 *)NULL_PTR;
+  uint32 *gt1_solveNtruBinaryDepth1 = (uint32 *)NULL_PTR;
+  uint32 *t1                        = (uint32 *)NULL_PTR;
+  fpr *rt1                          = (uint64 *)NULL_PTR;
+  fpr *rt2                          = (uint64 *)NULL_PTR;
+  fpr *rt3                          = (uint64 *)NULL_PTR;
+  fpr *rt4                          = (uint64 *)NULL_PTR;
+  fpr *rt5                          = (uint64 *)NULL_PTR;
+  fpr *rt6                          = (uint64 *)NULL_PTR;
+  uint32 *x                         = (uint32 *)NULL_PTR;
+  uint32 *y                         = (uint32 *)NULL_PTR;
+  uint32 p                          = 0;
+  uint32 p0i                        = 0;
+  uint32 R2                         = 0;
+  uint32 Rx                         = 0;
+  uint32 v                          = 0;
+  uint32 *xs                        = (uint32 *)NULL_PTR;
+  uint32 *ys                        = (uint32 *)NULL_PTR;
+  uint32 *xd                        = (uint32 *)NULL_PTR;
+  uint32 *yd                        = (uint32 *)NULL_PTR;
+  uint32 ftA                        = 0;
+  uint32 ftB                        = 0;
+  uint32 gtA                        = 0;
+  uint32 gtB                        = 0;
+  uint32 mFp                        = 0;
+  uint32 mGp                        = 0;
+  uint32 *gm                        = (uint32 *)NULL_PTR;
+  uint32 *igm                       = (uint32 *)NULL_PTR;
+  uint32 *fx                        = (uint32 *)NULL_PTR;
+  uint32 *gx                        = (uint32 *)NULL_PTR;
+  uint32 *Fp                        = (uint32 *)NULL_PTR;
+  uint32 *Gp                        = (uint32 *)NULL_PTR;
+  uint32 e                          = 0;
+  fpr z                             = 0;
 
   depth = 1;
   n_top = (uint32)1 << logn_top;
@@ -3855,11 +3957,11 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   FsmSw_CommonLib_MemMove(tmp, Ft, llen * n * sizeof(uint32));
   Ft = tmp;
   FsmSw_CommonLib_MemMove(&Ft[llen * n], Gt, llen * n * sizeof(uint32));
-  Gt  = &Ft[llen * n];
-  ft1 = &Gt[llen * n];
-  gt1 = &ft1[slen * n];
+  Gt                        = &Ft[llen * n];
+  ft1_solveNtruBinaryDepth1 = &Gt[llen * n];
+  gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
 
-  t1 = &gt1[slen * n];
+  t1 = &gt1_solveNtruBinaryDepth1[slen * n];
 
   /* Compute our F and G modulo sufficiently many small primes. */
   for (u = 0; u < llen; u++)
@@ -3898,9 +4000,9 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
     /* From that point onward, we only need tables for degree n, so we can save some space. */
     FsmSw_CommonLib_MemMove(&gm[n], igm, n * sizeof(*igm));
     igm = &gm[n];
-    FsmSw_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1));
+    FsmSw_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1_solveNtruBinaryDepth1));
     fx = &igm[n];
-    FsmSw_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1));
+    FsmSw_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1_solveNtruBinaryDepth1));
     gx = &fx[n];
 
     /* Get F' and G' modulo p and in NTT representation (they have degree n/2). These values were computed in a
@@ -3966,8 +4068,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
       fsmsw_falcon_ModpIntt2Ext(fx, 1, igm, logn, p, p0i);
       fsmsw_falcon_ModpIntt2Ext(gx, 1, igm, logn, p, p0i);
 
-      x = &ft1[u];
-      y = &gt1[u];
+      x = &ft1_solveNtruBinaryDepth1[u];
+      y = &gt1_solveNtruBinaryDepth1[u];
       for (v = 0; v < n; v++)
       {
         *x = fx[v];
@@ -3981,23 +4083,23 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   /* Rebuild f, g, F and G with the CRT. Note that the elements of F and G are consecutive, and thus can be rebuilt in
    * a single loop; similarly, the elements of f and g are consecutive. */
   fsmsw_falcon_ZintRebuildCrt(Ft, llen, llen, n << 1, PRIMES, 1, t1);
-  fsmsw_falcon_ZintRebuildCrt(ft1, slen, slen, n << 1, PRIMES, 1, t1);
+  fsmsw_falcon_ZintRebuildCrt(ft1_solveNtruBinaryDepth1, slen, slen, n << 1, PRIMES, 1, t1);
 
   /* Here starts the Babai reduction, specialized for depth = 1.
    * Candidates F and G (from Ft and Gt), and base f and g (ft1 and gt1), are converted to floating point. There is no
    * scaling, and a single pass is sufficient. */
 
   /* Convert F and G into floating point (rt1 and rt2). */
-  rt1 = fsmsw_falcon_AlignFpr(tmp, &gt1[slen * n]);
+  rt1 = fsmsw_falcon_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
   rt2 = &rt1[n];
   fsmsw_falcon_PolyBigToFp(rt1, Ft, llen, llen, logn);
   fsmsw_falcon_PolyBigToFp(rt2, Gt, llen, llen, logn);
 
   /* Integer representation of F and G is no longer needed, we can remove it. */
-  FsmSw_CommonLib_MemMove(tmp, ft1, 2u * slen * n * sizeof(*ft1));
-  ft1 = tmp;
-  gt1 = &ft1[slen * n];
-  rt3 = fsmsw_falcon_AlignFpr(tmp, &gt1[slen * n]);
+  FsmSw_CommonLib_MemMove(tmp, ft1_solveNtruBinaryDepth1, 2u * slen * n * sizeof(*ft1_solveNtruBinaryDepth1));
+  ft1_solveNtruBinaryDepth1 = tmp;
+  gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
+  rt3                       = fsmsw_falcon_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
   FsmSw_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
   rt1 = rt3;
   rt2 = &rt1[n];
@@ -4005,8 +4107,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   rt4 = &rt3[n];
 
   /* Convert f and g into floating point (rt3 and rt4). */
-  fsmsw_falcon_PolyBigToFp(rt3, ft1, slen, slen, logn);
-  fsmsw_falcon_PolyBigToFp(rt4, gt1, slen, slen, logn);
+  fsmsw_falcon_PolyBigToFp(rt3, ft1_solveNtruBinaryDepth1, slen, slen, logn);
+  fsmsw_falcon_PolyBigToFp(rt4, gt1_solveNtruBinaryDepth1, slen, slen, logn);
 
   /* Remove unneeded ft1 and gt1. */
   FsmSw_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
@@ -4104,33 +4206,33 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
 static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
                                                  uint32 *const tmp)
 {
-  uint32 n    = 0;
-  uint32 hn   = 0;
-  uint32 u    = 0;
-  uint32 p    = 0;
-  uint32 p0i  = 0;
-  uint32 R2   = 0;
-  uint32 *Fp  = (uint32 *)NULL_PTR;
-  uint32 *Gp  = (uint32 *)NULL_PTR;
-  uint32 *t1  = (uint32 *)NULL_PTR;
-  uint32 *t2  = (uint32 *)NULL_PTR;
-  uint32 *t3  = (uint32 *)NULL_PTR;
-  uint32 *t4  = (uint32 *)NULL_PTR;
-  uint32 *t5  = (uint32 *)NULL_PTR;
-  uint32 *gm  = (uint32 *)NULL_PTR;
-  uint32 *igm = (uint32 *)NULL_PTR;
-  uint32 *ft  = (uint32 *)NULL_PTR;
-  uint32 *gt  = (uint32 *)NULL_PTR;
-  fpr *rt2    = (uint64 *)NULL_PTR;
-  fpr *rt3    = (uint64 *)NULL_PTR;
-  uint32 ftA  = 0;
-  uint32 ftB  = 0;
-  uint32 gtA  = 0;
-  uint32 gtB  = 0;
-  uint32 mFp  = 0;
-  uint32 mGp  = 0;
-  uint32 w    = 0;
-  uint32 kw   = 0;
+  uint32 n                         = 0;
+  uint32 hn                        = 0;
+  uint32 u                         = 0;
+  uint32 p                         = 0;
+  uint32 p0i                       = 0;
+  uint32 R2                        = 0;
+  uint32 *Fp                       = (uint32 *)NULL_PTR;
+  uint32 *Gp                       = (uint32 *)NULL_PTR;
+  uint32 *t1                       = (uint32 *)NULL_PTR;
+  uint32 *t2                       = (uint32 *)NULL_PTR;
+  uint32 *t3                       = (uint32 *)NULL_PTR;
+  uint32 *t4                       = (uint32 *)NULL_PTR;
+  uint32 *t5                       = (uint32 *)NULL_PTR;
+  uint32 *gm                       = (uint32 *)NULL_PTR;
+  uint32 *igm                      = (uint32 *)NULL_PTR;
+  uint32 *ft_solveNtruBinaryDepth0 = (uint32 *)NULL_PTR;
+  uint32 *gt_solveNtruBinaryDepth0 = (uint32 *)NULL_PTR;
+  fpr *rt2                         = (uint64 *)NULL_PTR;
+  fpr *rt3                         = (uint64 *)NULL_PTR;
+  uint32 ftA                       = 0;
+  uint32 ftB                       = 0;
+  uint32 gtA                       = 0;
+  uint32 gtB                       = 0;
+  uint32 mFp                       = 0;
+  uint32 mGp                       = 0;
+  uint32 w                         = 0;
+  uint32 kw                        = 0;
 
   n  = (uint32)1 << logn;
   hn = n >> 1;
@@ -4147,12 +4249,12 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
   p0i = fsmsw_falcon_ModpNinv31(p);
   R2  = fsmsw_falcon_ModpR2(p, p0i);
 
-  Fp  = tmp;
-  Gp  = &Fp[hn];
-  ft  = &Gp[hn];
-  gt  = &ft[n];
-  gm  = &gt[n];
-  igm = &gm[n];
+  Fp                       = tmp;
+  Gp                       = &Fp[hn];
+  ft_solveNtruBinaryDepth0 = &Gp[hn];
+  gt_solveNtruBinaryDepth0 = &ft_solveNtruBinaryDepth0[n];
+  gm                       = &gt_solveNtruBinaryDepth0[n];
+  igm                      = &gm[n];
 
   fsmsw_falcon_ModpMkgm2(gm, igm, logn, PRIMES[0].g, p, p0i);
 
@@ -4168,33 +4270,33 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
   /* Load f and g and convert them to NTT representation. */
   for (u = 0; u < n; u++)
   {
-    ft[u] = fsmsw_falcon_ModpSet(f[u], p);
-    gt[u] = fsmsw_falcon_ModpSet(g[u], p);
+    ft_solveNtruBinaryDepth0[u] = fsmsw_falcon_ModpSet(f[u], p);
+    gt_solveNtruBinaryDepth0[u] = fsmsw_falcon_ModpSet(g[u], p);
   }
-  fsmsw_falcon_ModpNtt2Ext(ft, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(gt, 1, gm, logn, p, p0i);
+  fsmsw_falcon_ModpNtt2Ext(ft_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
+  fsmsw_falcon_ModpNtt2Ext(gt_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
 
   /* Build the unreduced F,G in ft and gt. */
   for (u = 0; u < n; u += 2u)
   {
-    ftA        = ft[u];
-    ftB        = ft[u + 1u];
-    gtA        = gt[u];
-    gtB        = gt[u + 1u];
-    mFp        = fsmsw_falcon_ModpMontymul(Fp[u >> 1], R2, p, p0i);
-    mGp        = fsmsw_falcon_ModpMontymul(Gp[u >> 1], R2, p, p0i);
-    ft[u]      = fsmsw_falcon_ModpMontymul(gtB, mFp, p, p0i);
-    ft[u + 1u] = fsmsw_falcon_ModpMontymul(gtA, mFp, p, p0i);
-    gt[u]      = fsmsw_falcon_ModpMontymul(ftB, mGp, p, p0i);
-    gt[u + 1u] = fsmsw_falcon_ModpMontymul(ftA, mGp, p, p0i);
+    ftA                              = ft_solveNtruBinaryDepth0[u];
+    ftB                              = ft_solveNtruBinaryDepth0[u + 1u];
+    gtA                              = gt_solveNtruBinaryDepth0[u];
+    gtB                              = gt_solveNtruBinaryDepth0[u + 1u];
+    mFp                              = fsmsw_falcon_ModpMontymul(Fp[u >> 1], R2, p, p0i);
+    mGp                              = fsmsw_falcon_ModpMontymul(Gp[u >> 1], R2, p, p0i);
+    ft_solveNtruBinaryDepth0[u]      = fsmsw_falcon_ModpMontymul(gtB, mFp, p, p0i);
+    ft_solveNtruBinaryDepth0[u + 1u] = fsmsw_falcon_ModpMontymul(gtA, mFp, p, p0i);
+    gt_solveNtruBinaryDepth0[u]      = fsmsw_falcon_ModpMontymul(ftB, mGp, p, p0i);
+    gt_solveNtruBinaryDepth0[u + 1u] = fsmsw_falcon_ModpMontymul(ftA, mGp, p, p0i);
   }
 
-  fsmsw_falcon_ModpIntt2Ext(ft, 1, igm, logn, p, p0i);
-  fsmsw_falcon_ModpIntt2Ext(gt, 1, igm, logn, p, p0i);
+  fsmsw_falcon_ModpIntt2Ext(ft_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
+  fsmsw_falcon_ModpIntt2Ext(gt_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
 
   Gp = &Fp[n];
   t1 = &Gp[n];
-  FsmSw_CommonLib_MemMove(Fp, ft, 2u * n * sizeof(*ft));
+  FsmSw_CommonLib_MemMove(Fp, ft_solveNtruBinaryDepth0, 2u * n * sizeof(*ft_solveNtruBinaryDepth0));
 
   /* We now need to apply the Babai reduction. At that point, we have F and G in two n-word arrays.
    * We can compute F*adj(f)+G*adj(g) and f*adj(f)+g*adj(g) modulo p, using the NTT. We still move memory around in
@@ -4368,8 +4470,8 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
 {
   uint32 n                       = 0;
   uint32 u                       = 0;
-  uint32 *ft                     = (uint32 *)NULL_PTR;
-  uint32 *gt                     = (uint32 *)NULL_PTR;
+  uint32 *ft_solveNtru           = (uint32 *)NULL_PTR;
+  uint32 *gt_solveNtru           = (uint32 *)NULL_PTR;
   uint32 *Ft1                    = (uint32 *)NULL_PTR;
   uint32 *Gt1                    = (uint32 *)NULL_PTR;
   uint32 *gm                     = (uint32 *)NULL_PTR;
@@ -4407,7 +4509,7 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
   else
   {
     depth = logn;
-    while (depth > 2u)
+    while (depth > FSMSW_FALCON_MIN_DEPTH)
     {
       depth--;
       if (0 == fsmsw_falcon_SolveNtruIntermediate(logn, f, g, depth, tmp))
@@ -4447,11 +4549,11 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
    * p works, and allows using the NTT.
    * We put Gt1[] first in tmp[], and process it first, so that it does not overlap with G[] in case we allocated it
    * ourselves. */
-  Gt1 = tmp;
-  ft  = &Gt1[n];
-  gt  = &ft[n];
-  Ft1 = &gt[n];
-  gm  = &Ft1[n];
+  Gt1          = tmp;
+  ft_solveNtru = &Gt1[n];
+  gt_solveNtru = &ft_solveNtru[n];
+  Ft1          = &gt_solveNtru[n];
+  gm           = &Ft1[n];
 
   smallPrimes = PRIMES;
   p           = smallPrimes[0].p;
@@ -4465,21 +4567,21 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
 
   for (u = 0; u < n; u++)
   {
-    ft[u]  = fsmsw_falcon_ModpSet(f[u], p);
-    gt[u]  = fsmsw_falcon_ModpSet(g[u], p);
-    Ft1[u] = fsmsw_falcon_ModpSet(F[u], p);
+    ft_solveNtru[u] = fsmsw_falcon_ModpSet(f[u], p);
+    gt_solveNtru[u] = fsmsw_falcon_ModpSet(g[u], p);
+    Ft1[u]          = fsmsw_falcon_ModpSet(F[u], p);
   }
 
-  fsmsw_falcon_ModpNtt2Ext(ft, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(gt, 1, gm, logn, p, p0i);
+  fsmsw_falcon_ModpNtt2Ext(ft_solveNtru, 1, gm, logn, p, p0i);
+  fsmsw_falcon_ModpNtt2Ext(gt_solveNtru, 1, gm, logn, p, p0i);
   fsmsw_falcon_ModpNtt2Ext(Ft1, 1, gm, logn, p, p0i);
   fsmsw_falcon_ModpNtt2Ext(Gt1, 1, gm, logn, p, p0i);
   r = fsmsw_falcon_ModpMontymul(12289, 1, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    z = fsmsw_falcon_ModpSub(fsmsw_falcon_ModpMontymul(ft[u], Gt1[u], p, p0i),
-                             fsmsw_falcon_ModpMontymul(gt[u], Ft1[u], p, p0i), p);
+    z = fsmsw_falcon_ModpSub(fsmsw_falcon_ModpMontymul(ft_solveNtru[u], Gt1[u], p, p0i),
+                             fsmsw_falcon_ModpMontymul(gt_solveNtru[u], Ft1[u], p, p0i), p);
 
     if (z != r)
     {
@@ -4528,6 +4630,9 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
          * even and the binary GCD will fail. */
       if (u == (n - 1u))
       {
+        /* polyspace +3 CERT-C:INT31-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
+        be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system." */
         if ((mod2 ^ (uint32)((uint32)s & 1u)) == 0u)
         {
           continue;
@@ -4535,6 +4640,12 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
       }
       else
       {
+        /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
+        be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system. */
+        /* polyspace +3 CERT-C:INT14-C [Justified:]The current implementation has been carefully reviewed and determined to
+        be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system. */
         mod2 ^= (uint32)((uint32)s & 1u);
       }
 
@@ -4636,7 +4747,10 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
      * Since f and g are integral, the squared norm of (g,-f) is an integer. */
     normf = fsmsw_falcon_PolySmallSqNorm(f, logn);
     normg = fsmsw_falcon_PolySmallSqNorm(g, logn);
-    norm  = (normf + normg) | (uint32)((sint32)((-1) * (sint32)((uint32)((normf | normg) >> 31))));
+    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
+    norm = (normf + normg) | (uint32)((sint32)((-1) * (sint32)((uint32)((normf | normg) >> 31))));
 
     if (norm >= 16823u)
     {

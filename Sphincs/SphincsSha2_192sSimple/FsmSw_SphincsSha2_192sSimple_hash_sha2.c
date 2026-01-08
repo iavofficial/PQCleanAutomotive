@@ -111,7 +111,7 @@
  *
  * Note: This function is currently not used.
  */
-void FsmSw_SphincsSha2_192sSimple_MgF1256(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
+void FsmSw_SphincsSha2_192sSimple_MgF1256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_192SSIMPLE_MGF1_256_BUF_LEN + 4u] = {0};
   uint8 outbuf[FSMSW_SPHINCS_SHA256_OUTPUT_BYTES]                 = {0};
@@ -162,7 +162,7 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"Refactoring to a static function would introduce other defects,
 hence it is justified." */
-void FsmSw_SphincsSha2_192sSimple_MgF1512(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
+void FsmSw_SphincsSha2_192sSimple_MgF1512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_192SSIMPLE_MGF1_512_BUF_LEN + 4u] = {0};
   uint8 outbuf[FSMSW_SPHINCS_SHA512_OUTPUT_BYTES]                 = {0};
@@ -200,7 +200,8 @@ void FsmSw_SphincsSha2_192sSimple_MgF1512(uint8 *out, uint32 outlen, const uint8
  * \param[in]  const uint32             addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_192sSimple_PrfAddr(uint8 *out, const sphincs_sha2_192s_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsSha2_192sSimple_PrfAddr(uint8 *const out, const sphincs_sha2_192s_ctx *const ctx,
+                                          const uint32 addr[8])
 {
   sha256ctx sha2_state                                              = {{0}};
   uint8 buf[SPX_SHA256_ADDR_BYTES + FSMSW_SPHINCSSHA2_192SSIMPLE_N] = {0};
@@ -234,8 +235,9 @@ void FsmSw_SphincsSha2_192sSimple_PrfAddr(uint8 *out, const sphincs_sha2_192s_ct
  * \param[in]  const sphincs_sha2_192s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_192sSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
-                                                   uint32 mlen, const sphincs_sha2_192s_ctx *ctx)
+void FsmSw_SphincsSha2_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                   const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                   const sphincs_sha2_192s_ctx *const ctx)
 {
   (void)ctx;
 
@@ -305,9 +307,9 @@ void FsmSw_SphincsSha2_192sSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf
  * \param[in]  const sphincs_sha2_192s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_192sSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                              const uint8 *pk, const uint8 *m, uint32 mlen,
-                                              const sphincs_sha2_192s_ctx *ctx)
+void FsmSw_SphincsSha2_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                              const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                              uint32 mlen, const sphincs_sha2_192s_ctx *const ctx)
 {
   (void)ctx;
   uint8 seed[(2u * FSMSW_SPHINCSSHA2_192SSIMPLE_N) + SPX_SHAX_OUTPUT_BYTES] = {0};

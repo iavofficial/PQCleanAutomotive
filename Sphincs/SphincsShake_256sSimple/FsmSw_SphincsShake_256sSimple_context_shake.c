@@ -82,7 +82,7 @@
 so this function is an empty operation." */
 /* polyspace +2 MISRA2012:8.13 [Justified:]"For SHAKE256, there is no immediate reason to initialize at the start, 
 so this function is an empty operation." */
-void FsmSw_SphincsShake_256sSimple_InitializeHashFunction(sphincs_shake_256s_ctx *ctx)
+void FsmSw_SphincsShake_256sSimple_InitializeHashFunction(sphincs_shake_256s_ctx *const ctx)
 {
   (void)ctx; /* Suppress an 'unused parameter' warning. */
 } // end: FsmSw_SphincsShake_256sSimple_InitializeHashFunction
@@ -96,7 +96,7 @@ void FsmSw_SphincsShake_256sSimple_InitializeHashFunction(sphincs_shake_256s_ctx
 */
 /* polyspace +2 CERT-C:DCL13-C [Justified:]"in case the hash function api is heap-based." */
 /* polyspace +1 MISRA2012:8.13 [Justified:]"in case the hash function api is heap-based." */
-void FsmSw_SphincsShake_256sSimple_1FreeHashFunction(sphincs_shake_256s_ctx *ctx)
+void FsmSw_SphincsShake_256sSimple_1FreeHashFunction(sphincs_shake_256s_ctx *const ctx)
 {
   (void)ctx;
 } // end: FsmSw_SphincsShake_256sSimple_1FreeHashFunction

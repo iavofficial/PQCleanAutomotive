@@ -77,7 +77,7 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_192sSimple_InitializeHashFunction(sphincs_sha2_192s_ctx *ctx);
+void FsmSw_SphincsSha2_192sSimple_InitializeHashFunction(sphincs_sha2_192s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHA2_192SSIMPLE_CONTEXT_H */
 

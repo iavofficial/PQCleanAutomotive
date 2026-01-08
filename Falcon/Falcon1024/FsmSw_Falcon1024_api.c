@@ -49,7 +49,12 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON1024_NONCELEN 40u
+#define FSMSW_FALCON1024_NONCELEN                40u
+#define FSMSW_FALCON1024_BUFFER_SIZE             1024
+#define FSMSW_FALCON1024_SEED_BUFFER_SIZE        48
+#define FSMSW_UINT32_MAX_VALUE                   0xFFFFFFFFu
+#define FSMSW_FALCON1024_TMP2_STRUCT_BUFFER_SIZE 73728
+#define FSMSW_FALCON1024_TMP3_STRUCT_BUFFER_SIZE 2048
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -61,19 +66,19 @@ typedef struct
 
 typedef struct
 {
-  uint8 b[72 * 1024];
+  uint8 b[FSMSW_FALCON1024_TMP2_STRUCT_BUFFER_SIZE];
 } tmp2_struct;
 
 typedef struct
 {
-  uint8 b[2 * 1024];
+  uint8 b[FSMSW_FALCON1024_TMP3_STRUCT_BUFFER_SIZE];
 
 } tmp3_struct;
 
 typedef struct
 {
-  sint16 sig[1024];
-  uint16 hm[1024];
+  sint16 sig[FSMSW_FALCON1024_BUFFER_SIZE];
+  uint16 hm[FSMSW_FALCON1024_BUFFER_SIZE];
 } r_struct;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -117,17 +122,17 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *c
 static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
                                       const uint8 *const m, uint32 mlen, const uint8 *const sk)
 {
-  sint8 f[1024]             = {0};
-  sint8 g[1024]             = {0};
-  sint8 F[1024]             = {0};
-  sint8 G[1024]             = {0};
-  uint8 seed[48]            = {0};
-  inner_shake256_context sc = {{0}};
-  uint32 u                  = 0;
-  uint32 v                  = 0;
-  boolean bStopFunc         = FALSE;
-  sint8 retVal              = -1;
-  tmp2_struct tmp2_1024     = {{0}};
+  sint8 f[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  sint8 g[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  sint8 F[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  sint8 G[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  uint8 seed[FSMSW_FALCON1024_SEED_BUFFER_SIZE] = {0};
+  inner_shake256_context sc                     = {{0}};
+  uint32 u                                      = 0;
+  uint32 v                                      = 0;
+  boolean bStopFunc                             = FALSE;
+  sint8 retVal                                  = -1;
+  tmp2_struct tmp2_1024                         = {{0}};
 
   /* Decode the private key. */
   if (sk[0] != (0x50u + 10u))
@@ -186,7 +191,7 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
 
     /* Compute and return the signature. This loops until a signature value is found that fits in the provided
          * buffer. */
-    for (uint32 i = 0; i < 0xFFFFFFFFu; i++)
+    for (uint32 i = 0; i < FSMSW_UINT32_MAX_VALUE; i++)
     {
       FsmSw_Falcon_Sign_Dyn(r_1024.sig, &sc, f, g, F, G, r_1024.hm, 10u, tmp2_1024.b);
       v = FsmSw_Falcon_CompEncode(sigbuf, *sigbuflen, r_1024.sig, 10u);
@@ -219,13 +224,13 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
 static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
                                         const uint8 *const m, uint32 mlen, const uint8 *const pk)
 {
-  uint16 h[1024]            = {0};
-  uint16 hm[1024]           = {0};
-  sint16 sig[1024]          = {0};
-  inner_shake256_context sc = {{0}};
-  boolean bStopFunc         = FALSE;
-  sint8 retVal              = 0;
-  tmp3_struct tmp3_1024     = {{0}};
+  uint16 h[FSMSW_FALCON1024_BUFFER_SIZE]   = {0};
+  uint16 hm[FSMSW_FALCON1024_BUFFER_SIZE]  = {0};
+  sint16 sig[FSMSW_FALCON1024_BUFFER_SIZE] = {0};
+  inner_shake256_context sc                = {{0}};
+  boolean bStopFunc                        = FALSE;
+  sint8 retVal                             = 0;
+  tmp3_struct tmp3_1024                    = {{0}};
 
   /* Decode public key. */
   if (pk[0] != (10u))
@@ -317,19 +322,19 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *c
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
-  sint8 f[1024]              = {0};
-  sint8 g[1024]              = {0};
-  sint8 F[1024]              = {0};
-  uint16 h[1024]             = {0};
-  uint8 seed[48]             = {0};
-  inner_shake256_context rng = {{0}};
-  uint32 u                   = 0;
-  uint32 v                   = 0;
-  uint8 retVal               = ERR_OK;
-  boolean bStopFunc          = FALSE;
-  tmp1_struct tmp1_1024      = {{0}};
+  sint8 f[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  sint8 g[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  sint8 F[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
+  uint16 h[FSMSW_FALCON1024_BUFFER_SIZE]        = {0};
+  uint8 seed[FSMSW_FALCON1024_SEED_BUFFER_SIZE] = {0};
+  inner_shake256_context rng                    = {{0}};
+  uint32 u                                      = 0;
+  uint32 v                                      = 0;
+  uint8 retVal                                  = ERR_OK;
+  boolean bStopFunc                             = FALSE;
+  tmp1_struct tmp1_1024                         = {{0}};
 
   /* Generate key pair. */
   (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
@@ -399,7 +404,8 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
+uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                             const uint8 *const sk)
 {
   uint32 vlen  = 0;
   uint8 retVal = ERR_OK;
@@ -431,7 +437,8 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const u
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
+uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                          const uint8 *const pk)
 {
   uint8 retVal = ERR_OK;
 
@@ -470,7 +477,8 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                   const uint8 *const sk)
 {
   uint8 *pm        = (uint8 *)NULL_PTR;
   uint8 *sigbuf    = (uint8 *)NULL_PTR;
@@ -512,7 +520,8 @@ uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uin
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
+uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                        const uint8 *const pk)
 {
   const uint8 *sigbuf = (uint8 *)NULL_PTR;
   uint32 pmlen        = 0;

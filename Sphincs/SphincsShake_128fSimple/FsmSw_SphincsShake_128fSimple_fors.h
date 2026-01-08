@@ -68,8 +68,8 @@
  * Signs a message m, deriving the secret key from sk_seed and the FTS address.
  * Assumes m contains at least FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_TREES bits.
  */
-void FsmSw_SphincsShake_128fSimple_Fors_Sign(uint8 *sig, uint8 *pk, const uint8 *m, const sphincs_shake_128f_ctx *ctx,
-                                             const uint32 fors_addr[8]);
+void FsmSw_SphincsShake_128fSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
+                                             const sphincs_shake_128f_ctx *const ctx, const uint32 fors_addr[8]);
 
 /**
  * Derives the FORS public key from a signature.
@@ -85,8 +85,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_128fSimple_Fors_PkFromSig(uint8 *pk, const uint8 *sig, const uint8 *m,
-                                                  const sphincs_shake_128f_ctx *ctx, const uint32 fors_addr[8]);
+void FsmSw_SphincsShake_128fSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
+                                                  const sphincs_shake_128f_ctx *const ctx, const uint32 fors_addr[8]);
 
 #endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_FORS_H */
 

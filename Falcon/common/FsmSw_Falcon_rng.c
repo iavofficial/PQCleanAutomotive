@@ -65,6 +65,14 @@ inline functions would not provide significant benefits." */
     state[b] ^= state[c];                                                                                              \
     state[b] = (state[b] << 7) | (state[b] >> 25);                                                                     \
   } while (0)
+#define FSMSW_FALCON_PRNG_D32_COUNTER               14
+#define FSMSW_FALCON_PRNG_TEMP2_SIZE                256
+#define FSMSW_FALCON_PRNG_STATE_SIZE                16u
+#define FSMSW_FALCON_PRNG_CW_SIZE                   4u
+#define FSMSW_FALCON_PRNG_STATE_ARRAY_PROCESS_COUNT 14u
+#define FSMSW_FALCON_PRNG_BLOCK_COUNT               8u
+#define FSMSW_FALCON_PRNG_ROUNDS                    10
+#define FSMSW_FALCON_PRNG_INIT_TMP_SIZE             56
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -116,9 +124,9 @@ static void fsmsw_falcon_prng_Refill(prng *p)
   /* State uses local endianness. Only the output bytes must be converted to little endian (if used on a
      * big-endian machine). */
   cc = *(uint64 *)((void *)(&p->state.d[48]));
-  for (u = 0; u < 8u; u++)
+  for (u = 0; u < FSMSW_FALCON_PRNG_BLOCK_COUNT; u++)
   {
-    uint32 state[16];
+    uint32 state[FSMSW_FALCON_PRNG_STATE_SIZE];
     uint32 v;
     sint32 i;
 
@@ -126,7 +134,7 @@ static void fsmsw_falcon_prng_Refill(prng *p)
     FsmSw_CommonLib_MemCpy(&state[4], p->state.d, 48);
     state[14] ^= (uint32)cc;
     state[15] ^= (uint32)(cc >> 32);
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < FSMSW_FALCON_PRNG_ROUNDS; i++)
     {
       QROUND(0, 4, 8, 12);
       QROUND(1, 5, 9, 13);
@@ -138,12 +146,12 @@ static void fsmsw_falcon_prng_Refill(prng *p)
       QROUND(3, 4, 9, 14);
     }
 
-    for (v = 0; v < 4u; v++)
+    for (v = 0; v < FSMSW_FALCON_PRNG_CW_SIZE; v++)
     {
       state[v] += CW[v];
     }
 
-    for (v = 4; v < 14u; v++)
+    for (v = 4; v < FSMSW_FALCON_PRNG_STATE_ARRAY_PROCESS_COUNT; v++)
     {
       /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
           Ensured proper alignment and validity." */
@@ -152,14 +160,14 @@ static void fsmsw_falcon_prng_Refill(prng *p)
       state[v] = state[v] + ((uint32 *)((void *)p->state.d))[v - 4u];
     }
 
-    uint32 temp2[256];
+    uint32 temp2[FSMSW_FALCON_PRNG_TEMP2_SIZE];
     FsmSw_CommonLib_MemCpy(temp2, p->state.d, 256);
     state[14] += temp2[10] ^ (uint32)cc;
     state[15] += temp2[11] ^ (uint32)(cc >> 32);
     cc++;
 
     /* We mimic the interleaving that is used in the AVX2 implementation.*/
-    for (v = 0; v < 16u; v++)
+    for (v = 0; v < FSMSW_FALCON_PRNG_STATE_SIZE; v++)
     {
       p->buf.d[(u << 2) + (v << 5)]      = (uint8)state[v];
       p->buf.d[(u << 2) + (v << 5) + 1u] = (uint8)(state[v] >> 8);
@@ -193,11 +201,11 @@ static void fsmsw_falcon_prng_Refill(prng *p)
 void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
 {
   /* To ensure reproducibility for a given seed, we must enforce little-endian interpretation of the state words. */
-  uint8 tmp[56] = {0};
-  uint64 th     = 0;
-  uint64 tl     = 0;
-  sint32 i      = 0;
-  uint32 w      = 0;
+  uint8 tmp[FSMSW_FALCON_PRNG_INIT_TMP_SIZE] = {0};
+  uint64 th                                  = 0;
+  uint64 tl                                  = 0;
+  sint32 i                                   = 0;
+  uint32 w                                   = 0;
 
   /* polyspace +5 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
@@ -208,7 +216,7 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
 
   FsmSw_Fips202_Shake256_IncSqueeze(tmp, 56, src);
 
-  for (i = 0; i < 14; i++)
+  for (i = 0; i < FSMSW_FALCON_PRNG_D32_COUNTER; i++)
   {
     w = (uint32)tmp[((uint32)((uint32)i) << 2u)] | ((uint32)tmp[((uint32)((uint32)i) << 2u) + 1u] << 8u) |
         ((uint32)tmp[((uint32)((uint32)i) << 2u) + 2u] << 16u) | ((uint32)tmp[((uint32)((uint32)i) << 2u) + 3u] << 24u);

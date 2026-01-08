@@ -43,7 +43,9 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_FALCON_BUF_SIZE 2
+#define FSMSW_FALCON_TT2_SIZE 63
+#define FSMSW_FALCON_MODULO   12289u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -106,7 +108,7 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *c
 
   while (n > 0u)
   {
-    uint8 buf[2];
+    uint8 buf[FSMSW_FALCON_BUF_SIZE];
     uint32 w;
 
     /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
@@ -118,7 +120,7 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *c
 
     if (w < 61445u)
     {
-      while (w >= 12289u)
+      while (w >= FSMSW_FALCON_MODULO)
       {
         w -= 12289u;
       }
@@ -163,15 +165,15 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
      * If logn >= 7, then the provided temporary buffer is large enough. Otherwise, we use a stack buffer of 63 entries
      * (i.e. 126 bytes) for the values that do not fit in tmp[]. */
 
-  uint32 n       = 0;
-  uint32 n2      = 0;
-  uint32 u       = 0;
-  uint32 m       = 0;
-  uint32 p       = 0;
-  uint32 over    = 0;
-  uint16 *tt1    = (uint16 *)NULL_PTR;
-  uint16 tt2[63] = {0};
-  uint32 temp    = 0;
+  uint32 n                          = 0;
+  uint32 n2                         = 0;
+  uint32 u                          = 0;
+  uint32 m                          = 0;
+  uint32 p                          = 0;
+  uint32 over                       = 0;
+  uint16 *tt1                       = (uint16 *)NULL_PTR;
+  uint16 tt2[FSMSW_FALCON_TT2_SIZE] = {0};
+  uint32 temp                       = 0;
 
   /* We first generate m 16-bit value. Values 0..n-1 go to x[]. Values n..2*n-1 go to tt1[]. Values 2*n and later
      * go to tt2[]. We also reduce modulo q the values; rejected values are set to 0xFFFF. */
@@ -187,7 +189,7 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
 
   for (u = 0; u < m; u++)
   {
-    uint8 buf[2];
+    uint8 buf[FSMSW_FALCON_BUF_SIZE];
     uint32 w, wr;
 
     FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), sc);

@@ -46,7 +46,7 @@
 
 #include "FsmSw_SphincsShake_192sSimple_hash.h"
 /**********************************************************************************************************************/
-/* DEFINES                                                                                                     */
+/* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
 #define SPX_TREE_BITS  (FSMSW_SPHINCSSHAKE_192SSIMPLE_TREE_HEIGHT * (FSMSW_SPHINCSSHAKE_192SSIMPLE_D - 1u))
 #define SPX_TREE_BYTES ((SPX_TREE_BITS + 7u) / 8u)
@@ -90,7 +90,8 @@
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *out, const sphincs_shake_192s_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *const out, const sphincs_shake_192s_ctx *const ctx,
+                                           const uint32 addr[8])
 {
   uint8 buf[(2u * FSMSW_SPHINCSSHAKE_192SSIMPLE_N) + FSMSW_SPHINCSSHAKE_192SSIMPLE_ADDR_BYTES] = {0};
 
@@ -116,8 +117,9 @@ void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *out, const sphincs_shake_192s_
  * \param[in]  const sphincs_shake_192s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
-                                                    uint32 mlen, const sphincs_shake_192s_ctx *ctx)
+void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const sphincs_shake_192s_ctx *const ctx)
 {
   (void)ctx;
   shake256incctx s_inc = {{0}};
@@ -146,9 +148,9 @@ void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *R, const uint8 *sk_pr
  * \param[in]  const sphincs_shake_192s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                               const uint8 *pk, const uint8 *m, uint32 mlen,
-                                               const sphincs_shake_192s_ctx *ctx)
+void FsmSw_SphincsShake_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const sphincs_shake_192s_ctx *const ctx)
 {
   (void)ctx;
 

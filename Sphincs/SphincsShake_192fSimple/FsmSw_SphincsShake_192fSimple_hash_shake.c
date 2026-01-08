@@ -91,7 +91,8 @@
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192fSimple_PrfAddr(uint8 *out, const sphincs_shake_192f_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsShake_192fSimple_PrfAddr(uint8 *const out, const sphincs_shake_192f_ctx *const ctx,
+                                           const uint32 addr[8])
 {
   uint8 buf[(2u * FSMSW_SPHINCSSHAKE_192FSIMPLE_N) + FSMSW_SPHINCSSHAKE_192FSIMPLE_ADDR_BYTES] = {0};
 
@@ -117,8 +118,9 @@ void FsmSw_SphincsShake_192fSimple_PrfAddr(uint8 *out, const sphincs_shake_192f_
  * \param[in]  const sphincs_shake_192f_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
-                                                    uint32 mlen, const sphincs_shake_192f_ctx *ctx)
+void FsmSw_SphincsShake_192fSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const sphincs_shake_192f_ctx *const ctx)
 {
   (void)ctx;
   shake256incctx s_inc = {{0}};
@@ -147,9 +149,9 @@ void FsmSw_SphincsShake_192fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_pr
  * \param[in]  const sphincs_shake_192f_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192fSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                               const uint8 *pk, const uint8 *m, uint32 mlen,
-                                               const sphincs_shake_192f_ctx *ctx)
+void FsmSw_SphincsShake_192fSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const sphincs_shake_192f_ctx *const ctx)
 {
   (void)ctx;
 

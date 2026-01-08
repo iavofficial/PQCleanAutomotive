@@ -87,7 +87,7 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen);
+static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -103,7 +103,7 @@ static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, con
  * \param[in]  const uint8 *in : t.b.d.
  * \param[in]  uint32    inlen : t.b.d.
  */
-static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
+static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_128FSIMPLE_MGF1_256_BUF_LEN + 4] = {0};
   uint8 outbuf[FSMSW_SPHINCS_SHA256_OUTPUT_BYTES]                = {0};
@@ -143,7 +143,7 @@ static void FsmSw_SphincsSha2_128fSimple_MgF1_256(uint8 *out, uint32 outlen, con
  *
  * Note: This function is currently not used.
  */
-void FsmSw_SphincsSha2_128fSimple_Mgf1512(uint8 *out, uint32 outlen, const uint8 *in, uint32 inlen)
+void FsmSw_SphincsSha2_128fSimple_Mgf1512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_128FSIMPLE_MGF1_512_BUF_LEN + 4] = {0};
   uint8 outbuf[FSMSW_SPHINCS_SHA512_OUTPUT_BYTES]                = {0};
@@ -184,7 +184,8 @@ void FsmSw_SphincsSha2_128fSimple_Mgf1512(uint8 *out, uint32 outlen, const uint8
  * \param[in]  const uint32             addr[8] : t.b.d.
  * 
  */
-void FsmSw_SphincsSha2_128fSimple_PrfAddr(uint8 *out, const sphincs_sha2_128f_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsSha2_128fSimple_PrfAddr(uint8 *const out, const sphincs_sha2_128f_ctx *const ctx,
+                                          const uint32 addr[8])
 {
   sha256ctx sha2_state                                              = {{0}};
   uint8 buf[SPX_SHA256_ADDR_BYTES + FSMSW_SPHINCSSHA2_128FSIMPLE_N] = {0};
@@ -218,8 +219,9 @@ void FsmSw_SphincsSha2_128fSimple_PrfAddr(uint8 *out, const sphincs_sha2_128f_ct
  * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf, const uint8 *optrand, const uint8 *m,
-                                                   uint32 mlen, const sphincs_sha2_128f_ctx *ctx)
+void FsmSw_SphincsSha2_128fSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                   const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                   const sphincs_sha2_128f_ctx *const ctx)
 {
   (void)ctx;
 
@@ -289,9 +291,9 @@ void FsmSw_SphincsSha2_128fSimple_GenMessageRandom(uint8 *R, const uint8 *sk_prf
  * \param[in]  const sphincs_sha2_128f_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsSha2_128fSimple_HashMessage(uint8 *digest, uint64 *tree, uint32 *leaf_idx, const uint8 *R,
-                                              const uint8 *pk, const uint8 *m, uint32 mlen,
-                                              const sphincs_sha2_128f_ctx *ctx)
+void FsmSw_SphincsSha2_128fSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                              const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                              uint32 mlen, const sphincs_sha2_128f_ctx *const ctx)
 {
   (void)ctx;
   uint8 seed[(2u * FSMSW_SPHINCSSHA2_128FSIMPLE_N) + SPX_SHAX_OUTPUT_BYTES] = {0};

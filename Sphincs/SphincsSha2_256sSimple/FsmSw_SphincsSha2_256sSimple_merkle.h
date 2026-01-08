@@ -64,8 +64,9 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_256sSimple_Merkle_Sign(uint8 *sig, uint8 *root, const sphincs_sha2_256s_ctx *ctx,
-                                              const uint32 wots_addr[8], uint32 tree_addr[8], uint32 idx_leaf);
+void FsmSw_SphincsSha2_256sSimple_Merkle_Sign(uint8 *const sig, uint8 *const root,
+                                              const sphincs_sha2_256s_ctx *const ctx, const uint32 wots_addr[8],
+                                              uint32 tree_addr[8], uint32 idx_leaf);
 
 /* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
@@ -73,7 +74,7 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256sSimple_Merkle_GenRoot(uint8 *root, const sphincs_sha2_256s_ctx *ctx);
+void FsmSw_SphincsSha2_256sSimple_Merkle_GenRoot(uint8 *const root, const sphincs_sha2_256s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHA2_256SSIMPLE_MERKLE_H */
 

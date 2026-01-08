@@ -81,7 +81,7 @@
  * \param[out] uint8 *sk : pointer to output private key (allocated
  *                           array of FSMSW_DILITHIUM5_CRYPTO_SECRETKEYBYTES bytes)
  */
-void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *pk, uint8 *sk)
+void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
   uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + CRHBYTES_DILITHIUM] = {0u};
   uint8 tr[TRBYTES_DILITHIUM]                                    = {0u};
@@ -146,7 +146,8 @@ designed for use by other systems that aim to integrate the Dilithium." */
 designed for use by other systems that aim to integrate the Dilithium." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Dilithium." */
-void FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const uint8 *m, uint32 mlen, const uint8 *sk)
+void FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                            const uint8 *const sk)
 {
   uint32 n                                                                                                       = 0u;
   uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + RNDBYTES_DILITHIUM + (2u * CRHBYTES_DILITHIUM)] = {0u};
@@ -280,7 +281,8 @@ void FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *sig, uint32 *siglen, const ui
  * \param[in]  uint32     mlen : length of message
  * \param[in]  const uint8 *sk : pointer to bit-packed secret key
  */
-void FsmSw_Dilithium5_Crypto_Sign(uint8 *sm, uint32 *smlen, const uint8 *m, uint32 mlen, const uint8 *sk)
+void FsmSw_Dilithium5_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                  const uint8 *const sk)
 {
   uint32 i = 0u;
 
@@ -310,7 +312,8 @@ designed for use by other systems that aim to integrate the Dilithium." */
 designed for use by other systems that aim to integrate the Dilithium." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function
 designed for use by other systems that aim to integrate the Dilithium." */
-uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const uint8 *m, uint32 mlen, const uint8 *pk)
+uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                          const uint8 *const pk)
 {
   uint16 i                                                = 0u;
   uint8 buf[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5] = {0u};
@@ -398,7 +401,8 @@ uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *sig, uint32 siglen, const
  *
  * \returns ERR_OK if signed message could be verified correctly and ERR_NOT_OK otherwise
  */
-uint8 FsmSw_Dilithium5_Crypto_Sign_Open(uint8 *m, uint32 *mlen, const uint8 *sm, uint32 smlen, const uint8 *pk)
+uint8 FsmSw_Dilithium5_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                        const uint8 *const pk)
 {
   uint32 i     = 0u;
   uint8 retVal = ERR_NOT_OK;

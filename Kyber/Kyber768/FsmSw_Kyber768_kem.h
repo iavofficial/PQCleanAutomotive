@@ -63,9 +63,9 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber768_Crypto_Kem_KeyPair(uint8 *pk, uint8 *sk);
-void FsmSw_Kyber768_Crypto_Kem_Enc(uint8 *ct, uint8 *ss, const uint8 *pk);
-void FsmSw_Kyber768_Crypto_Kem_Dec(uint8 *ss, const uint8 *ct, const uint8 *sk);
+void FsmSw_Kyber768_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+void FsmSw_Kyber768_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+void FsmSw_Kyber768_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
 #endif /* FSMSW_KYBER768_KEM_H */
 

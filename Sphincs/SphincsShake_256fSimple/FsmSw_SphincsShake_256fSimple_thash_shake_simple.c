@@ -87,8 +87,8 @@
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_256fSimple_Thash(uint8 *out, const uint8 *in, uint32 inblocks,
-                                         const sphincs_shake_256f_ctx *ctx, const uint32 addr[8])
+void FsmSw_SphincsShake_256fSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                         const sphincs_shake_256f_ctx *const ctx, const uint32 addr[8])
 {
   uint8 buf[FSMSW_SPHINCSSHAKE_256FSIMPLE_N + FSMSW_SPHINCSSHAKE_256FSIMPLE_ADDR_BYTES +
             (FSMSW_SPHINCSSHAKE_256FSIMPLE_THASH_BUF_LEN * FSMSW_SPHINCSSHAKE_256FSIMPLE_N)] = {0};
