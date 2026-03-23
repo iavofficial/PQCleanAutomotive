@@ -1,59 +1,59 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ *                                          IAV GmbH
+ *                          All rights reserved - Alle Rechte vorbehalten
  *
- *
- **********************************************************************************************************************/
+ ***********************************************************************************************************************/
+#ifndef STD_TYPES_H
+#define STD_TYPES_H
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
- ** @{ */
-/** \addtogroup Dilithium5
-*    includes the modules for Dilithium5
- ** @{ */
-/** \addtogroup FsmSw_Dilithium5_rounding
- ** @{ */
-
-/*====================================================================================================================*/
-/** \file FsmSw_Dilithium5_rounding.h
-* \brief  Description of the FsmSw_Dilithium5_rounding.h
-*
-* \details
-*
-*
-*/
-/*
- *
- *  $File$
- *
- *  $Author$
- *
- *  $Date$
- *
- *  $Rev$
- *
- **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM5_ROUNDING_H
-#define FSMSW_DILITHIUM5_ROUNDING_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium5_params.h"
-#include "Std_Types.h"
+#include <stdint.h>
+
 /**********************************************************************************************************************/
-/* GLOBAL DEFINES                                                                                                     */
+/* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
+/* TRUE, FALSE symbol for Boolean types*/
+/* [cover parentID={FF7F9840-8904-4b7d-83A7-988524B795DE}] */
+#ifndef TRUE
+#define TRUE        (1u)
+#endif
+#ifndef FALSE
+#define FALSE       (0u)
+#endif
+/* [/cover] */
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
+typedef unsigned char boolean;        /* for use with TRUE/FALSE      */
+
+/* Std_ReturnType (standard return type) */
+typedef uint8 Std_ReturnType;
+#define E_OK     (Std_ReturnType)0
+#define E_NOT_OK (Std_ReturnType)1
+
+/* [IQS_EngS_0029] This type is used to request the version of BSW module using the <Module_name>_GetVersionInfo() 
+function. */
+typedef struct
+{
+  uint16 vendorID;
+  uint16 moduleID;
+  uint8 sw_major_version;
+  uint8 sw_minor_version;
+  uint8 sw_patch_version;
+} Std_VersionInfoType;
+
+/* type definition for pointer to void */
+typedef void *VoidPtr;
+
+/* type definition for pointer to const void */
+typedef const void *ConstVoidPtr;
 
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
-/**********************************************************************************************************************/
-
-/**********************************************************************************************************************/
-/* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
 
 /**********************************************************************************************************************/
@@ -64,16 +64,4 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-sint32 FsmSw_Dilithium5_Power2Round(sint32 *const a0, sint32 a);
-
-sint32 FsmSw_Dilithium5_Decompose(sint32 *const a0, sint32 a);
-
-uint8 FsmSw_Dilithium5_MakeHint(sint32 a0, sint32 a1);
-
-sint32 FsmSw_Dilithium5_UseHint(sint32 a, uint32 hint);
-
-#endif /* FSMSW_DILITHIUM5_ROUNDING_H */
-
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
+#endif /* STD_TYPES_H */

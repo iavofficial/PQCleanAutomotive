@@ -39,7 +39,7 @@
 /**********************************************************************************************************************/
 #include "FsmSw_Dilithium3_params.h"
 #include "FsmSw_Dilithium3_poly.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium3_polyvec.h"
 /**********************************************************************************************************************/
@@ -309,7 +309,7 @@ void FsmSw_Dilithium3_Polyveck_UniformEta(polyveck_D3 *v, const uint8 seed[CRHBY
 /*====================================================================================================================*/
 /**
 * \brief Reduce coefficients of polynomials in vector of length K_DILITHIUM3 to representatives in
-*              [-6283009,6283007].
+*              [-6283008,6283008].
 *
 * \param[in,out] polyveck_D3 *v : pointer to input/output vector
 */
@@ -526,16 +526,16 @@ uint32 FsmSw_Dilithium3_Polyveck_MakeHint(polyveck_D3 *h, const polyveck_D3 *con
 * \brief Use hint vector to correct the high bits of input vector.
 *
 * \param[out] polyveck_D3       *w : pointer to output vector of polynomials with corrected high bits
-* \param[in]  const polyveck_D3 *u : pointer to input vector
+* \param[in]  const polyveck_D3 *v : pointer to input vector
 * \param[in]  const polyveck_D3 *h : pointer to input hint vector
 */
-void FsmSw_Dilithium3_Polyveck_UseHint(polyveck_D3 *w, const polyveck_D3 *const u, const polyveck_D3 *const h)
+void FsmSw_Dilithium3_Polyveck_UseHint(polyveck_D3 *w, const polyveck_D3 *const v, const polyveck_D3 *const h)
 {
   uint8 i = 0;
 
   for (i = 0; i < K_DILITHIUM3; ++i)
   {
-    FsmSw_Dilithium3_Poly_UseHint(&w->vec[i], &u->vec[i], &h->vec[i]);
+    FsmSw_Dilithium3_Poly_UseHint(&w->vec[i], &v->vec[i], &h->vec[i]);
   }
 } // end: FsmSw_Dilithium3_Polyveck_UseHint
 /*====================================================================================================================*/

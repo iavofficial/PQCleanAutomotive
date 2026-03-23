@@ -40,7 +40,7 @@
 #include "FsmSw_Dilithium2_params.h"
 #include "FsmSw_Dilithium2_poly.h"
 #include "FsmSw_Dilithium2_polyvec.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium2_packing.h"
 /**********************************************************************************************************************/
@@ -241,7 +241,7 @@ void FsmSw_Dilithium2_Unpack_Sk(uint8 rho[SEEDBYTES_DILITHIUM], uint8 tr[TRBYTES
 * \brief Bit-pack signature sig = (c, z, h).
 *
 * \param[out] uint8          sig[] : output byte array
-* \param[in]  const uint8       *c : pointer to FsmSw_Dilithium2_Challenge hash length SEEDBYTES_DILITHIUM
+* \param[in]  const uint8       *c : pointer to hash length SEEDBYTES_DILITHIUM
 * \param[in]  const polyvecl_D2 *z : pointer to vector z
 * \param[in]  const polyveck_D2 *h : pointer to hint vector h
 */
@@ -291,7 +291,7 @@ void FsmSw_Dilithium2_Pack_Sig(uint8 sig[FSMSW_DILITHIUM2_CRYPTO_BYTES], const u
 /** 
 * \brief Unpack signature sig = (c, z, h).
 *
-* \param[out]  uint8          *c : pointer to output FsmSw_Dilithium2_Challenge hash
+* \param[out]  uint8          *c : pointer to output hash
 * \param[in]   polyvecl_D2    *z : pointer to output vector z
 * \param[in]   polyveck_D2    *h : pointer to output hint vector h
 * \param[in]   const uint8 sig[] : byte array containing bit-packed signature
