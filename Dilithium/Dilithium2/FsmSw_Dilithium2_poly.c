@@ -42,7 +42,7 @@
 #include "FsmSw_Dilithium_ntt.h"
 #include "FsmSw_Dilithium_reduce.h"
 #include "FsmSw_Dilithium_symmetric.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium2_poly.h"
 /**********************************************************************************************************************/
@@ -167,7 +167,7 @@ static uint32 fsmsw_dilithium2_RejUniform(sint32 *const a, uint32 len, const uin
 /**********************************************************************************************************************/
 /*====================================================================================================================*/
 /**
- * \brief Inplace reduction of all coefficients of polynomial to representative in [-6283009,6283007].
+ * \brief Inplace reduction of all coefficients of polynomial to representative in [-6283008,6283008].
  *
  * \param[out] poly_D2 *a: pointer to input/output polynomial
 */
@@ -404,7 +404,7 @@ sint8 FsmSw_Dilithium2_Poly_Chknorm(const poly_D2 *const a, sint32 B)
 /*====================================================================================================================*/
 /**
  * \brief Sample polynomial with uniformly random coefficients in [0,Q-1] by performing rejection sampling on the
- *              output stream of SHAKE256(seed|nonce)
+ *              output stream of SHAKE128(seed|nonce)
  *
  * \param[out] poly_D2         *a : pointer to output polynomial
  * \param[in]  const uint8 seed[] : byte array with seed of length SEEDBYTES_DILITHIUM
@@ -789,7 +789,7 @@ void FsmSw_Dilithium2_Poly_ZPack(uint8 *const r, const poly_D2 *const a)
     t[2] = GAMMA1_DILITHIUM2 - (uint32)a->coeffs[(4u * i) + 2u];
     t[3] = GAMMA1_DILITHIUM2 - (uint32)a->coeffs[(4u * i) + 3u];
 
-    r[9u * i]        = (uint8)t[0];
+    r[9u * i]        = (uint8)(t[0]);
     r[(9u * i) + 1u] = (uint8)(t[0] >> 8);
     r[(9u * i) + 2u] = (uint8)(t[0] >> 16);
     r[(9u * i) + 2u] |= (uint8)(t[1] << 2);

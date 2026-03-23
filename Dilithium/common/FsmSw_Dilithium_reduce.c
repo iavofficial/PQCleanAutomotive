@@ -38,7 +38,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Dilithium_params.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium_reduce.h"
 /**********************************************************************************************************************/
@@ -93,7 +93,7 @@ sint32 FsmSw_Dilithium_MontgomeryReduce(sint64 a)
 /*====================================================================================================================*/
 /** 
 * \brief For finite field element a with a <= 2^{31} - 2^{22} - 1,
-*              compute t \equiv a (mod Q) such that -6283009 <= r <= 6283007.
+*              compute t \equiv a (mod Q) such that -6283008 <= r <= 6283008.
 *
 * \param[in] sint32 a : finite field element a
 *

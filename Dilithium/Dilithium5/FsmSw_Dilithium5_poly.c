@@ -42,7 +42,7 @@
 #include "FsmSw_Dilithium_ntt.h"
 #include "FsmSw_Dilithium_reduce.h"
 #include "FsmSw_Dilithium_symmetric.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium5_poly.h"
 /**********************************************************************************************************************/
@@ -165,7 +165,7 @@ static uint32 fsmsw_dilithium5_RejUniform(sint32 *const a, uint32 len, const uin
 /**********************************************************************************************************************/
 /*====================================================================================================================*/
 /**
-* \brief Inplace reduction of all coefficients of polynomial to representative in [-6283009,6283007].
+* \brief Inplace reduction of all coefficients of polynomial to representative in [-6283008,6283008].
 *
 * \param[in,out] poly_D5 *a: pointer to input/output polynomial
 */
@@ -401,7 +401,7 @@ sint8 FsmSw_Dilithium5_Poly_Chknorm(const poly_D5 *const a, sint32 B)
 /*====================================================================================================================*/
 /**
 * \brief Sample polynomial with uniformly random coefficients in [0,Q-1] by performing rejection sampling on the
-*              output stream of SHAKE256(seed|nonce)
+*              output stream of SHAKE128(seed|nonce)
 *
 * \param[out] poly_D5         *a : pointer to output polynomial
 * \param[in]  const uint8 seed[] : byte array with seed of length SEEDBYTES
@@ -781,7 +781,7 @@ void FsmSw_Dilithium5_Poly_ZPack(uint8 *const r, const poly_D5 *const a)
     t[0] = GAMMA1_DILITHIUM5 - (uint32)a->coeffs[2u * i];
     t[1] = GAMMA1_DILITHIUM5 - (uint32)a->coeffs[(2u * i) + 1u];
 
-    r[5u * i]        = (uint8)t[0];
+    r[5u * i]        = (uint8)(t[0]);
     r[(5u * i) + 1u] = (uint8)(t[0] >> 8);
     r[(5u * i) + 2u] = (uint8)(t[0] >> 16);
     r[(5u * i) + 2u] |= (uint8)(t[1] << 4);
@@ -812,7 +812,7 @@ void FsmSw_Dilithium5_Poly_ZUnpack(poly_D5 *const r, const uint8 *const a)
     r->coeffs[(2u * i) + 1u] = (sint32)((uint32)((uint32)r->coeffs[(2u * i) + 1u] | ((uint32)a[(5u * i) + 4u] << 12u)));
     /* polyspace +1 MISRA2012:3.1 [Justified:]"The comment is a link and therefore contains a slash" */
     /* Known issue: This row is maybe not correct. See https://github.com/pq-crystals/dilithium/issues/63 */
-    r->coeffs[2u * i] = (sint32)((uint32)((uint32)r->coeffs[2u * i] & 0xFFFFFu));
+    /* r->coeffs[2u * i + 1] = (sint32)((uint32)((uint32)r->coeffs[2u * i] & 0xFFFFFu)); */ /* No effect, since we're anyway at 20 bits */
 
     r->coeffs[2u * i]        = (sint32)((uint32)(GAMMA1_DILITHIUM5 - (uint32)r->coeffs[2u * i]));
     r->coeffs[(2u * i) + 1u] = (sint32)((uint32)(GAMMA1_DILITHIUM5 - (uint32)r->coeffs[(2u * i) + 1u]));

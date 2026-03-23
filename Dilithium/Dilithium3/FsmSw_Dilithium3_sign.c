@@ -65,11 +65,291 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32 *const siglen, const uint8 *const m,
+                                                        uint32 mlen, const uint8 *ctx, uint32 ctxlen,
+                                                        const uint8 *const sk);
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Ctx(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                              const uint8 *ctx, uint32 ctxlen, const uint8 *const sk);
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Verify_Ctx(const uint8 *const sig, uint32 siglen, const uint8 *const m,
+                                                     uint32 mlen, const uint8 *ctx, uint32 ctxlen,
+                                                     const uint8 *const pk);
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Open_Ctx(uint8 *const m, uint32 *const mlen, const uint8 *const sm,
+                                                   uint32 smlen, const uint8 *ctx, uint32 ctxlen,
+                                                   const uint8 *const pk);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32 *const siglen, const uint8 *const m,
+                                                        uint32 mlen, const uint8 *ctx, uint32 ctxlen,
+                                                        const uint8 *const sk)
+{
+  uint32 n                                                                                                       = 0u;
+  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + RNDBYTES_DILITHIUM + (2u * CRHBYTES_DILITHIUM)] = {0u};
+  uint8 *rho                    = (uint8 *)NULL_PTR;
+  uint8 *tr                     = (uint8 *)NULL_PTR;
+  uint8 *key                    = (uint8 *)NULL_PTR;
+  uint8 *mu                     = (uint8 *)NULL_PTR;
+  uint8 *rhoprime               = (uint8 *)NULL_PTR;
+  uint8 *rnd                    = (uint8 *)NULL_PTR;
+  uint16 nonce                  = 0u;
+  polyvecl_D3 mat[K_DILITHIUM3] = {{{{{0}}}}};
+  polyvecl_D3 s1                = {{{{0}}}};
+  polyvecl_D3 y                 = {{{{0}}}};
+  polyvecl_D3 z                 = {{{{0}}}};
+  polyveck_D3 t0                = {{{{0}}}};
+  polyveck_D3 s2                = {{{{0}}}};
+  polyveck_D3 w1                = {{{{0}}}};
+  polyveck_D3 w0                = {{{{0}}}};
+  polyveck_D3 h                 = {{{{0}}}};
+  poly_D3 cp                    = {{0}};
+  shake256incctx state          = {{0u}};
+  boolean loop                  = TRUE;
+  uint8 retVal                  = ERR_OK;
 
+  if (ctxlen > 255)
+  {
+    retVal = ERR_NOT_OK;
+  }
+  else
+  {
+
+    rho      = seedbuf;
+    tr       = &rho[SEEDBYTES_DILITHIUM];
+    key      = &tr[TRBYTES_DILITHIUM];
+    rnd      = &key[SEEDBYTES_DILITHIUM];
+    mu       = &rnd[RNDBYTES_DILITHIUM];
+    rhoprime = &mu[CRHBYTES_DILITHIUM];
+    FsmSw_Dilithium3_UnpackSk(rho, tr, key, &t0, &s1, &s2, sk);
+
+    /* Compute mu = CRH(tr, 0, ctxlen, ctx, msg) */
+    mu[0] = 0;
+    mu[1] = (uint8)ctxlen;
+    FsmSw_Fips202_Shake256_IncInit(&state);
+    FsmSw_Fips202_Shake256_IncAbsorb(&state, tr, TRBYTES_DILITHIUM);
+    FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, 2);
+    FsmSw_Fips202_Shake256_IncAbsorb(&state, ctx, ctxlen);
+    FsmSw_Fips202_Shake256_IncAbsorb(&state, m, mlen);
+    FsmSw_Fips202_Shake256_IncFinalize(&state);
+    FsmSw_Fips202_Shake256_IncSqueeze(mu, CRHBYTES_DILITHIUM, &state);
+
+    for (n = 0u; n < RNDBYTES_DILITHIUM; n++)
+    {
+      rnd[n] = 0u;
+    }
+    FsmSw_Fips202_Shake256(rhoprime, CRHBYTES_DILITHIUM, key,
+                           SEEDBYTES_DILITHIUM + RNDBYTES_DILITHIUM + CRHBYTES_DILITHIUM);
+
+    /* Expand matrix and transform vectors */
+    FsmSw_Dilithium3_Polyvec_MatrixExpand(mat, rho);
+    FsmSw_Dilithium3_Polyvecl_Ntt(&s1);
+    FsmSw_Dilithium3_Polyveck_Ntt(&s2);
+    FsmSw_Dilithium3_Polyveck_Ntt(&t0);
+
+    while (TRUE == loop)
+    {
+      /* Sample intermediate vector y */
+      FsmSw_Dilithium3_Polyvecl_UniformGamma1(&y, rhoprime, nonce);
+      nonce++;
+
+      /* Matrix-vector multiplication */
+      z = y;
+      FsmSw_Dilithium3_Polyvecl_Ntt(&z);
+      FsmSw_Dilithium3_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
+      FsmSw_Dilithium3_Polyveck_Reduce(&w1);
+      FsmSw_Dilithium3_Polyveck_InvnttTomont(&w1);
+
+      /* Decompose w and call the random oracle */
+      FsmSw_Dilithium3_Polyveck_CAddQ(&w1);
+      FsmSw_Dilithium3_Polyveck_Decompose(&w1, &w0, &w1);
+      FsmSw_Dilithium3_Polyveck_PackW1(sig, &w1);
+
+      FsmSw_Fips202_Shake256_IncInit(&state);
+      FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
+      FsmSw_Fips202_Shake256_IncAbsorb(&state, sig, K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3);
+      FsmSw_Fips202_Shake256_IncFinalize(&state);
+      FsmSw_Fips202_Shake256_IncSqueeze(sig, CTILDEBYTES_DILITHIUM3, &state);
+      FsmSw_Dilithium3_Poly_Challenge(&cp, sig); /* uses only the first SEEDBYTES bytes of sig */
+      FsmSw_Dilithium3_Poly_Ntt(&cp);
+
+      /* Compute z, reject if it reveals secret */
+      FsmSw_Dilithium3_Polyvecl_PointwisePolyMontgomery(&z, &cp, &s1);
+      FsmSw_Dilithium3_Polyvecl_InvnttTomont(&z);
+      FsmSw_Dilithium3_Polyvecl_Add(&z, &z, &y);
+      FsmSw_Dilithium3_Polyvecl_Reduce(&z);
+      if (0 < FsmSw_Dilithium3_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM3 - BETA_DILITHIUM3)))
+      {
+        continue;
+      }
+
+      /* Check that subtracting cs2 does not change high bits of w and low bits
+           * do not reveal secret information */
+      FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&h, &cp, &s2);
+      FsmSw_Dilithium3_Polyveck_InvnttTomont(&h);
+      FsmSw_Dilithium3_Polyveck_Sub(&w0, &w0, &h);
+      FsmSw_Dilithium3_Polyveck_Reduce(&w0);
+      if (0 < FsmSw_Dilithium3_Polyveck_Chknorm(&w0, (sint32)((uint32)((uint32)GAMMA2_DILITHIUM3 - BETA_DILITHIUM3))))
+      {
+        continue;
+      }
+
+      /* Compute hints for w1 */
+      FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&h, &cp, &t0);
+      FsmSw_Dilithium3_Polyveck_InvnttTomont(&h);
+      FsmSw_Dilithium3_Polyveck_Reduce(&h);
+      if (0 < FsmSw_Dilithium3_Polyveck_Chknorm(&h, (sint32)GAMMA2_DILITHIUM3))
+      {
+        continue;
+      }
+
+      FsmSw_Dilithium3_Polyveck_Add(&w0, &w0, &h);
+      n = FsmSw_Dilithium3_Polyveck_MakeHint(&h, &w0, &w1);
+      if (n > OMEGA_DILITHIUM3)
+      {
+        continue;
+      }
+
+      loop = FALSE;
+    }
+
+    /* Write signature */
+    FsmSw_Dilithium3_PackSig(sig, sig, &z, &h);
+    *siglen = FSMSW_DILITHIUM3_CRYPTO_BYTES;
+  }
+  return retVal;
+}
+
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Ctx(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                              const uint8 *ctx, uint32 ctxlen, const uint8 *const sk)
+{
+  uint32 i     = 0u;
+  uint8 retVal = ERR_OK;
+
+  for (i = 0u; i < mlen; ++i)
+  {
+    sm[FSMSW_DILITHIUM3_CRYPTO_BYTES + mlen - 1u - i] = m[mlen - 1u - i];
+  }
+  retVal =
+      FsmSw_Dilithium3_Crypto_Sign_Signature_Ctx(sm, smlen, &sm[FSMSW_DILITHIUM3_CRYPTO_BYTES], mlen, ctx, ctxlen, sk);
+  *smlen += mlen;
+  return retVal;
+}
+
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Verify_Ctx(const uint8 *const sig, uint32 siglen, const uint8 *const m,
+                                                     uint32 mlen, const uint8 *ctx, uint32 ctxlen,
+                                                     const uint8 *const pk)
+{
+  uint16 i                                                = 0u;
+  uint8 buf[K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3] = {0u};
+  uint8 rho[SEEDBYTES_DILITHIUM]                          = {0u};
+  uint8 mu[CRHBYTES_DILITHIUM]                            = {0u};
+  uint8 c[CTILDEBYTES_DILITHIUM3]                         = {0u};
+  uint8 c2[CTILDEBYTES_DILITHIUM3]                        = {0u};
+  poly_D3 cp                                              = {{0}};
+  polyvecl_D3 mat[K_DILITHIUM3]                           = {{{{{0}}}}};
+  polyvecl_D3 z                                           = {{{{0}}}};
+  polyveck_D3 t1                                          = {{{{0}}}};
+  polyveck_D3 w1                                          = {{{{0}}}};
+  polyveck_D3 h                                           = {{{{0}}}};
+  shake256incctx state                                    = {{0u}};
+  uint8 retVal                                            = ERR_OK;
+
+  if ((ctxlen > 255) || (siglen != FSMSW_DILITHIUM3_CRYPTO_BYTES))
+  {
+    retVal = ERR_NOT_OK;
+  }
+
+  FsmSw_Dilithium3_UnpackPk(rho, &t1, pk);
+  if (0 < FsmSw_Dilithium3_UnpackSig(c, &z, &h, sig))
+  {
+    retVal = ERR_NOT_OK;
+  }
+  if (0 < FsmSw_Dilithium3_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM3 - BETA_DILITHIUM3)))
+  {
+    retVal = ERR_NOT_OK;
+  }
+
+  /* Compute CRH(H(rho, t1), msg) */
+  FsmSw_Fips202_Shake256(mu, TRBYTES_DILITHIUM, pk, FSMSW_DILITHIUM3_CRYPTO_PUBLICKEYBYTES);
+  FsmSw_Fips202_Shake256_IncInit(&state);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, TRBYTES_DILITHIUM);
+  mu[0] = 0;
+  mu[1] = (uint8)ctxlen;
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, 2);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, ctx, ctxlen);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, m, mlen);
+  FsmSw_Fips202_Shake256_IncFinalize(&state);
+  FsmSw_Fips202_Shake256_IncSqueeze(mu, CRHBYTES_DILITHIUM, &state);
+
+  /* Matrix-vector multiplication; compute Az - c2^dt1 */
+  FsmSw_Dilithium3_Poly_Challenge(&cp, c); /* uses only the first SEEDBYTES bytes of c */
+  FsmSw_Dilithium3_Polyvec_MatrixExpand(mat, rho);
+
+  FsmSw_Dilithium3_Polyvecl_Ntt(&z);
+  FsmSw_Dilithium3_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
+
+  FsmSw_Dilithium3_Poly_Ntt(&cp);
+  FsmSw_Dilithium3_Polyveck_Shiftl(&t1);
+  FsmSw_Dilithium3_Polyveck_Ntt(&t1);
+  FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&t1, &cp, &t1);
+
+  FsmSw_Dilithium3_Polyveck_Sub(&w1, &w1, &t1);
+  FsmSw_Dilithium3_Polyveck_Reduce(&w1);
+  FsmSw_Dilithium3_Polyveck_InvnttTomont(&w1);
+
+  /* Reconstruct w1 */
+  FsmSw_Dilithium3_Polyveck_CAddQ(&w1);
+  FsmSw_Dilithium3_Polyveck_UseHint(&w1, &w1, &h);
+  FsmSw_Dilithium3_Polyveck_PackW1(buf, &w1);
+
+  /* Call random oracle and verify Challenge */
+  FsmSw_Fips202_Shake256_IncInit(&state);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, buf, K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3);
+  FsmSw_Fips202_Shake256_IncFinalize(&state);
+  FsmSw_Fips202_Shake256_IncSqueeze(c2, CTILDEBYTES_DILITHIUM3, &state);
+  for (i = 0u; i < CTILDEBYTES_DILITHIUM3; ++i)
+  {
+    if (c[i] != c2[i])
+    {
+      retVal = ERR_NOT_OK;
+    }
+  }
+  return retVal;
+}
+
+static uint8 FsmSw_Dilithium3_Crypto_Sign_Open_Ctx(uint8 *const m, uint32 *const mlen, const uint8 *const sm,
+                                                   uint32 smlen, const uint8 *ctx, uint32 ctxlen, const uint8 *const pk)
+{
+  uint32 i     = 0u;
+  uint8 retVal = ERR_NOT_OK;
+
+  if (smlen >= FSMSW_DILITHIUM3_CRYPTO_BYTES)
+  {
+    *mlen = smlen - FSMSW_DILITHIUM3_CRYPTO_BYTES;
+    if (0u == FsmSw_Dilithium3_Crypto_Sign_Verify_Ctx(sm, FSMSW_DILITHIUM3_CRYPTO_BYTES,
+                                                      &sm[FSMSW_DILITHIUM3_CRYPTO_BYTES], *mlen, ctx, ctxlen, pk))
+    {
+      /* All good, copy msg, return 0u */
+      for (i = 0u; i < *mlen; ++i)
+      {
+        m[i] = sm[FSMSW_DILITHIUM3_CRYPTO_BYTES + i];
+      }
+      retVal = ERR_OK;
+    }
+  }
+
+  if ((sint8)0u != retVal)
+  {
+    /* Signature verification failed */
+    *mlen = UINT32_MAXVAL;
+    for (i = 0u; i < smlen; ++i)
+    {
+      m[i] = 0u;
+    }
+  }
+
+  return retVal;
+}
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -98,7 +378,9 @@ void FsmSw_Dilithium3_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 
   /* Get randomness for rho, rhoprime and key */
   (void)FsmSw_CommonLib_RandomBytes(seedbuf, SEEDBYTES_DILITHIUM);
-  FsmSw_Fips202_Shake256(seedbuf, (2u * SEEDBYTES_DILITHIUM) + CRHBYTES_DILITHIUM, seedbuf, SEEDBYTES_DILITHIUM);
+  seedbuf[SEEDBYTES_DILITHIUM]     = K_DILITHIUM3;
+  seedbuf[SEEDBYTES_DILITHIUM + 1] = L_DILITHIUM3;
+  FsmSw_Fips202_Shake256(seedbuf, (2u * SEEDBYTES_DILITHIUM) + CRHBYTES_DILITHIUM, seedbuf, SEEDBYTES_DILITHIUM + 2);
   rho      = seedbuf;
   rhoprime = &rho[SEEDBYTES_DILITHIUM];
   key      = &rhoprime[CRHBYTES_DILITHIUM];
@@ -140,136 +422,12 @@ void FsmSw_Dilithium3_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 * \param[in]  uint8       *m : pointer to message to be signed
 * \param[in]  uint32    mlen : length of message
 * \param[in]  uint8      *sk : pointer to bit-packed secret key
+* \returns ERR_OK if success ERR_NOT_OK otherwise (context string too long)
 */
-/* polyspace +6 CERT-C:DCL15-C [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
-/* polyspace +4 CERT-C:DCL19-C [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
-/* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
-void FsmSw_Dilithium3_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
-                                            const uint8 *const sk)
+uint8 FsmSw_Dilithium3_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                             const uint8 *const sk)
 {
-  uint32 n                                                                                                       = 0u;
-  uint8 seedbuf[(2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + RNDBYTES_DILITHIUM + (2u * CRHBYTES_DILITHIUM)] = {0u};
-  uint8 *rho                    = (uint8 *)NULL_PTR;
-  uint8 *tr                     = (uint8 *)NULL_PTR;
-  uint8 *key                    = (uint8 *)NULL_PTR;
-  uint8 *mu                     = (uint8 *)NULL_PTR;
-  uint8 *rhoprime               = (uint8 *)NULL_PTR;
-  uint8 *rnd                    = (uint8 *)NULL_PTR;
-  uint16 nonce                  = 0u;
-  polyvecl_D3 mat[K_DILITHIUM3] = {{{{{0}}}}};
-  polyvecl_D3 s1                = {{{{0}}}};
-  polyvecl_D3 y                 = {{{{0}}}};
-  polyvecl_D3 z                 = {{{{0}}}};
-  polyveck_D3 t0                = {{{{0}}}};
-  polyveck_D3 s2                = {{{{0}}}};
-  polyveck_D3 w1                = {{{{0}}}};
-  polyveck_D3 w0                = {{{{0}}}};
-  polyveck_D3 h                 = {{{{0}}}};
-  poly_D3 cp                    = {{0}};
-  shake256incctx state          = {{0u}};
-  boolean loop                  = TRUE;
-
-  rho      = seedbuf;
-  tr       = &rho[SEEDBYTES_DILITHIUM];
-  key      = &tr[TRBYTES_DILITHIUM];
-  rnd      = &key[SEEDBYTES_DILITHIUM];
-  mu       = &rnd[RNDBYTES_DILITHIUM];
-  rhoprime = &mu[CRHBYTES_DILITHIUM];
-  FsmSw_Dilithium3_UnpackSk(rho, tr, key, &t0, &s1, &s2, sk);
-
-  /* Compute mu = CRH(tr, msg) */
-  FsmSw_Fips202_Shake256_IncInit(&state);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, tr, TRBYTES_DILITHIUM);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, m, mlen);
-  FsmSw_Fips202_Shake256_IncFinalize(&state);
-  FsmSw_Fips202_Shake256_IncSqueeze(mu, CRHBYTES_DILITHIUM, &state);
-
-  for (n = 0u; n < RNDBYTES_DILITHIUM; n++)
-  {
-    rnd[n] = 0u;
-  }
-  FsmSw_Fips202_Shake256(rhoprime, CRHBYTES_DILITHIUM, key,
-                         SEEDBYTES_DILITHIUM + RNDBYTES_DILITHIUM + CRHBYTES_DILITHIUM);
-
-  /* Expand matrix and transform vectors */
-  FsmSw_Dilithium3_Polyvec_MatrixExpand(mat, rho);
-  FsmSw_Dilithium3_Polyvecl_Ntt(&s1);
-  FsmSw_Dilithium3_Polyveck_Ntt(&s2);
-  FsmSw_Dilithium3_Polyveck_Ntt(&t0);
-
-  while (TRUE == loop)
-  {
-    /* Sample intermediate vector y */
-    FsmSw_Dilithium3_Polyvecl_UniformGamma1(&y, rhoprime, nonce);
-    nonce++;
-
-    /* Matrix-vector multiplication */
-    z = y;
-    FsmSw_Dilithium3_Polyvecl_Ntt(&z);
-    FsmSw_Dilithium3_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
-    FsmSw_Dilithium3_Polyveck_Reduce(&w1);
-    FsmSw_Dilithium3_Polyveck_InvnttTomont(&w1);
-
-    /* Decompose w and call the random oracle */
-    FsmSw_Dilithium3_Polyveck_CAddQ(&w1);
-    FsmSw_Dilithium3_Polyveck_Decompose(&w1, &w0, &w1);
-    FsmSw_Dilithium3_Polyveck_PackW1(sig, &w1);
-
-    FsmSw_Fips202_Shake256_IncInit(&state);
-    FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
-    FsmSw_Fips202_Shake256_IncAbsorb(&state, sig, K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3);
-    FsmSw_Fips202_Shake256_IncFinalize(&state);
-    FsmSw_Fips202_Shake256_IncSqueeze(sig, CTILDEBYTES_DILITHIUM3, &state);
-    FsmSw_Dilithium3_Poly_Challenge(&cp, sig); /* uses only the first SEEDBYTES bytes of sig */
-    FsmSw_Dilithium3_Poly_Ntt(&cp);
-
-    /* Compute z, reject if it reveals secret */
-    FsmSw_Dilithium3_Polyvecl_PointwisePolyMontgomery(&z, &cp, &s1);
-    FsmSw_Dilithium3_Polyvecl_InvnttTomont(&z);
-    FsmSw_Dilithium3_Polyvecl_Add(&z, &z, &y);
-    FsmSw_Dilithium3_Polyvecl_Reduce(&z);
-    if (0 < FsmSw_Dilithium3_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM3 - BETA_DILITHIUM3)))
-    {
-      continue;
-    }
-
-    /* Check that subtracting cs2 does not change high bits of w and low bits
-         * do not reveal secret information */
-    FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&h, &cp, &s2);
-    FsmSw_Dilithium3_Polyveck_InvnttTomont(&h);
-    FsmSw_Dilithium3_Polyveck_Sub(&w0, &w0, &h);
-    FsmSw_Dilithium3_Polyveck_Reduce(&w0);
-    if (0 < FsmSw_Dilithium3_Polyveck_Chknorm(&w0, (sint32)((uint32)((uint32)GAMMA2_DILITHIUM3 - BETA_DILITHIUM3))))
-    {
-      continue;
-    }
-
-    /* Compute hints for w1 */
-    FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&h, &cp, &t0);
-    FsmSw_Dilithium3_Polyveck_InvnttTomont(&h);
-    FsmSw_Dilithium3_Polyveck_Reduce(&h);
-    if (0 < FsmSw_Dilithium3_Polyveck_Chknorm(&h, (sint32)GAMMA2_DILITHIUM3))
-    {
-      continue;
-    }
-
-    FsmSw_Dilithium3_Polyveck_Add(&w0, &w0, &h);
-    n = FsmSw_Dilithium3_Polyveck_MakeHint(&h, &w0, &w1);
-    if (n > OMEGA_DILITHIUM3)
-    {
-      continue;
-    }
-
-    loop = FALSE;
-  }
-
-  /* Write signature */
-  FsmSw_Dilithium3_PackSig(sig, sig, &z, &h);
-  *siglen = FSMSW_DILITHIUM3_CRYPTO_BYTES;
-  return;
+  return FsmSw_Dilithium3_Crypto_Sign_Signature_Ctx(sig, siglen, m, mlen, NULL_PTR, 0, sk);
 } // end: FsmSw_Dilithium3_Crypto_Sign_Signature
 /*====================================================================================================================*/
 /**
@@ -281,19 +439,12 @@ void FsmSw_Dilithium3_Crypto_Sign_Signature(uint8 *const sig, uint32 *const sigl
 * \param[in]  const  uint8 *m : pointer to message to be signed
 * \param[in]  uint32     mlen : length of message
 * \param[in]  const uint8 *sk : pointer to bit-packed secret key
+* \returns ERR_OK if success ERR_NOT_OK otherwise (context string too long)
 */
-void FsmSw_Dilithium3_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
-                                  const uint8 *const sk)
+uint8 FsmSw_Dilithium3_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                   const uint8 *const sk)
 {
-  uint32 i = 0u;
-
-  for (i = 0u; i < mlen; ++i)
-  {
-    sm[FSMSW_DILITHIUM3_CRYPTO_BYTES + mlen - 1u - i] = m[mlen - 1u - i];
-  }
-  (void)FsmSw_Dilithium3_Crypto_Sign_Signature(sm, smlen, &sm[FSMSW_DILITHIUM3_CRYPTO_BYTES], mlen, sk);
-  *smlen += mlen;
-  return;
+  return FsmSw_Dilithium3_Crypto_Sign_Ctx(sm, smlen, m, mlen, NULL_PTR, 0, sk);
 } // end: FsmSw_Dilithium3_Crypto_Sign
 /*====================================================================================================================*/
 /**
@@ -306,88 +457,10 @@ void FsmSw_Dilithium3_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const ui
 * \param[in] const uint8 *pk : pointer to bit-packed public key
 * \returns ERR_OK if signature could be verified correctly and ERR_NOT_OK otherwise
 */
-/* polyspace +6 CERT-C:DCL15-C [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
-/* polyspace +4 CERT-C:DCL19-C [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
-/* polyspace +2 MISRA2012:8.7 [Justified:]"This is an interface function 
-designed for use by other systems that aim to integrate the Dilithium." */
 uint8 FsmSw_Dilithium3_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
                                           const uint8 *const pk)
 {
-  uint16 i                                                = 0u;
-  uint8 buf[K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3] = {0u};
-  uint8 rho[SEEDBYTES_DILITHIUM]                          = {0u};
-  uint8 mu[CRHBYTES_DILITHIUM]                            = {0u};
-  uint8 c[CTILDEBYTES_DILITHIUM3]                         = {0u};
-  uint8 c2[CTILDEBYTES_DILITHIUM3]                        = {0u};
-  poly_D3 cp                                              = {{0}};
-  polyvecl_D3 mat[K_DILITHIUM3]                           = {{{{{0}}}}};
-  polyvecl_D3 z                                           = {{{{0}}}};
-  polyveck_D3 t1                                          = {{{{0}}}};
-  polyveck_D3 w1                                          = {{{{0}}}};
-  polyveck_D3 h                                           = {{{{0}}}};
-  shake256incctx state                                    = {{0u}};
-  uint8 retVal                                            = ERR_OK;
-
-  if (siglen != FSMSW_DILITHIUM3_CRYPTO_BYTES)
-  {
-    retVal = ERR_NOT_OK;
-  }
-
-  FsmSw_Dilithium3_UnpackPk(rho, &t1, pk);
-  if (0 < FsmSw_Dilithium3_UnpackSig(c, &z, &h, sig))
-  {
-    retVal = ERR_NOT_OK;
-  }
-  if (0 < FsmSw_Dilithium3_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM3 - BETA_DILITHIUM3)))
-  {
-    retVal = ERR_NOT_OK;
-  }
-
-  /* Compute CRH(H(rho, t1), msg) */
-  FsmSw_Fips202_Shake256(mu, CRHBYTES_DILITHIUM, pk, FSMSW_DILITHIUM3_CRYPTO_PUBLICKEYBYTES);
-  FsmSw_Fips202_Shake256_IncInit(&state);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, m, mlen);
-  FsmSw_Fips202_Shake256_IncFinalize(&state);
-  FsmSw_Fips202_Shake256_IncSqueeze(mu, CRHBYTES_DILITHIUM, &state);
-
-  /* Matrix-vector multiplication; compute Az - c2^dt1 */
-  FsmSw_Dilithium3_Poly_Challenge(&cp, c); /* uses only the first SEEDBYTES bytes of c */
-  FsmSw_Dilithium3_Polyvec_MatrixExpand(mat, rho);
-
-  FsmSw_Dilithium3_Polyvecl_Ntt(&z);
-  FsmSw_Dilithium3_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
-
-  FsmSw_Dilithium3_Poly_Ntt(&cp);
-  FsmSw_Dilithium3_Polyveck_Shiftl(&t1);
-  FsmSw_Dilithium3_Polyveck_Ntt(&t1);
-  FsmSw_Dilithium3_Polyveck_PointwisePolyMontgomery(&t1, &cp, &t1);
-
-  FsmSw_Dilithium3_Polyveck_Sub(&w1, &w1, &t1);
-  FsmSw_Dilithium3_Polyveck_Reduce(&w1);
-  FsmSw_Dilithium3_Polyveck_InvnttTomont(&w1);
-
-  /* Reconstruct w1 */
-  FsmSw_Dilithium3_Polyveck_CAddQ(&w1);
-  FsmSw_Dilithium3_Polyveck_UseHint(&w1, &w1, &h);
-  FsmSw_Dilithium3_Polyveck_PackW1(buf, &w1);
-
-  /* Call random oracle and verify FsmSw_Dilithium3_Challenge */
-  FsmSw_Fips202_Shake256_IncInit(&state);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, buf, K_DILITHIUM3 * POLYW1_PACKEDBYTES_DILITHIUM3);
-  FsmSw_Fips202_Shake256_IncFinalize(&state);
-  FsmSw_Fips202_Shake256_IncSqueeze(c2, CTILDEBYTES_DILITHIUM3, &state);
-  for (i = 0u; i < CTILDEBYTES_DILITHIUM3; ++i)
-  {
-    if (c[i] != c2[i])
-    {
-      retVal = ERR_NOT_OK;
-    }
-  }
-  return retVal;
+  return FsmSw_Dilithium3_Crypto_Sign_Verify_Ctx(sig, siglen, m, mlen, NULL_PTR, 0, pk);
 } // end: FsmSw_Dilithium3_Crypto_Sign_Verify
 /*====================================================================================================================*/
 /**
@@ -404,35 +477,7 @@ uint8 FsmSw_Dilithium3_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen,
 uint8 FsmSw_Dilithium3_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
                                         const uint8 *const pk)
 {
-  uint32 i     = 0u;
-  uint8 retVal = ERR_NOT_OK;
-
-  if (smlen >= FSMSW_DILITHIUM3_CRYPTO_BYTES)
-  {
-    *mlen = smlen - FSMSW_DILITHIUM3_CRYPTO_BYTES;
-    if (0u == FsmSw_Dilithium3_Crypto_Sign_Verify(sm, FSMSW_DILITHIUM3_CRYPTO_BYTES, &sm[FSMSW_DILITHIUM3_CRYPTO_BYTES],
-                                                  *mlen, pk))
-    {
-      /* All good, copy msg, return 0u */
-      for (i = 0u; i < *mlen; ++i)
-      {
-        m[i] = sm[FSMSW_DILITHIUM3_CRYPTO_BYTES + i];
-      }
-      retVal = ERR_OK;
-    }
-  }
-
-  if ((sint8)0u != retVal)
-  {
-    /* Signature verification failed */
-    *mlen = UINT32_MAXVAL;
-    for (i = 0u; i < smlen; ++i)
-    {
-      m[i] = 0u;
-    }
-  }
-
-  return retVal;
+  return FsmSw_Dilithium3_Crypto_Sign_Open_Ctx(m, mlen, sm, smlen, NULL_PTR, 0, pk);
 } // end: FsmSw_Dilithium3_Crypto_Sign_Open
 
 /** @} doxygen end group definition */

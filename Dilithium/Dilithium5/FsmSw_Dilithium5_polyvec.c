@@ -39,7 +39,7 @@
 /**********************************************************************************************************************/
 #include "FsmSw_Dilithium5_params.h"
 #include "FsmSw_Dilithium5_poly.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Dilithium5_polyvec.h"
 /**********************************************************************************************************************/
@@ -310,7 +310,7 @@ void FsmSw_Dilithium5_Polyveck_Uniform_Eta(polyveck_D5 *v, const uint8 seed[CRHB
 /*====================================================================================================================*/
 /**
 * \brief Reduce coefficients of polynomials in vector of length K_DILITHIUM5 to representatives in
-*              [-6283009,6283007].
+*              [-6283008,6283008].
 *
 * \param[in,out] polyveck_D5 *v : pointer to input/output vector
 */
@@ -527,16 +527,16 @@ uint32 FsmSw_Dilithium5_Polyveck_Make_Hint(polyveck_D5 *h, const polyveck_D5 *co
 * \brief Use hint vector to correct the high bits of input vector.
 *
 * \param[out] polyveck_D5       *w : pointer to output vector of polynomials with corrected high bits
-* \param[in]  const polyveck_D5 *u : pointer to input vector
+* \param[in]  const polyveck_D5 *v : pointer to input vector
 * \param[in]  const polyveck_D5 *h : pointer to input hint vector
 */
-void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const h)
+void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h)
 {
   uint8 i = 0;
 
   for (i = 0; i < K_DILITHIUM5; ++i)
   {
-    FsmSw_Dilithium5_Poly_UseHint(&w->vec[i], &u->vec[i], &h->vec[i]);
+    FsmSw_Dilithium5_Poly_UseHint(&w->vec[i], &v->vec[i], &h->vec[i]);
   }
 } // end: FsmSw_Dilithium5_Polyveck_Use_Hint
 /*====================================================================================================================*/

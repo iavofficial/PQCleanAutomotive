@@ -1,8 +1,9 @@
+#ifndef FSMSW_DILITHIUM5_API_H
+#define FSMSW_DILITHIUM5_API_H
 /***********************************************************************************************************************
  *
  *                                                    IAV GmbH
- *
- *
+ *  \file
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
@@ -11,38 +12,20 @@
 /** \addtogroup Dilithium5
 *    includes the modules for Dilithium5
  ** @{ */
-/** \addtogroup FsmSw_Dilithium5_rounding
+/** \addtogroup FsmSw_Dilithium5_api
  ** @{ */
 
-/*====================================================================================================================*/
-/** \file FsmSw_Dilithium5_rounding.h
-* \brief  Description of the FsmSw_Dilithium5_rounding.h
-*
-* \details
-*
-*
-*/
-/*
- *
- *  $File$
- *
- *  $Author$
- *
- *  $Date$
- *
- *  $Rev$
- *
+/***********************************************************************************************************************
+ * INCLUDES
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM5_ROUNDING_H
-#define FSMSW_DILITHIUM5_ROUNDING_H
-/**********************************************************************************************************************/
-/* INCLUDES                                                                                                           */
-/**********************************************************************************************************************/
-#include "FsmSw_Dilithium5_params.h"
 #include "Std_Types.h"
+
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
+#define FSMSW_DILITHIUM5_CRYPTO_PUBLICKEYBYTES 2592U
+#define FSMSW_DILITHIUM5_CRYPTO_SECRETKEYBYTES 4896U
+#define FSMSW_DILITHIUM5_CRYPTO_BYTES          4627U
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -63,17 +46,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-
-sint32 FsmSw_Dilithium5_Power2Round(sint32 *const a0, sint32 a);
-
-sint32 FsmSw_Dilithium5_Decompose(sint32 *const a0, sint32 a);
-
-uint8 FsmSw_Dilithium5_MakeHint(sint32 a0, sint32 a1);
-
-sint32 FsmSw_Dilithium5_UseHint(sint32 a, uint32 hint);
-
-#endif /* FSMSW_DILITHIUM5_ROUNDING_H */
+void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
+uint8 FsmSw_Dilithium5_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                             const uint8 *const sk);
+uint8 FsmSw_Dilithium5_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                   const uint8 *const sk);
+uint8 FsmSw_Dilithium5_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                          const uint8 *const pk);
+uint8 FsmSw_Dilithium5_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                        const uint8 *const pk);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+#endif /* FSMSW_DILITHIUM5_API_H */

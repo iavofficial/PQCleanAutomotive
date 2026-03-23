@@ -38,7 +38,10 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
+#include "FsmSw_Dilithium2_api.h"
 #include "FsmSw_Dilithium_params.h"
+#include "FsmSw_StaticAssert.h"
+
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -60,14 +63,14 @@
 #define POLYW1_PACKEDBYTES_DILITHIUM2  192u
 #define POLYETA_PACKEDBYTES_DILITHIUM2 96u
 
-#define FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES (SEEDBYTES_DILITHIUM + (K_DILITHIUM2 * POLYT1_PACKEDBYTES_DILITHIUM))
-
-#define FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES                                                                         \
-  ((2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + (L_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) +                  \
-   (K_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) + (K_DILITHIUM2 * POLYT0_PACKEDBYTES_DILITHIUM))
-
-#define FSMSW_DILITHIUM2_CRYPTO_BYTES                                                                                  \
-  (CTILDEBYTES_DILITHIUM2 + (L_DILITHIUM2 * POLYZ_PACKEDBYTES_DILITHIUM2) + POLYVECH_PACKEDBYTES_DILITHIUM2)
+FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES ==
+                    (SEEDBYTES_DILITHIUM + (K_DILITHIUM2 * POLYT1_PACKEDBYTES_DILITHIUM)));
+FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES ==
+                    ((2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + (L_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) +
+                     (K_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) + (K_DILITHIUM2 * POLYT0_PACKEDBYTES_DILITHIUM)));
+FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_BYTES ==
+                    (CTILDEBYTES_DILITHIUM2 + (L_DILITHIUM2 * POLYZ_PACKEDBYTES_DILITHIUM2) +
+                     POLYVECH_PACKEDBYTES_DILITHIUM2));
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */

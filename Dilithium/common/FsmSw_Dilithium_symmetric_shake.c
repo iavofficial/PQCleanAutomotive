@@ -82,6 +82,7 @@ void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint
 {
   uint8 t[SHAKE128_STREAMINIT_BUFFER_SIZE];
 
+  /* polyspace +2 CERT-C:INT31-C [Justified:] "The uint16 is intentionally split to MSB and LSB so no data is lost" */
   t[0] = (uint8)nonce;
   t[1] = (uint8)(nonce >> 8);
 

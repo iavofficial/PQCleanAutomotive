@@ -40,7 +40,7 @@
 /**********************************************************************************************************************/
 #include "FsmSw_Dilithium5_params.h"
 #include "FsmSw_Dilithium5_poly.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -102,7 +102,7 @@ sint8 FsmSw_Dilithium5_Polyveck_Chknorm(const polyveck_D5 *const v, sint32 bound
 void FsmSw_Dilithium5_Polyveck_Power2Round(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
 void FsmSw_Dilithium5_Polyveck_Decompose(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
 uint32 FsmSw_Dilithium5_Polyveck_Make_Hint(polyveck_D5 *h, const polyveck_D5 *const v0, const polyveck_D5 *const v1);
-void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const h);
+void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h);
 void FsmSw_Dilithium5_Polyveck_Pack_W1(uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5],
                                        const polyveck_D5 *const w1);
 void FsmSw_Dilithium5_Polyvec_Matrix_Expand(polyvecl_D5 mat[K_DILITHIUM5], const uint8 rho[SEEDBYTES_DILITHIUM]);
