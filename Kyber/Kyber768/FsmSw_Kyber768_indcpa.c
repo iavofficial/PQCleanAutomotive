@@ -44,7 +44,7 @@
 #include "FsmSw_Kyber_ntt.h"
 #include "FsmSw_Kyber_poly.h"
 #include "FsmSw_Kyber_symmetric.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber768_indcpa.h"
 /**********************************************************************************************************************/
@@ -248,7 +248,6 @@ void FsmSw_Kyber768_Indcpa_GenMatrix(polyvec768 *a, const uint8 seed[KYBER_SYMBY
   uint8 i                                               = 0;
   uint8 j                                               = 0;
   uint16 buflen                                         = 0;
-  uint16 off                                            = 0;
   uint16 ctr                                            = 0;
   uint8 buf[(GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES) + 2u] = {0};
   xof_state state;
@@ -272,10 +271,8 @@ void FsmSw_Kyber768_Indcpa_GenMatrix(polyvec768 *a, const uint8 seed[KYBER_SYMBY
 
       while (ctr < KYBER_N)
       {
-        off = buflen % 3u;
-
-        FsmSw_Fips202_Shake128_SqueezeBlocks(&buf[off], 1u, &state);
-        buflen = off + XOF_BLOCKBYTES;
+        FsmSw_Fips202_Shake128_SqueezeBlocks(buf, 1u, &state);
+        buflen = XOF_BLOCKBYTES;
         ctr    = ctr + fsmsw_kyber768_RejUniform(&(a[i].vec[j].coeffs[ctr]), KYBER_N - ctr, buf, buflen);
       }
     }
@@ -301,7 +298,9 @@ void FsmSw_Kyber768_Indcpa_KeyPair(uint8 pk[KYBER768_INDCPA_PUBLICKEYBYTES], uin
   polyvec768 a[KYBER768_K], e, pkpv, skpv;
 
   (void)FsmSw_CommonLib_RandomBytes(buf, KYBER_SYMBYTES);
-  FsmSw_Fips202_Sha3_512(buf, buf, KYBER_SYMBYTES);
+  // Domain separation byte
+  buf[KYBER_SYMBYTES] = KYBER768_K;
+  FsmSw_Fips202_Sha3_512(buf, buf, KYBER_SYMBYTES + 1);
 
   FsmSw_Kyber768_Indcpa_GenMatrix(a, publicseed, 0);
 

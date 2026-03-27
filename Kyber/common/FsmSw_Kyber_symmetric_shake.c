@@ -40,7 +40,7 @@
 #include "FsmSw_CommonLib.h"
 #include "FsmSw_Fips202.h"
 #include "FsmSw_Kyber_params.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber_symmetric.h"
 /**********************************************************************************************************************/

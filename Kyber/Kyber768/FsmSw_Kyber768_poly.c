@@ -43,7 +43,8 @@
 #include "FsmSw_Kyber_poly.h"
 #include "FsmSw_Kyber_reduce.h"
 #include "FsmSw_Kyber_symmetric.h"
-#include "FsmSw_Types.h"
+#include "FsmSw_Kyber_verify.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber768_poly.h"
 /**********************************************************************************************************************/
@@ -51,6 +52,7 @@
 /**********************************************************************************************************************/
 #define FSMSW_KYBER768_POLY_BLOCK_SIZE 8u
 #define FSMSW_KYBER768_POLY_T_SIZE     8
+
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -152,16 +154,15 @@ void FsmSw_Kyber768_Poly_Decompress(poly *const r, const uint8 a[KYBER768_POLYCO
 */
 void FsmSw_Kyber768_Poly_FromMsg(poly *const r, const uint8 msg[KYBER768_INDCPA_MSGBYTES])
 {
-  uint8 j     = 0;
-  uint16 i    = 0;
-  sint16 mask = 0;
+  uint8 j  = 0;
+  uint16 i = 0;
 
   for (i = 0; i < (KYBER_N / 8u); i++)
   {
     for (j = 0; j < FSMSW_KYBER768_POLY_BLOCK_SIZE; j++)
     {
-      mask                    = -(sint16)((uint16)(((uint32)msg[i] >> j) & 1u));
-      r->coeffs[(8u * i) + j] = (sint16)((uint16)((uint16)mask & ((uint16)((KYBER_Q + 1u) / 2u))));
+      r->coeffs[(8u * i) + j] = 0;
+      FsmSw_Kyber_Cmov_int16(&r->coeffs[(8u * i) + j], (sint16)((KYBER_Q + 1u) / 2u), ((uint16)msg[i] >> j) & 1u);
     }
   }
 } // end: FsmSw_Kyber768_Poly_FromMsg

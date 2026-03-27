@@ -40,7 +40,7 @@
 #include "FsmSw_Kyber768_params.h"
 #include "FsmSw_Kyber768_poly.h"
 #include "FsmSw_Kyber_poly.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber768_polyvec.h"
 /**********************************************************************************************************************/

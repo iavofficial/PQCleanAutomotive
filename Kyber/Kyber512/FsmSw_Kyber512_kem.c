@@ -42,7 +42,7 @@
 #include "FsmSw_Kyber512_params.h"
 #include "FsmSw_Kyber_symmetric.h"
 #include "FsmSw_Kyber_verify.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber512_kem.h"
 /**********************************************************************************************************************/

@@ -38,7 +38,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -59,11 +59,25 @@
 /* MACROS                                                                                                             */
 /**********************************************************************************************************************/
 
+/**
+* \def PQCLEAN_PREVENT_BRANCH_HACK(b)
+* \brief Prevents inferring that b is 0/1-valued, and handling the two cases with a branch.
+*/
+
+/* polyspace +6 CERT-C:PRE00-C [Justified:] "This macro affects compiler optimization and its inlining must be ensured" */
+/* polyspace +5 MISRA-C3:D4.9 [Justified:] "This macro affects compiler optimization and its inlining must be ensured" */
+#if defined(__GNUC__) || defined(__clang__)
+#define PQCLEAN_PREVENT_BRANCH_HACK(b) __asm__("" : "+r"(b) : /* no inputs */);
+#else
+#define PQCLEAN_PREVENT_BRANCH_HACK(b)
+#endif
+
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len);
 void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b);
+void FsmSw_Kyber_Cmov_int16(sint16 *r, sint16 v, uint16 b);
 
 #endif /* FSMSW_KYBER_VERIFY_H */
 

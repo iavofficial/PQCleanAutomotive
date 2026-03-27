@@ -41,7 +41,7 @@
 #include "FsmSw_Kyber_ntt.h"
 #include "FsmSw_Kyber_reduce.h"
 #include "FsmSw_Kyber_symmetric.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber_poly.h"
 /**********************************************************************************************************************/

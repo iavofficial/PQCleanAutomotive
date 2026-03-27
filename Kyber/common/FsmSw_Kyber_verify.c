@@ -37,7 +37,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber_verify.h"
 /**********************************************************************************************************************/
@@ -126,6 +126,8 @@ void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
   uint32 i     = 0;
   sint8 b_sint = 0;
 
+  PQCLEAN_PREVENT_BRANCH_HACK(b)
+
   b_sint = (-1) * (sint8)b;
 
   for (i = 0; i < len; i++)
@@ -133,6 +135,25 @@ void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
     r[i] = r[i] ^ ((uint8)b_sint & (r[i] ^ x[i]));
   }
 } // end: FsmSw_Kyber_Cmov
+
+/*====================================================================================================================*/
+/*************************************************
+* \brief Copy input v to *r if b is 1, don't modify *r if b is 0.
+*              Requires b to be in {0,1};
+*              Runs in constant time.
+*
+* \param[out] sint16 *r :       pointer to output int16_t
+* \param[in]  sint16  v :       input int16_t
+* \param[in]  uint8   b :       Condition bit; has to be in {0,1}
+**************************************************/
+void FsmSw_Kyber_Cmov_int16(sint16 *r, sint16 v, uint16 b)
+{
+  sint16 b_sint = 0;
+  uint16 r_uint = (uint16)(*r);
+  b_sint        = (-1) * (sint16)b;
+  r_uint        = r_uint ^ ((uint16)b_sint & (r_uint ^ (uint16)v));
+  *r            = (sint16)r_uint;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

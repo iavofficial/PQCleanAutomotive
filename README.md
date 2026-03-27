@@ -14,9 +14,10 @@ The PQCleanAutomotive is a fork of the PQClean repository. It includes the follo
 * FN‑DSA (FALCON)
 * HQC
 
-ML‑KEM, SLH‑DSA and FN‑DSA based on the commit [#504](https://github.com/PQClean/PQClean/commit/fb003a2a625c49f3090eec546b2383dcfa2c75d8). 
+SLH‑DSA and FN‑DSA based on the commit [#504](https://github.com/PQClean/PQClean/commit/fb003a2a625c49f3090eec546b2383dcfa2c75d8). 
 HQC based on the commit [#587](https://github.com/PQClean/PQClean/commit/448c71a8f590343e681d0d0cec94f29947b0ff18).
-ML‑DSA based on the commit [#592](https://github.com/PQClean/PQClean/commit/2cc64716044832eea747234ddbffc06746ab815d)
+ML‑DSA based on the commit [#592](https://github.com/PQClean/PQClean/commit/2cc64716044832eea747234ddbffc06746ab815d).
+Start to include changes from [#592](https://github.com/PQClean/PQClean/commit/2cc64716044832eea747234ddbffc06746ab815d) for ML‑KEM.
 
 ## Implementation
 For the integration of PQCleanAutomotive, the file Crypto.c in the [IAV_quantumSAR](https://github.com/iavofficial/IAV_quantumSAR/tree/main) repository contains an example of the use of the ML‑KEM, HQC, ML‑DSA, SLH‑DSA and FN‑DSA algorithm.
