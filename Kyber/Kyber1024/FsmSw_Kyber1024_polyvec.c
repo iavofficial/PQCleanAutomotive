@@ -40,7 +40,7 @@
 #include "FsmSw_Kyber1024_params.h"
 #include "FsmSw_Kyber1024_poly.h"
 #include "FsmSw_Kyber_poly.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber1024_polyvec.h"
 /**********************************************************************************************************************/

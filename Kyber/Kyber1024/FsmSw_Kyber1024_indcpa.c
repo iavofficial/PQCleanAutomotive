@@ -44,7 +44,7 @@
 #include "FsmSw_Kyber_ntt.h"
 #include "FsmSw_Kyber_poly.h"
 #include "FsmSw_Kyber_symmetric.h"
-#include "FsmSw_Types.h"
+#include "Std_Types.h"
 
 #include "FsmSw_Kyber1024_indcpa.h"
 /**********************************************************************************************************************/
@@ -253,7 +253,6 @@ void FsmSw_Kyber1024_Indcpa_GenMatrix(polyvec1024 *a, const uint8 seed[KYBER_SYM
   uint8 i       = 0;
   uint8 j       = 0;
   uint16 buflen = 0;
-  uint16 off    = 0;
   uint16 ctr    = 0;
   /* polyspace +2 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change 
     and therefore not dead code" */
@@ -281,10 +280,8 @@ void FsmSw_Kyber1024_Indcpa_GenMatrix(polyvec1024 *a, const uint8 seed[KYBER_SYM
 
       while (ctr < KYBER_N)
       {
-        off = buflen % 3u;
-
-        FsmSw_Fips202_Shake128_SqueezeBlocks(&buf[off], 1u, &state);
-        buflen = off + XOF_BLOCKBYTES;
+        FsmSw_Fips202_Shake128_SqueezeBlocks(buf, 1u, &state);
+        buflen = XOF_BLOCKBYTES;
         ctr    = ctr + (fsmsw_kyber1024_RejUniform(&(a[i].vec[j].coeffs[ctr]), KYBER_N - ctr, buf, buflen));
       }
     }
@@ -311,7 +308,9 @@ void FsmSw_Kyber1024_Indcpa_KeyPair(uint8 pk[KYBER1024_INDCPA_PUBLICKEYBYTES],
   polyvec1024 a[KYBER1024_K], e, pkpv, skpv;
 
   (void)FsmSw_CommonLib_RandomBytes(buf, KYBER_SYMBYTES);
-  FsmSw_Fips202_Sha3_512(buf, buf, KYBER_SYMBYTES);
+  // Domain separation byte
+  buf[KYBER_SYMBYTES] = KYBER1024_K;
+  FsmSw_Fips202_Sha3_512(buf, buf, KYBER_SYMBYTES + 1);
 
   FsmSw_Kyber1024_Indcpa_GenMatrix(a, publicseed, 0);
 
