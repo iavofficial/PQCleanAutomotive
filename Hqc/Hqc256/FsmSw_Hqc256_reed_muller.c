@@ -54,7 +54,7 @@ inline functions would not provide significant benefits." */
 /* polyspace +3 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 // copy bit 0 into all bits of a 32 bit value
-#define BIT0MASK(x) (uint32)((((x) & 1U) == 0) ? 0x00000000U : 0xFFFFFFFFU)
+#define BIT0MASK(x) (uint32)(0u - (((uint32)(x) & 1u)))
 
 /**
  * \brief Encode a single byte into a single codeword using RM(1,7)
@@ -102,23 +102,24 @@ static void encode_256(uint64 *const cword, uint8 message);
 static void encode_256(uint64 *const cword, uint8 message)
 {
   uint32 first_word;
+  uint32 msg_tmp = (uint32)message;
   // bit 7 flips all the bits, do that first to save work
-  first_word = BIT0MASK(message >> 7);
+  first_word = BIT0MASK(msg_tmp >> 7);
   // bits 0, 1, 2, 3, 4 are the same for all four longs
   // (Warning: in the bit matrix above, low bits are at the left!)
-  first_word ^= BIT0MASK(message >> 0) & 0xaaaaaaaaU;
-  first_word ^= BIT0MASK(message >> 1) & 0xccccccccU;
-  first_word ^= BIT0MASK(message >> 2) & 0xf0f0f0f0U;
-  first_word ^= BIT0MASK(message >> 3) & 0xff00ff00U;
-  first_word ^= BIT0MASK(message >> 4) & 0xffff0000U;
+  first_word ^= BIT0MASK(msg_tmp >> 0) & 0xaaaaaaaaU;
+  first_word ^= BIT0MASK(msg_tmp >> 1) & 0xccccccccU;
+  first_word ^= BIT0MASK(msg_tmp >> 2) & 0xf0f0f0f0U;
+  first_word ^= BIT0MASK(msg_tmp >> 3) & 0xff00ff00U;
+  first_word ^= BIT0MASK(msg_tmp >> 4) & 0xffff0000U;
   // we can store this in the first quarter
   cword[0] = first_word;
   // bit 5 flips entries 1 and 3, bit 6 flips 2 and 3
-  first_word ^= BIT0MASK(message >> 5);
+  first_word ^= BIT0MASK(msg_tmp >> 5);
   cword[0] |= (uint64)first_word << 32;
-  first_word ^= BIT0MASK(message >> 6);
+  first_word ^= BIT0MASK(msg_tmp >> 6);
   cword[1] = (uint64)first_word << 32;
-  first_word ^= BIT0MASK(message >> 5);
+  first_word ^= BIT0MASK(msg_tmp >> 5);
   cword[1] |= first_word;
 } // end: encode
 
@@ -210,15 +211,15 @@ static uint8 find_peaks_256(const uint16 transform[128])
   for (uint16 i = 0; i < 128; ++i)
   {
     t         = transform[i];
-    tmp       = ((t >> 15) == 1) ? 0xFFFFU : 0x0000U;
+    tmp       = (uint16)(0u - (t >> 15));
     abs_value = t ^ (tmp & (t ^ ((uint16)(~t) + 1U))); // t = abs(t)
-    mask      = ((((uint16)(peak_abs - abs_value)) >> 15) == 1) ? 0xFFFFU : 0x0000U;
+    mask      = (uint16)(0u - (((uint16)(peak_abs - abs_value)) >> 15));
     peak ^= mask & (peak ^ t);
     pos ^= mask & (pos ^ i);
     peak_abs ^= mask & (peak_abs ^ abs_value);
   }
   // set bit 7
-  tmp = ((peak >> 15) == 0) ? 0xFFFFU : 0x0000U;
+  tmp = (uint16)(0u - (1u - (peak >> 15)));
   pos |= 128U & tmp;
   return (uint8)pos;
 } // end: find_peaks

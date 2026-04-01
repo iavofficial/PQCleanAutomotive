@@ -79,14 +79,16 @@
  */
 static uint16 hqc128_trailing_zero_bits_count(uint16 a)
 {
-  uint16 bit  = 0x0000;
   uint16 tmp  = 0;
   uint16 mask = 0xFFFF;
   for (uint8 i = 0; i < 14; ++i)
   {
-    bit = (a >> i) & 0x0001U;
-    tmp += ((1 - bit) & mask);
-    mask &= (bit != 0) ? 0x0000U : 0xFFFFU;
+    const uint16 bit_i_is_1 = (a >> i) & 0x0001u;
+    const uint16 bit_i_is_0 = 1u - bit_i_is_1;
+    const uint32 tmp_mask   = 0xffffu + (uint32)bit_i_is_1;
+
+    tmp += (bit_i_is_0 & mask);
+    mask &= (uint16)(tmp_mask & 0xffffu);
   }
   return tmp;
 } // end: uint16 trailing_zero_bits_count
@@ -175,7 +177,7 @@ static void gf_carryless_mul_128(uint8 c[2], uint8 a, uint8 b)
     h ^= g >> (8 - i);
   }
 
-  mask = (((b >> 7) & 0x01U) == 0) ? 0x0000U : 0xFFFFU;
+  mask = (uint16)(0u - (((uint16)b >> 7) & 0x01U));
   l ^= (FsmSw_Convert_u8_to_u16((a << 7)) & mask);
   h ^= (FsmSw_Convert_u8_to_u16((a >> 1)) & mask);
 

@@ -261,14 +261,16 @@ static uint16 hqc192_compute_elp(uint16 *const sigma, const uint16 *const syndro
       sigma[y] ^= FsmSw_Hqc192_Gf_Mul(dd, X_sigma_p[y]);
     }
 
-    deg_X         = mu + 1U;
-    deg_X_sigma_p = deg_X + deg_sigma_p;
+    const uint32 pp_reverse = (uint32)(0u - (uint32)pp);
+    deg_X                   = (uint16)(((uint32)mu + pp_reverse) & 0xffffu);
+    deg_X_sigma_p           = deg_X + deg_sigma_p;
 
     // mask1 = 0xffff if(d != 0) and 0 otherwise
-    mask1 = (d != 0) ? 0xFFFFU : 0x0000U;
+    mask1 = 0u - FsmSw_GetSignBit_i16(0 - (sint16)d);
 
     // mask2 = 0xffff if(deg_X_sigma_p > deg_sigma) and 0 otherwise
-    mask2 = (deg_X_sigma_p > deg_sigma) ? 0xFFFFU : 0x0000U;
+    const sint16 tmp_sigma = (sint16)deg_sigma - (sint16)deg_X_sigma_p;
+    mask2                  = 0u - FsmSw_GetSignBit_i16(tmp_sigma);
 
     // mask12 = 0xffff if the deg_sigma increased and 0 otherwise
     mask12 = mask1 & mask2;
@@ -339,15 +341,19 @@ static void hqc192_compute_z_poly(uint16 *const z, const uint16 *const sigma, ui
 
   for (i = 1; i < (HQC192_PARAM_DELTA + 1); ++i)
   {
-    mask = (((i - degree - 1) >> 15) == 1) ? 0xFFFFU : 0x0000U;
-    z[i] = mask & sigma[i];
+    const uint16 i_exceeds_deg_by      = (uint16)i - degree - 1;
+    const uint16 i_is_grether_than_deg = i_exceeds_deg_by >> 15;
+    mask                               = 0u - i_is_grether_than_deg;
+    z[i]                               = mask & sigma[i];
   }
 
   z[1] ^= syndromes[0];
 
   for (i = 2; i <= HQC192_PARAM_DELTA; ++i)
   {
-    mask = (((uint16)(i - degree - 1) >> 15) == 1) ? 0xFFFFU : 0x0000U;
+    const uint16 i_exceeds_deg_by      = (uint16)i - degree - 1;
+    const uint16 i_is_grether_than_deg = i_exceeds_deg_by >> 15;
+    mask                               = 0u - i_is_grether_than_deg;
     z[i] ^= mask & syndromes[i - 1];
 
     for (j = 1; j < i; ++j)
@@ -381,6 +387,7 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
   uint16 mask2;
   uint16 tmp1;
   uint16 tmp2;
+  uint32 tmp_delta_sign;
   uint16 inverse;
   uint16 inverse_power_j;
 
@@ -388,11 +395,14 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
   delta_counter = 0;
   for (uint8 i = 0; i < HQC192_PARAM_N1; i++)
   {
-    found = 0;
-    mask1 = ((err[i] >> 7) == 1) ? 0xFFFFU : 0x0000U; // err[i] != 0
+    found                        = 0;
+    const uint32 err_reversed    = (0u - (uint32)err[i]);
+    const uint32 err_is_not_zero = (err_reversed >> 31);
+    mask1                        = (uint16)(0u - err_is_not_zero); // err[i] != 0
     for (uint8 j = 0; j < HQC192_PARAM_DELTA; j++)
     {
-      mask2 = (((j ^ FsmSw_Convert_u16_to_u32(delta_counter)) >> 31) == 1) ? 0x0000U : 0xFFFFU;
+      const uint32 delta_reverse = (~FsmSw_Convert_u16_to_u32(j ^ delta_counter) + 1U);
+      mask2                      = FsmSw_Convert_u32_to_u16(~(delta_reverse >> 15));
       beta_j[j] += mask1 & mask2 & hqc192_gf_exp[i];
       found += mask1 & mask2 & 1U;
     }
@@ -417,7 +427,7 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
     {
       tmp2 = FsmSw_Hqc192_Gf_Mul(tmp2, (1U ^ FsmSw_Hqc192_Gf_Mul(inverse, beta_j[(i + k) % HQC192_PARAM_DELTA])));
     }
-    mask1  = (i < delta_real_value) ? 0xFFFFU : 0x0000U;
+    mask1  = 0u - FsmSw_GetSignBit_i16((sint16)i - (sint16)delta_real_value);
     e_j[i] = mask1 & FsmSw_Hqc192_Gf_Mul(tmp1, FsmSw_Hqc192_Gf_Inverse(tmp2));
   }
 
@@ -425,11 +435,15 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
   delta_counter = 0;
   for (uint8 i = 0; i < HQC192_PARAM_N1; ++i)
   {
-    found = 0;
-    mask1 = ((err[i] >> 7) == 1) ? 0xFFFFU : 0x0000U; // err[i] != 0
+    found                       = 0;
+    const uint8 err_reverse     = 0u - err[i];
+    const uint8 err_is_not_zero = err_reverse >> 7;
+    mask1                       = (uint16)(0u - (uint16)err_is_not_zero); // err[i] != 0
     for (uint8 j = 0; j < HQC192_PARAM_DELTA; j++)
     {
-      mask2 = (((j ^ FsmSw_Convert_u16_to_u32(delta_counter)) >> 31) == 1) ? 0x0000U : 0xFFFFU;
+      tmp_delta_sign   = ((uint32)j ^ FsmSw_Convert_u16_to_u32(delta_counter)) >> 31;
+      const uint32 tmp = 0xffffu + tmp_delta_sign;
+      mask2            = (uint16)(tmp & 0xffffu);
       error_values[i] += mask1 & mask2 & e_j[j];
       found += mask1 & mask2 & 1U;
     }
