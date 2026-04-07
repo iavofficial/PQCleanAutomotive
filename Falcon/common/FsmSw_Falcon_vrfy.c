@@ -305,7 +305,7 @@ static uint32 fsmsw_falcon_MqRShifT1(uint32 x)
 {
   /* x_temp is used to avoid modifying the input. */
   uint32 x_temp = x;
-  uint32 bit    = ((x_temp & 1U) == 1) ? 0xFFFFFFFFU : 0x00000000U;
+  uint32 bit    = (uint32)(0u - (x_temp & 1U));
   x_temp += Q & bit;
   return (x_temp >> 1);
 } // end: fsmsw_falcon_MqRShifT1

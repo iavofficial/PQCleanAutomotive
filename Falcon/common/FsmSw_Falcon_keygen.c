@@ -1828,13 +1828,7 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
-      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
       /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
@@ -1851,13 +1845,7 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
-      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
       /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
@@ -1982,13 +1970,7 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
-      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
       /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
@@ -2005,13 +1987,7 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
-      /* polyspace +12 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +9 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
-      be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-      additional benefit and could compromise the stability of the system. */
-      /* polyspace +6 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to
+      /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
       /* polyspace +3 CERT-C:INT02-C [Justified:]The current implementation has been carefully reviewed and determined to

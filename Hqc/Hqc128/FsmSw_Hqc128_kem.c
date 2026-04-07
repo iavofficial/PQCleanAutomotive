@@ -209,7 +209,8 @@ sint8 FsmSw_Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const 
                                HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES,
                                HQC128_K_FCT_DOMAIN);
 
-  return ((result & 1U) != 0) ? (sint8)0 : (sint8)(-1);
+  result = result & 1U;
+  return (sint8)result - (sint8)1;
 } // end: FsmSw_Hqc128_Crypto_Kem_Dec
 
 /** @} doxygen end group definition */

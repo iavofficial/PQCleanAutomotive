@@ -293,8 +293,6 @@ uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const i
 * \returns out_len.
 *
 */
-/* polyspace +2 CODE-METRICS:LEVEL [Justified:]"[Value: 5]Additional call levels are required 
-to resolve a MISRA 15 warning." */
 uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits)
 {
   uint32 n          = 0;
@@ -470,8 +468,6 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const
 * \returns out_len.
 *
 */
-/* polyspace +2 CODE-METRICS:LEVEL [Justified:]"[Value: 5]Additional call levels are required 
-to resolve a MISRA 15 warning." */
 uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn)
 {
   uint8 *buf        = (uint8 *)NULL_PTR;

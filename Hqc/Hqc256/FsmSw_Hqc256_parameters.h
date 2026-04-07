@@ -33,8 +33,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef HQC_PARAMETERS_H
-#define HQC_PARAMETERS_H
+#ifndef FSMSW_HQC256_PARAMETERS_H
+#define FSMSW_HQC256_PARAMETERS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -147,7 +147,7 @@ inline functions would not provide significant benefits." */
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* HQC_PARAMETERS_H */
+#endif /* FSMSW_HQC256_PARAMETERS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

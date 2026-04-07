@@ -389,8 +389,6 @@ static uint32 fsmsw_sha2_crypto_HashBlocksSha256(uint8 *const statebytes, const 
 * \param[in] uint32      inlen : t.b.d.
 *
 */
-/* polyspace +2 CODE-METRICS:STMT [Justified:]"[Value: 1006]More instructions are necessary 
-because the MISRA 17.8 warnings require temporary variables to be fixed." */
 static uint32 fsmsw_sha2_crypto_HashBlocksSha512(uint8 *const statebytes, const uint8 *const in, uint32 inlen)
 {
   uint64 state[FSMSW_SHA2_STATE_SIZE];
