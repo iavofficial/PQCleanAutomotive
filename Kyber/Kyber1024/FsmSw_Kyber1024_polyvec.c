@@ -46,7 +46,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE 8u
+#define FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE 8u
+
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -84,19 +85,19 @@
 */
 void FsmSw_Kyber1024_Polyvec_Compress(uint8 r[KYBER1024_POLYVECCOMPRESSEDBYTES], const polyvec1024 *const a)
 {
-  uint8 i                                         = 0;
-  uint8 k                                         = 0;
-  uint16 j                                        = 0;
-  uint16 t[KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
+  uint8 i                                               = 0;
+  uint8 k                                               = 0;
+  uint16 j                                              = 0;
+  uint16 t[FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* r_temp is used to avoid modifying the input. */
   uint8 *r_temp = r;
 
   for (i = 0; i < KYBER1024_K; i++)
   {
-    for (j = 0; j < (KYBER_N / 8u); j++)
+    for (j = 0; j < (KYBER_N / FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE); j++)
     {
-      for (k = 0; k < KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
+      for (k = 0; k < FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
       {
         t[k] = (uint16)(a->vec[i].coeffs[(8u * j) + k]);
         /* Shift to get the first bit */
@@ -133,10 +134,10 @@ void FsmSw_Kyber1024_Polyvec_Compress(uint8 r[KYBER1024_POLYVECCOMPRESSEDBYTES],
 */
 void FsmSw_Kyber1024_Polyvec_Decompress(polyvec1024 *const r, const uint8 a[KYBER1024_POLYVECCOMPRESSEDBYTES])
 {
-  uint8 i                                         = 0;
-  uint8 k                                         = 0;
-  uint16 j                                        = 0;
-  uint16 t[KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
+  uint8 i                                               = 0;
+  uint8 k                                               = 0;
+  uint16 j                                              = 0;
+  uint16 t[FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* a_temp is used to avoid modifying the input. */
   const uint8 *a_temp = a;
@@ -156,9 +157,9 @@ void FsmSw_Kyber1024_Polyvec_Decompress(polyvec1024 *const r, const uint8 a[KYBE
       /* Set address from pointer a[10] to address a[11]  */
       a_temp = &(a_temp[11]);
 
-      for (k = 0; k < KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
+      for (k = 0; k < FSMSW_KYBER1024_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
       {
-        r->vec[i].coeffs[(8u * j) + k] = (sint16)((uint16)((((t[k] & 0x7FFu) * KYBER_Q) + 1024u) >> 11u));
+        r->vec[i].coeffs[(8u * j) + k] = (sint16)((uint16)((((t[k] & 0x7FFu) * KYBER_Q) + KYBER1024_IMPLBYTES) >> 11u));
       }
     }
   }
@@ -177,7 +178,7 @@ void FsmSw_Kyber1024_Polyvec_ToBytes(uint8 r[KYBER1024_POLYVECBYTES], const poly
 
   for (i = 0; i < KYBER1024_K; i++)
   {
-    FsmSw_Kyber_Poly_ToBytes(&r[i * KYBER_POLYBYTES], &a->vec[i]);
+    FsmSw_Kyber_Poly_ToBytes(&(r[i * KYBER_POLYBYTES]), &a->vec[i]);
   }
 } // end: FsmSw_Kyber1024_Polyvec_ToBytes
 

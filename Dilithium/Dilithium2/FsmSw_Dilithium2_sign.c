@@ -119,7 +119,7 @@ static uint8 FsmSw_Dilithium2_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
     rnd      = &key[SEEDBYTES_DILITHIUM];
     mu       = &rnd[RNDBYTES_DILITHIUM];
     rhoprime = &mu[CRHBYTES_DILITHIUM];
-    FsmSw_Dilithium2_Unpack_Sk(rho, tr, key, &t0, &s1, &s2, sk);
+    FsmSw_Dilithium2_UnpackSk(rho, tr, key, &t0, &s1, &s2, sk);
 
     /* Compute mu = CRH(tr, 0, ctxlen, ctx, msg) */
     mu[0] = 0;
@@ -210,7 +210,7 @@ static uint8 FsmSw_Dilithium2_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
       loop = FALSE;
     }
     /* Write signature */
-    FsmSw_Dilithium2_Pack_Sig(sig, sig, &z, &h);
+    FsmSw_Dilithium2_PackSig(sig, sig, &z, &h);
     *siglen = FSMSW_DILITHIUM2_CRYPTO_BYTES;
   }
   return retVal;
@@ -257,8 +257,8 @@ static uint8 FsmSw_Dilithium2_Crypto_Sign_Verify_Ctx(const uint8 *const sig, uin
     retVal = ERR_NOT_OK;
   }
 
-  FsmSw_Dilithium2_Unpack_Pk(rho, &t1, pk);
-  if (0 < FsmSw_Dilithium2_Unpack_Sig(c, &z, &h, sig))
+  FsmSw_Dilithium2_UnpackPk(rho, &t1, pk);
+  if (0 < FsmSw_Dilithium2_UnpackSig(c, &z, &h, sig))
   {
     retVal = ERR_NOT_OK;
   }
@@ -405,15 +405,14 @@ void FsmSw_Dilithium2_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   /* Extract t1 and write public key */
   FsmSw_Dilithium2_Polyveck_CAddQ(&t1);
   FsmSw_Dilithium2_Polyveck_Power2Round(&t1, &t0, &t1);
-  FsmSw_Dilithium2_Pack_Pk(pk, rho, &t1);
+  FsmSw_Dilithium2_PackPk(pk, rho, &t1);
 
   /* Compute H(rho, t1) and write secret key */
   FsmSw_Fips202_Shake256(tr, TRBYTES_DILITHIUM, pk, FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES);
-  FsmSw_Dilithium2_Pack_Sk(sk, rho, tr, key, &t0, &s1, &s2);
+  FsmSw_Dilithium2_PackSk(sk, rho, tr, key, &t0, &s1, &s2);
 
   return;
-}
-// end: FsmSw_Dilithium2_Crypto_Sign_KeyPair
+} // end: FsmSw_Dilithium2_Crypto_Sign_KeyPair
 /*====================================================================================================================*/
 /**
 * \brief Computes signature.
@@ -430,8 +429,7 @@ uint8 FsmSw_Dilithium2_Crypto_Sign_Signature(uint8 *const sig, uint32 *const sig
                                              const uint8 *const sk)
 {
   return FsmSw_Dilithium2_Crypto_Sign_Signature_Ctx(sig, siglen, m, mlen, NULL_PTR, 0, sk);
-}
-// end: FsmSw_Dilithium2_Crypto_Sign_Signature
+} // end: FsmSw_Dilithium2_Crypto_Sign_Signature
 /*====================================================================================================================*/
 /**
 * \brief Compute signed message.

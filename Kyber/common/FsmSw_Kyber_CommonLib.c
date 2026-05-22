@@ -41,7 +41,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define FSMSW_KYBER_COMMON_LIB_CBD2_NIBBLES_NUM 8u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -79,6 +79,13 @@
 *
 * \returns 32-bit unsigned integer loaded from x
 */
+
+/* 
+  polyspace +5 CERT-C:DCL19-C [Justified:] 
+  polyspace +4 CERT-C:DCL15-C [Justified:] 
+  polyspace +3 MISRA2012:8.7 [Justified:] 
+  "Common library utilities should be avaliable for usage if needed"
+*/
 uint32 FsmSw_Kyber_Load32LittleEndian(const uint8 x[4])
 {
   uint32 r = 0;
@@ -115,7 +122,7 @@ void FsmSw_Kyber_Cbd2(poly *r, const uint8 buf[2u * KYBER_N / 4u])
     d = t & 0x55555555u;
     d += (t >> 1u) & 0x55555555u;
 
-    for (j = 0; j < 8u; j++)
+    for (j = 0; j < FSMSW_KYBER_COMMON_LIB_CBD2_NIBBLES_NUM; j++)
     {
       a                       = (sint16)((uint16)((uint16)((d >> ((4u * j)))) & 0x3u));
       b                       = (sint16)((uint16)((uint16)((d >> ((4u * j) + 2u))) & 0x3u));

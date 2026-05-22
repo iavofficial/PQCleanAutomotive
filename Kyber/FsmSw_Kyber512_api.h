@@ -1,49 +1,34 @@
+#ifndef FSMSW_KYBER512_API_H
+#define FSMSW_KYBER512_API_H
 /***********************************************************************************************************************
  *
  *                                                    IAV GmbH
- *
- *
+ *  \file
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber768
-*    includes the modules for Kyber768
+/** \addtogroup Kyber512
+*    includes the modules for Kyber512
  ** @{ */
-/** \addtogroup Kyber768_kem
+/** \addtogroup FsmSw_Kyber512_api
  ** @{ */
 
-/*====================================================================================================================*/
-/** \file FsmSw_Kyber768_kem.h
-* \brief  Declarations for the modul FsmSw_Kyber768_kem.c
-*
-* \details
-*
-*
-*/
-/*
- *
- *  $File$
- *
- *  $Author$
- *
- *  $Date$
- *
- *  $Rev$
- *
+/***********************************************************************************************************************
+ * INCLUDES
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER768_KEM_H
-#define FSMSW_KYBER768_KEM_H
-/**********************************************************************************************************************/
-/* INCLUDES                                                                                                           */
-/**********************************************************************************************************************/
-#include "FsmSw_Kyber768_api.h"
-#include "FsmSw_Kyber768_params.h"
+#include "FsmSw_Kyber_api.h"
 #include "Std_Types.h"
+
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
+#define KYBER512_PUBLICKEYBYTES  800U
+#define KYBER512_SECRETKEYBYTES  1632U
+#define KYBER512_INDCPA_BYTES    768U
+#define KYBER512_CIPHERTEXTBYTES 768U
+#define KYBER512_INDCPA_MSGBYTES 32U
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -64,9 +49,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
+void FsmSw_Kyber512_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+void FsmSw_Kyber512_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+void FsmSw_Kyber512_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
-#endif /* FSMSW_KYBER768_KEM_H */
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+#endif /* FSMSW_KYBER512_API_H */

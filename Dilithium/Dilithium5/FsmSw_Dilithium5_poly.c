@@ -167,7 +167,7 @@ static uint32 fsmsw_dilithium5_RejUniform(sint32 *const a, uint32 len, const uin
 /**
 * \brief Inplace reduction of all coefficients of polynomial to representative in [-6283008,6283008].
 *
-* \param[in,out] poly_D5 *a: pointer to input/output polynomial
+* \param[in,out] poly_D5 *const a: pointer to input/output polynomial
 */
 void FsmSw_Dilithium5_Poly_Reduce(poly_D5 *const a)
 {
@@ -182,7 +182,7 @@ void FsmSw_Dilithium5_Poly_Reduce(poly_D5 *const a)
 /**
 * \brief For all coefficients of in/out polynomial add Q if coefficient is negative.
 *
-* \param[in,out] poly_D5 *a: pointer to input/output polynomial
+* \param[in,out] poly_D5 *const a: pointer to input/output polynomial
 */
 void FsmSw_Dilithium5_Poly_CAddQ(poly_D5 *const a)
 {
@@ -197,9 +197,9 @@ void FsmSw_Dilithium5_Poly_CAddQ(poly_D5 *const a)
 /**
 * \brief Add polynomials. No modular reduction is performed.
 *
-* \param[out] poly_D5       *c : pointer to output polynomial
-* \param[in]  const poly_D5 *a : pointer to first summand
-* \param[in]  const poly_D5 *b : pointer to second summand
+* \param[out] poly_D5       *const c : pointer to output polynomial
+* \param[in]  const poly_D5 *const a : pointer to first summand
+* \param[in]  const poly_D5 *const b : pointer to second summand
 */
 void FsmSw_Dilithium5_Poly_Add(poly_D5 *const c, const poly_D5 *const a, const poly_D5 *const b)
 {
@@ -214,9 +214,9 @@ void FsmSw_Dilithium5_Poly_Add(poly_D5 *const c, const poly_D5 *const a, const p
 /**
 * \brief Subtract polynomials. No modular reduction is performed.
 *
-* \param[out] poly_D5       *c : pointer to output polynomial
-* \param[in]  const poly_D5 *a : pointer to first input polynomial
-* \param[in]  const poly_D5 *b : pointer to second input polynomial to be subtraced from first input polynomial
+* \param[out] poly_D5       *const c : pointer to output polynomial
+* \param[in]  const poly_D5 *const a : pointer to first input polynomial
+* \param[in]  const poly_D5 *const b : pointer to second input polynomial to be subtraced from first input polynomial
 */
 void FsmSw_Dilithium5_Poly_Sub(poly_D5 *const c, const poly_D5 *const a, const poly_D5 *const b)
 {
@@ -232,7 +232,7 @@ void FsmSw_Dilithium5_Poly_Sub(poly_D5 *const c, const poly_D5 *const a, const p
 * \brief Multiply polynomial by 2^D without modular reduction.
 *              Assumes input coefficients to be less than 2^{31-D} in absolute value.
 *
-* \param[in,out] poly_D5 *a : pointer to input/output polynomial
+* \param[in,out] poly_D5 *const a : pointer to input/output polynomial
 */
 void FsmSw_Dilithium5_Poly_Shiftl(poly_D5 *const a)
 {
@@ -258,7 +258,7 @@ void FsmSw_Dilithium5_Poly_Ntt(poly_D5 *a)
 * \brief Inplace inverse NTT and multiplication by 2^{32}. Input coefficients need to be less than Q in absolute
 *              value and output coefficients are again bounded by Q.
 *
-* \param[in,out] poly_D5 *a: pointer to input/output polynomial
+* \param[in,out] poly_D5 *const a: pointer to input/output polynomial
 */
 void FsmSw_Dilithium5_Poly_InvnttTomont(poly_D5 *const a)
 {
@@ -269,9 +269,9 @@ void FsmSw_Dilithium5_Poly_InvnttTomont(poly_D5 *const a)
 * \brief Pointwise multiplication of polynomials in NTT domain representation and multiplication of
 *              resulting polynomial by 2^{-32}.
 *
-* \param[out] poly_D5       *c : pointer to output polynomial
-* \param[in]  const poly_D5 *a : pointer to first input polynomial
-* \param[in]  const poly_D5 *b : pointer to second input polynomial
+* \param[out] poly_D5       *const c : pointer to output polynomial
+* \param[in]  const poly_D5 *const a : pointer to first input polynomial
+* \param[in]  const poly_D5 *const b : pointer to second input polynomial
 */
 void FsmSw_Dilithium5_Poly_PointwiseMontgomery(poly_D5 *const c, const poly_D5 *const a, const poly_D5 *const b)
 {
@@ -287,9 +287,9 @@ void FsmSw_Dilithium5_Poly_PointwiseMontgomery(poly_D5 *const c, const poly_D5 *
 * \brief For all coefficients c of the input polynomial, compute c0, c1 such that c mod Q = c1*2^D + c0
 *              with -2^{D-1} < c0 <= 2^{D-1}. Assumes coefficients to be standard representatives.
 *
-* \param[out] poly_D5      *a1 : pointer to output polynomial with coefficients c1
-* \param[out] poly_D5      *a0 : pointer to output polynomial with coefficients c0
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] poly_D5      *const a1 : pointer to output polynomial with coefficients c1
+* \param[out] poly_D5            *a0 : pointer to output polynomial with coefficients c0
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Poly_Power2Round(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a)
 {
@@ -306,11 +306,11 @@ void FsmSw_Dilithium5_Poly_Power2Round(poly_D5 *const a1, poly_D5 *a0, const pol
 *              Q = c1*ALPHA + c0 with -ALPHA/2 < c0 <= ALPHA/2 except c1 = (Q-1)/ALPHA where we set c1 = 0 and
 *              -ALPHA/2 <= c0 = c mod Q - Q < 0. Assumes coefficients to be standard representatives.
 *
-* \param[out] poly_D5      *a1 : pointer to output polynomial with coefficients c1
-* \param[out] poly_D5      *a0 : pointer to output polynomial with coefficients c0
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] poly_D5      *const a1 : pointer to output polynomial with coefficients c1
+* \param[out] poly_D5            *a0 : pointer to output polynomial with coefficients c0
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium5_poly_Decompose(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a)
+void FsmSw_Dilithium5_Poly_Decompose(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a)
 {
   uint16 i = 0;
 
@@ -318,15 +318,15 @@ void FsmSw_Dilithium5_poly_Decompose(poly_D5 *const a1, poly_D5 *a0, const poly_
   {
     a1->coeffs[i] = FsmSw_Dilithium5_Decompose(&a0->coeffs[i], a->coeffs[i]);
   }
-} // end: FsmSw_Dilithium5_poly_Decompose
+} // end: FsmSw_Dilithium5_Poly_Decompose
 /*====================================================================================================================*/
 /**
 * \brief Compute hint polynomial. The coefficients of which indicate whether the low bits of the corresponding
 *              coefficient of the input polynomial overflow into the high bits.
 *
-* \param[out] poly_D5        *h : pointer to output hint polynomial
-* \param[in]  const poly_D5 *a0 : pointer to low part of input polynomial
-* \param[in]  const poly_D5 *a1 : pointer to high part of input polynomial
+* \param[out] poly_D5        *const h : pointer to output hint polynomial
+* \param[in]  const poly_D5 *const a0 : pointer to low part of input polynomial
+* \param[in]  const poly_D5 *const a1 : pointer to high part of input polynomial
 *
 * \returns number of 1 bits.
 */
@@ -347,9 +347,9 @@ uint32 FsmSw_Dilithium5_Poly_MakeHint(poly_D5 *const h, const poly_D5 *const a0,
 /**
 * \brief Use hint polynomial to correct the high bits of a polynomial.
 *
-* \param[out] poly_D5       *b : pointer to output polynomial with corrected high bits
-* \param[in]  const poly_D5 *a : pointer to input polynomial
-* \param[in]  const poly_D5 *h : pointer to input hint polynomial
+* \param[out] poly_D5       *const b : pointer to output polynomial with corrected high bits
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
+* \param[in]  const poly_D5 *const h : pointer to input hint polynomial
 */
 void FsmSw_Dilithium5_Poly_UseHint(poly_D5 *const b, const poly_D5 *const a, const poly_D5 *const h)
 {
@@ -365,8 +365,8 @@ void FsmSw_Dilithium5_Poly_UseHint(poly_D5 *const b, const poly_D5 *const a, con
 * \brief Check infinity norm of polynomial against given bound.
 *              Assumes input coefficients were reduced by FsmSw_Dilithium5_reduce32().
 *
-* \param[in] const poly_D5 *a : pointer to polynomial
-* \param[in] sint32         B : norm bound
+* \param[in] const poly_D5 *const a : pointer to polynomial
+* \param[in] sint32               B : norm bound
 *
 * \returns 0 if norm is strictly smaller than B <= (Q-1)/8 and 1 otherwise.
 */
@@ -465,7 +465,7 @@ void FsmSw_Dilithium5_Poly_UniformEta(poly_D5 *a, const uint8 seed[CRHBYTES_DILI
 * \brief Sample polynomial with uniformly random coefficients in [-(GAMMA1 - 1), GAMMA1] by unpacking
 *              output stream of SHAKE256(seed|nonce)
 *
-* \param[out] poly_D5         *a : pointer to output polynomial
+* \param[out] poly_D5   *const a : pointer to output polynomial
 * \param[in]  const uint8 seed[] : byte array with seed of length CRHBYTES_DILITHIUM
 * \param[in]  uint16       nonce : 16-bit nonce
 */
@@ -483,7 +483,7 @@ void FsmSw_Dilithium5_Poly_UniformGamma1(poly_D5 *const a, const uint8 seed[CRHB
 * \brief Implementation of H. Samples polynomial with TAU nonzero coefficients in {-1,1} using the output stream
 *              of SHAKE256(seed).
 *
-* \param[out] poly_D5         *c : pointer to output polynomial
+* \param[out] poly_D5   *const c : pointer to output polynomial
 * \param[in]  const uint8 seed[] : byte array containing seed of length SEEDBYTES_DILITHIUM
 */
 void FsmSw_Dilithium5_Poly_Challenge(poly_D5 *const c, const uint8 seed[SEEDBYTES_DILITHIUM])
@@ -536,8 +536,8 @@ void FsmSw_Dilithium5_Poly_Challenge(poly_D5 *const c, const uint8 seed[SEEDBYTE
 /**
 * \brief Bit-pack polynomial with coefficients in [-ETA,ETA].
 *
-* \param[out] uint8         *r : pointer to output byte array with at least POLYETA_PACKEDBYTES bytes
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYETA_PACKEDBYTES bytes
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Polyeta_EtaPack(uint8 *const r, const poly_D5 *const a)
 {
@@ -564,8 +564,8 @@ void FsmSw_Dilithium5_Polyeta_EtaPack(uint8 *const r, const poly_D5 *const a)
 /**
 * \brief Unpack polynomial with coefficients in [-ETA,ETA].
 *
-* \param[out] poly_D5     *r : pointer to output polynomial
-* \param[in]  const uint8 *a : byte array with bit-packed polynomial
+* \param[out] poly_D5     *const r : pointer to output polynomial
+* \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
 void FsmSw_Dilithium5_Polyeta_EtaUnpack(poly_D5 *const r, const uint8 *const a)
 {
@@ -599,8 +599,8 @@ void FsmSw_Dilithium5_Polyeta_EtaUnpack(poly_D5 *const r, const uint8 *const a)
 * \brief Bit-pack polynomial t1 with coefficients fitting in 10 bits.
 *              Input coefficients are assumed to be standard representatives.
 *
-* \param[out] uint8         *r : pointer to output byte array with at least POLYT1_PACKEDBYTES bytes
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYT1_PACKEDBYTES bytes
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Poly_T1Pack(uint8 *const r, const poly_D5 *const a)
 {
@@ -622,8 +622,8 @@ void FsmSw_Dilithium5_Poly_T1Pack(uint8 *const r, const poly_D5 *const a)
 * \brief Unpack polynomial t1 with 10-bit coefficients.
 *              Output coefficients are standard representatives.
 *
-* \param[out] poly_D5     *r : pointer to output polynomial
-* \param[in]  const uint8 *a : byte array with bit-packed polynomial
+* \param[out] poly_D5     *const r : pointer to output polynomial
+* \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
 void FsmSw_Dilithium5_Poly_T1Unpack(poly_D5 *const r, const uint8 *const a)
 {
@@ -645,8 +645,8 @@ void FsmSw_Dilithium5_Poly_T1Unpack(poly_D5 *const r, const uint8 *const a)
 /**
 * \brief Bit-pack polynomial t0 with coefficients in [-2^{D-1}, 2^{D-1}].
 *
-* \param[out] uint8         *r : pointer to output byte array with at least POLYT0_PACKEDBYTES_DILITHIUM bytes
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYT0_PACKEDBYTES_DILITHIUM bytes
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Poly_T0Pack(uint8 *const r, const poly_D5 *const a)
 {
@@ -690,8 +690,8 @@ void FsmSw_Dilithium5_Poly_T0Pack(uint8 *const r, const poly_D5 *const a)
 /**
 * \brief Unpack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
 *
-* \param[out] poly_D5     *r : pointer to output polynomial
-* \param[in]  const uint8 *a : byte array with bit-packed polynomial
+* \param[out] poly_D5     *const r : pointer to output polynomial
+* \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
 void FsmSw_Dilithium5_Poly_T0Unpack(poly_D5 *const r, const uint8 *const a)
 {
@@ -768,12 +768,15 @@ void FsmSw_Dilithium5_Poly_T0Unpack(poly_D5 *const r, const uint8 *const a)
 /**
 * \brief Bit-pack polynomial with coefficients in [-(GAMMA1 - 1), GAMMA1].
 *
-* \param[out] uint8         *r : pointer to output byte array with at least POLYZ_PACKEDBYTES_DILITHIUM5 bytes
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYZ_PACKEDBYTES_DILITHIUM5 bytes
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Poly_ZPack(uint8 *const r, const poly_D5 *const a)
 {
-  uint16 i                         = 0;
+  uint16 i = 0;
+  /* polyspace +3 DEFECT:PARTIALLY_ACCESSED_ARRAY [To fix:]"Functionality of FsmSw_Dilithium3_Poly_ZPack and   
+     FsmSw_Dilithium5_Poly_ZPack (only the first two elements of the array t are written) differs from that of  
+     FsmSw_Dilithium2_Poly_ZPack. Fix it after response from github.com/PQClean/PQClean/discussions/605" */
   uint32 t[POLY_ZPACK_BUFFER_SIZE] = {0};
 
   for (i = 0; i < (N_DILITHIUM / 2u); ++i)
@@ -793,8 +796,8 @@ void FsmSw_Dilithium5_Poly_ZPack(uint8 *const r, const poly_D5 *const a)
 /**
 * \brief Unpack polynomial z with coefficients in [-(GAMMA1 - 1), GAMMA1].
 *
-* \param[out] poly_D5     *r : pointer to output polynomial
-* \param[in]  const uint8 *a : byte array with bit-packed polynomial
+* \param[out] poly_D5     *const r : pointer to output polynomial
+* \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
 void FsmSw_Dilithium5_Poly_ZUnpack(poly_D5 *const r, const uint8 *const a)
 {
@@ -823,8 +826,8 @@ void FsmSw_Dilithium5_Poly_ZUnpack(poly_D5 *const r, const uint8 *const a)
 * \brief Bit-pack polynomial w1 with coefficients in [0,15] or [0,43].
 *              Input coefficients are assumed to be standard representatives.
 *
-* \param[out] uint8         *r : pointer to output byte array with at least POLYW1_PACKEDBYTES_DILITHIUM5  bytes
-* \param[in]  const poly_D5 *a : pointer to input polynomial
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYW1_PACKEDBYTES_DILITHIUM5  bytes
+* \param[in]  const poly_D5 *const a : pointer to input polynomial
 */
 void FsmSw_Dilithium5_Poly_W1Pack(uint8 *const r, const poly_D5 *const a)
 {

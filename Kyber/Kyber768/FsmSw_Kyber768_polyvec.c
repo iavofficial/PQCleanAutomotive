@@ -46,8 +46,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER768_POLYVEC_BLOCK_SIZE 4u
-#define FSMSW_KYBER768_POLYVEC_T_SIZE     4
+#define FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE 4u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -85,19 +84,19 @@
 */
 void FsmSw_Kyber768_Polyvec_Compress(uint8 r[KYBER768_POLYVECCOMPRESSEDBYTES], const polyvec768 *const a)
 {
-  uint8 i                                 = 0;
-  uint8 k                                 = 0;
-  uint16 j                                = 0;
-  uint16 t[FSMSW_KYBER768_POLYVEC_T_SIZE] = {0};
+  uint8 i                                              = 0;
+  uint8 k                                              = 0;
+  uint16 j                                             = 0;
+  uint16 t[FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* r_temp is used to avoid modifying the input. */
   uint8 *r_temp = r;
 
   for (i = 0; i < KYBER768_K; i++)
   {
-    for (j = 0; j < (KYBER_N / 4u); j++)
+    for (j = 0; j < (KYBER_N / FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE); j++)
     {
-      for (k = 0; (k < FSMSW_KYBER768_POLYVEC_BLOCK_SIZE); k++)
+      for (k = 0; (k < FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE); k++)
       {
         t[k] = (uint16)(a->vec[i].coeffs[(4u * j) + k]);
         /* Shift to get the first bit */
@@ -113,7 +112,7 @@ void FsmSw_Kyber768_Polyvec_Compress(uint8 r[KYBER768_POLYVECCOMPRESSEDBYTES], c
       r_temp[2] = (uint8)((t[1] >> 6) | (t[2] << 4));
       r_temp[3] = (uint8)((t[2] >> 4) | (t[3] << 6));
       r_temp[4] = (uint8)(t[3] >> 2);
-      r_temp    = &r_temp[5];
+      r_temp    = &(r_temp[5]);
     }
   }
 } // end: FsmSw_Kyber768_Polyvec_Compress
@@ -128,10 +127,10 @@ void FsmSw_Kyber768_Polyvec_Compress(uint8 r[KYBER768_POLYVECCOMPRESSEDBYTES], c
 */
 void FsmSw_Kyber768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[KYBER768_POLYVECCOMPRESSEDBYTES])
 {
-  uint8 i                                 = 0;
-  uint8 k                                 = 0;
-  uint16 j                                = 0;
-  uint16 t[FSMSW_KYBER768_POLYVEC_T_SIZE] = {0};
+  uint8 i                                              = 0;
+  uint8 k                                              = 0;
+  uint16 j                                             = 0;
+  uint16 t[FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* a_temp is used to avoid modifying the input. */
   const uint8 *a_temp = a;
@@ -147,9 +146,9 @@ void FsmSw_Kyber768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[KYBER7
       /* Set address from pointer a[4] to address a[5] */
       a_temp = &(a_temp[5]);
 
-      for (k = 0; (k < FSMSW_KYBER768_POLYVEC_BLOCK_SIZE); k++)
+      for (k = 0; k < FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
       {
-        r->vec[i].coeffs[(4u * j) + k] = (sint16)((uint16)((((t[k] & 0x3FFu) * KYBER_Q) + 768u) >> 10u));
+        r->vec[i].coeffs[(4u * j) + k] = (sint16)((uint16)((((t[k] & 0x3FFu) * KYBER_Q) + KYBER768_IMPLBYTES) >> 10u));
       }
     }
   }
@@ -164,11 +163,11 @@ void FsmSw_Kyber768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[KYBER7
 */
 void FsmSw_Kyber768_Polyvec_ToBytes(uint8 r[KYBER768_POLYVECBYTES], const polyvec768 *const a)
 {
-  uint8 i;
+  uint8 i = 0;
 
   for (i = 0; i < KYBER768_K; i++)
   {
-    FsmSw_Kyber_Poly_ToBytes(&r[i * KYBER_POLYBYTES], &a->vec[i]);
+    FsmSw_Kyber_Poly_ToBytes(&(r[i * KYBER_POLYBYTES]), &a->vec[i]);
   }
 } // end: FsmSw_Kyber768_Polyvec_ToBytes
 

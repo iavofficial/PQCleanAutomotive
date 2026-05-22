@@ -39,6 +39,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
+#include "FsmSw_Kyber1024_api.h"
 #include "FsmSw_Kyber1024_params.h"
 #include "Std_Types.h"
 
@@ -65,9 +66,6 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
-void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
-void FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
 #endif /* FSMSW_KYBER1024_KEM_H */
 
