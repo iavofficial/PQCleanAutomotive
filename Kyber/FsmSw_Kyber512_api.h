@@ -24,11 +24,11 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER512_PUBLICKEYBYTES  800U
-#define KYBER512_SECRETKEYBYTES  1632U
-#define KYBER512_INDCPA_BYTES    768U
-#define KYBER512_CIPHERTEXTBYTES 768U
-#define KYBER512_INDCPA_MSGBYTES 32U
+#define KYBER512_PUBLICKEYBYTES  800u
+#define KYBER512_SECRETKEYBYTES  1632u
+#define KYBER512_INDCPA_BYTES    768u
+#define KYBER512_CIPHERTEXTBYTES 768u
+#define KYBER512_INDCPA_MSGBYTES 32u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */

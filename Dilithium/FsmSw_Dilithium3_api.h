@@ -23,9 +23,9 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_DILITHIUM3_CRYPTO_PUBLICKEYBYTES 1952U
-#define FSMSW_DILITHIUM3_CRYPTO_SECRETKEYBYTES 4032U
-#define FSMSW_DILITHIUM3_CRYPTO_BYTES          3309U
+#define FSMSW_DILITHIUM3_CRYPTO_PUBLICKEYBYTES 1952u
+#define FSMSW_DILITHIUM3_CRYPTO_SECRETKEYBYTES 4032u
+#define FSMSW_DILITHIUM3_CRYPTO_BYTES          3309u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
