@@ -1,5 +1,5 @@
-#ifndef FSMSW_DILITHIUM3_API_H
-#define FSMSW_DILITHIUM3_API_H
+#ifndef FSMSW_KYBER768_API_H
+#define FSMSW_KYBER768_API_H
 /***********************************************************************************************************************
  *
  *                                                    IAV GmbH
@@ -9,23 +9,26 @@
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium3
-*    includes the modules for Dilithium3
+/** \addtogroup Kyber768
+*    includes the modules for Kyber768
  ** @{ */
-/** \addtogroup FsmSw_Dilithium3_api
+/** \addtogroup FsmSw_Kyber768_api
  ** @{ */
 
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
+#include "FsmSw_Kyber_api.h"
 #include "Std_Types.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_DILITHIUM3_CRYPTO_PUBLICKEYBYTES 1952u
-#define FSMSW_DILITHIUM3_CRYPTO_SECRETKEYBYTES 4032u
-#define FSMSW_DILITHIUM3_CRYPTO_BYTES          3309u
+#define KYBER768_PUBLICKEYBYTES  1184u
+#define KYBER768_SECRETKEYBYTES  2400u
+#define KYBER768_INDCPA_BYTES    1088u
+#define KYBER768_CIPHERTEXTBYTES 1088u
+#define KYBER768_INDCPA_MSGBYTES 32u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -46,17 +49,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Dilithium3_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
-uint8 FsmSw_Dilithium3_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
-                                             const uint8 *const sk);
-uint8 FsmSw_Dilithium3_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
-                                   const uint8 *const sk);
-uint8 FsmSw_Dilithium3_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
-                                          const uint8 *const pk);
-uint8 FsmSw_Dilithium3_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
-                                        const uint8 *const pk);
+void FsmSw_Kyber768_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+void FsmSw_Kyber768_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+void FsmSw_Kyber768_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-#endif /* FSMSW_DILITHIUM3_API_H */
+#endif /* FSMSW_KYBER768_API_H */

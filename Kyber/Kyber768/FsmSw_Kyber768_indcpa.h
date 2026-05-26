@@ -70,7 +70,7 @@ void FsmSw_Kyber768_Indcpa_KeyPair(uint8 pk[KYBER768_INDCPA_PUBLICKEYBYTES], uin
 void FsmSw_Kyber768_Indcpa_Enc(uint8 c[KYBER768_INDCPA_BYTES], const uint8 m[KYBER768_INDCPA_MSGBYTES],
                                const uint8 pk[KYBER768_INDCPA_PUBLICKEYBYTES], const uint8 coins[KYBER_SYMBYTES]);
 
-void FsmSw_Kyber768_Indcpa_dec(uint8 m[KYBER768_INDCPA_MSGBYTES], const uint8 c[KYBER768_INDCPA_BYTES],
+void FsmSw_Kyber768_Indcpa_Dec(uint8 m[KYBER768_INDCPA_MSGBYTES], const uint8 c[KYBER768_INDCPA_BYTES],
                                const uint8 sk[KYBER768_INDCPA_SECRETKEYBYTES]);
 
 #endif /* FSMSW_KYBER768_INDCPA_H */
