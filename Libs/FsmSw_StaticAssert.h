@@ -1,8 +1,8 @@
 #ifndef FSMSW_STATIC_ASSERT_H
 #define FSMSW_STATIC_ASSERT_H
-/**********************************************************************************************************************
+/***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ *                                          Copyright (c) 2026 IAV GmbH
  * \file
  * \brief Compile time assertions
  * \details Provides the macro FSMSW_STATIC_ASSERT which can be used to perform compile time assertions.
