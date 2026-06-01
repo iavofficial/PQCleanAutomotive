@@ -50,7 +50,9 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define GEN_MATRIX_NBLOCKS (((((12u * KYBER_N) / 8u * 4096u) / KYBER_Q) + XOF_BLOCKBYTES) / XOF_BLOCKBYTES)
+/* polyspace +2 MISRA2012:2.2 [Justified:]"The function is used deeper in the code for crucial calculations 
+if the defines change, so it's not dead code." */
+#define GEN_MATRIX_NBLOCKS (((((12u * KYBER_N) / (8u * 4096u)) / KYBER_Q) + XOF_BLOCKBYTES) / XOF_BLOCKBYTES)
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -245,10 +247,12 @@ static uint16 fsmsw_kyber768_RejUniform(sint16 *const r, uint16 len, const uint8
 /* polyspace +1 MISRA2012:8.7 [Justified:]"Not static for benchmarking */
 void FsmSw_Kyber768_Indcpa_GenMatrix(polyvec768 *a, const uint8 seed[KYBER_SYMBYTES], uint8 transposed)
 {
-  uint8 i                                               = 0;
-  uint8 j                                               = 0;
-  uint16 buflen                                         = 0;
-  uint16 ctr                                            = 0;
+  uint8 i       = 0;
+  uint8 j       = 0;
+  uint16 buflen = 0;
+  uint16 ctr    = 0;
+  /* polyspace +2 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change 
+    and therefore not dead code" */
   uint8 buf[(GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES) + 2u] = {0};
   xof_state state;
 
@@ -266,6 +270,8 @@ void FsmSw_Kyber768_Indcpa_GenMatrix(polyvec768 *a, const uint8 seed[KYBER_SYMBY
       }
 
       FsmSw_Fips202_Shake128_SqueezeBlocks(buf, GEN_MATRIX_NBLOCKS, &state);
+      /* polyspace +2 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change 
+             and therefore not dead code" */
       buflen = GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES;
       ctr    = fsmsw_kyber768_RejUniform(a[i].vec[j].coeffs, KYBER_N, buf, buflen);
 
@@ -273,7 +279,7 @@ void FsmSw_Kyber768_Indcpa_GenMatrix(polyvec768 *a, const uint8 seed[KYBER_SYMBY
       {
         FsmSw_Fips202_Shake128_SqueezeBlocks(buf, 1u, &state);
         buflen = XOF_BLOCKBYTES;
-        ctr    = ctr + fsmsw_kyber768_RejUniform(&(a[i].vec[j].coeffs[ctr]), KYBER_N - ctr, buf, buflen);
+        ctr    = ctr + (fsmsw_kyber768_RejUniform(&(a[i].vec[j].coeffs[ctr]), KYBER_N - ctr, buf, buflen));
       }
     }
   }
@@ -380,7 +386,7 @@ void FsmSw_Kyber768_Indcpa_Enc(uint8 c[KYBER768_INDCPA_BYTES], const uint8 m[KYB
 
   FsmSw_Kyber768_Polyvec_Ntt(&sp);
 
-  /* matrix-vector multiplication */
+  // matrix-vector multiplication
   for (i = 0; i < KYBER768_K; i++)
   {
     FsmSw_Kyber768_Polyvec_BasemulAccMontgomery(&b.vec[i], &at[i], &sp);
@@ -409,7 +415,7 @@ void FsmSw_Kyber768_Indcpa_Enc(uint8 c[KYBER768_INDCPA_BYTES], const uint8 m[KYB
 * \param[in]  const uint8  *c : pointer to input ciphertext (of length KYBER768_INDCPA_BYTES bytes)
 * \param[in]  const uint8 *sk : pointer to input secret key (of length KYBER768_INDCPA_SECRETKEYBYTES bytes)
 */
-void FsmSw_Kyber768_Indcpa_dec(uint8 m[KYBER768_INDCPA_MSGBYTES], const uint8 c[KYBER768_INDCPA_BYTES],
+void FsmSw_Kyber768_Indcpa_Dec(uint8 m[KYBER768_INDCPA_MSGBYTES], const uint8 c[KYBER768_INDCPA_BYTES],
                                const uint8 sk[KYBER768_INDCPA_SECRETKEYBYTES])
 {
   polyvec768 b    = {{{{0}}}};
@@ -428,7 +434,7 @@ void FsmSw_Kyber768_Indcpa_dec(uint8 m[KYBER768_INDCPA_MSGBYTES], const uint8 c[
   FsmSw_Kyber_Poly_Reduce(&mp);
 
   FsmSw_Kyber768_Poly_ToMsg(m, &mp);
-} // end: FsmSw_Kyber768_Indcpa_dec
+} // end: FsmSw_Kyber768_Indcpa_Dec
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -46,7 +46,6 @@
 #define KYBER_Q 3329u
 
 #define KYBER_SYMBYTES 32u /* size in bytes of hashes, and seeds */
-#define KYBER_SSBYTES  32u /* size in bytes of shared key */
 
 #define KYBER_POLYBYTES 384u
 /**********************************************************************************************************************/

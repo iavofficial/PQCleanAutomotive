@@ -138,7 +138,7 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
                            SEEDBYTES_DILITHIUM + RNDBYTES_DILITHIUM + CRHBYTES_DILITHIUM);
 
     /* Expand matrix and transform vectors */
-    FsmSw_Dilithium5_Polyvec_Matrix_Expand(mat, rho);
+    FsmSw_Dilithium5_Polyvec_MatrixExpand(mat, rho);
     FsmSw_Dilithium5_Polyvecl_Ntt(&s1);
     FsmSw_Dilithium5_Polyveck_Ntt(&s2);
     FsmSw_Dilithium5_Polyveck_Ntt(&t0);
@@ -146,20 +146,20 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
     while (TRUE == loop)
     {
       /* Sample intermediate vector y */
-      FsmSw_Dilithium5_Polyvecl_Uniform_Gamma1(&y, rhoprime, nonce);
+      FsmSw_Dilithium5_Polyvecl_UniformGamma1(&y, rhoprime, nonce);
       nonce++;
 
       /* Matrix-vector multiplication */
       z = y;
       FsmSw_Dilithium5_Polyvecl_Ntt(&z);
-      FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(&w1, mat, &z);
+      FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
       FsmSw_Dilithium5_Polyveck_Reduce(&w1);
-      FsmSw_Dilithium5_Polyveck_Invntt_Tomont(&w1);
+      FsmSw_Dilithium5_Polyveck_InvnttTomont(&w1);
 
       /* Decompose w and call the random oracle */
       FsmSw_Dilithium5_Polyveck_CAddQ(&w1);
       FsmSw_Dilithium5_Polyveck_Decompose(&w1, &w0, &w1);
-      FsmSw_Dilithium5_Polyveck_Pack_W1(sig, &w1);
+      FsmSw_Dilithium5_Polyveck_PackW1(sig, &w1);
 
       FsmSw_Fips202_Shake256_IncInit(&state);
       FsmSw_Fips202_Shake256_IncAbsorb(&state, mu, CRHBYTES_DILITHIUM);
@@ -170,8 +170,8 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
       FsmSw_Dilithium5_Poly_Ntt(&cp);
 
       /* Compute z, reject if it reveals secret */
-      FsmSw_Dilithium5_Polyvecl_Pointwise_Poly_Montgomery(&z, &cp, &s1);
-      FsmSw_Dilithium5_Polyvecl_Invntt_Tomont(&z);
+      FsmSw_Dilithium5_Polyvecl_PointwisePolyMontgomery(&z, &cp, &s1);
+      FsmSw_Dilithium5_Polyvecl_InvnttTomont(&z);
       FsmSw_Dilithium5_Polyvecl_Add(&z, &z, &y);
       FsmSw_Dilithium5_Polyvecl_Reduce(&z);
       if (0 < FsmSw_Dilithium5_Polyvecl_Chknorm(&z, (sint32)(GAMMA1_DILITHIUM5 - BETA_DILITHIUM5)))
@@ -181,8 +181,8 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
 
       /* Check that subtracting cs2 does not change high bits of w and low bits
            * do not reveal secret information */
-      FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery(&h, &cp, &s2);
-      FsmSw_Dilithium5_Polyveck_Invntt_Tomont(&h);
+      FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery(&h, &cp, &s2);
+      FsmSw_Dilithium5_Polyveck_InvnttTomont(&h);
       FsmSw_Dilithium5_Polyveck_Sub(&w0, &w0, &h);
       FsmSw_Dilithium5_Polyveck_Reduce(&w0);
       if (0 < FsmSw_Dilithium5_Polyveck_Chknorm(&w0, (sint32)((uint32)((uint32)GAMMA2_DILITHIUM5 - BETA_DILITHIUM5))))
@@ -191,8 +191,8 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
       }
 
       /* Compute hints for w1 */
-      FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery(&h, &cp, &t0);
-      FsmSw_Dilithium5_Polyveck_Invntt_Tomont(&h);
+      FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery(&h, &cp, &t0);
+      FsmSw_Dilithium5_Polyveck_InvnttTomont(&h);
       FsmSw_Dilithium5_Polyveck_Reduce(&h);
       if (0 < FsmSw_Dilithium5_Polyveck_Chknorm(&h, (sint32)GAMMA2_DILITHIUM5))
       {
@@ -200,7 +200,7 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Signature_Ctx(uint8 *const sig, uint32
       }
 
       FsmSw_Dilithium5_Polyveck_Add(&w0, &w0, &h);
-      n = FsmSw_Dilithium5_Polyveck_Make_Hint(&h, &w0, &w1);
+      n = FsmSw_Dilithium5_Polyveck_MakeHint(&h, &w0, &w1);
       if (n > OMEGA_DILITHIUM5)
       {
         continue;
@@ -281,24 +281,24 @@ static uint8 FsmSw_Dilithium5_Crypto_Sign_Verify_Ctx(const uint8 *const sig, uin
 
   /* Matrix-vector multiplication; compute Az - c2^dt1 */
   FsmSw_Dilithium5_Poly_Challenge(&cp, c);
-  FsmSw_Dilithium5_Polyvec_Matrix_Expand(mat, rho);
+  FsmSw_Dilithium5_Polyvec_MatrixExpand(mat, rho);
 
   FsmSw_Dilithium5_Polyvecl_Ntt(&z);
-  FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(&w1, mat, &z);
+  FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery(&w1, mat, &z);
 
   FsmSw_Dilithium5_Poly_Ntt(&cp);
   FsmSw_Dilithium5_Polyveck_Shiftl(&t1);
   FsmSw_Dilithium5_Polyveck_Ntt(&t1);
-  FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery(&t1, &cp, &t1);
+  FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery(&t1, &cp, &t1);
 
   FsmSw_Dilithium5_Polyveck_Sub(&w1, &w1, &t1);
   FsmSw_Dilithium5_Polyveck_Reduce(&w1);
-  FsmSw_Dilithium5_Polyveck_Invntt_Tomont(&w1);
+  FsmSw_Dilithium5_Polyveck_InvnttTomont(&w1);
 
   /* Reconstruct w1 */
   FsmSw_Dilithium5_Polyveck_CAddQ(&w1);
-  FsmSw_Dilithium5_Polyveck_Use_Hint(&w1, &w1, &h);
-  FsmSw_Dilithium5_Polyveck_Pack_W1(buf, &w1);
+  FsmSw_Dilithium5_Polyveck_UseHint(&w1, &w1, &h);
+  FsmSw_Dilithium5_Polyveck_PackW1(buf, &w1);
 
   /* Call random oracle and verify challenge */
   FsmSw_Fips202_Shake256_IncInit(&state);
@@ -386,18 +386,18 @@ void FsmSw_Dilithium5_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   key      = &rhoprime[CRHBYTES_DILITHIUM];
 
   /* Expand matrix */
-  FsmSw_Dilithium5_Polyvec_Matrix_Expand(mat, rho);
+  FsmSw_Dilithium5_Polyvec_MatrixExpand(mat, rho);
 
   /* Sample short vectors s1 and s2 */
-  FsmSw_Dilithium5_Polyvecl_Uniform_Eta(&s1, rhoprime, 0u);
-  FsmSw_Dilithium5_Polyveck_Uniform_Eta(&s2, rhoprime, L_DILITHIUM5);
+  FsmSw_Dilithium5_Polyvecl_UniformEta(&s1, rhoprime, 0u);
+  FsmSw_Dilithium5_Polyveck_UniformEta(&s2, rhoprime, L_DILITHIUM5);
 
   /* Matrix-vector multiplication */
   s1hat = s1;
   FsmSw_Dilithium5_Polyvecl_Ntt(&s1hat);
-  FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(&t1, mat, &s1hat);
+  FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery(&t1, mat, &s1hat);
   FsmSw_Dilithium5_Polyveck_Reduce(&t1);
-  FsmSw_Dilithium5_Polyveck_Invntt_Tomont(&t1);
+  FsmSw_Dilithium5_Polyveck_InvnttTomont(&t1);
 
   /* Add error vector s2 */
   FsmSw_Dilithium5_Polyveck_Add(&t1, &t1, &s2);

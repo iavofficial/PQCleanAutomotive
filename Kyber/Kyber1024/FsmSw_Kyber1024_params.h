@@ -20,13 +20,16 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
+#include "FsmSw_Kyber1024_api.h"
 #include "FsmSw_Kyber_params.h"
-
+#include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 #define KYBER1024_K            4u
 #define KYBER1024_POLYVECBYTES (KYBER1024_K * KYBER_POLYBYTES)
+
+#define KYBER1024_IMPLBYTES 1024u
 
 #define KYBER1024_POLYCOMPRESSEDBYTES    160u
 #define KYBER1024_POLYVECCOMPRESSEDBYTES (KYBER1024_K * 352u)
@@ -34,16 +37,16 @@
 #define KYBER1024_ETA1 2u
 #define KYBER1024_ETA2 2u
 
-#define KYBER1024_INDCPA_MSGBYTES       (KYBER_SYMBYTES)
 #define KYBER1024_INDCPA_PUBLICKEYBYTES (KYBER1024_POLYVECBYTES + KYBER_SYMBYTES)
 #define KYBER1024_INDCPA_SECRETKEYBYTES (KYBER1024_POLYVECBYTES)
-#define KYBER1024_INDCPA_BYTES          (KYBER1024_POLYVECCOMPRESSEDBYTES + KYBER1024_POLYCOMPRESSEDBYTES)
 
-#define KYBER1024_PUBLICKEYBYTES (KYBER1024_INDCPA_PUBLICKEYBYTES)
+FSMSW_STATIC_ASSERT(KYBER1024_PUBLICKEYBYTES == (KYBER1024_INDCPA_PUBLICKEYBYTES));
 /* 32 bytes of additional space to save H(pk) */
-#define KYBER1024_SECRETKEYBYTES                                                                                       \
-  (KYBER1024_INDCPA_SECRETKEYBYTES + KYBER1024_INDCPA_PUBLICKEYBYTES + (2u * KYBER_SYMBYTES))
-#define KYBER1024_CIPHERTEXTBYTES (KYBER1024_INDCPA_BYTES)
+FSMSW_STATIC_ASSERT(KYBER1024_SECRETKEYBYTES ==
+                    (KYBER1024_INDCPA_SECRETKEYBYTES + KYBER1024_INDCPA_PUBLICKEYBYTES + (2u * KYBER_SYMBYTES)));
+FSMSW_STATIC_ASSERT(KYBER1024_INDCPA_BYTES == (KYBER1024_POLYVECCOMPRESSEDBYTES + KYBER1024_POLYCOMPRESSEDBYTES));
+FSMSW_STATIC_ASSERT(KYBER1024_CIPHERTEXTBYTES == (KYBER1024_INDCPA_BYTES));
+FSMSW_STATIC_ASSERT(KYBER1024_INDCPA_MSGBYTES == (KYBER_SYMBYTES));
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */

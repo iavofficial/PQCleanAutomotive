@@ -158,7 +158,7 @@ void FsmSw_Kyber768_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const
   uint8 cmp[KYBER768_CIPHERTEXTBYTES] = {0};
   const uint8 *const pk               = &sk[KYBER768_INDCPA_SECRETKEYBYTES];
 
-  FsmSw_Kyber768_Indcpa_dec(buf, ct, sk);
+  FsmSw_Kyber768_Indcpa_Dec(buf, ct, sk);
 
   /* Multitarget countermeasure for coins + contributory KEM */
   for (i = 0; i < KYBER_SYMBYTES; i++)

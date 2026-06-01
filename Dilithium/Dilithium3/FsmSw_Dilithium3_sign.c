@@ -338,7 +338,7 @@ static uint8 FsmSw_Dilithium3_Crypto_Sign_Open_Ctx(uint8 *const m, uint32 *const
     }
   }
 
-  if ((sint8)0u != retVal)
+  if (ERR_OK != retVal)
   {
     /* Signature verification failed */
     *mlen = UINT32_MAXVAL;
@@ -389,7 +389,7 @@ void FsmSw_Dilithium3_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   FsmSw_Dilithium3_Polyvec_MatrixExpand(mat, rho);
 
   /* Sample short vectors s1 and s2 */
-  FsmSw_Dilithium3_Polyvecl_Uniform_Eta(&s1, rhoprime, 0u);
+  FsmSw_Dilithium3_Polyvecl_UniformEta(&s1, rhoprime, 0u);
   FsmSw_Dilithium3_Polyveck_UniformEta(&s2, rhoprime, L_DILITHIUM3);
 
   /* Matrix-vector multiplication */

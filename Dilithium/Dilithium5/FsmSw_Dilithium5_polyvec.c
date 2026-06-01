@@ -100,7 +100,7 @@ static void FsmSw_Dilithium5_Polyvecl_Pointwise_Acc_Montgomery(poly_D5 *const w,
 * \param[out] polyvecl_D5        mat[K_DILITHIUM5] : output matrix
 * \param[in]  const uint8 rho[SEEDBYTES_DILITHIUM] : byte array containing seed rho
 */
-void FsmSw_Dilithium5_Polyvec_Matrix_Expand(polyvecl_D5 mat[K_DILITHIUM5], const uint8 rho[SEEDBYTES_DILITHIUM])
+void FsmSw_Dilithium5_Polyvec_MatrixExpand(polyvecl_D5 mat[K_DILITHIUM5], const uint8 rho[SEEDBYTES_DILITHIUM])
 {
   uint8 i = 0;
   uint8 j = 0;
@@ -112,7 +112,7 @@ void FsmSw_Dilithium5_Polyvec_Matrix_Expand(polyvecl_D5 mat[K_DILITHIUM5], const
       FsmSw_Dilithium5_Poly_Uniform(&mat[i].vec[j], rho, (uint16)(((uint16)i << 8) + j));
     }
   }
-} // end: FsmSw_Dilithium5_Polyvec_Matrix_Expand
+} // end: FsmSw_Dilithium5_Polyvec_MatrixExpand
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -127,8 +127,8 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(polyveck_D5 *t, const polyvecl_D5 mat[K_DILITHIUM5],
-                                                          const polyvecl_D5 *const v)
+void FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery(polyveck_D5 *t, const polyvecl_D5 mat[K_DILITHIUM5],
+                                                        const polyvecl_D5 *const v)
 {
   uint8 i = 0;
 
@@ -136,7 +136,7 @@ void FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(polyveck_D5 *t, const 
   {
     FsmSw_Dilithium5_Polyvecl_Pointwise_Acc_Montgomery(&t->vec[i], &mat[i], v);
   }
-} // end: FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery
+} // end: FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -145,7 +145,7 @@ void FsmSw_Dilithium5_Polyvec_Matrix_Pointwise_Montgomery(polyveck_D5 *t, const 
 * \param[in]  const uint8 seed[CRHBYTES_DILITHIUM] : t.b.d
 * \param[in]  uint16                         nonce : t.b.d
 */
-void FsmSw_Dilithium5_Polyvecl_Uniform_Eta(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void FsmSw_Dilithium5_Polyvecl_UniformEta(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint8 i = 0;
   /* nonce_temp is used to avoid modifying the input. */
@@ -156,7 +156,7 @@ void FsmSw_Dilithium5_Polyvecl_Uniform_Eta(polyvecl_D5 *v, const uint8 seed[CRHB
     FsmSw_Dilithium5_Poly_UniformEta(&v->vec[i], seed, nonce_temp);
     nonce_temp++;
   }
-} // end: FsmSw_Dilithium5_Polyvecl_Uniform_Eta
+} // end: FsmSw_Dilithium5_Polyvecl_UniformEta
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -171,7 +171,7 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Dilithium5_Polyvecl_Uniform_Gamma1(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void FsmSw_Dilithium5_Polyvecl_UniformGamma1(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint8 i = 0;
 
@@ -179,7 +179,7 @@ void FsmSw_Dilithium5_Polyvecl_Uniform_Gamma1(polyvecl_D5 *v, const uint8 seed[C
   {
     FsmSw_Dilithium5_Poly_UniformGamma1(&v->vec[i], seed, (uint16)((L_DILITHIUM5 * nonce) + i));
   }
-} // end: FsmSw_Dilithium5_Polyvecl_Uniform_Gamma1
+} // end: FsmSw_Dilithium5_Polyvecl_UniformGamma1
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -234,7 +234,7 @@ void FsmSw_Dilithium5_Polyvecl_Ntt(polyvecl_D5 *v)
 *
 * \param[in,out] polyvecl_D5 *v: pointer to input/output vector
 */
-void FsmSw_Dilithium5_Polyvecl_Invntt_Tomont(polyvecl_D5 *v)
+void FsmSw_Dilithium5_Polyvecl_InvnttTomont(polyvecl_D5 *v)
 {
   uint8 i = 0;
 
@@ -242,7 +242,7 @@ void FsmSw_Dilithium5_Polyvecl_Invntt_Tomont(polyvecl_D5 *v)
   {
     FsmSw_Dilithium5_Poly_InvnttTomont(&v->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyvecl_Invntt_Tomont
+} // end: FsmSw_Dilithium5_Polyvecl_InvnttTomont
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -251,8 +251,8 @@ void FsmSw_Dilithium5_Polyvecl_Invntt_Tomont(polyvecl_D5 *v)
 * \param[in]  const poly_D5     *a : t.b.d
 * \param[in]  const polyvecl_D5 *v : t.b.d
 */
-void FsmSw_Dilithium5_Polyvecl_Pointwise_Poly_Montgomery(polyvecl_D5 *r, const poly_D5 *const a,
-                                                         const polyvecl_D5 *const v)
+void FsmSw_Dilithium5_Polyvecl_PointwisePolyMontgomery(polyvecl_D5 *r, const poly_D5 *const a,
+                                                       const polyvecl_D5 *const v)
 {
   uint8 i = 0;
 
@@ -260,7 +260,7 @@ void FsmSw_Dilithium5_Polyvecl_Pointwise_Poly_Montgomery(polyvecl_D5 *r, const p
   {
     FsmSw_Dilithium5_Poly_PointwiseMontgomery(&r->vec[i], a, &v->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyvecl_Pointwise_Poly_Montgomery
+} // end: FsmSw_Dilithium5_Polyvecl_PointwisePolyMontgomery
 /*====================================================================================================================*/
 /**
 * \brief Check infinity norm of polynomials in vector of length L.
@@ -295,7 +295,7 @@ sint8 FsmSw_Dilithium5_Polyvecl_Chknorm(const polyvecl_D5 *const v, sint32 bound
 * \param[in]  const uint8 seed[CRHBYTES_DILITHIUM] : t.b.d
 * \param[in]  uint16                         nonce : t.b.d
 */
-void FsmSw_Dilithium5_Polyveck_Uniform_Eta(polyveck_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void FsmSw_Dilithium5_Polyveck_UniformEta(polyveck_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint8 i = 0;
   /* nonce_temp is used to avoid modifying the input. */
@@ -306,7 +306,7 @@ void FsmSw_Dilithium5_Polyveck_Uniform_Eta(polyveck_D5 *v, const uint8 seed[CRHB
     FsmSw_Dilithium5_Poly_UniformEta(&v->vec[i], seed, nonce_temp);
     nonce_temp++;
   }
-} // end: FsmSw_Dilithium5_Polyveck_Uniform_Eta
+} // end: FsmSw_Dilithium5_Polyveck_UniformEta
 /*====================================================================================================================*/
 /**
 * \brief Reduce coefficients of polynomials in vector of length K_DILITHIUM5 to representatives in
@@ -411,7 +411,7 @@ void FsmSw_Dilithium5_Polyveck_Ntt(polyveck_D5 *v)
 *
 * \param[in,out] polyveck_D5 *v : pointer to input/output vector
 */
-void FsmSw_Dilithium5_Polyveck_Invntt_Tomont(polyveck_D5 *v)
+void FsmSw_Dilithium5_Polyveck_InvnttTomont(polyveck_D5 *v)
 {
   uint8 i = 0;
 
@@ -419,7 +419,7 @@ void FsmSw_Dilithium5_Polyveck_Invntt_Tomont(polyveck_D5 *v)
   {
     FsmSw_Dilithium5_Poly_InvnttTomont(&v->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyveck_Invntt_Tomont
+} // end: FsmSw_Dilithium5_Polyveck_InvnttTomont
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -428,8 +428,8 @@ void FsmSw_Dilithium5_Polyveck_Invntt_Tomont(polyveck_D5 *v)
 * \param[in]  const poly_D5     *a : t.b.d
 * \param[in]  const polyveck_D5 *v : t.b.d
 */
-void FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery(polyveck_D5 *r, const poly_D5 *const a,
-                                                         const polyveck_D5 *const v)
+void FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery(polyveck_D5 *r, const poly_D5 *const a,
+                                                       const polyveck_D5 *const v)
 {
   uint8 i = 0;
 
@@ -437,7 +437,7 @@ void FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery(polyveck_D5 *r, const p
   {
     FsmSw_Dilithium5_Poly_PointwiseMontgomery(&r->vec[i], a, &v->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyveck_Pointwise_Poly_Montgomery
+} // end: FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery
 /*====================================================================================================================*/
 /**
 * \brief Check infinity norm of polynomials in vector of length K_DILITHIUM5.
@@ -497,7 +497,7 @@ void FsmSw_Dilithium5_Polyveck_Decompose(polyveck_D5 *v1, polyveck_D5 *v0, const
 
   for (i = 0; i < K_DILITHIUM5; ++i)
   {
-    FsmSw_Dilithium5_poly_Decompose(&v1->vec[i], &v0->vec[i], &v->vec[i]);
+    FsmSw_Dilithium5_Poly_Decompose(&v1->vec[i], &v0->vec[i], &v->vec[i]);
   }
 } // end: FsmSw_Dilithium5_Polyveck_Decompose
 /*====================================================================================================================*/
@@ -510,7 +510,7 @@ void FsmSw_Dilithium5_Polyveck_Decompose(polyveck_D5 *v1, polyveck_D5 *v0, const
 *
 * \returns number of 1 bits.
 */
-uint32 FsmSw_Dilithium5_Polyveck_Make_Hint(polyveck_D5 *h, const polyveck_D5 *const v0, const polyveck_D5 *const v1)
+uint32 FsmSw_Dilithium5_Polyveck_MakeHint(polyveck_D5 *h, const polyveck_D5 *const v0, const polyveck_D5 *const v1)
 {
   uint8 i  = 0;
   uint32 s = 0;
@@ -521,7 +521,7 @@ uint32 FsmSw_Dilithium5_Polyveck_Make_Hint(polyveck_D5 *h, const polyveck_D5 *co
   }
 
   return s;
-} // end: FsmSw_Dilithium5_Polyveck_Make_Hint
+} // end: FsmSw_Dilithium5_Polyveck_MakeHint
 /*====================================================================================================================*/
 /**
 * \brief Use hint vector to correct the high bits of input vector.
@@ -530,7 +530,7 @@ uint32 FsmSw_Dilithium5_Polyveck_Make_Hint(polyveck_D5 *h, const polyveck_D5 *co
 * \param[in]  const polyveck_D5 *v : pointer to input vector
 * \param[in]  const polyveck_D5 *h : pointer to input hint vector
 */
-void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h)
+void FsmSw_Dilithium5_Polyveck_UseHint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h)
 {
   uint8 i = 0;
 
@@ -538,7 +538,7 @@ void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const
   {
     FsmSw_Dilithium5_Poly_UseHint(&w->vec[i], &v->vec[i], &h->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyveck_Use_Hint
+} // end: FsmSw_Dilithium5_Polyveck_UseHint
 /*====================================================================================================================*/
 /**
 * \brief t.b.d
@@ -546,8 +546,8 @@ void FsmSw_Dilithium5_Polyveck_Use_Hint(polyveck_D5 *w, const polyveck_D5 *const
 * \param[in] uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5] : t.b.d
 * \param[in] const polyveck_D5                                 *w1 : t.b.d
 */
-void FsmSw_Dilithium5_Polyveck_Pack_W1(uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5],
-                                       const polyveck_D5 *const w1)
+void FsmSw_Dilithium5_Polyveck_PackW1(uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5],
+                                      const polyveck_D5 *const w1)
 {
   uint8 i = 0;
 
@@ -555,7 +555,7 @@ void FsmSw_Dilithium5_Polyveck_Pack_W1(uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES
   {
     FsmSw_Dilithium5_Poly_W1Pack(&r[i * POLYW1_PACKEDBYTES_DILITHIUM5], &w1->vec[i]);
   }
-} // end: FsmSw_Dilithium5_Polyveck_Pack_W1
+} // end: FsmSw_Dilithium5_Polyveck_PackW1
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

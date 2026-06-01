@@ -45,8 +45,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER_NTT_ZETAS_SIZE 128
-#define FSMSW_KYBER_NTT_R_SIZE     256u
+
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -54,12 +53,6 @@
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-/* polyspace +6 CERT-C:DCL15-C [Justified:]"The variable is used across multiple translation units, 
-and external linkage is required for proper functionality." */
-/* polyspace +4 CERT-C:DCL19-C [Justified:]"The variable is used across multiple translation units, 
-and external linkage is required for proper functionality." */
-/* polyspace +2 MISRA2012:8.7 [Justified:]"The variable is used across multiple translation units, 
-and external linkage is required for proper functionality." */
 const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE] = {
     -1044, -758,  -359,  -1517, 1493,  1422,  287,   202,   -171,  622,  1577,  182,   962,   -1202, -1474, 1468,
     573,   -1325, 264,   383,   -829,  1458,  -1602, -130,  -681,  1017, 732,   608,   -1542, 411,   -205,  -1571,
@@ -110,7 +103,7 @@ static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b)
 *
 * \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
 */
-void FsmSw_Kyber_Ntt(sint16 r[256])
+void FsmSw_Kyber_Ntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
 {
   uint16 len   = 0;
   uint16 start = 0;
@@ -143,7 +136,7 @@ void FsmSw_Kyber_Ntt(sint16 r[256])
 *
 * \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
 */
-void FsmSw_Kyber_Invntt(sint16 r[256])
+void FsmSw_Kyber_Invntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
 {
   uint16 start   = 0;
   uint16 len     = 0;

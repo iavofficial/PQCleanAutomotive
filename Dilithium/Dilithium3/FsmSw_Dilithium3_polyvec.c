@@ -144,7 +144,7 @@ void FsmSw_Dilithium3_Polyvec_MatrixPointwiseMontgomery(polyveck_D3 *t, const po
 * \param[in]  const uint8 seed[CRHBYTES_DILITHIUM] : t.b.d
 * \param[in]  uint16                         nonce : t.b.d
 */
-void FsmSw_Dilithium3_Polyvecl_Uniform_Eta(polyvecl_D3 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void FsmSw_Dilithium3_Polyvecl_UniformEta(polyvecl_D3 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
 {
   uint8 i = 0;
   /* nonce_temp is used to avoid modifying the input. */
@@ -155,7 +155,7 @@ void FsmSw_Dilithium3_Polyvecl_Uniform_Eta(polyvecl_D3 *v, const uint8 seed[CRHB
     FsmSw_Dilithium3_Poly_UniformEta(&v->vec[i], seed, nonce_temp);
     nonce_temp++;
   }
-} // end: FsmSw_Dilithium3_Polyvecl_Uniform_Eta
+} // end: FsmSw_Dilithium3_Polyvecl_UniformEta
 /*====================================================================================================================*/
 /**
 * \brief t.b.d

@@ -78,8 +78,8 @@ static void FsmSw_Dilithium2_Polyvecl_Pointwise_Acc_Montgomery(poly_D2 *const w,
 static void FsmSw_Dilithium2_Polyvecl_Pointwise_Acc_Montgomery(poly_D2 *const w, const polyvecl_D2 *const u,
                                                                const polyvecl_D2 *const v)
 {
-  uint8 i = 0;
-  poly_D2 t;
+  uint8 i   = 0;
+  poly_D2 t = {{0}};
 
   FsmSw_Dilithium2_Poly_PointwiseMontgomery(w, &u->vec[0], &v->vec[0]);
   for (i = 1; i < L_DILITHIUM2; ++i)

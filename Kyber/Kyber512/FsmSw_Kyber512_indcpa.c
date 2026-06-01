@@ -52,7 +52,7 @@
 /**********************************************************************************************************************/
 /* polyspace +2 MISRA2012:2.2 [Justified:]"The function is used deeper in the code for crucial calculations 
 if the defines change, so it's not dead code." */
-#define GEN_MATRIX_NBLOCKS ((((12u * KYBER_N) / (8u * 4096u)) / KYBER_Q) + ((XOF_BLOCKBYTES) / XOF_BLOCKBYTES))
+#define GEN_MATRIX_NBLOCKS (((((12u * KYBER_N) / (8u * 4096u)) / KYBER_Q) + XOF_BLOCKBYTES) / XOF_BLOCKBYTES)
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -253,7 +253,7 @@ void FsmSw_Kyber512_Indcpa_GenMatrix(polyvec512 *a, const uint8 seed[KYBER_SYMBY
   uint16 ctr    = 0;
   /* polyspace +2 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change 
     and therefore not dead code" */
-  uint8 buf[((GEN_MATRIX_NBLOCKS) * (XOF_BLOCKBYTES)) + 2u] = {0};
+  uint8 buf[(GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES) + 2u] = {0};
   xof_state state;
 
   for (i = 0; i < KYBER512_K; i++)
@@ -272,7 +272,7 @@ void FsmSw_Kyber512_Indcpa_GenMatrix(polyvec512 *a, const uint8 seed[KYBER_SYMBY
       FsmSw_Fips202_Shake128_SqueezeBlocks(buf, GEN_MATRIX_NBLOCKS, &state);
       /* polyspace +2 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change 
             and therefore not dead code" */
-      buflen = ((GEN_MATRIX_NBLOCKS) * (XOF_BLOCKBYTES));
+      buflen = GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES;
       ctr    = fsmsw_kyber512_RejUniform(a[i].vec[j].coeffs, KYBER_N, buf, buflen);
 
       while (ctr < KYBER_N)

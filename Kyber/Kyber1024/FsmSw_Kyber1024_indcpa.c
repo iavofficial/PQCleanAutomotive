@@ -212,7 +212,7 @@ static uint16 fsmsw_kyber1024_RejUniform(sint16 *const r, uint16 len, const uint
   while ((ctr < len) && ((pos + 3u) <= buflen))
   {
     val0 = (((uint16)buf[pos] >> 0u) | ((uint16)buf[pos + 1u] << 8u)) & 0xFFFu;
-    val1 = (((uint16)buf[(pos + 1u)] >> 4u) | ((uint16)buf[pos + 2u] << 4u)) & 0xFFFu;
+    val1 = (((uint16)buf[pos + 1u] >> 4u) | ((uint16)buf[pos + 2u] << 4u)) & 0xFFFu;
     pos  = pos + 3u;
 
     if (val0 < KYBER_Q)

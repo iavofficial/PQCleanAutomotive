@@ -75,7 +75,7 @@ void FsmSw_Dilithium2_Poly_Sub(poly_D2 *const c, const poly_D2 *const a, const p
 void FsmSw_Dilithium2_Poly_Shiftl(poly_D2 *const a);
 
 void FsmSw_Dilithium2_Poly_Ntt(poly_D2 *a);
-void FsmSw_Dilithium2_Poly_InvnttTomont(poly_D2 *a);
+void FsmSw_Dilithium2_Poly_InvnttTomont(poly_D2 *const a);
 void FsmSw_Dilithium2_Poly_PointwiseMontgomery(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
 
 void FsmSw_Dilithium2_Poly_Power2Round(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a);

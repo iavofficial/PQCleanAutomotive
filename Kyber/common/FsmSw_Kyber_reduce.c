@@ -103,18 +103,20 @@ sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a)
 */
 sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
 {
-  sint16 t       = 0;
-  sint16 temp0   = 0;
-  sint32 temp1   = 0;
-  uint32 temp2   = 0;
-  const sint16 v = (sint16)((uint16)((((uint32)1 << 26u) + KYBER_Q / 2u) / KYBER_Q));
+  sint16 t = 0;
+  /* polyspace +3 DEFECT:UINT_CONSTANT_OVFL [To fix:]"Due to the shift and the cast, temp0 becomes 0. Because we don't 
+     want to deviate too much from the original functionality of the repo, the shift key remains active. We will check  
+     the violation again once the repo has been set to read-only." */
+  const sint16 temp0 = (sint16)(uint16)((uint32)1u << (uint16)25u);
+  sint32 temp1       = 0;
+  uint32 temp2       = 0;
+  const sint16 v     = (sint16)((uint16)((((uint32)1 << 26u) + KYBER_Q / 2u) / KYBER_Q));
 
-  /* polyspace +3 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
-  be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
-  additional benefit and could compromise the stability of the system. */
-  temp0 = (sint16)(uint16)((uint32)1u << (uint16)25u);
   /* Polyspace cannot resolve the operation if the shift operation is inserted instead of temp0. */
-  temp1 = ((sint32)v * a) + temp0;
+  /* polyspace +3 MISRA2012:2.2 [To fix:]"Due to the shift and the cast, temp0 becomes 0. Because we don't want to 
+     deviate too much from the original functionality of the repo, the shift key remains active. We will check the 
+     violation again once the repo has been set to read-only." */
+  temp1 = ((sint32)v * (sint32)a) + (sint32)temp0;
 
   /* Check the first bit */
   if (((uint32)temp1 & 0x80000000u) != 0u)

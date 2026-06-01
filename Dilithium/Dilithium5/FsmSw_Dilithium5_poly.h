@@ -80,7 +80,7 @@ void FsmSw_Dilithium5_Poly_InvnttTomont(poly_D5 *const a);
 void FsmSw_Dilithium5_Poly_PointwiseMontgomery(poly_D5 *const c, const poly_D5 *const a, const poly_D5 *const b);
 
 void FsmSw_Dilithium5_Poly_Power2Round(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a);
-void FsmSw_Dilithium5_poly_Decompose(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a);
+void FsmSw_Dilithium5_Poly_Decompose(poly_D5 *const a1, poly_D5 *a0, const poly_D5 *const a);
 uint32 FsmSw_Dilithium5_Poly_MakeHint(poly_D5 *const h, const poly_D5 *const a0, const poly_D5 *const a1);
 void FsmSw_Dilithium5_Poly_UseHint(poly_D5 *const b, const poly_D5 *const a, const poly_D5 *const h);
 
