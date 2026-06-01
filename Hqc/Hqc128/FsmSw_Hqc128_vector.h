@@ -38,8 +38,9 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Hqc128_shake_prng.h"
 #include "Platform_Types.h"
+
+#include "FsmSw_Hqc128_shake_prng.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -72,7 +73,7 @@ void FsmSw_Hqc128_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64
 
 uint8 FsmSw_Hqc128_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size);
 
-void FsmSw_Hqc128_Vect_Resize(uint64 *const o, uint32 size_o, const uint64 *const v, uint32 size_v);
+void FsmSw_Hqc128_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v);
 
 #endif /* VECTOR_H */
 

@@ -46,7 +46,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC192_M_VAL_SIZE 114
+#define PQC_HQC192_WORD_BITS  64
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -55,7 +56,7 @@
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
 
-static uint32 hqc192_m_val[114] = {
+static uint32 hqc192_m_val[PQC_HQC192_M_VAL_SIZE] = {
     119800, 119803, 119807, 119810, 119813, 119817, 119820, 119823, 119827, 119830, 119833, 119837, 119840,
     119843, 119847, 119850, 119853, 119857, 119860, 119864, 119867, 119870, 119874, 119877, 119880, 119884,
     119887, 119890, 119894, 119897, 119900, 119904, 119907, 119910, 119914, 119917, 119920, 119924, 119927,
@@ -105,13 +106,10 @@ static uint64 single_bit_mask_192(uint32 pos)
   uint64 mask = 1;
   uint64 tmp;
 
-  for (uint8 i = 0; i < 64; ++i)
+  for (uint8 i = 0; i < PQC_HQC192_WORD_BITS; ++i)
   {
     tmp = FsmSw_Convert_u32_to_u64(pos - i);
-    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-    the rule would provide no additional benefit and could compromise the stability of the system" */
-    tmp = 0 - (1 - ((uint64)(tmp | (0 - tmp)) >> 63));
+    tmp = 0 - (1 - ((uint64)(tmp | (~tmp + 1U)) >> 63));
     ret |= mask & tmp;
     mask <<= 1;
   }
@@ -122,8 +120,8 @@ static uint64 single_bit_mask_192(uint32 pos)
 static inline uint32 cond_sub_192(uint32 r, uint32 n)
 {
   uint32 mask;
-  uint32 tmp = r - n;
-  mask       = 0 - (tmp >> 31);
+  const uint32 tmp = r - n;
+  mask             = 0 - (tmp >> 31);
   return tmp + (n & mask);
 } // end: cond_sub
 
@@ -198,11 +196,8 @@ void FsmSw_Hqc192_Vect_Set_Random_Fixed_Weight(hqc192_seedexpander_state *const 
     val = 0;
     for (uint16 j = 0; j < weight; ++j)
     {
-      tmp = (uint32)(i - index_tab[j]);
-      /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-      the rule would provide no additional benefit and could compromise the stability of the system" */
-      tmp    = (uint32)1 ^ ((uint32)(tmp | (0 - tmp)) >> 31);
+      tmp    = (uint32)(i - index_tab[j]);
+      tmp    = (uint32)1 ^ ((uint32)(tmp | (~tmp + 1U)) >> 31);
       mask64 = 0 - (uint64)tmp;
       val |= (bit_tab[j] & mask64);
     }
@@ -241,9 +236,9 @@ void FsmSw_Hqc192_Vect_Set_Random(hqc192_seedexpander_state *const ctx, uint64 *
 * \param[in]    size Integer that is the size of the vectors
 *
 */
-void FsmSw_Hqc192_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint32 size)
+void FsmSw_Hqc192_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size)
 {
-  for (uint32 i = 0; i < size; ++i)
+  for (uint16 i = 0; i < size; ++i)
   {
     o[i] = v1[i] ^ v2[i];
   }
@@ -259,11 +254,11 @@ void FsmSw_Hqc192_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64
 * \returns      0 if the vectors are equal and 1 otherwise
 *
 */
-uint8 FsmSw_Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint32 size)
+uint8 FsmSw_Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size)
 {
   uint16 r = 0x0100;
 
-  for (uint32 i = 0; i < size; i++)
+  for (uint16 i = 0; i < size; i++)
   {
     r |= FsmSw_Convert_u8_to_u16(v1[i] ^ v2[i]);
   }
@@ -281,7 +276,7 @@ uint8 FsmSw_Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, ui
 * \param[in]    size_v Integer that is the size of the input vector in bits
 *
 */
-void FsmSw_Hqc192_Vect_Resize(uint64 *const o, uint32 size_o, const uint64 *const v, uint32 size_v)
+void FsmSw_Hqc192_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v)
 {
   const uint64 mask = 0x7FFFFFFFFFFFFFFFU;
   uint8 val         = 0;
@@ -302,7 +297,7 @@ void FsmSw_Hqc192_Vect_Resize(uint64 *const o, uint32 size_o, const uint64 *cons
   }
   else
   {
-    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE(size_v, 64));
+    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
   }
 } // end: FsmSw_Hqc192_Vect_Resize
 

@@ -50,6 +50,9 @@
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
 #define HQC256_X_SIGMA_P_2ND_ELEMENT_INDEX 1
+#define PQC_HQC256_ALPHA_I                 58
+#define PQC_HQC256_ALPHA_J                 89
+#define PQC_HQC256_EXP_SIZE                258
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -61,7 +64,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
-static const uint16 alpha_ij_pow_256[58][89] = {
+static const uint16 alpha_ij_pow_256[PQC_HQC256_ALPHA_I][PQC_HQC256_ALPHA_J] = {
     {  2,  4,  8, 16,  32,   64,   128,    29,   58,  116,   232,   205,  135,   19,   38,   76,  152,    45,   90,  180,   117,  234,   201,
      143,     3,  6, 12,   24,   48,   96,  192,  157,    39,   78, 156,   37,   74, 148,   53, 106,   212,   181,   119,  238,   193,   159,
      35,  70,  140,    5, 10,   20,    40,  80,  160,    93,  186,   105,   210,   185,   111,   222,   161,   95,  190,    97,  194,   153,   47,
@@ -301,7 +304,7 @@ static const uint16 alpha_ij_pow_256[58][89] = {
  * The last two elements are needed by the FsmSw_Hqc256_gf_mul function
  * (for example if both elements to multiply are zero).
  */
-static const uint16 hqc256_gf_exp[258] = {
+static const uint16 hqc256_gf_exp[PQC_HQC256_EXP_SIZE] = {
     1,   2,   4,   8,   16,  32,  64,  128, 29,  58,  116, 232, 205, 135, 19,  38,  76,  152, 45,  90,  180, 117,
     234, 201, 143, 3,   6,   12,  24,  48,  96,  192, 157, 39,  78,  156, 37,  74,  148, 53,  106, 212, 181, 119,
     238, 193, 159, 35,  70,  140, 5,   10,  20,  40,  80,  160, 93,  186, 105, 210, 185, 111, 222, 161, 95,  190,
@@ -397,7 +400,7 @@ static uint16 hqc256_compute_elp(uint16 *const sigma, const uint16 *const syndro
       sigma[i] ^= FsmSw_Hqc256_Gf_Mul(dd, X_sigma_p[i]);
     }
 
-    const uint32 pp_reverse = (uint32)(0u - (uint32)pp);
+    const uint32 pp_reverse = FsmSw_Convert_u16_to_u32((pp ^ 0xFFFFU) + 1U);
     deg_X                   = (uint16)(((uint32)mu + pp_reverse) & 0xffffu);
     deg_X_sigma_p           = deg_X + deg_sigma_p;
 
@@ -537,6 +540,7 @@ static void compute_error_values_256(uint16 *const error_values, const uint16 *c
     mask1                        = (uint16)(0u - err_is_not_zero); // err[i] != 0
     for (uint8 j = 0; j < HQC256_PARAM_DELTA; j++)
     {
+      /* polyspace +1 DEFECT:UINT_OVFL [Justified:]"The +1U is intentional and used to produce a mask" */
       const uint32 delta_reverse = (~FsmSw_Convert_u16_to_u32(j ^ delta_counter) + 1U);
       mask2                      = FsmSw_Convert_u32_to_u16(~(delta_reverse >> 15));
       beta_j[j] += mask1 & mask2 & hqc256_gf_exp[i];
@@ -623,9 +627,10 @@ static void hqc256_correct_errors(uint8 *const cdw, const uint16 *const error_va
 void FsmSw_Hqc256_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
 {
   uint8 gate_value = 0;
-
-  uint16 tmp[HQC256_PARAM_G] = {0};
-  uint16 PARAM_RS_POLY[]     = {HQC256_RS_POLY_COEFS};
+  /* polyspace +2 DEFECT:PARTIALLY_ACCESSED_ARRAY [Justified:] "Last element of tmp[] is written but intentionally never
+  read" */
+  uint16 tmp[HQC256_PARAM_G]   = {0};
+  const uint16 PARAM_RS_POLY[] = {HQC256_RS_POLY_COEFS};
 
   FsmSw_CommonLib_MemSet(cdw, 0, HQC256_PARAM_N1);
 
@@ -638,7 +643,7 @@ void FsmSw_Hqc256_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
       tmp[j] = FsmSw_Hqc256_Gf_Mul(gate_value, PARAM_RS_POLY[j]);
     }
 
-    for (sint8 k = HQC256_PARAM_N1 - HQC256_PARAM_K - 1; k > 0; --k)
+    for (uint8 k = HQC256_PARAM_N1 - HQC256_PARAM_K - 1; k > 0; --k)
     {
       cdw[k] = (uint8)(cdw[k - 1] ^ tmp[k]);
     }

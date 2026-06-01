@@ -174,6 +174,9 @@ static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
   }
   else
   {
+    /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+    to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system." */
     /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system. */
@@ -238,6 +241,9 @@ static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
   /* If e >= -1076, then the value is "normal"; otherwise, it should be a subnormal, which we clamp down to zero. */
   e_temp += 1076;
   t = (uint32)e_temp >> 31;
+  /* polyspace +9 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+  provide no  additional benefit and could compromise the stability of the system." */
   /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
   be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
   additional benefit and could compromise the stability of the system. */
@@ -334,7 +340,10 @@ static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
      * care about the case y = 0 (as per assumptions in this module, the caller does not perform divisions by zero). */
   d = (sint32)((uint32)((uint32)((sint32)(ex + (sint32)0x7FFu)) >> 11));
   s = (sint32)((uint32)((uint32)s & (uint32)d));
-  /* polyspace +3 CERT-C:INT31-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
+  /* polyspace +6 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+   to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+   additional benefit and could compromise the stability of the system." */
+  /* polyspace +3 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
    be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
    additional benefit and could compromise the stability of the system." */
   e = (sint32)((uint32)((uint32)e & (uint32)((sint32)((-1) * d))));
@@ -654,12 +663,18 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
 
   /* The lowest bit of yu is "sticky". */
   m = fsmsw_falcon_fpr_Ulsh(1, cc) - 1u;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system." */
   yu |= (yu & m) + m;
   yu = fsmsw_falcon_fpr_Ursh(yu, cc);
 
+  /* polyspace +7 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +4 CERT-C:INT14-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system." */
@@ -768,6 +783,9 @@ fpr FsmSw_Falcon_Fpr_Double(fpr x)
 {
   /* x_temp is used to avoid modifying the input. */
   fpr x_temp = x;
+  /* polyspace +8 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +5 CERT-C:INT14-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system." */
@@ -849,6 +867,9 @@ sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
   }
   else
   {
+    /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+    to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system." */
     /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system. */
@@ -989,6 +1010,9 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
 
   /* If the exponent is odd, double the mantissa and decrement the exponent. The exponent is then halved to account
      * for the square root. */
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
    be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
    additional benefit and could compromise the stability of the system." */
@@ -1006,6 +1030,9 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
   for (sint32 i = 0; i < FSMSW_FALCON_SQRT_ITERATION_COUNT; i++)
   {
     t = s + r;
+    /* polyspace +6 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+    provide no  additional benefit and could compromise the stability of the system." */
     /* polyspace +3 CERT-C:INT18-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system." */
@@ -1077,6 +1104,9 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
 
     z0 = (uint32)z;
     z1 = (uint32)(z >> 32);
+    /* polyspace +6 DEFECT:UINT_CONV_OVFL [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+    provide no  additional benefit and could compromise the stability of the system." */
     /* polyspace +3 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system. */

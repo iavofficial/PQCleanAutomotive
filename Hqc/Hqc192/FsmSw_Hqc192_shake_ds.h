@@ -67,7 +67,7 @@
 /**********************************************************************************************************************/
 
 void FsmSw_Hqc192_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
-                                  uint32 inlen, uint8 domain);
+                                  uint16 inlen, uint8 domain);
 
 #endif /* FSMSW_HQC192_SHAKE_DS_H */
 

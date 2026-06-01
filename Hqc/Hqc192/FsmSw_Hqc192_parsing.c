@@ -91,10 +91,10 @@ static uint64 load8_192(const uint8 *const in)
 /* PUBLIC FUNCTION DEFINITIONS                                                                                        */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc192_Load8_Arr(uint64 *const out64, uint32 outlen, const uint8 *const in8, uint32 inlen)
+void FsmSw_Hqc192_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *const in8, uint16 inlen)
 {
-  uint32 index_in  = 0;
-  uint32 index_out = 0;
+  uint16 index_in  = 0;
+  uint16 index_out = 0;
 
   // first copy by 8 bytes
   if ((inlen >= 8) && (outlen >= 1))
@@ -112,7 +112,7 @@ void FsmSw_Hqc192_Load8_Arr(uint64 *const out64, uint32 outlen, const uint8 *con
   if (!((index_in >= inlen) || (index_out >= outlen)))
   {
     out64[index_out] = in8[inlen - 1];
-    for (uint32 i = inlen - index_in; i >= 2; --i)
+    for (uint16 i = inlen - index_in; i >= 2; --i)
     {
       out64[index_out] <<= 8;
       out64[index_out] |= in8[index_in + i - 2U];
@@ -120,7 +120,7 @@ void FsmSw_Hqc192_Load8_Arr(uint64 *const out64, uint32 outlen, const uint8 *con
   }
 } // end: FsmSw_Hqc192_Load8_Arr
 
-void FsmSw_Hqc192_Store8_Arr(uint8 *const out8, uint32 outlen, const uint64 *const in64, uint32 inlen)
+void FsmSw_Hqc192_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in64, uint16 inlen)
 {
   uint32 index_in = 0;
   for (uint32 index_out = 0; (index_out < outlen) && (index_in < inlen); ++index_out)

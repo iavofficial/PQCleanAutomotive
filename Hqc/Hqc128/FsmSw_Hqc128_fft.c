@@ -54,7 +54,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC128_GF_LOG_SIZE 256
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -70,7 +70,7 @@
  * Logarithm of elements of GF(2^8) to the base alpha (root of 1 + x^2 + x^3 + x^4 + x^8).
  * The logarithm of 0 is set to 0 by convention.
  */
-static const uint16 gf_log_128[256] = {
+static const uint16 gf_log_128[PQC_HQC128_GF_LOG_SIZE] = {
     0,   0,   1,   25,  2,   50,  26,  198, 3,   223, 51,  238, 27,  104, 199, 75,  4,   100, 224, 14,  52,  141,
     239, 129, 28,  193, 105, 248, 200, 8,   76,  113, 5,   138, 101, 47,  225, 36,  15,  33,  53,  147, 142, 218,
     240, 18,  130, 69,  29,  181, 194, 125, 106, 39,  249, 185, 201, 154, 9,   120, 77,  228, 114, 166, 6,   191,
@@ -253,7 +253,7 @@ static void radix_big_128(uint16 *const f0, uint16 *const f1, const uint16 *cons
  * \param[in] m_f Number of coefficients of f (one more than its degree)
  * \param[in] betas FFT constants
  */
-static void fft_rec_128(uint16 *const w, uint16 *const f, uint8 f_coeffs, uint8 m, uint32 m_f,
+static void fft_rec_128(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8 m, uint32 m_f,
                         const uint16 *const betas)
 {
   uint16 f0[1U << (HQC128_PARAM_FFT - 2)]             = {0};
@@ -350,7 +350,7 @@ static void fft_rec_128(uint16 *const w, uint16 *const f, uint8 f_coeffs, uint8 
       }
     }
   }
-} // end: fft_rec
+} // end: fft_rec_128
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                                                        */
@@ -378,7 +378,7 @@ static void fft_rec_128(uint16 *const w, uint16 *const f, uint8 f_coeffs, uint8 
  * \param[in] f Array of 2^HQC128_PARAM_FFT elements
  * \param[in] f_coeffs Number coefficients of f (i.e. deg(f)+1)
  */
-void FsmSw_Hqc128_Fft(uint16 *const w, const uint16 *const f, uint8 f_coeffs)
+void FsmSw_Hqc128_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
 {
   uint16 betas[HQC128_PARAM_M - 1]              = {0};
   uint16 betas_sums[1U << (HQC128_PARAM_M - 1)] = {0};
@@ -449,16 +449,16 @@ void FsmSw_Hqc128_Fft_Retrieve_Error_Poly(uint8 *const err, const uint16 *const 
   hqc128_compute_fft_betas(gammas);
   compute_subset_sums_128(gammas_sums, gammas, HQC128_PARAM_M - 1);
 
-  k = 1U << (uint16)(HQC128_PARAM_M - 1);
+  k = 1U << (HQC128_PARAM_M - 1);
   err[0] ^= (uint8)((1U ^ (((uint16)(~w[0]) + 1U) >> 15)) & 0xFFU);
   err[0] ^= (uint8)((1U ^ (((uint16)(~w[k]) + 1U) >> 15)) & 0xFFU);
 
   for (i = 1; i < k; ++i)
   {
-    index = (uint16)HQC128_PARAM_GF_MUL_ORDER - gf_log_128[gammas_sums[i]];
+    index = HQC128_PARAM_GF_MUL_ORDER - gf_log_128[gammas_sums[i]];
     err[index] ^= (uint8)((1U ^ (((uint16)(~w[i]) + 1U) >> 15)) & 0xFFU);
 
-    index = (uint16)HQC128_PARAM_GF_MUL_ORDER - gf_log_128[gammas_sums[i] ^ 1U];
+    index = HQC128_PARAM_GF_MUL_ORDER - gf_log_128[gammas_sums[i] ^ 1U];
     err[index] ^= (uint8)((1U ^ (((uint16)(~w[k + i]) + 1U) >> 15)) & 0xFFU);
   }
 } // end: FsmSw_Hqc128_Fft_Retrieve_Error_Poly

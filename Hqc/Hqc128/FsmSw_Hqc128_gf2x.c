@@ -45,7 +45,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC128_NIBBLE_SIZE 16
+#define PQC_HQC128_MASK_SIZE   4
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -86,8 +87,8 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   uint64 h = 0;
   uint64 l = 0;
   uint64 g;
-  uint64 u[16]       = {0};
-  uint64 mask_tab[4] = {0};
+  uint64 u[PQC_HQC128_NIBBLE_SIZE]      = {0};
+  uint64 mask_tab[PQC_HQC128_MASK_SIZE] = {0};
   uint64 tmp1, tmp2;
 
   // Step 1
@@ -111,30 +112,24 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   g    = 0;
   tmp1 = a & FsmSw_Convert_u8_to_u64(0x0f);
 
-  for (uint8 i = 0; i < 16; ++i)
+  for (uint8 i = 0; i < PQC_HQC128_NIBBLE_SIZE; ++i)
   {
     tmp2 = tmp1 - i;
-    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-    the rule would provide no additional benefit and could compromise the stability of the system" */
-    g ^= (u[i] & (uint64)(0 - (1 - ((uint64)(tmp2 | (0 - tmp2)) >> 63))));
+    g ^= (u[i] & (uint64)(0 - (1 - ((uint64)(tmp2 | (~tmp2 + 1U)) >> 63))));
   }
 
   l = g;
   h = 0;
 
   // Step 2
-  for (uint8 i = 4; i < 64; i += 4)
+  for (uint8 i = 4; i < (4 * PQC_HQC128_NIBBLE_SIZE); i += 4)
   {
     g    = 0;
     tmp1 = (a >> i) & FsmSw_Convert_u8_to_u64(0x0f);
-    for (uint8 j = 0; j < 16; ++j)
+    for (uint8 j = 0; j < PQC_HQC128_NIBBLE_SIZE; ++j)
     {
       tmp2 = tmp1 - j;
-      /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-      the rule would provide no additional benefit and could compromise the stability of the system" */
-      g ^= (u[j] & (uint64)(0 - (1 - ((uint64)(tmp2 | (0 - tmp2)) >> 63))));
+      g ^= (u[j] & (uint64)(0 - (1 - ((uint64)(tmp2 | (~tmp2 + 1U)) >> 63))));
     }
 
     l ^= g << i;
@@ -224,11 +219,11 @@ static void hqc128_karatsuba(uint64 *const o, const uint64 *const a, const uint6
     size_h = size / 2;
     size_l = (size + 1) / 2;
 
-    uint64 *const alh  = stack;
-    uint64 *const blh  = &alh[size_l];
-    uint64 *const tmp1 = &blh[size_l];
-    uint64 *const tmp2 = &o[2 * size_l];
-    uint64 *stack_tmp  = &stack[4 * size_l];
+    uint64 *const alh       = stack;
+    uint64 *const blh       = &alh[size_l];
+    uint64 *const tmp1      = &blh[size_l];
+    uint64 *const tmp2      = &o[2 * size_l];
+    uint64 *const stack_tmp = &stack[4 * size_l];
 
     ah = &a[size_l];
     bh = &b[size_l];
@@ -262,15 +257,15 @@ static void hqc128_gf2x_gf_reduce(uint64 *const o, const uint64 *const a)
   uint64 r;
   uint64 carry;
 
-  for (uint32 i = 0; i < HQC128_VEC_N_SIZE_64; ++i)
+  for (uint16 i = 0; i < HQC128_VEC_N_SIZE_64; ++i)
   {
     r     = a[i + HQC128_VEC_N_SIZE_64 - 1] >> (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F));
     carry = a[i + HQC128_VEC_N_SIZE_64] << (64 - (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F)));
     o[i]  = a[i] ^ r ^ carry;
   }
 
-  o[HQC128_VEC_N_SIZE_64 - 1] &= FsmSw_Convert_u16_to_u64(HQC128_RED_MASK);
-} // end: reduce
+  o[HQC128_VEC_N_SIZE_64 - 1] &= (uint64)HQC128_RED_MASK;
+} // end: hqc128_gf2x_gf_reduce
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                                                        */

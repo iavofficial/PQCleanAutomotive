@@ -71,11 +71,11 @@ void FsmSw_Hqc192_Vect_Set_Random_Fixed_Weight(hqc192_seedexpander_state *const 
 
 void FsmSw_Hqc192_Vect_Set_Random(hqc192_seedexpander_state *const ctx, uint64 *const v);
 
-void FsmSw_Hqc192_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint32 size);
+void FsmSw_Hqc192_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size);
 
-uint8 FsmSw_Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint32 size);
+uint8 FsmSw_Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size);
 
-void FsmSw_Hqc192_Vect_Resize(uint64 *const o, uint32 size_o, const uint64 *const v, uint32 size_v);
+void FsmSw_Hqc192_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v);
 
 #endif /* FSMSW_HQC192_VECTOR_H */
 

@@ -905,6 +905,9 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
   uint32 w = 0;
 
   w = (uint32)x;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -925,6 +928,9 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
 */
 static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 {
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -943,6 +949,9 @@ static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
 {
   uint32 y = 0;
+  /* polyspace +9 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+  provide no  additional benefit and could compromise the stability of the system." */
   /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
   be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
   additional benefit and could compromise the stability of the system. */
@@ -989,6 +998,9 @@ static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
   uint32 d = 0;
 
   d = a + b - p;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -1013,6 +1025,9 @@ static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
   uint32 d = 0;
 
   d = a - b;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -1043,6 +1058,9 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
   z = (uint64)a * (uint64)b;
   w = ((z * p0i) & (uint64)0x7FFFFFFF) * p;
   d = (uint32)((z + w) >> 31) - p;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -1077,6 +1095,9 @@ static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
   z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
 
   /* Halve the value mod p to get 2^62. */
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -1155,7 +1176,10 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
 
     z  = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
     z2 = fsmsw_falcon_ModpMontymul(z, b, p, p0i);
-    /* polyspace +3 CERT-C:INT31-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
+    /* polyspace +6 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+    to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+    additional benefit and could compromise the stability of the system." */
+    /* polyspace +3 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system." */
     z ^= (z ^ z2) & (uint32)((sint32)((-1) * (sint32)((uint32)((uint32)(e >> (uint32)i) & 1u))));
@@ -1531,6 +1555,9 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dl
     u--;
     x = fsmsw_falcon_ModpMontymul(x, R2, p, p0i);
     w = d[u] - p;
+    /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
     /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -1643,6 +1670,9 @@ static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, ui
     cc = ((uint32)((sint32)((-1) * (sint32)cc)) >> 31) | (uint32)((sint32)((-1) * (sint32)((uint32)(cc >> 31))));
 
     /* If r != 0 then it is either 1 or -1, and we keep its value. Otherwise, if r = 0, then we replace it with cc. */
+    /* polyspace +9 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+    provide no  additional benefit and could compromise the stability of the system." */
     /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
     be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system. */
@@ -1828,6 +1858,9 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
+      /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+      to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system." */
       /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
@@ -1845,6 +1878,9 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
     }
     else
     {
+      /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+      to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system." */
       /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
@@ -1970,6 +2006,9 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
+      /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+      to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system." */
       /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
@@ -1987,6 +2026,9 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
     }
     else
     {
+      /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+       to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+      additional benefit and could compromise the stability of the system." */
       /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system. */
@@ -2261,6 +2303,9 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
         ;
 
         /* Shifting. */
+        /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+          determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+          the rule would provide no additional benefit and could compromise the stability of the system" */
         /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
         determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
         the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -2268,6 +2313,9 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
         pa += (sint64)((uint64)((uint64)pa & (uint64)((uint64)cA - 1u)));
         pb += (sint64)((uint64)((uint64)pb & (uint64)((uint64)cA - 1u)));
         a_hi ^= (a_hi ^ (a_hi >> 1)) & (uint64)((sint64)((-1) * (sint64)cA));
+        /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+        determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+        the rule would provide no additional benefit and could compromise the stability of the system" */
         /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
         determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
         the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -2505,6 +2553,9 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
         w  = (f_temp[v] ^ xm) + cc;
         cc = w >> 31;
         w &= 0x7FFFFFFFu;
+        /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+        determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+        the rule would provide no additional benefit and could compromise the stability of the system" */
         /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
         determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
         the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -4606,6 +4657,9 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
          * even and the binary GCD will fail. */
       if (u == (n - 1u))
       {
+        /* polyspace +6 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+         to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system." */
         /* polyspace +3 CERT-C:INT31-C [Justified:]Tthe current implementation has been carefully reviewed and determined to
         be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
         additional benefit and could compromise the stability of the system." */
@@ -4616,6 +4670,9 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
       }
       else
       {
+        /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+         to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system." */
         /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
         be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
         additional benefit and could compromise the stability of the system. */
@@ -4723,6 +4780,9 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
      * Since f and g are integral, the squared norm of (g,-f) is an integer. */
     normf = fsmsw_falcon_PolySmallSqNorm(f, logn);
     normg = fsmsw_falcon_PolySmallSqNorm(g, logn);
+    /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
     /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */

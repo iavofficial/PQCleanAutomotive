@@ -50,23 +50,24 @@
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
 #define FSMSW_FALCON512_NONCELEN                40u
+#define FSMSW_FALCON512_BUFFER_SIZE             512
+#define FSMSW_FALCON512_SEED_BUFFER_SIZE        48
 #define FSMSW_UINT32_MAX_VALUE                  0xFFFFFFFFu
 #define FSMSW_FALCON512_TMP1_STRUCT_BUFFER_SIZE 36864
 #define FSMSW_FALCON512_TMP3_STRUCT_BUFFER_SIZE 1024
-#define FSMSW_FALCON512_BUFFER_SIZE             512
-#define FSMSW_FALCON512_SEED_BUFFER_SIZE        48
+#define FSMSW_FALCON512_LOGN                    9u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint8 b[FSMSW_FALCON512_TMP1_STRUCT_BUFFER_SIZE];
-} tmp1_512_struct;
+  uint8 b[FALCON_KEYGEN_TEMP_9];
+} tmp2_512_struct;
 
 typedef struct
 {
-  uint8 b[FALCON_KEYGEN_TEMP_9];
-} tmp2_512_struct;
+  uint8 b[FSMSW_FALCON512_TMP1_STRUCT_BUFFER_SIZE];
+} tmp1_512_struct;
 
 typedef struct
 {
@@ -130,16 +131,16 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
   uint32 v                                     = 0;
   boolean bStopFunc                            = FALSE;
   sint8 retVal                                 = -1;
-  tmp1_512_struct tmp1_512;
+  tmp1_512_struct tmp1_512                     = {{0}};
 
   /* Decode the private key. */
-  if (sk[0] != (0x50u + 9u))
+  if (sk[0] != (0x50u + FSMSW_FALCON512_LOGN))
   {
     bStopFunc = TRUE;
   }
 
-  u = 1;
-  v = FsmSw_Falcon_TrimI8Decode(f, 9, FsmSw_Falcon_max_small_fg_bits[9], &sk[u],
+  u = 1u;
+  v = FsmSw_Falcon_TrimI8Decode(f, FSMSW_FALCON512_LOGN, FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON512_LOGN], &sk[u],
                                 FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u);
 
   if (v == 0u)
@@ -148,7 +149,7 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
   }
 
   u += v;
-  v = FsmSw_Falcon_TrimI8Decode(g, 9, FsmSw_Falcon_max_small_fg_bits[9], &sk[u],
+  v = FsmSw_Falcon_TrimI8Decode(g, FSMSW_FALCON512_LOGN, FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON512_LOGN], &sk[u],
                                 FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u);
 
   if (v == 0u)
@@ -158,7 +159,7 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
 
   u += v;
 
-  v = FsmSw_Falcon_TrimI8Decode(F, 9, FsmSw_Falcon_max_big_FG_bits[9], &sk[u],
+  v = FsmSw_Falcon_TrimI8Decode(F, FSMSW_FALCON512_LOGN, FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON512_LOGN], &sk[u],
                                 FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u);
 
   if (v == 0u)
@@ -173,7 +174,7 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
     bStopFunc = TRUE;
   }
 
-  if (0 == FsmSw_Falcon_CompletePrivate(G, f, g, F, 9, tmp1_512.b))
+  if (0 == FsmSw_Falcon_CompletePrivate(G, f, g, F, FSMSW_FALCON512_LOGN, tmp1_512.b))
   {
     bStopFunc = TRUE;
   }
@@ -188,7 +189,7 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
     FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FSMSW_FALCON512_NONCELEN);
     FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
     FsmSw_Fips202_Shake256_IncFinalize(&sc);
-    FsmSw_Falcon_HashToPointCt(&sc, r_512.hm, 9, tmp1_512.b);
+    FsmSw_Falcon_HashToPointCt(&sc, r_512.hm, FSMSW_FALCON512_LOGN, tmp1_512.b);
 
     /* Initialize a RNG. */
     (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
@@ -200,8 +201,8 @@ static sint32 fsmsw_falcon512_DoSign(uint8 *const nonce, uint8 *const sigbuf, ui
      * buffer. */
     for (uint32 i = 0; i < FSMSW_UINT32_MAX_VALUE; i++)
     {
-      FsmSw_Falcon_Sign_Dyn(r_512.sig, &sc, f, g, F, G, r_512.hm, 9, tmp1_512.b);
-      v = FsmSw_Falcon_CompEncode(sigbuf, *sigbuflen, r_512.sig, 9);
+      FsmSw_Falcon_Sign_Dyn(r_512.sig, &sc, f, g, F, G, r_512.hm, FSMSW_FALCON512_LOGN, tmp1_512.b);
+      v = FsmSw_Falcon_CompEncode(sigbuf, *sigbuflen, r_512.sig, FSMSW_FALCON512_LOGN);
 
       if (v != 0u)
       {
@@ -241,14 +242,15 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
   tmp3_512_struct tmp3_512                = {{0}};
 
   /* Decode public key. */
-  if (pk[0] != (9u))
+  if (pk[0] != (FSMSW_FALCON512_LOGN))
   {
     retVal    = -1;
     bStopFunc = TRUE;
   }
 
-  if ((FALSE == bStopFunc) && (FsmSw_Falcon_ModqDecode(h, 9, &pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u) !=
-                               FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u))
+  if ((FALSE == bStopFunc) &&
+      (FsmSw_Falcon_ModqDecode(h, FSMSW_FALCON512_LOGN, &pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u) !=
+       FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u))
   {
     retVal    = -1;
     bStopFunc = TRUE;
@@ -256,7 +258,7 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
 
   if (FALSE == bStopFunc)
   {
-    FsmSw_Falcon_ToNttMonty(h, 9);
+    FsmSw_Falcon_ToNttMonty(h, FSMSW_FALCON512_LOGN);
 
     /* Decode signature. */
     if (sigbuflen == 0u)
@@ -265,7 +267,7 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
       bStopFunc = TRUE;
     }
 
-    if ((FALSE == bStopFunc) && (FsmSw_Falcon_CompDecode(sig, 9, sigbuf, sigbuflen) != sigbuflen))
+    if ((FALSE == bStopFunc) && (FsmSw_Falcon_CompDecode(sig, FSMSW_FALCON512_LOGN, sigbuf, sigbuflen) != sigbuflen))
     {
       retVal    = -1;
       bStopFunc = TRUE;
@@ -278,10 +280,10 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
       FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FSMSW_FALCON512_NONCELEN);
       FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
       FsmSw_Fips202_Shake256_IncFinalize(&sc);
-      FsmSw_Falcon_HashToPointCt(&sc, hm, 9, tmp3_512.b);
+      FsmSw_Falcon_HashToPointCt(&sc, hm, FSMSW_FALCON512_LOGN, tmp3_512.b);
 
       /* Verify signature. */
-      if (0 == FsmSw_Falcon_VerifyRaw(hm, sig, h, 9, tmp3_512.b))
+      if (0 == FsmSw_Falcon_VerifyRaw(hm, sig, h, FSMSW_FALCON512_LOGN, tmp3_512.b))
       {
         retVal = -1;
       }
@@ -350,13 +352,13 @@ uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   FsmSw_Fips202_Shake256_IncInit(&rng);
   FsmSw_Fips202_Shake256_IncAbsorb(&rng, seed, sizeof(seed));
   FsmSw_Fips202_Shake256_IncFinalize(&rng);
-  FsmSw_Falcon_Keygen(&rng, f, g, F, ((void *)0), h, 9, tmp2_512.b);
+  FsmSw_Falcon_Keygen(&rng, f, g, F, ((void *)0), h, FSMSW_FALCON512_LOGN, tmp2_512.b);
 
   /* Encode private key. */
-  sk[0] = 0x50u + 9u;
-  u     = 1;
-  v     = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, f, 9u,
-                                    FsmSw_Falcon_max_small_fg_bits[9]);
+  sk[0] = 0x50u + FSMSW_FALCON512_LOGN;
+  u     = 1u;
+  v     = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, f, FSMSW_FALCON512_LOGN,
+                                    FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON512_LOGN]);
 
   if (v == 0u)
   {
@@ -365,8 +367,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   }
 
   u += v;
-  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, g, 9u,
-                                FsmSw_Falcon_max_small_fg_bits[9]);
+  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, g, FSMSW_FALCON512_LOGN,
+                                FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON512_LOGN]);
 
   if (v == 0u)
   {
@@ -375,8 +377,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   }
 
   u += v;
-  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, F, 9u,
-                                FsmSw_Falcon_max_big_FG_bits[9]);
+  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES - u, F, FSMSW_FALCON512_LOGN,
+                                (uint32)FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON512_LOGN]);
 
   if (v == 0u)
   {
@@ -393,8 +395,8 @@ uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   if (FALSE == bStopFunc)
   {
     /* Encode public key. */
-    pk[0] = 9u;
-    v     = FsmSw_Falcon_ModqEncode(&pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u, h, 9u);
+    pk[0] = FSMSW_FALCON512_LOGN;
+    v     = FsmSw_Falcon_ModqEncode(&pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u, h, FSMSW_FALCON512_LOGN);
 
     if (v != FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u)
     {
@@ -442,7 +444,7 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *const sig, uint32 *const sigl
 
   if (FALSE == bStopFunc)
   {
-    sig[0]  = 0x30 + 9;
+    sig[0]  = 0x30 + FSMSW_FALCON512_LOGN;
     *siglen = 1u + FSMSW_FALCON512_NONCELEN + vlen;
   }
 
@@ -474,12 +476,12 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, 
     retVal = ERR_NOT_OK;
   }
 
-  if (siglen < 1u + FSMSW_FALCON512_NONCELEN)
+  if (siglen < (1u + FSMSW_FALCON512_NONCELEN))
   {
     retVal = ERR_NOT_OK;
   }
 
-  if (sig[0] != (0x30u + 9u))
+  if (sig[0] != (0x30u + FSMSW_FALCON512_LOGN))
   {
     retVal = ERR_NOT_OK;
   }
@@ -518,7 +520,7 @@ uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const ui
   sigbuf    = &pm[1u + mlen];
   sigbuflen = FSMSW_FALCON512_CRYPTO_BYTES - FSMSW_FALCON512_NONCELEN - 3u;
 
-  if (fsmsw_falcon512_DoSign(&sm[2], sigbuf, &sigbuflen, pm, mlen, sk) < 0)
+  if (fsmsw_falcon512_DoSign(&sm[2u], sigbuf, &sigbuflen, pm, mlen, sk) < 0)
   {
     retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
@@ -526,7 +528,7 @@ uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const ui
 
   if (bStopFunc == FALSE)
   {
-    pm[mlen] = 0x20 + 9;
+    pm[mlen] = 0x20 + FSMSW_FALCON512_LOGN;
     sigbuflen++;
     sm[0]  = (uint8)(sigbuflen >> 8);
     sm[1]  = (uint8)sigbuflen;
@@ -576,7 +578,7 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const
   sigbuflen--;
   pmlen = smlen - FSMSW_FALCON512_NONCELEN - 3u - sigbuflen;
 
-  if (sm[2u + FSMSW_FALCON512_NONCELEN + pmlen] != (0x20u + 9u))
+  if (sm[2u + FSMSW_FALCON512_NONCELEN + pmlen] != (0x20u + FSMSW_FALCON512_LOGN))
   {
     retVal = ERR_NOT_OK;
   }
@@ -599,3 +601,7 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const
   }
   return retVal;
 } // end: FsmSw_Falcon512_Crypto_Sign_Open
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

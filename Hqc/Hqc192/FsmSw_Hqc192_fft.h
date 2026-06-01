@@ -65,7 +65,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc192_Fft(uint16 *const w, const uint16 *const f, uint32 f_coeffs);
+void FsmSw_Hqc192_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs);
 
 void FsmSw_Hqc192_Fft_Retrieve_Error_Poly(uint8 *const err, const uint16 *const w);
 

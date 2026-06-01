@@ -45,7 +45,9 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC128_TZB_COUNT              14
+#define PQC_HQC128_GF_CLMUL_TMP_SIZE      4
+#define PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE 2
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -81,7 +83,7 @@ static uint16 hqc128_trailing_zero_bits_count(uint16 a)
 {
   uint16 tmp  = 0;
   uint16 mask = 0xFFFF;
-  for (uint8 i = 0; i < 14; ++i)
+  for (uint8 i = 0; i < PQC_HQC128_TZB_COUNT; ++i)
   {
     const uint16 bit_i_is_1 = (a >> i) & 0x0001u;
     const uint16 bit_i_is_0 = 1u - bit_i_is_1;
@@ -91,7 +93,7 @@ static uint16 hqc128_trailing_zero_bits_count(uint16 a)
     mask &= (uint16)(tmp_mask & 0xffffu);
   }
   return tmp;
-} // end: uint16 trailing_zero_bits_count
+} // end: trailing_zero_bits_count
 
 /*====================================================================================================================*/
 /**
@@ -113,12 +115,12 @@ static uint16 hqc128_gf_reduce(uint64 x, uint8 deg_x)
   for (uint8 i = 0; i < steps; ++i)
   {
     mod = x_tmp >> HQC128_PARAM_M;
-    x_tmp &= (FsmSw_Convert_u8_to_u64(1U) << HQC128_PARAM_M) - 1;
+    x_tmp &= ((uint64)1 << HQC128_PARAM_M) - 1;
     x_tmp ^= mod;
 
     z1   = 0;
     rmdr = (uint16)HQC128_PARAM_GF_POLY ^ 0x0001U;
-    for (uint8 j = HQC128_PARAM_GF_POLY_WT - 2; j > 0; --j)
+    for (sint8 j = HQC128_PARAM_GF_POLY_WT - 2; j > 0; --j)
     {
       z2   = hqc128_trailing_zero_bits_count(rmdr);
       dist = z2 - z1;
@@ -130,7 +132,7 @@ static uint16 hqc128_gf_reduce(uint64 x, uint8 deg_x)
   }
 
   return (uint16)x_tmp;
-} // end: uint16 gf_reduce
+} // end: gf_reduce
 
 /*====================================================================================================================*/
 /**
@@ -143,9 +145,9 @@ static uint16 hqc128_gf_reduce(uint64 x, uint8 deg_x)
  * \param[in] a The first polynomial
  * \param[in] b The second polynomial
  */
-static void gf_carryless_mul_128(uint8 c[2], uint8 a, uint8 b)
+static void gf_carryless_mul_128(uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE], uint8 a, uint8 b)
 {
-  uint16 h = 0, l = 0, g = 0, u[4];
+  uint16 h = 0, l = 0, g = 0, u[PQC_HQC128_GF_CLMUL_TMP_SIZE];
   uint32 tmp1, tmp2;
   uint16 mask;
   u[0] = 0;
@@ -154,7 +156,7 @@ static void gf_carryless_mul_128(uint8 c[2], uint8 a, uint8 b)
   u[3] = u[2] ^ u[1];
   tmp1 = (uint32)a & (uint32)3;
 
-  for (uint8 i = 0; i < 4; i++)
+  for (uint8 i = 0; i < PQC_HQC128_GF_CLMUL_TMP_SIZE; i++)
   {
     tmp2 = (uint32)(tmp1 - i);
     g ^= (uint16)((u[i] & (uint32)(0 - (1 - ((uint32)(tmp2 | (~tmp2 + 1U)) >> 31)))) & 0xFFFFU);
@@ -163,11 +165,11 @@ static void gf_carryless_mul_128(uint8 c[2], uint8 a, uint8 b)
   l = g;
   h = 0;
 
-  for (uint8 i = 2; i < 8; i += 2)
+  for (uint8 i = 2; i < (2 * PQC_HQC128_GF_CLMUL_TMP_SIZE); i += 2)
   {
     g    = 0;
     tmp1 = FsmSw_Convert_u8_to_u32(((a >> i) & (uint8)3));
-    for (uint8 j = 0; j < 4; ++j)
+    for (uint8 j = 0; j < PQC_HQC128_GF_CLMUL_TMP_SIZE; ++j)
     {
       tmp2 = (uint32)(tmp1 - j);
       g ^= (uint16)((u[j] & (uint32)(0 - (1 - ((uint32)(tmp2 | (~tmp2 + 1U)) >> 31)))) & 0xFFFFU);
@@ -198,7 +200,7 @@ static void gf_carryless_mul_128(uint8 c[2], uint8 a, uint8 b)
  */
 uint16 FsmSw_Hqc128_Gf_Mul(uint16 a, uint16 b)
 {
-  uint8 c[2] = {0};
+  uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE] = {0};
   gf_carryless_mul_128(c, (uint8)a, (uint8)b);
   const uint16 tmp = FsmSw_Convert_u8_to_u16(c[0]) ^ (FsmSw_Convert_u8_to_u16(c[1]) << 8);
   return hqc128_gf_reduce(tmp, 2 * (HQC128_PARAM_M - 1));
@@ -217,7 +219,7 @@ uint16 FsmSw_Hqc128_Gf_Square(uint16 a)
   for (uint8 i = 1; i < HQC128_PARAM_M; ++i)
   {
     b <<= 1;
-    s ^= b & ((uint32)1 << ((size_t)2 * i));
+    s ^= b & ((uint32)1 << (2 * i));
   }
 
   return hqc128_gf_reduce(s, 2 * (HQC128_PARAM_M - 1));

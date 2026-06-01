@@ -46,7 +46,8 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC192_NIBBLE_SIZE 16
+#define PQC_HQC192_MASK_SIZE   4
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -88,8 +89,8 @@ static void hqc192_base_mul(uint64 *const c, uint64 a, uint64 b)
   uint64 h = 0;
   uint64 l = 0;
   uint64 g;
-  uint64 u[16]       = {0};
-  uint64 mask_tab[4] = {0};
+  uint64 u[PQC_HQC192_NIBBLE_SIZE]      = {0};
+  uint64 mask_tab[PQC_HQC192_MASK_SIZE] = {0};
   uint64 tmp1, tmp2;
 
   // Step 1
@@ -113,30 +114,24 @@ static void hqc192_base_mul(uint64 *const c, uint64 a, uint64 b)
   g    = 0;
   tmp1 = a & FsmSw_Convert_u8_to_u64(0x0f);
 
-  for (uint8 i = 0; i < 16; ++i)
+  for (uint8 i = 0; i < PQC_HQC192_NIBBLE_SIZE; ++i)
   {
     tmp2 = tmp1 - i;
-    /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-    the rule would provide no additional benefit and could compromise the stability of the system" */
-    g ^= (u[i] & (uint64)(0 - (1 - ((uint64)(tmp2 | (0 - tmp2)) >> 63))));
+    g ^= (u[i] & (uint64)(0 - (1 - ((uint64)(tmp2 | (~tmp2 + 1U)) >> 63))));
   }
 
   l = g;
   h = 0;
 
   // Step 2
-  for (uint8 i = 4; i < 64; i += 4)
+  for (uint8 i = 4; i < (4 * PQC_HQC192_NIBBLE_SIZE); i += 4)
   {
     g    = 0;
     tmp1 = (a >> i) & FsmSw_Convert_u8_to_u64(0x0f);
-    for (uint8 j = 0; j < 16; ++j)
+    for (uint8 j = 0; j < PQC_HQC192_NIBBLE_SIZE; ++j)
     {
       tmp2 = tmp1 - j;
-      /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
-      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
-      the rule would provide no additional benefit and could compromise the stability of the system" */
-      g ^= (u[j] & (uint64)(0 - (1 - ((uint64)(tmp2 | (0 - tmp2)) >> 63))));
+      g ^= (u[j] & (uint64)(0 - (1 - ((uint64)(tmp2 | (~tmp2 + 1U)) >> 63))));
     }
 
     l ^= g << i;
@@ -166,9 +161,9 @@ static void hqc192_base_mul(uint64 *const c, uint64 a, uint64 b)
 } // end: base_mul
 
 static void hqc192_karatsuba_add1(uint64 *const alh, uint64 *const blh, const uint64 *const a, const uint64 *const b,
-                                  uint32 size_l, uint32 size_h)
+                                  uint16 size_l, uint16 size_h)
 {
-  for (uint32 i = 0; i < size_h; ++i)
+  for (uint16 i = 0; i < size_h; ++i)
   {
     alh[i] = a[i] ^ a[i + size_l];
     blh[i] = b[i] ^ b[i + size_l];
@@ -181,20 +176,20 @@ static void hqc192_karatsuba_add1(uint64 *const alh, uint64 *const blh, const ui
   }
 } // end: karatsuba_add1
 
-static void hqc192_karatsuba_add2(uint64 *const o, uint64 *const tmp1, const uint64 *const tmp2, uint32 size_l,
-                                  uint32 size_h)
+static void hqc192_karatsuba_add2(uint64 *const o, uint64 *const tmp1, const uint64 *const tmp2, uint16 size_l,
+                                  uint16 size_h)
 {
-  for (uint32 i = 0; i < (2 * size_l); ++i)
+  for (uint16 i = 0; i < (2 * size_l); ++i)
   {
     tmp1[i] = tmp1[i] ^ o[i];
   }
 
-  for (uint32 i = 0; i < (2 * size_h); ++i)
+  for (uint16 i = 0; i < (2 * size_h); ++i)
   {
     tmp1[i] = tmp1[i] ^ tmp2[i];
   }
 
-  for (uint32 i = 0; i < (2 * size_l); ++i)
+  for (uint16 i = 0; i < (2 * size_l); ++i)
   {
     o[i + size_l] = o[i + size_l] ^ tmp1[i];
   }
@@ -211,9 +206,9 @@ static void hqc192_karatsuba_add2(uint64 *const o, uint64 *const tmp1, const uin
 * \param[in]    stack Length of polynomial
 *
 */
-static void hqc192_karatsuba(uint64 *const o, const uint64 *const a, const uint64 *const b, uint32 size, uint64 *stack)
+static void hqc192_karatsuba(uint64 *const o, const uint64 *const a, const uint64 *const b, uint16 size, uint64 *stack)
 {
-  uint32 size_l, size_h;
+  uint16 size_l, size_h;
   const uint64 *ah, *bh;
 
   if (size == 1)
@@ -225,11 +220,11 @@ static void hqc192_karatsuba(uint64 *const o, const uint64 *const a, const uint6
     size_h = size / 2;
     size_l = (size + 1) / 2;
 
-    uint64 *const alh  = stack;
-    uint64 *const blh  = &alh[size_l];
-    uint64 *const tmp1 = &blh[size_l];
-    uint64 *const tmp2 = &o[2 * size_l];
-    uint64 *stack_tmp  = &stack[4 * size_l];
+    uint64 *const alh       = stack;
+    uint64 *const blh       = &alh[size_l];
+    uint64 *const tmp1      = &blh[size_l];
+    uint64 *const tmp2      = &o[2 * size_l];
+    uint64 *const stack_tmp = &stack[4 * size_l];
 
     ah = &a[size_l];
     bh = &b[size_l];

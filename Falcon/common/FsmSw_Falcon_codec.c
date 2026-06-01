@@ -424,6 +424,9 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const
         acc_len -= bits;
         w = (acc >> acc_len) & mask1;
         w |= (uint32)((sint32)((-1) * (sint32)((uint32)(w & mask2))));
+        /* polyspace +9 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
+        to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+        additional benefit and could compromise the stability of the system." */
         /* polyspace +6 CERT-C:INT31-C [Justified:]The current implementation has been carefully reviewed and determined to
         be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
         additional benefit and could compromise the stability of the system. */

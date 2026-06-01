@@ -8,14 +8,14 @@
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup HQC192
-*    includes the modules for HQC192
+/** \addtogroup HQC256
+*    includes the modules for HQC256
  ** @{ */
-/** \addtogroup Hqc192_kem
+/** \addtogroup FsmSw_Hqc256_kem
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_kem.h
+/** \file FsmSw_Hqc256_api.h
 * \brief  NIST KEM API used by the HQC_KEM IND-CCA2 scheme
 *
 * \details
@@ -33,18 +33,19 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_KEM_H
-#define FSMSW_HQC192_KEM_H
+#ifndef FSMSW_HQC256_API_H
+#define FSMSW_HQC256_API_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-
-#include "FsmSw_Hqc192_api.h"
-
+#include "FsmSw_Hqc_api.h"
+#include "Platform_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-
+#define FSMSW_HQC256_CRYPTO_PUBLICKEYBYTES  7245
+#define FSMSW_HQC256_CRYPTO_SECRETKEYBYTES  7317
+#define FSMSW_HQC256_CRYPTO_CIPHERTEXTBYTES 14421
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -65,7 +66,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_HQC192_KEM_H */
+sint8 FsmSw_Hqc256_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+sint8 FsmSw_Hqc256_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+sint8 FsmSw_Hqc256_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
+
+#endif /* FSMSW_HQC256_API_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
