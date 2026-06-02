@@ -1,9 +1,7 @@
-#ifndef FSMSW_HQC128_API_H
-#define FSMSW_HQC128_API_H
 /***********************************************************************************************************************
  *
  *                                                    IAV GmbH
- *  \file
+ *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
@@ -15,6 +13,27 @@
 /** \addtogroup FsmSw_Hqc128_api
  ** @{ */
 
+/*====================================================================================================================*/
+/** \file FsmSw_Hqc128_api.h
+* \brief  NIST KEM API used by the HQC_KEM IND-CCA2 scheme
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef FSMSW_HQC128_API_H
+#define FSMSW_HQC128_API_H
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
@@ -49,7 +68,8 @@ sint8 FsmSw_Hqc128_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
 sint8 FsmSw_Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
 sint8 FsmSw_Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
 #endif /* FSMSW_HQC128_API_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

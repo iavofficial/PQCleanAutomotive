@@ -237,43 +237,33 @@ static sint32 fsmsw_falcon512_DoVerify(const uint8 *const nonce, const uint8 *co
   uint16 hm[FSMSW_FALCON512_BUFFER_SIZE]  = {0};
   sint16 sig[FSMSW_FALCON512_BUFFER_SIZE] = {0};
   inner_shake256_context sc               = {{0}};
-  boolean bStopFunc                       = FALSE;
   sint8 retVal                            = 0;
   tmp3_512_struct tmp3_512                = {{0}};
 
   /* Decode public key. */
   if (pk[0] != (FSMSW_FALCON512_LOGN))
   {
-    retVal    = -1;
-    bStopFunc = TRUE;
+    retVal = -1;
   }
-
-  if ((FALSE == bStopFunc) &&
-      (FsmSw_Falcon_ModqDecode(h, FSMSW_FALCON512_LOGN, &pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u) !=
-       FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u))
+  else if (FsmSw_Falcon_ModqDecode(h, FSMSW_FALCON512_LOGN, &pk[1], FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u) !=
+           FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES - 1u)
   {
-    retVal    = -1;
-    bStopFunc = TRUE;
+    retVal = -1;
   }
-
-  if (FALSE == bStopFunc)
+  else
   {
     FsmSw_Falcon_ToNttMonty(h, FSMSW_FALCON512_LOGN);
 
     /* Decode signature. */
     if (sigbuflen == 0u)
     {
-      retVal    = -1;
-      bStopFunc = TRUE;
+      retVal = -1;
     }
-
-    if ((FALSE == bStopFunc) && (FsmSw_Falcon_CompDecode(sig, FSMSW_FALCON512_LOGN, sigbuf, sigbuflen) != sigbuflen))
+    else if (FsmSw_Falcon_CompDecode(sig, FSMSW_FALCON512_LOGN, sigbuf, sigbuflen) != sigbuflen)
     {
-      retVal    = -1;
-      bStopFunc = TRUE;
+      retVal = -1;
     }
-
-    if (FALSE == bStopFunc)
+    else
     {
       /* Hash nonce + message into a vector. */
       FsmSw_Fips202_Shake256_IncInit(&sc);
@@ -430,19 +420,16 @@ uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *const sig, uint32 *const sigl
    * than the maximum. This is done to ensure that crypto_sign() and crypto_sign_signature() produce the exact same
    * signature value, if used on the same message, with the same private key, and using the same output from
    * FsmSw_CommonLib_RandomBytes() (this is for reproducibility of tests). */
-  uint32 vlen       = 0;
-  uint8 retVal      = ERR_OK;
-  boolean bStopFunc = FALSE;
+  uint32 vlen  = 0;
+  uint8 retVal = ERR_OK;
 
   vlen = FSMSW_FALCON512_CRYPTO_BYTES - FSMSW_FALCON512_NONCELEN - 3u;
 
   if (fsmsw_falcon512_DoSign(&sig[1], &sig[1u + FSMSW_FALCON512_NONCELEN], &vlen, m, mlen, sk) < 0)
   {
-    retVal    = ERR_NOT_OK;
-    bStopFunc = TRUE;
+    retVal = ERR_NOT_OK;
   }
-
-  if (FALSE == bStopFunc)
+  else
   {
     sig[0]  = 0x30 + FSMSW_FALCON512_LOGN;
     *siglen = 1u + FSMSW_FALCON512_NONCELEN + vlen;
