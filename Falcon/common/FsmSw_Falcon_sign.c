@@ -264,6 +264,9 @@ static sint32 fsmsw_falcon_BerExp(prng *const p, fpr x, fpr ccs)
    * which is approximatively equal to 2^(-32). In any case, if s >= 64, then fsmsw_falcon_BerExp will be non-zero with probability
    * less than 2^(-64), so we can simply saturate s at 63. */
   sw = (uint32)s;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -500,6 +503,9 @@ static void fsmsw_falcon_FfSamplingFftDyntree(samplerZ const samp, void *const s
    * In the end, z1 is written over t1, and tb0 is in t0. */
     FsmSw_CommonLib_MemCpy(z1, t1, n * sizeof(*t1));
     FsmSw_Falcon_Poly_Sub(z1, &tmp[(n << 1)], logn);
+    /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+     the rule would provide no additional benefit and could compromise the stability of the system" */
     /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */

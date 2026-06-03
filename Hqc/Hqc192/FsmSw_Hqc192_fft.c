@@ -55,7 +55,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-
+#define PQC_HQC192_GF_LOG_SIZE 256
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -71,7 +71,7 @@
  * Logarithm of elements of GF(2^8) to the base alpha (root of 1 + x^2 + x^3 + x^4 + x^8).
  * The logarithm of 0 is set to 0 by convention.
  */
-static const uint16 gf_log_192[256] = {
+static const uint16 gf_log_192[PQC_HQC192_GF_LOG_SIZE] = {
     0,   0,   1,   25,  2,   50,  26,  198, 3,   223, 51,  238, 27,  104, 199, 75,  4,   100, 224, 14,  52,  141,
     239, 129, 28,  193, 105, 248, 200, 8,   76,  113, 5,   138, 101, 47,  225, 36,  15,  33,  53,  147, 142, 218,
     240, 18,  130, 69,  29,  181, 194, 125, 106, 39,  249, 185, 201, 154, 9,   120, 77,  228, 114, 166, 6,   191,
@@ -222,13 +222,13 @@ static void radix_big_192(uint16 *const f0, uint16 *const f1, const uint16 *cons
   uint16 R0[1U << (HQC192_PARAM_FFT - 2)] = {0};
   uint16 R1[1U << (HQC192_PARAM_FFT - 2)] = {0};
 
-  uint64 i, n;
+  uint32 i, n;
 
   n = 1;
   n <<= (m_f - 2);
-  FsmSw_CommonLib_MemCpy(Q, &f[3 * n], FsmSw_Convert_u64_to_u32(2 * n));
-  FsmSw_CommonLib_MemCpy(&Q[n], &f[3 * n], FsmSw_Convert_u64_to_u32(2 * n));
-  FsmSw_CommonLib_MemCpy(R, f, FsmSw_Convert_u64_to_u32(4 * n));
+  FsmSw_CommonLib_MemCpy(Q, &f[3 * n], 2 * n);
+  FsmSw_CommonLib_MemCpy(&Q[n], &f[3 * n], 2 * n);
+  FsmSw_CommonLib_MemCpy(R, f, 4 * n);
 
   for (i = 0; i < n; ++i)
   {
@@ -239,10 +239,10 @@ static void radix_big_192(uint16 *const f0, uint16 *const f1, const uint16 *cons
   hqc192_radix(Q0, Q1, Q, m_f - 1);
   hqc192_radix(R0, R1, R, m_f - 1);
 
-  FsmSw_CommonLib_MemCpy(f0, R0, FsmSw_Convert_u64_to_u32(2 * n));
-  FsmSw_CommonLib_MemCpy(&f0[n], Q0, FsmSw_Convert_u64_to_u32(2 * n));
-  FsmSw_CommonLib_MemCpy(f1, R1, FsmSw_Convert_u64_to_u32(2 * n));
-  FsmSw_CommonLib_MemCpy(&f1[n], Q1, FsmSw_Convert_u64_to_u32(2 * n));
+  FsmSw_CommonLib_MemCpy(f0, R0, 2 * n);
+  FsmSw_CommonLib_MemCpy(&f0[n], Q0, 2 * n);
+  FsmSw_CommonLib_MemCpy(f1, R1, 2 * n);
+  FsmSw_CommonLib_MemCpy(&f1[n], Q1, 2 * n);
 } // end: radix_big_192
 
 /*====================================================================================================================*/
@@ -260,7 +260,7 @@ static void radix_big_192(uint16 *const f0, uint16 *const f1, const uint16 *cons
 * \param[in]  betas FFT constants
 *
 */
-static void fft_rec_192(uint16 *const w, uint16 *const f, uint32 f_coeffs, uint8 m, uint32 m_f,
+static void fft_rec_192(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8 m, uint32 m_f,
                         const uint16 *const betas)
 {
   uint16 f0[1U << (HQC192_PARAM_FFT - 2)]             = {0};
@@ -273,8 +273,8 @@ static void fft_rec_192(uint16 *const w, uint16 *const f, uint32 f_coeffs, uint8
   uint16 tmp[HQC192_PARAM_M - (HQC192_PARAM_FFT - 1)] = {0};
 
   uint16 beta_m_pow;
-  uint8 i;
-  uint64 k, x;
+  uint32 i, k;
+  uint32 x;
 
   // Step 1
   if (m_f == 1)
@@ -347,7 +347,7 @@ static void fft_rec_192(uint16 *const w, uint16 *const f, uint32 f_coeffs, uint8
       fft_rec_192(v, f1, f_coeffs / 2, m - 1, m_f - 1, deltas);
 
       // Step 6
-      FsmSw_CommonLib_MemCpy(&w[k], v, FsmSw_Convert_u64_to_u32((uint64)2 * k));
+      FsmSw_CommonLib_MemCpy(&w[k], v, 2 * k);
       w[0] = u[0];
       w[k] ^= u[0];
       for (i = 1; i < k; ++i)
@@ -387,7 +387,7 @@ static void fft_rec_192(uint16 *const w, uint16 *const f, uint32 f_coeffs, uint8
 * \param[in]  f_coeffs Number coefficients of f (i.e. deg(f)+1)
 *
 */
-void FsmSw_Hqc192_Fft(uint16 *const w, const uint16 *const f, uint32 f_coeffs)
+void FsmSw_Hqc192_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
 {
   uint16 betas[HQC192_PARAM_M - 1]              = {0};
   uint16 betas_sums[1U << (HQC192_PARAM_M - 1)] = {0};

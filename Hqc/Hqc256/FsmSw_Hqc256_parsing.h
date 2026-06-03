@@ -63,9 +63,9 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc256_Load8_Arr(uint64 *const out64, uint32 outlen, const uint8 *const in8, uint32 inlen);
+void FsmSw_Hqc256_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *const in8, uint16 inlen);
 
-void FsmSw_Hqc256_Store8_Arr(uint8 *const out8, uint32 outlen, const uint64 *const in64, uint32 inlen);
+void FsmSw_Hqc256_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in64, uint16 inlen);
 
 void FsmSw_Hqc256_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
                                        const uint8 *const pk);

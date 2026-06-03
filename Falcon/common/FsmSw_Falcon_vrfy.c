@@ -206,7 +206,7 @@ static const uint16 iGMb[] = {
 static uint32 fsmsw_falcon_MqConvSmall(sint32 x);
 static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y);
 static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y);
-static uint32 fsmsw_falcon_MqRShifT1(uint32 x);
+static uint32 fsmsw_falcon_MqRShift1(uint32 x);
 static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y);
 static uint32 fsmsw_falcon_MqMontySqr(uint32 x);
 static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y);
@@ -234,6 +234,9 @@ static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
   uint32 y = 0;
 
   y = (uint32)x;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -260,6 +263,9 @@ static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
   uint32 d = 0;
 
   d = x + y - Q;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -284,6 +290,9 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
   uint32 d = 0;
 
   d = x - y;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -301,14 +310,17 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
 * \returns t.b.d.
 *
 */
-static uint32 fsmsw_falcon_MqRShifT1(uint32 x)
+static uint32 fsmsw_falcon_MqRShift1(uint32 x)
 {
   /* x_temp is used to avoid modifying the input. */
   uint32 x_temp = x;
-  uint32 bit    = (uint32)(0u - (x_temp & 1U));
+  /* polyspace +3 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
+  provide no  additional benefit and could compromise the stability of the system." */
+  const uint32 bit = (uint32)(0u - (x_temp & 1U));
   x_temp += Q & bit;
   return (x_temp >> 1);
-} // end: fsmsw_falcon_MqRShifT1
+} // end: fsmsw_falcon_MqRShift1
 
 /*====================================================================================================================*/
 /**
@@ -340,6 +352,9 @@ static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
   /* After the shift, analysis shows that the value will be less than 2q. We do a subtraction then conditional
    * subtraction to ensure the result is in the expected range. */
   z -= Q;
+  /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+  determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+  the rule would provide no additional benefit and could compromise the stability of the system" */
   /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -555,7 +570,7 @@ static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
 
   for (m = n; m > 1u; m >>= 1)
   {
-    ni = fsmsw_falcon_MqRShifT1(ni);
+    ni = fsmsw_falcon_MqRShift1(ni);
   }
 
   for (m = 0; m < n; m++)
@@ -678,6 +693,9 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, co
   for (u = 0; u < n; u++)
   {
     w1 = (uint32)s2[u];
+    /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
+    determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
+    the rule would provide no additional benefit and could compromise the stability of the system" */
     /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */

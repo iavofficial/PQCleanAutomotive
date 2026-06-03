@@ -8,15 +8,15 @@
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup HQC192
-*    includes the modules for HQC192
+/** \addtogroup Falcon512
+*    includes the modules for Falcon512
  ** @{ */
-/** \addtogroup Hqc192_kem
+/** \addtogroup Falcon512_api
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_kem.h
-* \brief  NIST KEM API used by the HQC_KEM IND-CCA2 scheme
+/** \file FsmSw_Falcon512_api.c
+* \brief  description of FsmSw_Falcon512_api.c
 *
 * \details
 *
@@ -33,18 +33,18 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_KEM_H
-#define FSMSW_HQC192_KEM_H
+#ifndef FSMSW_FALCON512_API_H
+#define FSMSW_FALCON512_API_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_Hqc192_api.h"
-
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-
+#define FSMSW_FALCON512_CRYPTO_SECRETKEYBYTES 1281u
+#define FSMSW_FALCON512_CRYPTO_PUBLICKEYBYTES 897u
+#define FSMSW_FALCON512_CRYPTO_BYTES          666u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -64,8 +64,17 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
+uint8 FsmSw_Falcon512_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                            const uint8 *const sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                         const uint8 *const pk);
+uint8 FsmSw_Falcon512_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                  const uint8 *const sk);
+uint8 FsmSw_Falcon512_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                       const uint8 *const pk);
 
-#endif /* FSMSW_HQC192_KEM_H */
+#endif /* FSMSW_FALCON512_API_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

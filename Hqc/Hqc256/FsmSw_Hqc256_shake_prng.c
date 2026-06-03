@@ -127,7 +127,7 @@ void FsmSw_Hqc256_SeedExpander(hqc256_seedexpander_state *const state, uint8 *ou
   if (remainder != 0)
   {
     FsmSw_Fips202_Shake256_IncSqueeze(tmp, FsmSw_Convert_u8_to_u32(bsize), state);
-    uint8 *output_tmp = &output[outlen - FsmSw_Convert_u8_to_u32(remainder)];
+    uint8 *const output_tmp = &output[outlen - FsmSw_Convert_u8_to_u32(remainder)];
     for (uint8 i = 0; i < remainder; ++i)
     {
       output_tmp[i] = tmp[i];

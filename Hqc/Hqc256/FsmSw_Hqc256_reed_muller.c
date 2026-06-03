@@ -54,8 +54,11 @@ inline functions would not provide significant benefits." */
 /* polyspace +3 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
 inline functions would not provide significant benefits." */
 // copy bit 0 into all bits of a 32 bit value
-#define BIT0MASK(x) (uint32)(0u - (((uint32)(x) & 1u)))
-
+#define BIT0MASK(x)                        (uint32)(0u - (((uint32)(x) & 1u)))
+#define PQC_HQC256_RM_CODEWORD_LENGTH      128
+#define PQC_HQC256_RM_CODEWORD_HALF_LENGTH (PQC_HQC256_RM_CODEWORD_LENGTH / 2)
+#define PQC_HQC256_RM_M                    7
+#define PQC_HQC256_PART_COUNT              2
 /**
  * \brief Encode a single byte into a single codeword using RM(1,7)
  *
@@ -102,7 +105,7 @@ static void encode_256(uint64 *const cword, uint8 message);
 static void encode_256(uint64 *const cword, uint8 message)
 {
   uint32 first_word;
-  uint32 msg_tmp = (uint32)message;
+  const uint32 msg_tmp = (uint32)message;
   // bit 7 flips all the bits, do that first to save work
   first_word = BIT0MASK(msg_tmp >> 7);
   // bits 0, 1, 2, 3, 4 are the same for all four longs
@@ -114,7 +117,7 @@ static void encode_256(uint64 *const cword, uint8 message)
   first_word ^= BIT0MASK(msg_tmp >> 4) & 0xffff0000U;
   // we can store this in the first quarter
   cword[0] = first_word;
-  // bit 5 flips entries 1 and 3, bit 6 flips 2 and 3
+  // bit 5 flips entries 1 and 3. Bit 6 flips 2 and 3
   first_word ^= BIT0MASK(msg_tmp >> 5);
   cword[0] |= (uint64)first_word << 32;
   first_word ^= BIT0MASK(msg_tmp >> 6);
@@ -133,7 +136,7 @@ static void encode_256(uint64 *const cword, uint8 message)
  * \param[out] src Structure that contain the expanded codeword
  * \param[out] dst Structure that contain the expanded codeword
  */
-static void hqc256_hadamard(uint16 src[128], uint16 dst[128])
+static void hqc256_hadamard(uint16 src[PQC_HQC256_RM_CODEWORD_LENGTH], uint16 dst[PQC_HQC256_RM_CODEWORD_LENGTH])
 {
   // the passes move data:
   // src -> dst -> src -> dst -> src -> dst -> src -> dst
@@ -141,9 +144,9 @@ static void hqc256_hadamard(uint16 src[128], uint16 dst[128])
   uint16 *p1 = src;
   uint16 *p2 = dst;
   uint16 *p3;
-  for (uint8 pass = 0; pass < 7; ++pass)
+  for (uint8 pass = 0; pass < PQC_HQC256_RM_M; ++pass)
   {
-    for (uint8 i = 0; i < 64; ++i)
+    for (uint8 i = 0; i < PQC_HQC256_RM_CODEWORD_HALF_LENGTH; ++i)
     {
       p2[i]      = p1[2 * i] + p1[(2 * i) + 1];
       p2[i + 64] = p1[2 * i] - p1[(2 * i) + 1];
@@ -169,22 +172,22 @@ static void hqc256_hadamard(uint16 src[128], uint16 dst[128])
  * \param[out] dest Structure that contain the expanded codeword
  * \param[in] src Structure that contain the codeword
  */
-static void hqc256_expand_and_sum(uint16 dest[128], const uint64 src[2 * MULTIPLICITY])
+static void hqc256_expand_and_sum(uint16 dest[PQC_HQC256_RM_CODEWORD_LENGTH], const uint64 src[2 * MULTIPLICITY])
 {
   // start with the first copy
-  for (uint8 part = 0; part < 2; ++part)
+  for (uint8 part = 0; part < PQC_HQC256_PART_COUNT; ++part)
   {
-    for (uint8 bit = 0; bit < 64; ++bit)
+    for (uint8 bit = 0; bit < PQC_HQC256_RM_CODEWORD_HALF_LENGTH; ++bit)
     {
       dest[(part * 64) + bit] = (uint16)(((src[part] >> bit) & 1U) & 0xFFFFU);
     }
   }
   // sum the rest of the copies
-  for (uint16 copy = 1; copy < MULTIPLICITY; ++copy)
+  for (uint8 copy = 1; copy < MULTIPLICITY; ++copy)
   {
-    for (uint8 part = 0; part < 2; ++part)
+    for (uint8 part = 0; part < PQC_HQC256_PART_COUNT; ++part)
     {
-      for (uint8 bit = 0; bit < 64; ++bit)
+      for (uint8 bit = 0; bit < PQC_HQC256_RM_CODEWORD_HALF_LENGTH; ++bit)
       {
         dest[(part * 64) + bit] += (uint16)((src[(2 * copy) + part] >> bit) & 1U);
       }
@@ -202,13 +205,13 @@ static void hqc256_expand_and_sum(uint16 dest[128], const uint64 src[2 * MULTIPL
  * in the lowest 7 bits it taken
  * \param[in] transform Structure that contain the expanded codeword
  */
-static uint8 find_peaks_256(const uint16 transform[128])
+static uint8 find_peaks_256(const uint16 transform[PQC_HQC256_RM_CODEWORD_LENGTH])
 {
   uint16 peak_abs = 0;
   uint16 peak     = 0;
   uint16 pos      = 0;
   uint16 t, abs_value, mask, tmp;
-  for (uint16 i = 0; i < 128; ++i)
+  for (uint16 i = 0; i < PQC_HQC256_RM_CODEWORD_LENGTH; ++i)
   {
     t         = transform[i];
     tmp       = (uint16)(0u - (t >> 15));
@@ -264,8 +267,8 @@ void FsmSw_Hqc256_Reed_Muller_Encode(uint64 *const cdw, const uint8 *const msg)
  */
 void FsmSw_Hqc256_Reed_Muller_Decode(uint8 *const msg, const uint64 *const cdw)
 {
-  uint16 expanded[128];
-  uint16 transform[128];
+  uint16 expanded[PQC_HQC256_RM_CODEWORD_LENGTH];
+  uint16 transform[PQC_HQC256_RM_CODEWORD_LENGTH];
   for (uint8 i = 0; i < HQC256_VEC_N1_SIZE_BYTES; ++i)
   {
     // collect the codewords
