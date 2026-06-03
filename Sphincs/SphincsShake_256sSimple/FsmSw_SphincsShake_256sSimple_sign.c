@@ -53,7 +53,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -108,7 +108,7 @@ static void fsmsw_sphincsshake_256ssimple_crypto_sign_SeedKeyPair(uint8 *const p
   FsmSw_SphincsShake_256sSimple_InitializeHashFunction(&ctx);
 
   /* Compute root node of the top-most subtree. */
-  FsmSw_SphincsShake_256sSimple_merkle_GenRoot(&sk[3u * FSMSW_SPHINCSSHAKE_256SSIMPLE_N], &ctx);
+  FsmSw_SphincsShake_256sSimple_Merkle_GenRoot(&sk[3u * FSMSW_SPHINCSSHAKE_256SSIMPLE_N], &ctx);
 
   /* cleanup */
   FsmSw_SphincsShake_256sSimple_1FreeHashFunction(&ctx);
@@ -176,8 +176,8 @@ void FsmSw_SphincsShake_256sSimple_Crypto_Sign_Signature(uint8 *const sig, uint3
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
 
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
@@ -196,10 +196,10 @@ void FsmSw_SphincsShake_256sSimple_Crypto_Sign_Signature(uint8 *const sig, uint3
    * that would benefit from getting a large number of traces when the signer uses the same nodes. */
   (void)FsmSw_CommonLib_RandomBytes(optrand, FSMSW_SPHINCSSHAKE_256SSIMPLE_N);
   /* Compute the digest randomization value. */
-  FsmSw_SphincsShake_256sSimple_gen_message_random(sig_temp, sk_prf, optrand, m, mlen, &ctx);
+  FsmSw_SphincsShake_256sSimple_GenMessageRandom(sig_temp, sk_prf, optrand, m, mlen, &ctx);
 
   /* Derive the message digest and leaf index from R, PK and M. */
-  FsmSw_SphincsShake_256sSimple_hash_message(mhash, &tree, &idx_leaf, sig_temp, pk, m, mlen, &ctx);
+  FsmSw_SphincsShake_256sSimple_HashMessage(mhash, &tree, &idx_leaf, sig_temp, pk, m, mlen, &ctx);
   sig_temp = &sig_temp[FSMSW_SPHINCSSHAKE_256SSIMPLE_N];
 
   FsmSw_SphincsShake_SetTreeAddr(wots_addr, tree);
@@ -217,7 +217,7 @@ void FsmSw_SphincsShake_256sSimple_Crypto_Sign_Signature(uint8 *const sig, uint3
     FsmSw_SphincsShake_CopySubTreeAddr(wots_addr, tree_addr);
     FsmSw_SphincsShake_256sSimple_set_keypair_addr(wots_addr, idx_leaf);
 
-    FsmSw_SphincsShake_256sSimple_merkle_Sign(sig_temp, root, &ctx, wots_addr, tree_addr, idx_leaf);
+    FsmSw_SphincsShake_256sSimple_Merkle_Sign(sig_temp, root, &ctx, wots_addr, tree_addr, idx_leaf);
     sig_temp = &sig_temp[FSMSW_SPHINCSSHAKE_256SSIMPLE_WOTS_BYTES +
                          (FSMSW_SPHINCSSHAKE_256SSIMPLE_TREE_HEIGHT * FSMSW_SPHINCSSHAKE_256SSIMPLE_N)];
 
@@ -270,9 +270,9 @@ uint8 FsmSw_SphincsShake_256sSimple_Crypto_Sign_Verify(const uint8 *const sig, u
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 wots_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]              = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 wots_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]         = {0};
   uint8 retVal                                              = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */
@@ -295,7 +295,7 @@ uint8 FsmSw_SphincsShake_256sSimple_Crypto_Sign_Verify(const uint8 *const sig, u
 
   /* Derive the message digest and leaf index from R || PK || M.
    * The additional FSMSW_SPHINCSSHAKE_256SSIMPLE_N is a result of the hash domain separator. */
-  FsmSw_SphincsShake_256sSimple_hash_message(mhash, &tree, &idx_leaf, sig_temp, pk, m, mlen, &ctx);
+  FsmSw_SphincsShake_256sSimple_HashMessage(mhash, &tree, &idx_leaf, sig_temp, pk, m, mlen, &ctx);
   sig_temp = &sig_temp[FSMSW_SPHINCSSHAKE_256SSIMPLE_N];
 
   /* Layer correctly defaults to 0, so no need to FsmSw_Sphincs_set_layer_addr */
@@ -411,8 +411,8 @@ uint8 FsmSw_SphincsShake_256sSimple_Crypto_Sign_Open(uint8 *const m, uint32 *con
 
   *mlen = smlen - FSMSW_SPHINCSSHAKE_256SSIMPLE_BYTES;
 
-  if (FsmSw_SphincsShake_256sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHAKE_256SSIMPLE_BYTES,
-                                                       &sm[FSMSW_SPHINCSSHAKE_256SSIMPLE_BYTES], *mlen, pk) != 0)
+  if (0 != FsmSw_SphincsShake_256sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHAKE_256SSIMPLE_BYTES,
+                                                            &sm[FSMSW_SPHINCSSHAKE_256SSIMPLE_BYTES], *mlen, pk))
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;

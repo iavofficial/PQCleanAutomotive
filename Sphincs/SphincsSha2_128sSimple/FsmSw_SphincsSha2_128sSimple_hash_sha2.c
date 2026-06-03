@@ -53,7 +53,7 @@
 #define shaX_inc_blocks       FsmSw_Sha256_IncBlocks
 #define shaX_inc_finalize     FsmSw_Sha256_IncFinalize
 #define shaX                  FsmSw_Sha256
-#define mgf1_X                FsmSw_SphincsSha2_128sSimple_MgF1256
+#define mgf1_X                FsmSw_SphincsSha2_128sSimple_MgF1_256
 #define shaXstate             sha256ctx
 
 #define SPX_TREE_BITS  (FSMSW_SPHINCSSHA2_128SSIMPLE_TREE_HEIGHT * (FSMSW_SPHINCSSHA2_128SSIMPLE_D - 1u))
@@ -63,6 +63,7 @@
 #define SPX_DGST_BYTES (FSMSW_SPHINCSSHA2_128SSIMPLE_FORS_MSG_BYTES + SPX_TREE_BYTES + SPX_LEAF_BYTES)
 
 /* Round to nearest multiple of SPX_SHAX_BLOCK_BYTES */
+/* polyspace +2 DEFECT:UINT_CONSTANT_OVFL [Justified:]"Necessary controlled type conversions for block calculation." */
 /* polyspace +1 MISRA2012:12.4 [Justified:]"Necessary controlled type conversions for block calculation." */
 #define SPX_INBLOCKS                                                                                                   \
   (uint32)((uint32)((uint32)(((FSMSW_SPHINCSSHA2_128SSIMPLE_N + FSMSW_SPHINCSSHA2_128SSIMPLE_PK_BYTES +                \
@@ -115,7 +116,7 @@ hence it is justified." */
 hence it is justified." */
 /* polyspace +2 MISRA2012:8.7 [Justified:]"Refactoring to a static function would introduce other defects,
 hence it is justified." */
-void FsmSw_SphincsSha2_128sSimple_MgF1256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
+void FsmSw_SphincsSha2_128sSimple_MgF1_256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
 {
   uint8 inbuf[FSMSW_SPHINCSSHA2_128SSIMPLE_MGF1_256_BUF_LEN + 4u] = {0};
   uint8 outbuf[FSMSW_SPHINCS_SHA256_OUTPUT_BYTES]                 = {0};
@@ -142,53 +143,7 @@ void FsmSw_SphincsSha2_128sSimple_MgF1256(uint8 *const out, uint32 outlen, const
     FsmSw_Sha256(outbuf, inbuf, inlen + 4u);
     FsmSw_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * FSMSW_SPHINCS_SHA256_OUTPUT_BYTES));
   }
-} // end: FsmSw_SphincsSha2_128sSimple_MgF1256
-
-/*====================================================================================================================*/
-/**
- * \brief mgf1 function based on the SHA-512 hash function
- *
- * \param[out] uint8      *out : t.b.d.
- * \param[out] uint32   outlen : t.b.d.
- * \param[in]  const uint8 *in : t.b.d.
- * \param[in]  uint32    inlen : t.b.d.
- *
- * Note:        This function is currently not used.
- */
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_128sSimple_MgF1512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen)
-{
-  uint8 inbuf[FSMSW_SPHINCSSHA2_128SSIMPLE_MGF1_512_BUF_LEN + 4u] = {0};
-  uint8 outbuf[FSMSW_SPHINCS_SHA512_OUTPUT_BYTES]                 = {0};
-  uint32 i                                                        = 0;
-
-  /* out_temp is used to avoid modifying the input. */
-  uint8 *out_temp = out;
-
-  FsmSw_CommonLib_MemCpy(inbuf, in, inlen);
-
-  /* While we can fit in at least another full block of SHA512 output.. */
-  /* polyspace +2 MISRA2012:14.2 [Justified:]"The calculation involving the loop counter directly affects loop
-  continuation, addressing a MISRA 14.2 warning by following its rules for how loops should work." */
-  for (i = 0; ((i + 1u) * FSMSW_SPHINCS_SHA512_OUTPUT_BYTES) <= outlen; i++)
-  {
-    FsmSw_Sphincs_U32ToBytes(&inbuf[inlen], i);
-    FsmSw_Sha512(out_temp, inbuf, inlen + 4u);
-    out_temp = &out_temp[FSMSW_SPHINCS_SHA512_OUTPUT_BYTES];
-  }
-  /* Until we cannot anymore, and we fill the remainder. */
-  if (outlen > (i * FSMSW_SPHINCS_SHA512_OUTPUT_BYTES))
-  {
-    FsmSw_Sphincs_U32ToBytes(&inbuf[inlen], i);
-    FsmSw_Sha512(outbuf, inbuf, inlen + 4u);
-    FsmSw_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * FSMSW_SPHINCS_SHA512_OUTPUT_BYTES));
-  }
-} // end: FsmSw_SphincsSha2_128sSimple_MgF1512
+} // end: FsmSw_SphincsSha2_128sSimple_MgF1_256
 
 /*====================================================================================================================*/
 /**
@@ -253,11 +208,11 @@ void FsmSw_SphincsSha2_128sSimple_GenMessageRandom(uint8 *const R, const uint8 *
   {
     buf[i] = 0x36u ^ sk_prf[i];
   }
-  FsmSw_CommonLib_MemSet(&buf[FSMSW_SPHINCSSHA2_128SSIMPLE_N], 0x36,
+  FsmSw_CommonLib_MemSet(&buf[FSMSW_SPHINCSSHA2_128SSIMPLE_N], 0x36u,
                          SPX_SHAX_BLOCK_BYTES - FSMSW_SPHINCSSHA2_128SSIMPLE_N);
 
   shaX_inc_init(&state);
-  shaX_inc_blocks(&state, buf, 1);
+  shaX_inc_blocks(&state, buf, 1u);
 
   FsmSw_CommonLib_MemCpy(buf, optrand, FSMSW_SPHINCSSHA2_128SSIMPLE_N);
 
@@ -272,7 +227,7 @@ void FsmSw_SphincsSha2_128sSimple_GenMessageRandom(uint8 *const R, const uint8 *
   {
     FsmSw_CommonLib_MemCpy(&buf[FSMSW_SPHINCSSHA2_128SSIMPLE_N], m_temp,
                            SPX_SHAX_BLOCK_BYTES - FSMSW_SPHINCSSHA2_128SSIMPLE_N);
-    shaX_inc_blocks(&state, buf, 1);
+    shaX_inc_blocks(&state, buf, 1u);
 
     m_temp = &m_temp[SPX_SHAX_BLOCK_BYTES - FSMSW_SPHINCSSHA2_128SSIMPLE_N];
     mlen_temp -= SPX_SHAX_BLOCK_BYTES - FSMSW_SPHINCSSHA2_128SSIMPLE_N;
@@ -281,9 +236,9 @@ void FsmSw_SphincsSha2_128sSimple_GenMessageRandom(uint8 *const R, const uint8 *
 
   for (i = 0; i < FSMSW_SPHINCSSHA2_128SSIMPLE_N; i++)
   {
-    buf[i] = 0x5cu ^ sk_prf[i];
+    buf[i] = 0x5Cu ^ sk_prf[i];
   }
-  FsmSw_CommonLib_MemSet(&buf[FSMSW_SPHINCSSHA2_128SSIMPLE_N], 0x5c,
+  FsmSw_CommonLib_MemSet(&buf[FSMSW_SPHINCSSHA2_128SSIMPLE_N], 0x5Cu,
                          SPX_SHAX_BLOCK_BYTES - FSMSW_SPHINCSSHA2_128SSIMPLE_N);
 
   shaX(buf, buf, SPX_SHAX_BLOCK_BYTES + SPX_SHAX_OUTPUT_BYTES);

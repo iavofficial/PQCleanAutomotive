@@ -48,13 +48,13 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint32 leaf_addrx[FSMSW_SPHINCS_ADDR_SIZE];
+  uint32 leaf_addrx[FSMSW_SPHINCS_SIGN_ADDR_SIZE];
 } Fsmsw_Sphincssha2_256sSimple_ForsGenLeafInfo_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -191,10 +191,10 @@ void FsmSw_SphincsSha2_256sSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, c
 {
   uint32 indices[FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_TREES]                               = {0};
   uint8 roots[FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_TREES * FSMSW_SPHINCSSHA2_256SSIMPLE_N] = {0};
-  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                        = {0};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                   = {0};
   Fsmsw_Sphincssha2_256sSimple_ForsGenLeafInfo_T fors_info                              = {{0}};
   uint32 *const fors_leaf_addr                                                          = fors_info.leaf_addrx;
-  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
+  uint32 fors_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                     = {0};
   uint32 idx_offset                                                                     = 0;
   uint32 i                                                                              = 0;
 
@@ -260,8 +260,8 @@ void FsmSw_SphincsSha2_256sSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *c
   uint32 indices[FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_TREES]                               = {0};
   uint8 roots[FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_TREES * FSMSW_SPHINCSSHA2_256SSIMPLE_N] = {0};
   uint8 leaf[FSMSW_SPHINCSSHA2_256SSIMPLE_N]                                            = {0};
-  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                        = {0};
-  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                   = {0};
+  uint32 fors_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                     = {0};
   uint32 idx_offset                                                                     = 0;
   uint32 i                                                                              = 0;
 

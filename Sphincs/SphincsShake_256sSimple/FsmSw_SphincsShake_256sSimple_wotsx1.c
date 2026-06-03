@@ -103,7 +103,7 @@ void FsmSw_SphincsShake_256sSimple_Wots_GenLeafX1(uint8 *const dest, const sphin
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
-  Fsmsw_Sphincsshake_256sSimple_LeafInfoX1_T *info          = v_info;
+  FsmSw_SphincsShake_256sSimple_LeafInfoX1_T *info          = v_info;
   uint32 *const leaf_addr                                   = info->leaf_addr;
   uint32 *const pk_addr                                     = info->pk_addr;
   uint32 i                                                  = 0;
@@ -137,7 +137,7 @@ void FsmSw_SphincsShake_256sSimple_Wots_GenLeafX1(uint8 *const dest, const sphin
     FsmSw_SphincsShake_SetHashAddr(leaf_addr, 0);
     FsmSw_SphincsShake_SetType(leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_WOTSPRF);
 
-    FsmSw_SphincsShake_256sSimple_prf_addr(buffer, ctx, leaf_addr);
+    FsmSw_SphincsShake_256sSimple_PrfAddr(buffer, ctx, leaf_addr);
 
     FsmSw_SphincsShake_SetType(leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_WOTS);
 

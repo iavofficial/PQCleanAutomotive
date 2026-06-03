@@ -103,7 +103,7 @@ void FsmSw_SphincsSha2_256fSimple_Wots_GenLeafX1(uint8 *const dest, const sphinc
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
-  Fsmsw_Sphincssha2_256fSimple_LeafInfoX1_T *info          = v_info;
+  FsmSw_SphincsSha2_256fSimple_LeafInfoX1_T *info          = v_info;
   uint32 *const leaf_addr                                  = info->leaf_addr;
   uint32 *const pk_addr                                    = info->pk_addr;
   uint32 i                                                 = 0;

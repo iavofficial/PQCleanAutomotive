@@ -102,12 +102,17 @@
  * \param[in]  uint32               tree_addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(
-    uint8 *const root, uint8 *const auth_path, const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx,
-    uint32 idx_offset, uint32 tree_height,
-    void (*const gen_leaf)(uint8 *const leave /* Where to write the leaves */, const sphincs_shake_192s_ctx *const ctx,
-                           uint32 idx, void *const info),
-    uint32 tree_addr[8], void *const info)
+/* polyspace +4 CERT-C:DCL23-C [Justified:]
+ * polyspace +3 ISO-17961:funcdecl [Justified:]
+ * polyspace +2 MISRA2012:5.1 [Justified:] "The identifiers are distinct. The naming convention ensures clarity
+ and avoids confusion with other functions. Therefore, this warning is a false positive." */
+void FsmSw_SphincsShake_192sSimple_TreeHashX1(uint8 *const root, uint8 *const auth_path,
+                                              const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx,
+                                              uint32 idx_offset, uint32 tree_height,
+                                              void (*const gen_leaf)(uint8 *const leave /* Where to write the leaves */,
+                                                                     const sphincs_shake_192s_ctx *const ctx,
+                                                                     uint32 idx, void *const info),
+                                              uint32 tree_addr[8], void *const info)
 {
   /* This is where we keep the intermediate nodes */
   uint8 stack[FSMSW_SPHINCSSHAKE_192SSIMPLE_TREEHASHX1_BUF_LEN * FSMSW_SPHINCSSHAKE_192SSIMPLE_N] = {0};
@@ -180,7 +185,7 @@ void FsmSw_SphincsShake_192sSimple_3_TreeHashX1(
                              FSMSW_SPHINCSSHAKE_192SSIMPLE_N);
     }
   }
-} // end: FsmSw_SphincsShake_192sSimple_3_TreeHashX1
+} // end: FsmSw_SphincsShake_192sSimple_TreeHashX1
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -64,16 +64,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_256sSimple_prf_addr(uint8 *const out, const sphincs_shake_256s_ctx *const ctx,
-                                            const uint32 addr[8]);
+void FsmSw_SphincsShake_256sSimple_PrfAddr(uint8 *const out, const sphincs_shake_256s_ctx *const ctx,
+                                           const uint32 addr[8]);
 
-void FsmSw_SphincsShake_256sSimple_gen_message_random(uint8 *const R, const uint8 *const sk_prf,
-                                                      const uint8 *const optrand, const uint8 *const m, uint32 mlen,
-                                                      const sphincs_shake_256s_ctx *const ctx);
+void FsmSw_SphincsShake_256sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const sphincs_shake_256s_ctx *const ctx);
 
-void FsmSw_SphincsShake_256sSimple_hash_message(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
-                                                const uint8 *const R, const uint8 *const pk, const uint8 *const m,
-                                                uint32 mlen, const sphincs_shake_256s_ctx *const ctx);
+void FsmSw_SphincsShake_256sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const sphincs_shake_256s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHAKE_256SSIMPLE_HASH_H */
 

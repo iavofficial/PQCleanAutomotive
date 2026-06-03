@@ -128,12 +128,12 @@ void FsmSw_SphincsSha2_128sSimple_ComputeRoot(uint8 *const root, const uint8 *co
     /* Pick the right or left neighbor, depending on parity of the node. */
     if (0u < (leaf_idx_temp & 1u))
     {
-      FsmSw_SphincsSha2_128sSimple_Thash(&buffer[FSMSW_SPHINCSSHA2_128SSIMPLE_N], buffer, 2, ctx, addr);
+      FsmSw_SphincsSha2_128sSimple_Thash(&buffer[FSMSW_SPHINCSSHA2_128SSIMPLE_N], buffer, 2u, ctx, addr);
       FsmSw_CommonLib_MemCpy(buffer, auth_path_temp, FSMSW_SPHINCSSHA2_128SSIMPLE_N);
     }
     else
     {
-      FsmSw_SphincsSha2_128sSimple_Thash(buffer, buffer, 2, ctx, addr);
+      FsmSw_SphincsSha2_128sSimple_Thash(buffer, buffer, 2u, ctx, addr);
       FsmSw_CommonLib_MemCpy(&buffer[FSMSW_SPHINCSSHA2_128SSIMPLE_N], auth_path_temp, FSMSW_SPHINCSSHA2_128SSIMPLE_N);
     }
     auth_path_temp = &auth_path_temp[FSMSW_SPHINCSSHA2_128SSIMPLE_N];
@@ -144,7 +144,7 @@ void FsmSw_SphincsSha2_128sSimple_ComputeRoot(uint8 *const root, const uint8 *co
   idx_offset_temp >>= 1;
   FsmSw_SphincsSha2_SetTreeHeight(addr, tree_height);
   FsmSw_SphincsSha2_SetTreeIndex(addr, leaf_idx_temp + idx_offset_temp);
-  FsmSw_SphincsSha2_128sSimple_Thash(root, buffer, 2, ctx, addr);
+  FsmSw_SphincsSha2_128sSimple_Thash(root, buffer, 2u, ctx, addr);
 } // end: FsmSw_SphincsSha2_128sSimple_ComputeRoot
 
 /*====================================================================================================================*/
@@ -210,7 +210,7 @@ void FsmSw_SphincsSha2_128sSimple_TreeHash(uint8 *const root, uint8 *const auth_
       FsmSw_SphincsSha2_SetTreeIndex(tree_addr, tree_idx + (idx_offset >> (heights[offset - 1u] + 1u)));
       /* Hash the top-most nodes from the stack together. */
       FsmSw_SphincsSha2_128sSimple_Thash(&stack[(offset - 2u) * FSMSW_SPHINCSSHA2_128SSIMPLE_N],
-                                         &stack[(offset - 2u) * FSMSW_SPHINCSSHA2_128SSIMPLE_N], 2, ctx, tree_addr);
+                                         &stack[(offset - 2u) * FSMSW_SPHINCSSHA2_128SSIMPLE_N], 2u, ctx, tree_addr);
       offset--;
       /* Note that the top-most node is now one layer higher. */
       heights[offset - 1u]++;

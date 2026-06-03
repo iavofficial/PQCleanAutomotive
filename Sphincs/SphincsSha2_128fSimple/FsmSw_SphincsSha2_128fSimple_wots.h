@@ -64,7 +64,6 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_128fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
 /* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
@@ -73,7 +72,7 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 void FsmSw_SphincsSha2_128fSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
                                                  const sphincs_sha2_128f_ctx *const ctx, uint32 addr[8]);
-
+void FsmSw_SphincsSha2_128fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
 #endif /* FSMSW_SPHINCSSHA2_128FSIMPLE_WOTS_H */
 
 /** @} doxygen end group definition */

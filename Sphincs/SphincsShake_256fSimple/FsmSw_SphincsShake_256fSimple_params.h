@@ -38,7 +38,9 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
+#include "FsmSw_SphincsShake_256fSimple_api.h"
 #include "FsmSw_Sphincs_shake_offsets.h"
+#include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -82,14 +84,14 @@
    FSMSW_SPHINCSSHAKE_256FSIMPLE_N)
 
 /* Resulting SPX sizes. */
-#define FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES                                                                            \
-  (FSMSW_SPHINCSSHAKE_256FSIMPLE_N + FSMSW_SPHINCSSHAKE_256FSIMPLE_FORS_BYTES +                                        \
-   (FSMSW_SPHINCSSHAKE_256FSIMPLE_D * FSMSW_SPHINCSSHAKE_256FSIMPLE_WOTS_BYTES) +                                      \
-   (FSMSW_SPHINCSSHAKE_256FSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHAKE_256FSIMPLE_N))
-#define FSMSW_SPHINCSSHAKE_256FSIMPLE_PK_BYTES (2u * FSMSW_SPHINCSSHAKE_256FSIMPLE_N)
-/* polyspace +2 MISRA2012:2.5 [Justified:]"This define is reserved for the future." */
-#define FSMSW_SPHINCSSHAKE_256FSIMPLE_SK_BYTES                                                                         \
-  (2 * FSMSW_SPHINCSSHAKE_256FSIMPLE_N + FSMSW_SPHINCSSHAKE_256FSIMPLE_PK_BYTES)
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES ==
+                    (FSMSW_SPHINCSSHAKE_256FSIMPLE_N + FSMSW_SPHINCSSHAKE_256FSIMPLE_FORS_BYTES +
+                     (FSMSW_SPHINCSSHAKE_256FSIMPLE_D * FSMSW_SPHINCSSHAKE_256FSIMPLE_WOTS_BYTES) +
+                     (FSMSW_SPHINCSSHAKE_256FSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHAKE_256FSIMPLE_N)));
+
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_256FSIMPLE_PK_BYTES == (2u * FSMSW_SPHINCSSHAKE_256FSIMPLE_N));
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_256FSIMPLE_SK_BYTES ==
+                    (2 * FSMSW_SPHINCSSHAKE_256FSIMPLE_N + FSMSW_SPHINCSSHAKE_256FSIMPLE_PK_BYTES));
 
 #define FSMSW_SPHINCSSHAKE_256FSIMPLE_CRYPTO_SEEDBYTES (3u * FSMSW_SPHINCSSHAKE_256FSIMPLE_N)
 

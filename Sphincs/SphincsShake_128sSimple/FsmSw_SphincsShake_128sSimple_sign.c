@@ -54,7 +54,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -173,14 +173,14 @@ void FsmSw_SphincsShake_128sSimple_Crypto_Sign_Signature(uint8 *const sig, uint3
   const uint8 *const sk_prf = &sk[FSMSW_SPHINCSSHAKE_128SSIMPLE_N];
   const uint8 *const pk     = &sk[2u * FSMSW_SPHINCSSHAKE_128SSIMPLE_N];
 
-  uint8 optrand[FSMSW_SPHINCSSHAKE_128SSIMPLE_N];
-  uint8 mhash[FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_MSG_BYTES];
-  uint8 root[FSMSW_SPHINCSSHAKE_128SSIMPLE_N];
-  uint32 i;
-  uint64 tree;
-  uint32 idx_leaf;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE] = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE] = {0};
+  uint8 optrand[FSMSW_SPHINCSSHAKE_128SSIMPLE_N]            = {0};
+  uint8 mhash[FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_MSG_BYTES] = {0};
+  uint8 root[FSMSW_SPHINCSSHAKE_128SSIMPLE_N]               = {0};
+  uint32 i                                                  = 0;
+  uint64 tree                                               = 0;
+  uint32 idx_leaf                                           = 0;
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
 
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
@@ -273,9 +273,9 @@ uint8 FsmSw_SphincsShake_128sSimple_Crypto_Sign_Verify(const uint8 *const sig, u
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 wots_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]              = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 wots_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]         = {0};
   uint8 retVal                                              = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */

@@ -157,7 +157,7 @@ void FsmSw_SphincsShake_128sSimple_HashMessage(uint8 *const digest, uint64 *cons
 
   uint8 buf[SPX_DGST_BYTES] = {0};
   uint8 *bufp               = buf;
-  shake256incctx s_inc;
+  shake256incctx s_inc      = {{0}};
 
   FsmSw_Fips202_Shake256_IncInit(&s_inc);
   FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, R, FSMSW_SPHINCSSHAKE_128SSIMPLE_N);

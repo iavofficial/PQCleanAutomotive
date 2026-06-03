@@ -103,7 +103,7 @@ void FsmSw_SphincsShake_128fSimple_PrfAddr(uint8 *const out, const sphincs_shake
 
   FsmSw_Fips202_Shake256(out, FSMSW_SPHINCSSHAKE_128FSIMPLE_N, buf,
                          (2u * FSMSW_SPHINCSSHAKE_128FSIMPLE_N) + FSMSW_SPHINCSSHAKE_128FSIMPLE_ADDR_BYTES);
-} // end: FsmSw_SphincsShake_128fSimple_PrfAddrs
+} // end: FsmSw_SphincsShake_128fSimple_PrfAddr
 
 /*====================================================================================================================*/
 /**

@@ -64,7 +64,7 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_256sSimple_merkle_Sign(uint8 *const sig, uint8 *const root,
+void FsmSw_SphincsShake_256sSimple_Merkle_Sign(uint8 *const sig, uint8 *const root,
                                                const sphincs_shake_256s_ctx *const ctx, const uint32 wots_addr[8],
                                                uint32 tree_addr[8], uint32 idx_leaf);
 
@@ -74,7 +74,7 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_256sSimple_merkle_GenRoot(uint8 *const root, const sphincs_shake_256s_ctx *const ctx);
+void FsmSw_SphincsShake_256sSimple_Merkle_GenRoot(uint8 *const root, const sphincs_shake_256s_ctx *const ctx);
 
 #endif /* FSMSW_SPHINCSSHAKE_256SSIMPLE_MERKLE_H */
 

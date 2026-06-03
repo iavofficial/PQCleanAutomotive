@@ -48,14 +48,14 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint32 leaf_addrx[FSMSW_SPHINCS_ADDR_SIZE];
-} Fsmsw_Sphincsshake_192sSimple_ForsGenLeafInfo_T;
+  uint32 leaf_addrx[FSMSW_SPHINCS_SIGN_ADDR_SIZE];
+} FsmSw_SphincsShake_192sSimple_ForsGenLeafInfo_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -132,7 +132,7 @@ static void fsmsw_sphincsshake_192ssimple_fors_GenLeafx1(uint8 *const leaf, cons
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
-  Fsmsw_Sphincsshake_192sSimple_ForsGenLeafInfo_T *fors_info = info;
+  FsmSw_SphincsShake_192sSimple_ForsGenLeafInfo_T *fors_info = info;
   uint32 *const fors_leaf_addr                               = fors_info->leaf_addrx;
 
   /* Only set the parts that the caller doesn't set */
@@ -191,10 +191,10 @@ void FsmSw_SphincsShake_192sSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, 
 {
   uint32 indices[FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_TREES]                                = {0};
   uint8 roots[FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_TREES * FSMSW_SPHINCSSHAKE_192SSIMPLE_N] = {0};
-  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
-  Fsmsw_Sphincsshake_192sSimple_ForsGenLeafInfo_T fors_info                               = {{0}};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                     = {0};
+  FsmSw_SphincsShake_192sSimple_ForsGenLeafInfo_T fors_info                               = {{0}};
   uint32 *const fors_leaf_addr                                                            = fors_info.leaf_addrx;
-  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                            = {0};
+  uint32 fors_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                       = {0};
   uint32 idx_offset                                                                       = 0;
   uint32 i                                                                                = 0;
 
@@ -223,10 +223,9 @@ void FsmSw_SphincsShake_192sSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, 
     sig_temp = &sig_temp[FSMSW_SPHINCSSHAKE_192SSIMPLE_N];
 
     /* Compute the authentication path for this leaf node. */
-    FsmSw_SphincsShake_192sSimple_3_TreeHashX1(&roots[i * FSMSW_SPHINCSSHAKE_192SSIMPLE_N], sig_temp, ctx, indices[i],
-                                               idx_offset, FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_HEIGHT,
-                                               fsmsw_sphincsshake_192ssimple_fors_GenLeafx1, fors_tree_addr,
-                                               &fors_info);
+    FsmSw_SphincsShake_192sSimple_TreeHashX1(&roots[i * FSMSW_SPHINCSSHAKE_192SSIMPLE_N], sig_temp, ctx, indices[i],
+                                             idx_offset, FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_HEIGHT,
+                                             fsmsw_sphincsshake_192ssimple_fors_GenLeafx1, fors_tree_addr, &fors_info);
 
     sig_temp = &sig_temp[FSMSW_SPHINCSSHAKE_192SSIMPLE_N * FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_HEIGHT];
   }
@@ -261,8 +260,8 @@ void FsmSw_SphincsShake_192sSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *
   uint32 indices[FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_TREES]                                = {0};
   uint8 roots[FSMSW_SPHINCSSHAKE_192SSIMPLE_FORS_TREES * FSMSW_SPHINCSSHAKE_192SSIMPLE_N] = {0};
   uint8 leaf[FSMSW_SPHINCSSHAKE_192SSIMPLE_N]                                             = {0};
-  uint32 fors_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                                          = {0};
-  uint32 fors_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]                                            = {0};
+  uint32 fors_tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                     = {0};
+  uint32 fors_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]                                       = {0};
   uint32 idx_offset                                                                       = 0;
   uint32 i                                                                                = 0;
 

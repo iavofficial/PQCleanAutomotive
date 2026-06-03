@@ -53,7 +53,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -115,7 +115,7 @@ static void fsmsw_sphincssha2_192ssimple_crypto_sign_SeedKeyPair(uint8 *const pk
                          FSMSW_SPHINCSSHA2_192SSIMPLE_N);
 
   return;
-}
+} // end: fsmsw_sphincssha2_192ssimple_crypto_sign_SeedKeyPair
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -138,7 +138,7 @@ void FsmSw_SphincsSha2_192sSimple_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *co
   fsmsw_sphincssha2_192ssimple_crypto_sign_SeedKeyPair(pk, sk, seed);
 
   return;
-}
+} // end: FsmSw_SphincsSha2_192sSimple_Crypto_Sign_KeyPair
 
 /*====================================================================================================================*/
 /** 
@@ -178,8 +178,8 @@ void FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Signature(uint8 *const sig, uint32
   uint32 i                                                 = 0;
   uint64 tree                                              = 0;
   uint32 idx_leaf                                          = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]           = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]           = {0};
 
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
@@ -231,7 +231,7 @@ void FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Signature(uint8 *const sig, uint32
   *siglen = FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES;
 
   return;
-}
+} // end: FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Signature
 
 /*====================================================================================================================*/
 /** 
@@ -270,9 +270,9 @@ uint8 FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Verify(const uint8 *const sig, ui
   uint32 i                                                 = 0;
   uint64 tree                                              = 0;
   uint32 idx_leaf                                          = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                = {0};
-  uint32 wots_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]             = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]           = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]           = {0};
+  uint32 wots_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]        = {0};
   uint8 retVal                                             = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */
@@ -341,7 +341,7 @@ uint8 FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Verify(const uint8 *const sig, ui
   }
 
   return retVal;
-}
+} // end: FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Verify
 
 /*====================================================================================================================*/
 /** 
@@ -408,8 +408,8 @@ uint8 FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Open(uint8 *const m, uint32 *cons
 
   *mlen = smlen - FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES;
 
-  if (FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES,
-                                                      &sm[FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES], *mlen, pk) != 0)
+  if (0 != FsmSw_SphincsSha2_192sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES,
+                                                           &sm[FSMSW_SPHINCSSHA2_192SSIMPLE_BYTES], *mlen, pk))
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;

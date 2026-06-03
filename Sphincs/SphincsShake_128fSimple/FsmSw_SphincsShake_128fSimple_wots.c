@@ -73,12 +73,12 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
+static void fsmsw_sphincsshake_128fsimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
                                                         uint32 steps, const sphincs_shake_128f_ctx *const ctx,
                                                         uint32 addr[8]);
-static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *const output, const sint32 out_len,
+static void fsmsw_sphincsshake_128fsimple_wots_BaseW(uint32 *const output, const sint32 out_len,
                                                      const uint8 *const input);
-static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w);
+static void fsmsw_sphincsshake_128fsimple_wots_Checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -96,7 +96,7 @@ static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *const csum_base_
  * \param[in]  uint32                    addr[8] : t.b.d.
  *
  */
-static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
+static void fsmsw_sphincsshake_128fsimple_wots_GenChain(uint8 *const out, const uint8 *const in, uint32 start,
                                                         uint32 steps, const sphincs_shake_128f_ctx *const ctx,
                                                         uint32 addr[8])
 {
@@ -111,7 +111,7 @@ static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *const out, const 
     FsmSw_SphincsShake_SetHashAddr(addr, i);
     FsmSw_SphincsShake_128fSimple_Thash(out, out, 1, ctx, addr);
   }
-} // end: FsmSw_SphincsShake_128fSimple_wots_GenChain
+} // end: fsmsw_sphincsshake_128fsimple_wots_GenChain
 
 /*====================================================================================================================*/
 /**
@@ -123,7 +123,7 @@ static void FsmSw_SphincsShake_128fSimple_wots_GenChain(uint8 *const out, const 
  * \param[in]  const uint8 *input : t.b.d.
  *
  */
-static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *const output, const sint32 out_len,
+static void fsmsw_sphincsshake_128fsimple_wots_BaseW(uint32 *const output, const sint32 out_len,
                                                      const uint8 *const input)
 {
   sint32 in       = 0;
@@ -144,7 +144,7 @@ static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *const output, const
     output[out] = ((uint32)total >> (uint32)bits) & (FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W - 1u);
     out++;
   }
-} // end: FsmSw_SphincsShake_128fSimple_wots_BaseW
+} // end: fsmsw_sphincsshake_128fsimple_wots_BaseW
 
 /*====================================================================================================================*/
 /**
@@ -154,7 +154,7 @@ static void FsmSw_SphincsShake_128fSimple_wots_BaseW(uint32 *const output, const
  * \param[in]  const uint32  *msg_base_w : t.b.d.
  *
  */
-static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w)
+static void fsmsw_sphincsshake_128fsimple_wots_Checksum(uint32 *const csum_base_w, const uint32 *const msg_base_w)
 {
   uint32 csum                                                                                                       = 0;
   uint8 csum_bytes[((FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2 * FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW) + 7u) / 8u] = {
@@ -171,8 +171,8 @@ static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *const csum_base_
   csum =
       csum << ((8u - ((FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2 * FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LOGW) % 8u)) % 8u);
   FsmSw_Sphincs_UllToBytes(csum_bytes, sizeof(csum_bytes), csum);
-  FsmSw_SphincsShake_128fSimple_wots_BaseW(csum_base_w, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2, csum_bytes);
-} // end: FsmSw_SphincsShake_128fSimple_wots_checksum
+  fsmsw_sphincsshake_128fsimple_wots_BaseW(csum_base_w, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN2, csum_bytes);
+} // end: fsmsw_sphincsshake_128fsimple_wots_Checksum
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -187,8 +187,8 @@ static void FsmSw_SphincsShake_128fSimple_wots_checksum(uint32 *const csum_base_
  */
 void FsmSw_SphincsShake_128fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg)
 {
-  FsmSw_SphincsShake_128fSimple_wots_BaseW(lengths, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1, msg);
-  FsmSw_SphincsShake_128fSimple_wots_checksum(&lengths[FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1], lengths);
+  fsmsw_sphincsshake_128fsimple_wots_BaseW(lengths, (sint32)FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1, msg);
+  fsmsw_sphincsshake_128fsimple_wots_Checksum(&lengths[FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN1], lengths);
 } // end: FsmSw_SphincsShake_128fSimple_Wots_ChainLengths
 
 /*====================================================================================================================*/
@@ -220,7 +220,7 @@ void FsmSw_SphincsShake_128fSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *
   for (i = 0; i < FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_LEN; i++)
   {
     FsmSw_SphincsShake_SetChainAddr(addr, i);
-    FsmSw_SphincsShake_128fSimple_wots_GenChain(&pk[i * FSMSW_SPHINCSSHAKE_128FSIMPLE_N],
+    fsmsw_sphincsshake_128fsimple_wots_GenChain(&pk[i * FSMSW_SPHINCSSHAKE_128FSIMPLE_N],
                                                 &sig[i * FSMSW_SPHINCSSHAKE_128FSIMPLE_N], lengths[i],
                                                 FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_W - 1u - lengths[i], ctx, addr);
   }

@@ -1,50 +1,33 @@
+#ifndef FSMSW_SPHINCSSHAKE_192FSIMPLE_API_H
+#define FSMSW_SPHINCSSHAKE_192FSIMPLE_API_H
 /***********************************************************************************************************************
  *
  *                                                    IAV GmbH
- *
- *
+ *  \file
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Falcon1024
-*    includes the modules for Falcon1024
+/** \addtogroup SphincsShake_192fSimple
+*    includes the modules for SphincsShake_192fSimple
  ** @{ */
-/** \addtogroup Falcon1024_api
+/** \addtogroup FsmSw_SphincsShake_192fSimple_api
  ** @{ */
 
-/*====================================================================================================================*/
-/** \file FsmSw_Falcon1024_api.h
-* \brief  description of FsmSw_Falcon1024_api.h
-*
-* \details
-*
-*
-*/
-/*
- *
- *  $File$
- *
- *  $Author$
- *
- *  $Date$
- *
- *  $Rev$
- *
+/***********************************************************************************************************************
+ * INCLUDES
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON1024_API_H
-#define FSMSW_FALCON1024_API_H
-/**********************************************************************************************************************/
-/* INCLUDES                                                                                                           */
-/**********************************************************************************************************************/
+#include "Std_Types.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES 2305u
-#define FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES 1793u
-#define FSMSW_FALCON1024_CRYPTO_BYTES          1280u
+/* Resulting SPX sizes. */
+#define FSMSW_SPHINCSSHAKE_192FSIMPLE_BYTES    35664u
+#define FSMSW_SPHINCSSHAKE_192FSIMPLE_PK_BYTES 48u
+#define FSMSW_SPHINCSSHAKE_192FSIMPLE_SK_BYTES 96u
+
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -64,22 +47,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
-
-uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
-                                             const uint8 *const sk);
-
-uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
-                                          const uint8 *const pk);
-
-uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
-                                   const uint8 *const sk);
-
-uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
-                                        const uint8 *const pk);
-
-#endif /* FSMSW_FALCON1024_API_H */
-
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m,
+                                                         uint32 mlen, const uint8 *const sk);
+uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m,
+                                                       uint32 mlen, const uint8 *const pk);
+void FsmSw_SphincsShake_192fSimple_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                               const uint8 *const sk);
+uint8 FsmSw_SphincsShake_192fSimple_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm,
+                                                     uint32 smlen, const uint8 *const pk);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+#endif /* FSMSW_SPHINCSSHAKE_192FSIMPLE_API_H */

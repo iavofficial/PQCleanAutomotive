@@ -407,8 +407,8 @@ uint8 FsmSw_SphincsSha2_128sSimple_Crypto_Sign_Open(uint8 *const m, uint32 *cons
 
   *mlen = smlen - FSMSW_SPHINCSSHA2_128SSIMPLE_BYTES;
 
-  if (FsmSw_SphincsSha2_128sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_128SSIMPLE_BYTES,
-                                                      &sm[FSMSW_SPHINCSSHA2_128SSIMPLE_BYTES], *mlen, pk) != 0)
+  if (0 != FsmSw_SphincsSha2_128sSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_128SSIMPLE_BYTES,
+                                                           &sm[FSMSW_SPHINCSSHA2_128SSIMPLE_BYTES], *mlen, pk))
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;
