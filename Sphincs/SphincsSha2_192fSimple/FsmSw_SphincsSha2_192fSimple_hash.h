@@ -75,14 +75,6 @@ void FsmSw_SphincsSha2_192fSimple_HashMessage(uint8 *const digest, uint64 *const
                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
                                               uint32 mlen, const sphincs_sha2_192f_ctx *const ctx);
 
-void FsmSw_SphincsSha2_192fSimple_MgF1256(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen);
-
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
 void FsmSw_SphincsSha2_192fSimple_MgF1_512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen);
 
 #endif /* FSMSW_SPHINCSSHA2_192FSIMPLE_HASH_H */

@@ -38,7 +38,9 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
+#include "FsmSw_SphincsSha2_192fSimple_api.h"
 #include "FsmSw_Sphincs_sha2_offsets.h"
+#include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -79,19 +81,18 @@
    FSMSW_SPHINCSSHA2_192FSIMPLE_N)
 
 /* Resulting SPX sizes. */
-#define FSMSW_SPHINCSSHA2_192FSIMPLE_BYTES                                                                             \
-  (FSMSW_SPHINCSSHA2_192FSIMPLE_N + FSMSW_SPHINCSSHA2_192FSIMPLE_FORS_BYTES +                                          \
-   (FSMSW_SPHINCSSHA2_192FSIMPLE_D * FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_BYTES) +                                        \
-   (FSMSW_SPHINCSSHA2_192FSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHA2_192FSIMPLE_N))
-#define FSMSW_SPHINCSSHA2_192FSIMPLE_PK_BYTES (2u * FSMSW_SPHINCSSHA2_192FSIMPLE_N)
-/* polyspace +2 MISRA2012:2.5 [Justified:]"This define is reserved for the future." */
-#define FSMSW_SPHINCSSHA2_192FSIMPLE_SK_BYTES                                                                          \
-  (2 * FSMSW_SPHINCSSHA2_192FSIMPLE_N + FSMSW_SPHINCSSHA2_192FSIMPLE_PK_BYTES)
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHA2_192FSIMPLE_BYTES ==
+                    (FSMSW_SPHINCSSHA2_192FSIMPLE_N + FSMSW_SPHINCSSHA2_192FSIMPLE_FORS_BYTES +
+                     (FSMSW_SPHINCSSHA2_192FSIMPLE_D * FSMSW_SPHINCSSHA2_192FSIMPLE_WOTS_BYTES) +
+                     (FSMSW_SPHINCSSHA2_192FSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHA2_192FSIMPLE_N)));
+
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHA2_192FSIMPLE_PK_BYTES == (2u * FSMSW_SPHINCSSHA2_192FSIMPLE_N));
+FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHA2_192FSIMPLE_SK_BYTES ==
+                    (2 * FSMSW_SPHINCSSHA2_192FSIMPLE_N + FSMSW_SPHINCSSHA2_192FSIMPLE_PK_BYTES));
 
 #define FSMSW_SPHINCSSHA2_192FSIMPLE_CRYPTO_SEEDBYTES (3u * FSMSW_SPHINCSSHA2_192FSIMPLE_N)
 
 /* Defines for max array length */
-#define FSMSW_SPHINCSSHA2_192FSIMPLE_MGF1_256_BUF_LEN   1u /* Buffer with this length is currently not used */
 #define FSMSW_SPHINCSSHA2_192FSIMPLE_MGF1_512_BUF_LEN   112u
 #define FSMSW_SPHINCSSHA2_192FSIMPLE_THASH_BUF_LEN      51u
 #define FSMSW_SPHINCSSHA2_192FSIMPLE_TREEHASH_BUF_LEN   1u /* Buffer with this length is currently not used */

@@ -55,7 +55,7 @@ typedef struct
   uint32 *wots_steps;
   uint32 leaf_addr[FSMSW_SPHINCS_WOTSX1_ADDR_SIZE];
   uint32 pk_addr[FSMSW_SPHINCS_WOTSX1_ADDR_SIZE];
-} Fsmsw_Sphincssha2_128fSimple_LeafInfoX1_T;
+} FsmSw_SphincsSha2_128fSimple_LeafInfoX1_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/

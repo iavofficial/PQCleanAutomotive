@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -53,9 +53,9 @@ typedef struct
   uint8 *wots_sig;
   uint32 wots_sign_leaf; /* The index of the WOTS we're using to sign */
   uint32 *wots_steps;
-  uint32 leaf_addr[FSMSW_SPHINCS_ADDR_SIZE];
-  uint32 pk_addr[FSMSW_SPHINCS_ADDR_SIZE];
-} Fsmsw_Sphincsshake_256fSimple_LeafInfoX1_T;
+  uint32 leaf_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE];
+  uint32 pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE];
+} FsmSw_SphincsShake_256fSimple_LeafInfoX1_T;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/

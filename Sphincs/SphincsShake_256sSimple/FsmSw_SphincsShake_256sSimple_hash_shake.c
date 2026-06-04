@@ -90,8 +90,8 @@
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_256sSimple_prf_addr(uint8 *const out, const sphincs_shake_256s_ctx *const ctx,
-                                            const uint32 addr[8])
+void FsmSw_SphincsShake_256sSimple_PrfAddr(uint8 *const out, const sphincs_shake_256s_ctx *const ctx,
+                                           const uint32 addr[8])
 {
   uint8 buf[(2u * FSMSW_SPHINCSSHAKE_256SSIMPLE_N) + FSMSW_SPHINCSSHAKE_256SSIMPLE_ADDR_BYTES] = {0};
 
@@ -102,7 +102,7 @@ void FsmSw_SphincsShake_256sSimple_prf_addr(uint8 *const out, const sphincs_shak
 
   FsmSw_Fips202_Shake256(out, FSMSW_SPHINCSSHAKE_256SSIMPLE_N, buf,
                          (2u * FSMSW_SPHINCSSHAKE_256SSIMPLE_N) + FSMSW_SPHINCSSHAKE_256SSIMPLE_ADDR_BYTES);
-} // end: FsmSw_SphincsShake_256sSimple_prf_addr
+} // end: FsmSw_SphincsShake_256sSimple_PrfAddr
 
 /*====================================================================================================================*/
 /**
@@ -117,9 +117,9 @@ void FsmSw_SphincsShake_256sSimple_prf_addr(uint8 *const out, const sphincs_shak
  * \param[in]  const sphincs_shake_256s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_256sSimple_gen_message_random(uint8 *const R, const uint8 *const sk_prf,
-                                                      const uint8 *const optrand, const uint8 *const m, uint32 mlen,
-                                                      const sphincs_shake_256s_ctx *const ctx)
+void FsmSw_SphincsShake_256sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const sphincs_shake_256s_ctx *const ctx)
 {
   (void)ctx;
   shake256incctx s_inc = {{0}};
@@ -130,7 +130,7 @@ void FsmSw_SphincsShake_256sSimple_gen_message_random(uint8 *const R, const uint
   FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
   FsmSw_Fips202_Shake256_IncFinalize(&s_inc);
   FsmSw_Fips202_Shake256_IncSqueeze(R, FSMSW_SPHINCSSHAKE_256SSIMPLE_N, &s_inc);
-} // end: FsmSw_SphincsShake_256sSimple_gen_message_random
+} // end: FsmSw_SphincsShake_256sSimple_GenMessageRandom
 
 /*====================================================================================================================*/
 /**
@@ -148,9 +148,9 @@ void FsmSw_SphincsShake_256sSimple_gen_message_random(uint8 *const R, const uint
  * \param[in]  const sphincs_shake_256s_ctx *ctx : t.b.d.
  *
  */
-void FsmSw_SphincsShake_256sSimple_hash_message(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
-                                                const uint8 *const R, const uint8 *const pk, const uint8 *const m,
-                                                uint32 mlen, const sphincs_shake_256s_ctx *const ctx)
+void FsmSw_SphincsShake_256sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const sphincs_shake_256s_ctx *const ctx)
 {
   (void)ctx;
 
@@ -174,7 +174,7 @@ void FsmSw_SphincsShake_256sSimple_hash_message(uint8 *const digest, uint64 *con
 
   *leaf_idx = (uint32)FsmSw_Sphincs_BytesToUll(bufp, SPX_LEAF_BYTES);
   *leaf_idx &= (~(uint32)0) >> (32u - SPX_LEAF_BITS);
-} // end: FsmSw_SphincsShake_256sSimple_hash_message
+} // end: FsmSw_SphincsShake_256sSimple_HashMessage
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

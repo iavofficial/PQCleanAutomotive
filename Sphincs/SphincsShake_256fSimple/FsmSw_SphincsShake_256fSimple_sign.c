@@ -53,7 +53,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -117,7 +117,7 @@ static void fsmsw_sphincsshake_256fsimple_crypto_sign_SeedKeyPair(uint8 *const p
                          FSMSW_SPHINCSSHAKE_256FSIMPLE_N);
 
   return;
-}
+} // end: fsmsw_sphincsshake_256fsimple_crypto_sign_SeedKeyPair
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -176,8 +176,8 @@ void FsmSw_SphincsShake_256fSimple_Crypto_Sign_Signature(uint8 *const sig, uint3
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
 
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
@@ -270,9 +270,9 @@ uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Verify(const uint8 *const sig, u
   uint32 i                                                  = 0;
   uint64 tree                                               = 0;
   uint32 idx_leaf                                           = 0;
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 tree_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
-  uint32 wots_pk_addr[FSMSW_SPHINCS_ADDR_SIZE]              = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
+  uint32 wots_pk_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]         = {0};
   uint8 retVal                                              = ERR_OK;
 
   /* sig_temp is used to avoid modifying the input. */
@@ -411,8 +411,8 @@ uint8 FsmSw_SphincsShake_256fSimple_Crypto_Sign_Open(uint8 *const m, uint32 *con
 
   *mlen = smlen - FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES;
 
-  if (FsmSw_SphincsShake_256fSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES,
-                                                       &sm[FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES], *mlen, pk) != 0)
+  if (0 != FsmSw_SphincsShake_256fSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES,
+                                                            &sm[FSMSW_SPHINCSSHAKE_256FSIMPLE_BYTES], *mlen, pk))
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;

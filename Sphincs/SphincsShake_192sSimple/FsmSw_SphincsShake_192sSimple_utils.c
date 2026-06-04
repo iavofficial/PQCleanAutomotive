@@ -134,7 +134,7 @@ void FsmSw_SphincsShake_192sSimple_ComputeRoot(uint8 *const root, const uint8 *c
     /* Pick the right or left neighbor, depending on parity of the node. */
     if (0u < (leaf_idx_temp & 1u))
     {
-      FsmSw_SphincsShake_192sSimple_Thash(&buffer[FSMSW_SPHINCSSHAKE_192SSIMPLE_N], buffer, 2, ctx, addr);
+      FsmSw_SphincsShake_192sSimple_Thash(&buffer[FSMSW_SPHINCSSHAKE_192SSIMPLE_N], buffer, 2u, ctx, addr);
       FsmSw_CommonLib_MemCpy(buffer, auth_path_temp, FSMSW_SPHINCSSHAKE_192SSIMPLE_N);
     }
     else
@@ -150,7 +150,7 @@ void FsmSw_SphincsShake_192sSimple_ComputeRoot(uint8 *const root, const uint8 *c
   idx_offset_temp >>= 1;
   FsmSw_SphincsShake_SetTreeHeight(addr, tree_height);
   FsmSw_SphincsShake_SetTreeIndex(addr, leaf_idx_temp + idx_offset_temp);
-  FsmSw_SphincsShake_192sSimple_Thash(root, buffer, 2, ctx, addr);
+  FsmSw_SphincsShake_192sSimple_Thash(root, buffer, 2u, ctx, addr);
 } // end: FsmSw_SphincsShake_192sSimple_ComputeRoot
 
 /*====================================================================================================================*/
@@ -177,12 +177,16 @@ void FsmSw_SphincsShake_192sSimple_ComputeRoot(uint8 *const root, const uint8 *c
  * \param[in]  uint32               tree_addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_192sSimple_2_TreeHash(uint8 *const root, uint8 *const auth_path,
-                                              const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx,
-                                              uint32 idx_offset, uint32 tree_height,
-                                              void (*const gen_leaf)(uint8 *leaf, const sphincs_shake_192s_ctx *ctx,
-                                                                     uint32 addr_idx, const uint32 tree_addr[8]),
-                                              uint32 tree_addr[8])
+/* polyspace +4 CERT-C:DCL23-C [Justified:]"
+ polyspace +3 ISO-17961:funcdecl [Justified:]
+ polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
+and avoids confusion with other functions. Therefore, this warning is a false positive." */
+void FsmSw_SphincsShake_192sSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
+                                            const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx, uint32 idx_offset,
+                                            uint32 tree_height,
+                                            void (*const gen_leaf)(uint8 *leaf, const sphincs_shake_192s_ctx *ctx,
+                                                                   uint32 addr_idx, const uint32 tree_addr[8]),
+                                            uint32 tree_addr[8])
 {
   uint8 stack[(FSMSW_SPHINCSSHAKE_192SSIMPLE_TREEHASH_BUF_LEN + 1u) * FSMSW_SPHINCSSHAKE_192SSIMPLE_N] = {0};
   uint32 heights[FSMSW_SPHINCSSHAKE_192SSIMPLE_TREEHASH_BUF_LEN + 1u]                                  = {0};
@@ -230,7 +234,7 @@ void FsmSw_SphincsShake_192sSimple_2_TreeHash(uint8 *const root, uint8 *const au
     }
   }
   FsmSw_CommonLib_MemCpy(root, stack, FSMSW_SPHINCSSHAKE_192SSIMPLE_N);
-} // end: FsmSw_SphincsShake_192sSimple_2_TreeHash
+} // end: FsmSw_SphincsShake_192sSimple_TreeHash
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

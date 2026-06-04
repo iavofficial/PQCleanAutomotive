@@ -181,13 +181,13 @@ static inline uint32 FsmSw_Convert_u64_to_u32(uint64 value)
 static inline uint8 FsmSw_Convert_u16_to_u8(uint16 value)
 {
   return (uint8)(value & 0xFFU);
-} // end: FsmSw_Convert_u64_to_u32
+} // end: FsmSw_Convert_u16_to_u8
 
 /*====================================================================================================================*/
 /**
-* \brief Returns value of uint8 type from initial uint16
+* \brief Returns value of uint16 type from initial uint32
 *
-* \param[in] value : returned with uint8 type
+* \param[in] value : returned with uint16 type
 * 
 */
 static inline uint16 FsmSw_Convert_u32_to_u16(uint32 value)
@@ -205,9 +205,10 @@ static inline uint16 FsmSw_Convert_u32_to_u16(uint32 value)
  */
 static inline uint16 FsmSw_GetSignBit_i16(sint16 value)
 {
-
-  /* polyspace +2 CERT-C:INT31-C [Justified:] "Wrap-around is the intended behavior as we operate on the bit
-  representation of the signed integer to avoid branching" */
+  /* polyspace +4 CERT-C:INT31-C [Justified:]"The cast to uint16 is used solely to extract the sign bit 
+  by shifting, without altering the algorithm’s intended behavior" */
+  /* polyspace +2 DEFECT:SIGN_CHANGE [Justified:]"The cast to uint16 is used solely to extract the sign bit 
+  by shifting, without altering the algorithm’s intended behavior" */
   return ((uint16)value >> 15);
 } // end: FsmSw_GetSignBit_i16
 

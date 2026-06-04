@@ -48,7 +48,7 @@
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_ADDR_SIZE 8
+#define FSMSW_SPHINCS_SIGN_ADDR_SIZE 8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -96,7 +96,7 @@ void FsmSw_SphincsShake_128fSimple_Merkle_Sign(uint8 *const sig, uint8 *const ro
 {
   uint8 *const auth_path = &sig[FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES];
 
-  Fsmsw_Sphincsshake_128fSimple_LeafInfoX1_T info = {
+  FsmSw_SphincsShake_128fSimple_LeafInfoX1_T info = {
       ((void *)0),
 
       0,
@@ -142,8 +142,8 @@ void FsmSw_SphincsShake_128fSimple_Merkle_GenRoot(uint8 *const root, const sphin
      in one function. */
   uint8 auth_path[(FSMSW_SPHINCSSHAKE_128FSIMPLE_TREE_HEIGHT * FSMSW_SPHINCSSHAKE_128FSIMPLE_N) +
                   FSMSW_SPHINCSSHAKE_128FSIMPLE_WOTS_BYTES] = {0};
-  uint32 top_tree_addr[FSMSW_SPHINCS_ADDR_SIZE]             = {0};
-  uint32 wots_addr[FSMSW_SPHINCS_ADDR_SIZE]                 = {0};
+  uint32 top_tree_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]        = {0};
+  uint32 wots_addr[FSMSW_SPHINCS_SIGN_ADDR_SIZE]            = {0};
 
   FsmSw_SphincsShake_SetLayerAddr(top_tree_addr, FSMSW_SPHINCSSHAKE_128FSIMPLE_D - 1u);
   FsmSw_SphincsShake_SetLayerAddr(wots_addr, FSMSW_SPHINCSSHAKE_128FSIMPLE_D - 1u);

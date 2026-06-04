@@ -96,14 +96,14 @@ and avoids confusion with other functions. Therefore, this warning is a false po
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
 /* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
 and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_192sSimple_Wots_Gen_LeafX1(uint8 *const dest, const sphincs_shake_192s_ctx *const ctx,
-                                                   uint32 leaf_idx, void *const v_info)
+void FsmSw_SphincsShake_192sSimple_Wots_GenLeafX1(uint8 *const dest, const sphincs_shake_192s_ctx *const ctx,
+                                                  uint32 leaf_idx, void *const v_info)
 {
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
-  Fsmsw_Sphincsshake_192sSimple_LeafInfoX1_T *info          = v_info;
+  FsmSw_SphincsShake_192sSimple_LeafInfoX1_T *info          = v_info;
   uint32 *const leaf_addr                                   = info->leaf_addr;
   uint32 *const pk_addr                                     = info->pk_addr;
   uint32 i                                                  = 0;
@@ -168,7 +168,7 @@ void FsmSw_SphincsShake_192sSimple_Wots_Gen_LeafX1(uint8 *const dest, const sphi
 
   /* Do the final FsmSw_SphincsShake_192sSimple_1_thash to generate the public keys */
   FsmSw_SphincsShake_192sSimple_Thash(dest, pk_buffer, FSMSW_SPHINCSSHAKE_192SSIMPLE_WOTS_LEN, ctx, pk_addr);
-} // end: FsmSw_SphincsShake_192sSimple_Wots_Gen_LeafX1
+} // end: FsmSw_SphincsShake_192sSimple_Wots_GenLeafX1
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -222,7 +222,7 @@ void FsmSw_SphincsSha2_128fSimple_Crypto_Sign_Signature(uint8 *const sig, uint32
                          (FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT * FSMSW_SPHINCSSHA2_128FSIMPLE_N)];
 
     /* Update the indices for the next layer. */
-    idx_leaf = (uint32)(tree & ((1u << FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT) - 1u));
+    idx_leaf = (uint32)(tree & (((uint64)((uint64)1u << FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT)) - 1u));
     tree     = tree >> FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT;
   }
 
@@ -329,7 +329,7 @@ uint8 FsmSw_SphincsSha2_128fSimple_Crypto_Sign_Verify(const uint8 *const sig, ui
     sig_temp = &sig_temp[FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT * FSMSW_SPHINCSSHA2_128FSIMPLE_N];
 
     /* Update the indices for the next layer. */
-    idx_leaf = (uint32)(tree & ((1u << FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT) - 1u));
+    idx_leaf = (uint32)(tree & (((uint64)((uint64)1u << FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT)) - 1u));
     tree     = tree >> FSMSW_SPHINCSSHA2_128FSIMPLE_TREE_HEIGHT;
   }
 
@@ -407,8 +407,8 @@ uint8 FsmSw_SphincsSha2_128fSimple_Crypto_Sign_Open(uint8 *const m, uint32 *cons
 
   *mlen = smlen - FSMSW_SPHINCSSHA2_128FSIMPLE_BYTES;
 
-  if (FsmSw_SphincsSha2_128fSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_128FSIMPLE_BYTES,
-                                                      &sm[FSMSW_SPHINCSSHA2_128FSIMPLE_BYTES], *mlen, pk) != 0)
+  if (0 != FsmSw_SphincsSha2_128fSimple_Crypto_Sign_Verify(sm, FSMSW_SPHINCSSHA2_128FSIMPLE_BYTES,
+                                                           &sm[FSMSW_SPHINCSSHA2_128FSIMPLE_BYTES], *mlen, pk))
   {
     FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;

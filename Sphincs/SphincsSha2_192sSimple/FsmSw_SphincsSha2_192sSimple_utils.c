@@ -128,12 +128,12 @@ void FsmSw_SphincsSha2_192sSimple_ComputeRoot(uint8 *const root, const uint8 *co
     /* Pick the right or left neighbor, depending on parity of the node. */
     if (0u < (leaf_idx_temp & 1u))
     {
-      FsmSw_SphincsSha2_192sSimple_Thash(&buffer[FSMSW_SPHINCSSHA2_192SSIMPLE_N], buffer, 2, ctx, addr);
+      FsmSw_SphincsSha2_192sSimple_Thash(&buffer[FSMSW_SPHINCSSHA2_192SSIMPLE_N], buffer, 2u, ctx, addr);
       FsmSw_CommonLib_MemCpy(buffer, auth_path_temp, FSMSW_SPHINCSSHA2_192SSIMPLE_N);
     }
     else
     {
-      FsmSw_SphincsSha2_192sSimple_Thash(buffer, buffer, 2, ctx, addr);
+      FsmSw_SphincsSha2_192sSimple_Thash(buffer, buffer, 2u, ctx, addr);
       FsmSw_CommonLib_MemCpy(&buffer[FSMSW_SPHINCSSHA2_192SSIMPLE_N], auth_path_temp, FSMSW_SPHINCSSHA2_192SSIMPLE_N);
     }
     auth_path_temp = &auth_path_temp[FSMSW_SPHINCSSHA2_192SSIMPLE_N];
@@ -144,7 +144,7 @@ void FsmSw_SphincsSha2_192sSimple_ComputeRoot(uint8 *const root, const uint8 *co
   idx_offset_temp >>= 1;
   FsmSw_SphincsSha2_SetTreeHeight(addr, tree_height);
   FsmSw_SphincsSha2_SetTreeIndex(addr, leaf_idx_temp + idx_offset_temp);
-  FsmSw_SphincsSha2_192sSimple_Thash(root, buffer, 2, ctx, addr);
+  FsmSw_SphincsSha2_192sSimple_Thash(root, buffer, 2u, ctx, addr);
 } // end: FsmSw_SphincsSha2_192sSimple_ComputeRoot
 
 /*====================================================================================================================*/
@@ -179,11 +179,11 @@ void FsmSw_SphincsSha2_192sSimple_TreeHash(uint8 *const root, uint8 *const auth_
                                                                   uint32 addr_idx, const uint32 tree_addr[8]),
                                            uint32 tree_addr[8])
 {
-  uint8 stack[(FSMSW_SPHINCSSHA2_192SSIMPLE_TREEHASH_BUF_LEN + 1u) * FSMSW_SPHINCSSHA2_192SSIMPLE_N];
-  uint32 heights[FSMSW_SPHINCSSHA2_192SSIMPLE_TREEHASH_BUF_LEN + 1u];
-  uint32 offset = 0;
-  uint32 idx;
-  uint32 tree_idx;
+  uint8 stack[(FSMSW_SPHINCSSHA2_192SSIMPLE_TREEHASH_BUF_LEN + 1u) * FSMSW_SPHINCSSHA2_192SSIMPLE_N] = {0};
+  uint32 heights[FSMSW_SPHINCSSHA2_192SSIMPLE_TREEHASH_BUF_LEN + 1u]                                 = {0};
+  uint32 offset                                                                                      = 0;
+  uint32 idx                                                                                         = 0;
+  uint32 tree_idx                                                                                    = 0;
 
   for (idx = 0; idx < (uint32)((uint32)1u << tree_height); idx++)
   {
