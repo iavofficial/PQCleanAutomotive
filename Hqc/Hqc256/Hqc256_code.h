@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_code
+/** \addtogroup Hqc256_code
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_code.h
-* \brief Header file of FsmSw_Hqc256_code.c
+/** \file Hqc256_code.h
+* \brief Header file of Hqc256_code.c
 *
 * \details
 *
@@ -63,9 +71,9 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc256_Code_Encode(uint64 *const em, const uint8 *const message);
+void Hqc256_Code_Encode(uint64 *const em, const uint8 *const message);
 
-void FsmSw_Hqc256_Code_Decode(uint8 *const m, const uint64 *const em);
+void Hqc256_Code_Decode(uint8 *const m, const uint64 *const em);
 
 #endif /* CODE_H */
 

@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_reed_solomon
+/** \addtogroup Hqc128_reed_solomon
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_reed_solomon.c
+/** \file Hqc128_reed_solomon.c
 * \brief Constant time implementation of Reed-Solomon codes
 *
 * \details
@@ -37,13 +45,13 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc128_fft.h"
-#include "FsmSw_Hqc128_gf.h"
-#include "FsmSw_Hqc128_parameters.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc128_fft.h"
+#include "Hqc128_gf.h"
+#include "Hqc128_parameters.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_reed_solomon.h"
+#include "Hqc128_reed_solomon.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -127,7 +135,7 @@ static const uint16 alpha_ij_pow_128[PQC_HQC128_ALPHA_I][PQC_HQC128_ALPHA_J] = {
 
 /**
  * Powers of the root alpha of 1 + x^2 + x^3 + x^4 + x^8.
- * The last two elements are needed by the FsmSw_Hqc128_gf_mul function
+ * The last two elements are needed by the Hqc128_gf_mul function
  * (for example if both elements to multiply are zero).
  */
 static const uint16 hqc128_gf_exp[PQC_HQC128_EXP_SIZE] = {
@@ -168,7 +176,7 @@ static void compute_syndromes_128(uint16 *const syndromes, const uint8 *const cd
   {
     for (uint8 j = 1; j < HQC128_PARAM_N1; ++j)
     {
-      syndromes[i] ^= FsmSw_Hqc128_Gf_Mul(cdw[j], alpha_ij_pow_128[i][j - 1]);
+      syndromes[i] ^= Hqc128_Gf_Mul(cdw[j], alpha_ij_pow_128[i][j - 1]);
     }
     syndromes[i] ^= cdw[0];
   }
@@ -214,27 +222,27 @@ static uint16 hqc128_compute_elp(uint16 *const sigma, const uint16 *const syndro
   for (mu = 0; (mu < (2 * HQC128_PARAM_DELTA)); ++mu)
   {
     // Save sigma in case we need it to update X_sigma_p
-    FsmSw_CommonLib_MemCpy(sigma_copy, sigma, 2 * (HQC128_PARAM_DELTA));
+    Hqc_CommonLib_MemCpy(sigma_copy, sigma, 2 * (HQC128_PARAM_DELTA));
     deg_sigma_copy = deg_sigma;
 
-    dd = FsmSw_Hqc128_Gf_Mul(d, FsmSw_Hqc128_Gf_Inverse(d_p));
+    dd = Hqc128_Gf_Mul(d, Hqc128_Gf_Inverse(d_p));
 
     for (i = 1; (i <= (mu + 1)) && (i <= HQC128_PARAM_DELTA); ++i)
     {
-      sigma[i] ^= FsmSw_Hqc128_Gf_Mul(dd, X_sigma_p[i]);
+      sigma[i] ^= Hqc128_Gf_Mul(dd, X_sigma_p[i]);
     }
 
     // "deg_X" equals "mu" minus "pp"
-    const uint32 pp_reverse = FsmSw_Convert_u16_to_u32((pp ^ 0xFFFFU) + 1U);
+    const uint32 pp_reverse = Hqc_Convert_u16_to_u32((pp ^ 0xFFFFU) + 1U);
     deg_X                   = (uint16)(((uint32)mu + pp_reverse) & 0xffffu);
     deg_X_sigma_p           = deg_X + deg_sigma_p;
 
     // mask1 = 0xffff if(d != 0) and 0 otherwise
-    mask1 = 0u - FsmSw_GetSignBit_i16(0 - (sint16)d);
+    mask1 = 0u - Hqc_GetSignBit_i16(0 - (sint16)d);
 
     // mask2 = 0xffff if(deg_X_sigma_p > deg_sigma) and 0 otherwise
     const sint16 tmp_sigma = (sint16)deg_sigma - (sint16)deg_X_sigma_p;
-    mask2                  = 0u - FsmSw_GetSignBit_i16(tmp_sigma);
+    mask2                  = 0u - Hqc_GetSignBit_i16(tmp_sigma);
 
     // mask12 = 0xffff if the deg_sigma increased and 0 otherwise
     mask12 = mask1 & mask2;
@@ -257,7 +265,7 @@ static uint16 hqc128_compute_elp(uint16 *const sigma, const uint16 *const syndro
 
     for (i = 1; (i <= (mu + 1)) && (i <= HQC128_PARAM_DELTA); ++i)
     {
-      d ^= FsmSw_Hqc128_Gf_Mul(sigma[i], syndromes[mu + 1 - i]);
+      d ^= Hqc128_Gf_Mul(sigma[i], syndromes[mu + 1 - i]);
     }
   }
 
@@ -268,7 +276,7 @@ static uint16 hqc128_compute_elp(uint16 *const sigma, const uint16 *const syndro
 /**
  * \brief Computes the error polynomial error from the error locator polynomial sigma
  *
- * See function FsmSw_Hqc128_fft for more details.
+ * See function Hqc128_fft for more details.
  *
  * \param[out] err Array of 2^HQC128_PARAM_M elements receiving the error polynomial
  * \param[out] error_compact Array of HQC128_PARAM_DELTA + PARAM_N1 elements receiving a compact representation of the vector error
@@ -278,8 +286,8 @@ static void compute_roots_128(uint8 *const err, const uint16 *const sigma)
 {
   uint16 w[(uint32)1U << HQC128_PARAM_M] = {0};
 
-  FsmSw_Hqc128_Fft(w, sigma, HQC128_PARAM_DELTA + 1);
-  FsmSw_Hqc128_Fft_Retrieve_Error_Poly(err, w);
+  Hqc128_Fft(w, sigma, HQC128_PARAM_DELTA + 1);
+  Hqc128_Fft_Retrieve_Error_Poly(err, w);
 } // end: compute_roots
 
 /*====================================================================================================================*/
@@ -320,7 +328,7 @@ static void hqc128_compute_z_poly(uint16 *const z, const uint16 *const sigma, ui
 
     for (j = 1; j < i; ++j)
     {
-      z[i] ^= mask & FsmSw_Hqc128_Gf_Mul(sigma[j], syndromes[i - j - 1]);
+      z[i] ^= mask & Hqc128_Gf_Mul(sigma[j], syndromes[i - j - 1]);
     }
   }
 } // end: compute_z_poly
@@ -364,8 +372,8 @@ static void compute_error_values_128(uint16 *const error_values, const uint16 *c
     for (uint8 j = 0; j < HQC128_PARAM_DELTA; j++)
     {
       /* polyspace +1 DEFECT:UINT_OVFL [Justified:]"The +1U is intentional and used to produce a mask" */
-      const uint32 delta_reverse = (~FsmSw_Convert_u16_to_u32(j ^ delta_counter) + 1U);
-      mask2                      = FsmSw_Convert_u32_to_u16(~(delta_reverse >> 15));
+      const uint32 delta_reverse = (~Hqc_Convert_u16_to_u32(j ^ delta_counter) + 1U);
+      mask2                      = Hqc_Convert_u32_to_u16(~(delta_reverse >> 15));
       beta_j[j] += mask1 & mask2 & hqc128_gf_exp[i];
       found += mask1 & mask2 & 1U;
     }
@@ -378,20 +386,20 @@ static void compute_error_values_128(uint16 *const error_values, const uint16 *c
   {
     tmp1            = 1;
     tmp2            = 1;
-    inverse         = FsmSw_Hqc128_Gf_Inverse(beta_j[i]);
+    inverse         = Hqc128_Gf_Inverse(beta_j[i]);
     inverse_power_j = 1;
 
     for (uint8 j = 1; j <= HQC128_PARAM_DELTA; ++j)
     {
-      inverse_power_j = FsmSw_Hqc128_Gf_Mul(inverse_power_j, inverse);
-      tmp1 ^= FsmSw_Hqc128_Gf_Mul(inverse_power_j, z[j]);
+      inverse_power_j = Hqc128_Gf_Mul(inverse_power_j, inverse);
+      tmp1 ^= Hqc128_Gf_Mul(inverse_power_j, z[j]);
     }
     for (uint8 k = 1; k < HQC128_PARAM_DELTA; ++k)
     {
-      tmp2 = FsmSw_Hqc128_Gf_Mul(tmp2, (1U ^ FsmSw_Hqc128_Gf_Mul(inverse, beta_j[(i + k) % HQC128_PARAM_DELTA])));
+      tmp2 = Hqc128_Gf_Mul(tmp2, (1U ^ Hqc128_Gf_Mul(inverse, beta_j[(i + k) % HQC128_PARAM_DELTA])));
     }
-    mask1  = 0u - FsmSw_GetSignBit_i16((sint16)i - (sint16)delta_real_value);
-    e_j[i] = mask1 & FsmSw_Hqc128_Gf_Mul(tmp1, FsmSw_Hqc128_Gf_Inverse(tmp2));
+    mask1  = 0u - Hqc_GetSignBit_i16((sint16)i - (sint16)delta_real_value);
+    e_j[i] = mask1 & Hqc128_Gf_Mul(tmp1, Hqc128_Gf_Inverse(tmp2));
   }
 
   // Place the delta e_{j_i} values at the right coordinates of the output vector
@@ -404,7 +412,7 @@ static void compute_error_values_128(uint16 *const error_values, const uint16 *c
     mask1                       = (uint16)(0u - (uint16)err_is_not_zero); // err[i] != 0
     for (uint8 j = 0; j < HQC128_PARAM_DELTA; j++)
     {
-      tmp_delta_sign   = ((uint32)j ^ FsmSw_Convert_u16_to_u32(delta_counter)) >> 31;
+      tmp_delta_sign   = ((uint32)j ^ Hqc_Convert_u16_to_u32(delta_counter)) >> 31;
       const uint32 tmp = 0xffffu + tmp_delta_sign;
       mask2            = (uint16)(tmp & 0xffffu);
       error_values[i] += mask1 & mask2 & e_j[j];
@@ -445,7 +453,7 @@ static void hqc128_correct_errors(uint8 *const cdw, const uint16 *const error_va
  * \param[out] cdw Array of size HQC128_VEC_N1_SIZE_64 receiving the encoded message
  * \param[in] msg Array of size HQC128_VEC_K_SIZE_64 storing the message
  */
-void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
+void Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
 {
   uint8 gate_value = 0;
   /* polyspace +2 DEFECT:PARTIALLY_ACCESSED_ARRAY [Justified:] "Last element of tmp[] is written but intentionally never
@@ -453,7 +461,7 @@ void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
   uint16 tmp[HQC128_PARAM_G]   = {0};
   const uint16 PARAM_RS_POLY[] = {HQC128_RS_POLY_COEFS};
 
-  FsmSw_CommonLib_MemSet(cdw, 0, HQC128_PARAM_N1);
+  Hqc_CommonLib_MemSet(cdw, 0, HQC128_PARAM_N1);
 
   for (uint8 i = 0; i < HQC128_PARAM_K; ++i)
   {
@@ -461,7 +469,7 @@ void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
 
     for (uint8 j = 0; j < HQC128_PARAM_G; ++j)
     {
-      tmp[j] = FsmSw_Hqc128_Gf_Mul(gate_value, PARAM_RS_POLY[j]);
+      tmp[j] = Hqc128_Gf_Mul(gate_value, PARAM_RS_POLY[j]);
     }
 
     for (uint8 k = HQC128_PARAM_N1 - HQC128_PARAM_K - 1; k > 0; --k)
@@ -472,8 +480,8 @@ void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
     cdw[0] = (uint8)tmp[0];
   }
 
-  FsmSw_CommonLib_MemCpy(&cdw[HQC128_PARAM_N1 - HQC128_PARAM_K], msg, HQC128_PARAM_K);
-} //end: FsmSw_Hqc128_Reed_Solomon_Encode
+  Hqc_CommonLib_MemCpy(&cdw[HQC128_PARAM_N1 - HQC128_PARAM_K], msg, HQC128_PARAM_K);
+} //end: Hqc128_Reed_Solomon_Encode
 
 /*====================================================================================================================*/
 /**
@@ -493,7 +501,7 @@ void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
  * \param[out] msg Array of size HQC128_VEC_K_SIZE_64 receiving the decoded message
  * \param[in] cdw Array of size HQC128_VEC_N1_SIZE_64 storing the received word
  */
-void FsmSw_Hqc128_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw)
+void Hqc128_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw)
 {
   uint16 syndromes[2 * HQC128_PARAM_DELTA] = {0};
   uint16 sigma[1U << HQC128_PARAM_FFT]     = {0};
@@ -522,8 +530,8 @@ void FsmSw_Hqc128_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw)
   hqc128_correct_errors(cdw, error_values);
 
   // Retrieve the message from the decoded codeword
-  FsmSw_CommonLib_MemCpy(msg, &cdw[HQC128_PARAM_G - 1], HQC128_PARAM_K);
-} // end: FsmSw_Hqc128_Reed_Solomon_Decode
+  Hqc_CommonLib_MemCpy(msg, &cdw[HQC128_PARAM_G - 1], HQC128_PARAM_K);
+} // end: Hqc128_Reed_Solomon_Decode
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

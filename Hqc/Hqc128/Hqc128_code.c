@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_code
+/** \addtogroup Hqc128_code
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_code.c
+/** \file Hqc128_code.c
 * \brief Implementation of concatenated code
 *
 * \details
@@ -37,12 +45,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Hqc128_parameters.h"
-#include "FsmSw_Hqc128_reed_muller.h"
-#include "FsmSw_Hqc128_reed_solomon.h"
+#include "Hqc128_parameters.h"
+#include "Hqc128_reed_muller.h"
+#include "Hqc128_reed_solomon.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_code.h"
+#include "Hqc128_code.h"
 
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -88,13 +96,13 @@
 *
 *
 */
-void FsmSw_Hqc128_Code_Encode(uint64 *const em, const uint8 *const message)
+void Hqc128_Code_Encode(uint64 *const em, const uint8 *const message)
 {
   uint8 tmp[HQC128_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc128_Reed_Solomon_Encode(tmp, message);
-  FsmSw_Hqc128_Reed_Muller_Encode(em, tmp);
-} // end: FsmSw_Hqc128_Code_Encode
+  Hqc128_Reed_Solomon_Encode(tmp, message);
+  Hqc128_Reed_Muller_Encode(em, tmp);
+} // end: Hqc128_Code_Encode
 
 /*====================================================================================================================*/
 /**
@@ -106,13 +114,13 @@ void FsmSw_Hqc128_Code_Encode(uint64 *const em, const uint8 *const message)
 *
 *
 */
-void FsmSw_Hqc128_Code_Decode(uint8 *const m, const uint64 *const em)
+void Hqc128_Code_Decode(uint8 *const m, const uint64 *const em)
 {
   uint8 tmp[HQC128_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc128_Reed_Muller_Decode(tmp, em);
-  FsmSw_Hqc128_Reed_Solomon_Decode(m, tmp);
-} // end: FsmSw_Hqc128_Code_Decode
+  Hqc128_Reed_Muller_Decode(tmp, em);
+  Hqc128_Reed_Solomon_Decode(m, tmp);
+} // end: Hqc128_Code_Decode
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

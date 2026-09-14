@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
@@ -15,8 +23,8 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_vector.h
-* \brief  Header file for FsmSw_Hqc256_code.c
+/** \file Hqc256_vector.h
+* \brief  Header file for Hqc256_code.c
 *
 * \details
 *
@@ -33,15 +41,15 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC256_VECTOR_H
-#define FSMSW_HQC256_VECTOR_H
+#ifndef HQC256_VECTOR_H
+#define HQC256_VECTOR_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc256_shake_prng.h"
+#include "Hqc256_shake_prng.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -67,17 +75,17 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, uint64 *const v, uint16 weight);
+void Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, uint64 *const v, uint16 weight);
 
-void FsmSw_Hqc256_Vect_Set_Random(hqc256_seedexpander_state *const ctx, uint64 *const v);
+void Hqc256_Vect_Set_Random(hqc256_seedexpander_state *const ctx, uint64 *const v);
 
-void FsmSw_Hqc256_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size);
+void Hqc256_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size);
 
-uint8 FsmSw_Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size);
+uint8 Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size);
 
-void FsmSw_Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v);
+void Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v);
 
-#endif /* FSMSW_HQC256_VECTOR_H */
+#endif /* HQC256_VECTOR_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

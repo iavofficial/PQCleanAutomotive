@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc192
 *    includes the modules for Hqc192
  ** @{ */
-/** \addtogroup FsmSw_Hqc192_gf
+/** \addtogroup Hqc192_gf
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_gf.c
+/** \file Hqc192_gf.c
 * \brief  Galois field implementation
 *
 * \details
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc192_parameters.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc192_parameters.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc192_gf.h"
+#include "Hqc192_gf.h"
 
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -157,7 +165,7 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   uint32 tmp1, tmp2;
   uint16 mask;
   u[0] = 0;
-  u[1] = FsmSw_Convert_u8_to_u16((b & 0x7FU));
+  u[1] = Hqc_Convert_u8_to_u16((b & 0x7FU));
   u[2] = u[1] << 1;
   u[3] = u[2] ^ u[1];
   tmp1 = (uint32)a & (uint32)3;
@@ -174,7 +182,7 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   for (uint8 i = 2; i < (2 * PQC_HQC192_GF_CLMUL_TMP_SIZE); i += 2)
   {
     g    = 0;
-    tmp1 = FsmSw_Convert_u8_to_u32(((a >> i) & (uint8)3));
+    tmp1 = Hqc_Convert_u8_to_u32(((a >> i) & (uint8)3));
     for (uint8 j = 0; j < PQC_HQC192_GF_CLMUL_TMP_SIZE; ++j)
     {
       tmp2 = (uint32)(tmp1 - j);
@@ -186,8 +194,8 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   }
 
   mask = (uint16)(0u - (((uint16)b >> 7) & 0x01U));
-  l ^= (FsmSw_Convert_u8_to_u16((a << 7)) & mask);
-  h ^= (FsmSw_Convert_u8_to_u16((a >> 1)) & mask);
+  l ^= (Hqc_Convert_u8_to_u16((a << 7)) & mask);
+  h ^= (Hqc_Convert_u8_to_u16((a >> 1)) & mask);
 
   c[0] = (uint8)l;
   c[1] = (uint8)h;
@@ -206,13 +214,13 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
 * \param[in] b Element of GF(2^GF_M)
 *
 */
-uint16 FsmSw_Hqc192_Gf_Mul(uint16 a, uint16 b)
+uint16 Hqc192_Gf_Mul(uint16 a, uint16 b)
 {
   uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE] = {0};
   gf_carryless_mul_192(c, (uint8)a, (uint8)b);
-  const uint16 tmp = FsmSw_Convert_u8_to_u16(c[0]) ^ (FsmSw_Convert_u8_to_u16(c[1]) << 8);
+  const uint16 tmp = Hqc_Convert_u8_to_u16(c[0]) ^ (Hqc_Convert_u8_to_u16(c[1]) << 8);
   return hqc192_gf_reduce(tmp, 2 * (HQC192_PARAM_M - 1));
-} // end: FsmSw_Hqc192_Gf_Mul
+} // end: Hqc192_Gf_Mul
 
 /*====================================================================================================================*/
 /**
@@ -222,7 +230,7 @@ uint16 FsmSw_Hqc192_Gf_Mul(uint16 a, uint16 b)
 * \param[in] a Element of GF(2^HQC192_PARAM_M)
 *
 */
-uint16 FsmSw_Hqc192_Gf_Square(uint16 a)
+uint16 Hqc192_Gf_Square(uint16 a)
 {
   uint32 b = a;
   uint32 s = b & (uint32)1;
@@ -233,7 +241,7 @@ uint16 FsmSw_Hqc192_Gf_Square(uint16 a)
   }
 
   return hqc192_gf_reduce(s, 2 * (HQC192_PARAM_M - 1));
-} // end: FsmSw_Hqc192_Gf_Square
+} // end: Hqc192_Gf_Square
 
 /*====================================================================================================================*/
 /**
@@ -244,24 +252,24 @@ uint16 FsmSw_Hqc192_Gf_Square(uint16 a)
 * \param[in] a Element of GF(2^HQC192_PARAM_M)
 *
 */
-uint16 FsmSw_Hqc192_Gf_Inverse(uint16 a)
+uint16 Hqc192_Gf_Inverse(uint16 a)
 {
   uint16 inv = a;
   uint16 tmp1, tmp2;
 
-  inv  = FsmSw_Hqc192_Gf_Square(a);      /* a^2 */
-  tmp1 = FsmSw_Hqc192_Gf_Mul(inv, a);    /* a^3 */
-  inv  = FsmSw_Hqc192_Gf_Square(inv);    /* a^4 */
-  tmp2 = FsmSw_Hqc192_Gf_Mul(inv, tmp1); /* a^7 */
-  tmp1 = FsmSw_Hqc192_Gf_Mul(inv, tmp2); /* a^11 */
-  inv  = FsmSw_Hqc192_Gf_Mul(tmp1, inv); /* a^15 */
-  inv  = FsmSw_Hqc192_Gf_Square(inv);    /* a^30 */
-  inv  = FsmSw_Hqc192_Gf_Square(inv);    /* a^60 */
-  inv  = FsmSw_Hqc192_Gf_Square(inv);    /* a^120 */
-  inv  = FsmSw_Hqc192_Gf_Mul(inv, tmp2); /* a^127 */
-  inv  = FsmSw_Hqc192_Gf_Square(inv);    /* a^254 */
+  inv  = Hqc192_Gf_Square(a);      /* a^2 */
+  tmp1 = Hqc192_Gf_Mul(inv, a);    /* a^3 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^4 */
+  tmp2 = Hqc192_Gf_Mul(inv, tmp1); /* a^7 */
+  tmp1 = Hqc192_Gf_Mul(inv, tmp2); /* a^11 */
+  inv  = Hqc192_Gf_Mul(tmp1, inv); /* a^15 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^30 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^60 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^120 */
+  inv  = Hqc192_Gf_Mul(inv, tmp2); /* a^127 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^254 */
   return inv;
-} // end: FsmSw_Hqc192_Gf_Inverse
+} // end: Hqc192_Gf_Inverse
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

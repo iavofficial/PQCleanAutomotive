@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc192
 *    includes the modules for Hqc192
  ** @{ */
-/** \addtogroup FsmSw_Hqc192_code
+/** \addtogroup Hqc192_code
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_code.c
+/** \file Hqc192_code.c
 * \brief  Implementation of concatenated code
 *
 * \details
@@ -38,12 +46,12 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_Hqc192_parameters.h"
-#include "FsmSw_Hqc192_reed_muller.h"
-#include "FsmSw_Hqc192_reed_solomon.h"
+#include "Hqc192_parameters.h"
+#include "Hqc192_reed_muller.h"
+#include "Hqc192_reed_solomon.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc192_code.h"
+#include "Hqc192_code.h"
 
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -88,13 +96,13 @@
 * \param[in]    m  :  Pointer to an array that is the message
 *
 */
-void FsmSw_Hqc192_Code_Encode(uint64 *const em, const uint8 *const message)
+void Hqc192_Code_Encode(uint64 *const em, const uint8 *const message)
 {
   uint8 tmp[HQC192_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc192_Reed_Solomon_Encode(tmp, message);
-  FsmSw_Hqc192_Reed_Muller_Encode(em, tmp);
-} // end: FsmSw_Hqc192_Code_Encode
+  Hqc192_Reed_Solomon_Encode(tmp, message);
+  Hqc192_Reed_Muller_Encode(em, tmp);
+} // end: Hqc192_Code_Encode
 
 /*====================================================================================================================*/
 /**
@@ -104,13 +112,13 @@ void FsmSw_Hqc192_Code_Encode(uint64 *const em, const uint8 *const message)
 * \param[in]   em :  Pointer to an array that is the code word
 *
 */
-void FsmSw_Hqc192_Code_Decode(uint8 *const m, const uint64 *const em)
+void Hqc192_Code_Decode(uint8 *const m, const uint64 *const em)
 {
   uint8 tmp[HQC192_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc192_Reed_Muller_Decode(tmp, em);
-  FsmSw_Hqc192_Reed_Solomon_Decode(m, tmp);
-} // end: FsmSw_Hqc192_Code_Decode
+  Hqc192_Reed_Muller_Decode(tmp, em);
+  Hqc192_Reed_Solomon_Decode(m, tmp);
+} // end: Hqc192_Code_Decode
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

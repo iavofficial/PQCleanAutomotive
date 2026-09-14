@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC128
 *    includes the modules for HQC128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_reed_solomon
+/** \addtogroup Hqc128_reed_solomon
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_reed_solomon.h
+/** \file Hqc128_reed_solomon.h
 * \brief  Header file of reed_solomon.c
 *
 * \details
@@ -62,9 +70,9 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg);
+void Hqc128_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg);
 
-void FsmSw_Hqc128_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw);
+void Hqc128_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw);
 
 #endif /* REED_SOLOMON_H */
 

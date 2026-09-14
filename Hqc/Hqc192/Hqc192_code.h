@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC192
 *    includes the modules for HQC192
@@ -15,8 +23,8 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_code.h
-* \brief  Declarations for the module FsmSw_Hqc192_code.c
+/** \file Hqc192_code.h
+* \brief  Declarations for the module Hqc192_code.c
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_CODE_H
-#define FSMSW_HQC192_CODE_H
+#ifndef HQC192_CODE_H
+#define HQC192_CODE_H
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
@@ -66,11 +74,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc192_Code_Encode(uint64 *const em, const uint8 *const message);
+void Hqc192_Code_Encode(uint64 *const em, const uint8 *const message);
 
-void FsmSw_Hqc192_Code_Decode(uint8 *const m, const uint64 *const em);
+void Hqc192_Code_Decode(uint8 *const m, const uint64 *const em);
 
-#endif /* FSMSW_HQC192_CODE_H */
+#endif /* HQC192_CODE_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

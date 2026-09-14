@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC128
 *    includes the modules for HQC128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_shake_ds
+/** \addtogroup Hqc128_shake_ds
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_shake_ds.h
+/** \file Hqc128_shake_ds.h
 * \brief  Header file of shake_ds.c
 *
 * \details
@@ -38,7 +46,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Fips202.h"
+#include "Hqc_Fips202.h"
 #include "Platform_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,7 +72,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc128_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
+void Hqc128_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
                                   uint16 inlen, uint8 domain);
 
 #endif /* SHAKE_DS_H */

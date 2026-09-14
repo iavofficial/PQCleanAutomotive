@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC128
 *    includes the modules for HQC128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_shake_pmg
+/** \addtogroup Hqc128_shake_pmg
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_shake_prng.h
+/** \file Hqc128_shake_prng.h
 * \brief  Header file of shake_prng.c
 *
 * \details
@@ -38,7 +46,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Fips202.h"
+#include "Hqc_Fips202.h"
 #include "Platform_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -63,9 +71,9 @@ typedef shake256incctx hqc128_seedexpander_state;
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen);
+void Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen);
 
-void FsmSw_Hqc128_SeedExpander(hqc128_seedexpander_state *const state, uint8 *output, uint32 outlen);
+void Hqc128_SeedExpander(hqc128_seedexpander_state *const state, uint8 *output, uint32 outlen);
 
 #endif /* SHAKE_PRNG_H */
 

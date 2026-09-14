@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc256
 *    includes the modules for Hqc256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_fft
+/** \addtogroup Hqc256_fft
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_fft.c
+/** \file Hqc256_fft.c
 * \brief Implementation of the additive FFT and its transpose.
  * This implementation is based on the paper from Gao and Mateer: <br>
  * Shuhong Gao and Todd Mateer, Additive Fast Fourier Transforms over Finite Fields,
@@ -45,12 +53,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc256_gf.h"
-#include "FsmSw_Hqc256_parameters.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc256_gf.h"
+#include "Hqc256_parameters.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc256_fft.h"
+#include "Hqc256_fft.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -222,9 +230,9 @@ static void radix_big_256(uint16 *const f0, uint16 *const f1, const uint16 *cons
 
   n = 1;
   n <<= (m_f - 2);
-  FsmSw_CommonLib_MemCpy(Q, &f[3 * n], 2 * n);
-  FsmSw_CommonLib_MemCpy(&Q[n], &f[3 * n], 2 * n);
-  FsmSw_CommonLib_MemCpy(R, f, 4 * n);
+  Hqc_CommonLib_MemCpy(Q, &f[3 * n], 2 * n);
+  Hqc_CommonLib_MemCpy(&Q[n], &f[3 * n], 2 * n);
+  Hqc_CommonLib_MemCpy(R, f, 4 * n);
 
   for (i = 0; i < n; ++i)
   {
@@ -235,17 +243,17 @@ static void radix_big_256(uint16 *const f0, uint16 *const f1, const uint16 *cons
   hqc256_radix(Q0, Q1, Q, m_f - 1);
   hqc256_radix(R0, R1, R, m_f - 1);
 
-  FsmSw_CommonLib_MemCpy(f0, R0, 2 * n);
-  FsmSw_CommonLib_MemCpy(&f0[n], Q0, 2 * n);
-  FsmSw_CommonLib_MemCpy(f1, R1, 2 * n);
-  FsmSw_CommonLib_MemCpy(&f1[n], Q1, 2 * n);
+  Hqc_CommonLib_MemCpy(f0, R0, 2 * n);
+  Hqc_CommonLib_MemCpy(&f0[n], Q0, 2 * n);
+  Hqc_CommonLib_MemCpy(f1, R1, 2 * n);
+  Hqc_CommonLib_MemCpy(&f1[n], Q1, 2 * n);
 } // end: radix_big
 
 /*====================================================================================================================*/
 /**
  * \brief Evaluates f at all subset sums of a given set
  *
- * This function is a subroutine of the function FsmSw_Hqc256_fft.
+ * This function is a subroutine of the function Hqc256_fft.
  *
  * \param[out] w Array
  * \param[in] f Array
@@ -275,7 +283,7 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
   {
     for (uint8 y = 0; y < m; ++y)
     {
-      tmp[y] = FsmSw_Hqc256_Gf_Mul(betas[y], f[1]);
+      tmp[y] = Hqc256_Gf_Mul(betas[y], f[1]);
     }
 
     w[0] = f[0];
@@ -299,8 +307,8 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
       x <<= m_f;
       for (i = 1; i < x; ++i)
       {
-        beta_m_pow = FsmSw_Hqc256_Gf_Mul(beta_m_pow, betas[m - 1]);
-        f[i]       = FsmSw_Hqc256_Gf_Mul(beta_m_pow, f[i]);
+        beta_m_pow = Hqc256_Gf_Mul(beta_m_pow, betas[m - 1]);
+        f[i]       = Hqc256_Gf_Mul(beta_m_pow, f[i]);
       }
     }
 
@@ -310,12 +318,12 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
     // Step 4: compute gammas and deltas
     for (uint8 y = 0; y < (m - 1); ++y)
     {
-      gammas[y] = FsmSw_Hqc256_Gf_Mul(betas[y], FsmSw_Hqc256_Gf_Inverse(betas[m - 1]));
-      deltas[y] = FsmSw_Hqc256_Gf_Square(gammas[y]) ^ gammas[y];
+      gammas[y] = Hqc256_Gf_Mul(betas[y], Hqc256_Gf_Inverse(betas[m - 1]));
+      deltas[y] = Hqc256_Gf_Square(gammas[y]) ^ gammas[y];
     }
 
     // Compute gammas sums
-    compute_subset_sums_256(gammas_sums, gammas, FsmSw_Convert_u8_to_u16(m - 1));
+    compute_subset_sums_256(gammas_sums, gammas, Hqc_Convert_u8_to_u16(m - 1));
 
     // Step 5
     /* polyspace +2 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
@@ -330,7 +338,7 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
       w[k] = u[0] ^ f1[0];
       for (i = 1; i < k; ++i)
       {
-        w[i]     = u[i] ^ FsmSw_Hqc256_Gf_Mul(gammas_sums[i], f1[0]);
+        w[i]     = u[i] ^ Hqc256_Gf_Mul(gammas_sums[i], f1[0]);
         w[k + i] = w[i] ^ f1[0];
       }
     }
@@ -341,12 +349,12 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
       fft_rec_256(v, f1, f_coeffs / 2, m - 1, m_f - 1, deltas);
 
       // Step 6
-      FsmSw_CommonLib_MemCpy(&w[k], v, 2 * k);
+      Hqc_CommonLib_MemCpy(&w[k], v, 2 * k);
       w[0] = u[0];
       w[k] ^= u[0];
       for (i = 1; i < k; ++i)
       {
-        w[i] = u[i] ^ FsmSw_Hqc256_Gf_Mul(gammas_sums[i], v[i]);
+        w[i] = u[i] ^ Hqc256_Gf_Mul(gammas_sums[i], v[i]);
         w[k + i] ^= w[i];
       }
     }
@@ -379,7 +387,7 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
  * \param[in] f Array of 2^HQC256_PARAM_FFT elements
  * \param[in] f_coeffs Number coefficients of f (i.e. deg(f)+1)
  */
-void FsmSw_Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
+void Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
 {
   uint16 betas[HQC256_PARAM_M - 1]              = {0};
   uint16 betas_sums[1U << (HQC256_PARAM_M - 1)] = {0};
@@ -407,7 +415,7 @@ void FsmSw_Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
   // Step 4: Compute deltas
   for (i = 0; i < (HQC256_PARAM_M - 1); ++i)
   {
-    deltas[i] = FsmSw_Hqc256_Gf_Square(betas[i]) ^ betas[i];
+    deltas[i] = Hqc256_Gf_Square(betas[i]) ^ betas[i];
   }
 
   // Step 5
@@ -416,7 +424,7 @@ void FsmSw_Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
 
   k = (uint8)1 << (HQC256_PARAM_M - 1);
   // Step 6, 7 and error polynomial computation
-  FsmSw_CommonLib_MemCpy(&w[k], v, (2 * FsmSw_Convert_u8_to_u32(k)));
+  Hqc_CommonLib_MemCpy(&w[k], v, (2 * Hqc_Convert_u8_to_u32(k)));
 
   // Check if 0 is root
   w[0] = u[0];
@@ -427,10 +435,10 @@ void FsmSw_Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
   // Find other roots
   for (i = 1; i < k; ++i)
   {
-    w[i] = u[i] ^ FsmSw_Hqc256_Gf_Mul(betas_sums[i], v[i]);
+    w[i] = u[i] ^ Hqc256_Gf_Mul(betas_sums[i], v[i]);
     w[k + i] ^= w[i];
   }
-} // end: FsmSw_Hqc256_Fft
+} // end: Hqc256_Fft
 
 /*====================================================================================================================*/
 /**
@@ -440,7 +448,7 @@ void FsmSw_Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
  * \param[out] error_compact Array with the error in a compact form
  * \param[in] w Array of size 2^HQC256_PARAM_M
  */
-void FsmSw_Hqc256_Fft_Retrieve_Error_Poly(uint8 *const err, const uint16 *const w)
+void Hqc256_Fft_Retrieve_Error_Poly(uint8 *const err, const uint16 *const w)
 {
   uint16 gammas[HQC256_PARAM_M - 1]              = {0};
   uint16 gammas_sums[1U << (HQC256_PARAM_M - 1)] = {0};
@@ -462,7 +470,7 @@ void FsmSw_Hqc256_Fft_Retrieve_Error_Poly(uint8 *const err, const uint16 *const 
     index = HQC256_PARAM_GF_MUL_ORDER - gf_log_256[gammas_sums[i] ^ 1U];
     err[index] ^= (uint8)((1U ^ (((uint16)(~w[k + i]) + 1U) >> 15)) & 0xFFU);
   }
-} // end: FsmSw_Hqc256_Fft_Retrieve_Error_Poly
+} // end: Hqc256_Fft_Retrieve_Error_Poly
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

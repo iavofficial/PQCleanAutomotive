@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc256
 *    includes the modules for Hqc256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_vector
+/** \addtogroup Hqc256_vector
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_vector.c
+/** \file Hqc256_vector.c
 * \brief  Implementation of vectors sampling and some utilities for the HQC scheme
 *
 * \details
@@ -38,12 +46,12 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc256_parameters.h"
-#include "FsmSw_Hqc256_parsing.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc256_parameters.h"
+#include "Hqc256_parsing.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc256_vector.h"
+#include "Hqc256_vector.h"
 
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -100,7 +108,7 @@ static uint32 hqc256_m_val[PQC_HQC256_M_VAL_SIZE] = {
 */
 static inline uint32 hqc256_compare_u32(uint32 v1, uint32 v2)
 {
-  return FsmSw_Convert_u8_to_u32(1) ^ ((uint32)((v1 - v2) | (v2 - v1)) >> 31);
+  return Hqc_Convert_u8_to_u32(1) ^ ((uint32)((v1 - v2) | (v2 - v1)) >> 31);
 } // end: compare_u32
 
 static uint64 single_bit_mask_256(uint32 pos)
@@ -111,7 +119,7 @@ static uint64 single_bit_mask_256(uint32 pos)
 
   for (uint8 i = 0; i < PQC_HQC256_WORD_BITS; ++i)
   {
-    tmp = FsmSw_Convert_u32_to_u64(pos - i);
+    tmp = Hqc_Convert_u32_to_u64(pos - i);
     tmp = 0 - (1 - ((uint64)(tmp | (~tmp + 1U)) >> 63));
     ret |= mask & tmp;
     mask <<= 1;
@@ -132,7 +140,7 @@ static inline uint32 hqc256_vector_gf_reduce(uint32 a, uint8 i)
 {
   uint32 q, n, r;
   q = (uint32)((((uint64)a * hqc256_m_val[i]) >> 32) & 0xFFFFFFFFU);
-  n = FsmSw_Convert_u16_to_u32((uint16)HQC256_PARAM_N - FsmSw_Convert_u8_to_u16(i));
+  n = Hqc_Convert_u16_to_u32((uint16)HQC256_PARAM_N - Hqc_Convert_u8_to_u16(i));
   r = a - (q * n);
   return cond_sub_256(r, n);
 } // end: reduce
@@ -153,7 +161,7 @@ static inline uint32 hqc256_vector_gf_reduce(uint32 a, uint8 i)
 * \param[in]    weight Integer that is the Hamming weight
 *
 */
-void FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, uint64 *const v, uint16 weight)
+void Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, uint64 *const v, uint16 weight)
 {
   uint8 rand_bytes[4 * HQC256_PARAM_OMEGA_R] = {0}; // to be interpreted as HQC256_PARAM_OMEGA_R 32-bit unsigned ints
   uint32 support[HQC256_PARAM_OMEGA_R]       = {0};
@@ -162,16 +170,16 @@ void FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const 
   uint32 pos, found, mask32, tmp;
   uint64 mask64, val;
 
-  FsmSw_Hqc256_SeedExpander(ctx, rand_bytes, FsmSw_Convert_u16_to_u32(4 * weight));
+  Hqc256_SeedExpander(ctx, rand_bytes, Hqc_Convert_u16_to_u32(4 * weight));
 
   for (uint16 i = 0; i < weight; ++i)
   {
     support[i] = rand_bytes[4 * i];
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
     support[i] =
-        (uint32)(i + hqc256_vector_gf_reduce(support[i], FsmSw_Convert_u16_to_u8(i))); // use constant-tme reduction
+        (uint32)(i + hqc256_vector_gf_reduce(support[i], Hqc_Convert_u16_to_u8(i))); // use constant-tme reduction
   }
 
   for (uint16 i = (weight - 1); i > 0; --i)
@@ -190,7 +198,7 @@ void FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const 
   for (uint16 i = 0; i < weight; ++i)
   {
     index_tab[i] = support[i] >> 6;
-    pos          = support[i] & FsmSw_Convert_u8_to_u32(0x3f);
+    pos          = support[i] & Hqc_Convert_u8_to_u32(0x3f);
     bit_tab[i]   = single_bit_mask_256(pos); // avoid secret shift
   }
 
@@ -200,34 +208,34 @@ void FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const 
     for (uint16 j = 0; j < weight; ++j)
     {
       tmp    = (uint32)(i - index_tab[j]);
-      tmp    = FsmSw_Convert_u8_to_u32(1) ^ ((uint32)(tmp | (~tmp + 1U)) >> 31);
+      tmp    = Hqc_Convert_u8_to_u32(1) ^ ((uint32)(tmp | (~tmp + 1U)) >> 31);
       mask64 = 0 - (uint64)tmp;
       val |= (bit_tab[j] & mask64);
     }
     v[i] |= val;
   }
-} // end: FsmSw_Hqc256_Vect_Set_Random_Fixed_Weight
+} // end: Hqc256_Vect_Set_Random_Fixed_Weight
 
 /*====================================================================================================================*/
 /**
 * \brief Generates a random vector of dimension <b>PARAM_N</b>
 *
 * This function generates a random binary vector of dimension <b>PARAM_N</b>. It generates a random
-* array of bytes using the FsmSw_Hqc256_seedexpander function, and drop the extra bits using a mask.
+* array of bytes using the Hqc256_seedexpander function, and drop the extra bits using a mask.
 *
 * \param[in]    v Pointer to an array
 * \param[in]    ctx Pointer to the context of the seed expander
 *
 */
-void FsmSw_Hqc256_Vect_Set_Random(hqc256_seedexpander_state *const ctx, uint64 *const v)
+void Hqc256_Vect_Set_Random(hqc256_seedexpander_state *const ctx, uint64 *const v)
 {
   uint8 rand_bytes[HQC256_VEC_N_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc256_SeedExpander(ctx, rand_bytes, HQC256_VEC_N_SIZE_BYTES);
+  Hqc256_SeedExpander(ctx, rand_bytes, HQC256_VEC_N_SIZE_BYTES);
 
-  FsmSw_Hqc256_Load8_Arr(v, HQC256_VEC_N_SIZE_64, rand_bytes, HQC256_VEC_N_SIZE_BYTES);
+  Hqc256_Load8_Arr(v, HQC256_VEC_N_SIZE_64, rand_bytes, HQC256_VEC_N_SIZE_BYTES);
   v[HQC256_VEC_N_SIZE_64 - 1] &= (uint64)HQC256_RED_MASK;
-} // end: FsmSw_Hqc256_Vect_Set_Random
+} // end: Hqc256_Vect_Set_Random
 
 /*====================================================================================================================*/
 /**
@@ -239,13 +247,13 @@ void FsmSw_Hqc256_Vect_Set_Random(hqc256_seedexpander_state *const ctx, uint64 *
 * \param[in]    size Integer that is the size of the vectors
 *
 */
-void FsmSw_Hqc256_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size)
+void Hqc256_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size)
 {
   for (uint32 i = 0; i < size; ++i)
   {
     o[i] = v1[i] ^ v2[i];
   }
-} // end: FsmSw_Hqc256_Vect_Add
+} // end: Hqc256_Vect_Add
 
 /*====================================================================================================================*/
 /**
@@ -257,17 +265,17 @@ void FsmSw_Hqc256_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64
 * \returns      0 if the vectors are equal and 1 otherwise
 *
 */
-uint8 FsmSw_Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size)
+uint8 Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size)
 {
   uint16 r = 0x0100;
 
   for (uint32 i = 0; i < size; i++)
   {
-    r |= FsmSw_Convert_u8_to_u16(v1[i] ^ v2[i]);
+    r |= Hqc_Convert_u8_to_u16(v1[i] ^ v2[i]);
   }
 
   return (uint8)(((r - 1) >> 8) & 0xFFU);
-} // end: FsmSw_Hqc256_Vect_Compare
+} // end: Hqc256_Vect_Compare
 
 /*====================================================================================================================*/
 /**
@@ -279,7 +287,7 @@ uint8 FsmSw_Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, ui
 * \param[in]    size_v Integer that is the size of the input vector in bits
 *
 */
-void FsmSw_Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v)
+void Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v)
 {
   const uint64 mask = 0x7FFFFFFFFFFFFFFFU;
   uint8 val         = 0;
@@ -291,7 +299,7 @@ void FsmSw_Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *cons
       val = (uint8)((64 - (size_o % 64)) & 0xFFU);
     }
 
-    FsmSw_CommonLib_MemCpy(o, v, HQC256_VEC_N1N2_SIZE_BYTES);
+    Hqc_CommonLib_MemCpy(o, v, HQC256_VEC_N1N2_SIZE_BYTES);
 
     for (uint8 i = 0; i < val; ++i)
     {
@@ -300,9 +308,9 @@ void FsmSw_Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *cons
   }
   else
   {
-    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
+    Hqc_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
   }
-} // end: FsmSw_Hqc256_Vect_Resize
+} // end: Hqc256_Vect_Resize
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

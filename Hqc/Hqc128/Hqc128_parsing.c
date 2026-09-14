@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_parsing
+/** \addtogroup Hqc128_parsing
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_parsing.c
+/** \file Hqc128_parsing.c
 * \brief Functions to parse secret key, public key and ciphertext of the HQC scheme
 *
 * \details
@@ -37,12 +45,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc128_parameters.h"
-#include "FsmSw_Hqc128_vector.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc128_parameters.h"
+#include "Hqc128_vector.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_parsing.h"
+#include "Hqc128_parsing.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -91,7 +99,7 @@ static uint64 load8_128(const uint8 *const in)
 /**********************************************************************************************************************/
 
 /*====================================================================================================================*/
-void FsmSw_Hqc128_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *const in8, uint16 inlen)
+void Hqc128_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *const in8, uint16 inlen)
 {
   uint16 index_in  = 0;
   uint16 index_out = 0;
@@ -118,10 +126,10 @@ void FsmSw_Hqc128_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *con
       out64[index_out] |= in8[index_in + i - 2U];
     }
   }
-} // end: FsmSw_Hqc128_Load8_Arr
+} // end: Hqc128_Load8_Arr
 
 /*====================================================================================================================*/
-void FsmSw_Hqc128_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in64, uint16 inlen)
+void Hqc128_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in64, uint16 inlen)
 {
   uint32 index_in = 0;
   for (uint32 index_out = 0; (index_out < outlen) && (index_in < inlen); ++index_out)
@@ -132,7 +140,7 @@ void FsmSw_Hqc128_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *con
       ++index_in;
     }
   }
-} // end: FsmSw_Hqc128_Store8_Arr
+} // end: Hqc128_Store8_Arr
 
 /*====================================================================================================================*/
 /**
@@ -146,13 +154,13 @@ void FsmSw_Hqc128_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *con
  * \param[in] sigma String used in HHK transform
  * \param[in] pk String containing the public key
  */
-void FsmSw_Hqc128_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
+void Hqc128_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
                                        const uint8 *const pk)
 {
-  FsmSw_CommonLib_MemCpy(sk, sk_seed, HQC128_SEED_BYTES);
-  FsmSw_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES], sigma, HQC128_VEC_K_SIZE_BYTES);
-  FsmSw_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
-} // end: FsmSw_Hqc128_Secret_Key_To_String
+  Hqc_CommonLib_MemCpy(sk, sk_seed, HQC128_SEED_BYTES);
+  Hqc_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES], sigma, HQC128_VEC_K_SIZE_BYTES);
+  Hqc_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+} // end: Hqc128_Secret_Key_To_String
 
 /*====================================================================================================================*/
 /**
@@ -166,18 +174,18 @@ void FsmSw_Hqc128_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_se
  * \param[out] pk String containing the public key
  * \param[in] sk String containing the secret key
  */
-void FsmSw_Hqc128_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *const sigma, uint8 *const pk,
+void Hqc128_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *const sigma, uint8 *const pk,
                                          const uint8 *const sk)
 {
   hqc128_seedexpander_state sk_seedexpander;
 
-  FsmSw_CommonLib_MemCpy(sigma, &sk[HQC128_SEED_BYTES], HQC128_VEC_K_SIZE_BYTES);
-  FsmSw_Hqc128_SeedExpander_Init(&sk_seedexpander, sk, HQC128_SEED_BYTES);
+  Hqc_CommonLib_MemCpy(sigma, &sk[HQC128_SEED_BYTES], HQC128_VEC_K_SIZE_BYTES);
+  Hqc128_SeedExpander_Init(&sk_seedexpander, sk, HQC128_SEED_BYTES);
 
-  FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC128_PARAM_OMEGA);
-  FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC128_PARAM_OMEGA);
-  FsmSw_CommonLib_MemCpy(pk, &sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], HQC128_PUBLIC_KEY_BYTES);
-} // end: FsmSw_Hqc128_Secret_Key_From_String
+  Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC128_PARAM_OMEGA);
+  Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC128_PARAM_OMEGA);
+  Hqc_CommonLib_MemCpy(pk, &sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], HQC128_PUBLIC_KEY_BYTES);
+} // end: Hqc128_Secret_Key_From_String
 
 /*====================================================================================================================*/
 /**
@@ -190,11 +198,11 @@ void FsmSw_Hqc128_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8
  * \param[in] pk_seed Seed used to generate the public key
  * \param[in] s uint64 representation of vector s
  */
-void FsmSw_Hqc128_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
+void Hqc128_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
 {
-  FsmSw_CommonLib_MemCpy(pk, pk_seed, HQC128_SEED_BYTES);
-  FsmSw_Hqc128_Store8_Arr(&pk[HQC128_SEED_BYTES], HQC128_VEC_N_SIZE_BYTES, s, HQC128_VEC_N_SIZE_64);
-} // end: FsmSw_Hqc128_Public_Key_To_String
+  Hqc_CommonLib_MemCpy(pk, pk_seed, HQC128_SEED_BYTES);
+  Hqc128_Store8_Arr(&pk[HQC128_SEED_BYTES], HQC128_VEC_N_SIZE_BYTES, s, HQC128_VEC_N_SIZE_64);
+} // end: Hqc128_Public_Key_To_String
 
 /*====================================================================================================================*/
 /**
@@ -206,15 +214,15 @@ void FsmSw_Hqc128_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_se
  * \param[out] s uint64 representation of vector s
  * \param[in] pk String containing the public key
  */
-void FsmSw_Hqc128_Public_Key_From_String(uint64 *const h, uint64 *const s, const uint8 *const pk)
+void Hqc128_Public_Key_From_String(uint64 *const h, uint64 *const s, const uint8 *const pk)
 {
   hqc128_seedexpander_state pk_seedexpander;
 
-  FsmSw_Hqc128_SeedExpander_Init(&pk_seedexpander, pk, HQC128_SEED_BYTES);
-  FsmSw_Hqc128_Vect_Set_Random(&pk_seedexpander, h);
+  Hqc128_SeedExpander_Init(&pk_seedexpander, pk, HQC128_SEED_BYTES);
+  Hqc128_Vect_Set_Random(&pk_seedexpander, h);
 
-  FsmSw_Hqc128_Load8_Arr(s, HQC128_VEC_N_SIZE_64, &pk[HQC128_SEED_BYTES], HQC128_VEC_N_SIZE_BYTES);
-} // end: FsmSw_Hqc128_Public_Key_From_String
+  Hqc128_Load8_Arr(s, HQC128_VEC_N_SIZE_64, &pk[HQC128_SEED_BYTES], HQC128_VEC_N_SIZE_BYTES);
+} // end: Hqc128_Public_Key_From_String
 
 /*====================================================================================================================*/
 /**
@@ -227,13 +235,13 @@ void FsmSw_Hqc128_Public_Key_From_String(uint64 *const h, uint64 *const s, const
  * \param[in] v uint64 representation of vector v
  * \param[in] salt String containing a salt
  */
-void FsmSw_Hqc128_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const uint64 *const v,
+void Hqc128_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const uint64 *const v,
                                        const uint8 *const salt)
 {
-  FsmSw_Hqc128_Store8_Arr(ct, HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
-  FsmSw_Hqc128_Store8_Arr(&ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v, HQC128_VEC_N1N2_SIZE_64);
-  FsmSw_CommonLib_MemCpy(&ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], salt, HQC128_SALT_SIZE_BYTES);
-} // end: FsmSw_Hqc128_Ciphertext_To_String
+  Hqc128_Store8_Arr(ct, HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
+  Hqc128_Store8_Arr(&ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v, HQC128_VEC_N1N2_SIZE_64);
+  Hqc_CommonLib_MemCpy(&ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], salt, HQC128_SALT_SIZE_BYTES);
+} // end: Hqc128_Ciphertext_To_String
 
 /*====================================================================================================================*/
 /**
@@ -246,12 +254,12 @@ void FsmSw_Hqc128_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, c
  * \param[out] d String containing the hash d
  * \param[in] ct String containing the ciphertext
  */
-void FsmSw_Hqc128_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *const salt, const uint8 *const ct)
+void Hqc128_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *const salt, const uint8 *const ct)
 {
-  FsmSw_Hqc128_Load8_Arr(u, HQC128_VEC_N_SIZE_64, ct, HQC128_VEC_N_SIZE_BYTES);
-  FsmSw_Hqc128_Load8_Arr(v, HQC128_VEC_N1N2_SIZE_64, &ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES);
-  FsmSw_CommonLib_MemCpy(salt, &ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], HQC128_SALT_SIZE_BYTES);
-} // end: FsmSw_Hqc128_Ciphertext_From_String
+  Hqc128_Load8_Arr(u, HQC128_VEC_N_SIZE_64, ct, HQC128_VEC_N_SIZE_BYTES);
+  Hqc128_Load8_Arr(v, HQC128_VEC_N1N2_SIZE_64, &ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES);
+  Hqc_CommonLib_MemCpy(salt, &ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], HQC128_SALT_SIZE_BYTES);
+} // end: Hqc128_Ciphertext_From_String
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
@@ -15,8 +23,8 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_shake_ds.h
-* \brief  Header file of FsmSw_Hqc256_shake_ds.c
+/** \file Hqc256_shake_ds.h
+* \brief  Header file of Hqc256_shake_ds.c
 *
 * \details
 *
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC256_SHAKE_DS_H
-#define FSMSW_HQC256_SHAKE_DS_H
+#ifndef HQC256_SHAKE_DS_H
+#define HQC256_SHAKE_DS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_Fips202.h"
+#include "Hqc_Fips202.h"
 #include "Platform_Types.h"
 
 /**********************************************************************************************************************/
@@ -66,10 +74,10 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc256_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
+void Hqc256_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
                                   uint16 inlen, uint8 domain);
 
-#endif /* FSMSW_HQC256_SHAKE_DS_H */
+#endif /* HQC256_SHAKE_DS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc256
 *    includes the modules for Hqc256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_code
+/** \addtogroup Hqc256_code
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_code.c
+/** \file Hqc256_code.c
 * \brief  Implementation of concatenated code
 *
 * \details
@@ -37,12 +45,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Hqc256_parameters.h"
-#include "FsmSw_Hqc256_reed_muller.h"
-#include "FsmSw_Hqc256_reed_solomon.h"
+#include "Hqc256_parameters.h"
+#include "Hqc256_reed_muller.h"
+#include "Hqc256_reed_solomon.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc256_code.h"
+#include "Hqc256_code.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -86,13 +94,13 @@
  * \param[out] em Pointer to an array that is the tensor code word
  * \param[in] m Pointer to an array that is the message
  */
-void FsmSw_Hqc256_Code_Encode(uint64 *const em, const uint8 *const message)
+void Hqc256_Code_Encode(uint64 *const em, const uint8 *const message)
 {
   uint8 tmp[HQC256_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc256_Reed_Solomon_Encode(tmp, message);
-  FsmSw_Hqc256_Reed_Muller_Encode(em, tmp);
-} // end: FsmSw_Hqc256_Code_Encode
+  Hqc256_Reed_Solomon_Encode(tmp, message);
+  Hqc256_Reed_Muller_Encode(em, tmp);
+} // end: Hqc256_Code_Encode
 
 /*====================================================================================================================*/
 /**
@@ -101,13 +109,13 @@ void FsmSw_Hqc256_Code_Encode(uint64 *const em, const uint8 *const message)
  * \param[out] m Pointer to an array that is the message
  * \param[in] em Pointer to an array that is the code word
  */
-void FsmSw_Hqc256_Code_Decode(uint8 *const m, const uint64 *const em)
+void Hqc256_Code_Decode(uint8 *const m, const uint64 *const em)
 {
   uint8 tmp[HQC256_VEC_N1_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc256_Reed_Muller_Decode(tmp, em);
-  FsmSw_Hqc256_Reed_Solomon_Decode(m, tmp);
-} // end: FsmSw_Hqc256_Code_Decode
+  Hqc256_Reed_Muller_Decode(tmp, em);
+  Hqc256_Reed_Solomon_Decode(m, tmp);
+} // end: Hqc256_Code_Decode
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

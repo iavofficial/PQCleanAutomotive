@@ -1,20 +1,48 @@
-#ifndef FSMSW_HQC_API_H
-#define FSMSW_HQC_API_H
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
- *  \file
+ * Original implementation: PQClean, HQC
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
+ *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC
 *    includes the modules for HQC
  ** @{ */
-/** \addtogroup FsmSw_Hqc_api
+/** \addtogroup Hqc_api
  ** @{ */
 
+/*====================================================================================================================*/
+/** \file Hqc_api.h
+* \brief  Description of the Hqc_api.h
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef HQC_API_H
+#define HQC_API_H
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
@@ -48,4 +76,4 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-#endif /* FSMSW_HQC_API_H */
+#endif /* HQC_API_H */

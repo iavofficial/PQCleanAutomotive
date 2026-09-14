@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc192
 *    includes the modules for Hqc192
  ** @{ */
-/** \addtogroup FsmSw_Hqc192_shake_ds
+/** \addtogroup Hqc192_shake_ds
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_shake_ds.c
+/** \file Hqc192_shake_ds.c
 * \brief  Implementation SHAKE-256 with incremental API and domain separation
 *
 * \details
@@ -38,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_Hqc192_shake_ds.h"
+#include "Hqc192_shake_ds.h"
 
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -85,28 +93,28 @@
 * \param[in]    domain byte for domain separation
 *
 */
-void FsmSw_Hqc192_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
+void Hqc192_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, const uint8 *const input,
                                   uint16 inlen, uint8 domain)
 {
   const uint8 domain_tmp = domain;
   /* Init state */
-  FsmSw_Fips202_Shake256_IncInit(state);
+  Hqc_Fips202_Shake256_IncInit(state);
 
   /* Absorb input */
-  FsmSw_Fips202_Shake256_IncAbsorb(state, input, inlen);
+  Hqc_Fips202_Shake256_IncAbsorb(state, input, inlen);
 
   /* Absorb domain separation byte */
-  FsmSw_Fips202_Shake256_IncAbsorb(state, &domain_tmp, 1);
+  Hqc_Fips202_Shake256_IncAbsorb(state, &domain_tmp, 1);
 
   /* Finalize */
-  FsmSw_Fips202_Shake256_IncFinalize(state);
+  Hqc_Fips202_Shake256_IncFinalize(state);
 
   /* Squeeze output */
-  FsmSw_Fips202_Shake256_IncSqueeze(output, 512 / 8, state);
+  Hqc_Fips202_Shake256_IncSqueeze(output, 512 / 8, state);
 
   /* Release ctx */
   //shake256_inc_ctx_release(state);
-} // end: FsmSw_Hqc192_Shake256_512_Ds
+} // end: Hqc192_Shake256_512_Ds
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

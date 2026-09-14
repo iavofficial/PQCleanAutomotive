@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_kem
+/** \addtogroup Hqc256_kem
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_api.h
+/** \file Hqc256_api.h
 * \brief  NIST KEM API used by the HQC_KEM IND-CCA2 scheme
 *
 * \details
@@ -33,19 +41,19 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC256_API_H
-#define FSMSW_HQC256_API_H
+#ifndef HQC256_API_H
+#define HQC256_API_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Hqc_api.h"
+#include "Hqc_api.h"
 #include "Platform_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_HQC256_CRYPTO_PUBLICKEYBYTES  7245
-#define FSMSW_HQC256_CRYPTO_SECRETKEYBYTES  7317
-#define FSMSW_HQC256_CRYPTO_CIPHERTEXTBYTES 14421
+#define HQC256_CRYPTO_PUBLICKEYBYTES  7245
+#define HQC256_CRYPTO_SECRETKEYBYTES  7317
+#define HQC256_CRYPTO_CIPHERTEXTBYTES 14421
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -66,11 +74,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-sint8 FsmSw_Hqc256_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
-sint8 FsmSw_Hqc256_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
-sint8 FsmSw_Hqc256_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
+sint8 Hqc256_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+sint8 Hqc256_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+sint8 Hqc256_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
-#endif /* FSMSW_HQC256_API_H */
+#endif /* HQC256_API_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

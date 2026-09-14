@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC192
 *    includes the modules for HQC192
@@ -15,8 +23,8 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_reed_solomon.h
-* \brief  Header file of FsmSw_Hqc192_reed_solomon.c
+/** \file Hqc192_reed_solomon.h
+* \brief  Header file of Hqc192_reed_solomon.c
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_REED_SOLOMON_H
-#define FSMSW_HQC192_REED_SOLOMON_H
+#ifndef HQC192_REED_SOLOMON_H
+#define HQC192_REED_SOLOMON_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -65,11 +73,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc192_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg);
+void Hqc192_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg);
 
-void FsmSw_Hqc192_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw);
+void Hqc192_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw);
 
-#endif /* FSMSW_HQC192_REED_SOLOMON_H */
+#endif /* HQC192_REED_SOLOMON_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

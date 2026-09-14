@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC192
 *    includes the modules for HQC192
@@ -15,8 +23,8 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_gf2x.h
-* \brief  Declarations for the modul FsmSw_Hqc192_gf2x.c
+/** \file Hqc192_gf2x.h
+* \brief  Declarations for the modul Hqc192_gf2x.c
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_GF2X_H
-#define FSMSW_HQC192_GF2X_H
+#ifndef HQC192_GF2X_H
+#define HQC192_GF2X_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -65,9 +73,9 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc192_Vect_Mul(uint64 *const o, const uint64 *const v1, const uint64 *const v2);
+void Hqc192_Vect_Mul(uint64 *const o, const uint64 *const v1, const uint64 *const v2);
 
-#endif /* FSMSW_HQC192_GF2X_H */
+#endif /* HQC192_GF2X_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

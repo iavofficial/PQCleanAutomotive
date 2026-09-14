@@ -1,12 +1,20 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC192
 *    includes the modules for HQC192
@@ -15,7 +23,7 @@
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc192_kem.h
+/** \file Hqc192_kem.h
 * \brief  NIST KEM API used by the HQC_KEM IND-CCA2 scheme
 *
 * \details
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC192_KEM_H
-#define FSMSW_HQC192_KEM_H
+#ifndef HQC192_KEM_H
+#define HQC192_KEM_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "FsmSw_Hqc192_api.h"
+#include "Hqc192_api.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -65,7 +73,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_HQC192_KEM_H */
+#endif /* HQC192_KEM_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_shake_pmg
+/** \addtogroup Hqc128_shake_pmg
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_shake_prng.c
+/** \file Hqc128_shake_prng.c
 * \brief  Implementation of SHAKE-256 based seed expander
 *
 * \details
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Fips202.h"
-#include "FsmSw_Hqc128_domains.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc_Fips202.h"
+#include "Hqc128_domains.h"
 
-#include "FsmSw_Hqc128_shake_prng.h"
+#include "Hqc128_shake_prng.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -84,14 +92,14 @@
  * \param[in] seed A seed
  * \param[in] seedlen The seed bytes length
  */
-void FsmSw_Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen)
+void Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen)
 {
   const uint8 domain = HQC128_SEEDEXPANDER_DOMAIN;
-  FsmSw_Fips202_Shake256_IncInit(state);
-  FsmSw_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
-  FsmSw_Fips202_Shake256_IncAbsorb(state, &domain, 1);
-  FsmSw_Fips202_Shake256_IncFinalize(state);
-} // end: FsmSw_Hqc128_SeedExpander_Init
+  Hqc_Fips202_Shake256_IncInit(state);
+  Hqc_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
+  Hqc_Fips202_Shake256_IncAbsorb(state, &domain, 1);
+  Hqc_Fips202_Shake256_IncFinalize(state);
+} // end: Hqc128_SeedExpander_Init
 
 /*====================================================================================================================*/
 /**
@@ -104,22 +112,22 @@ void FsmSw_Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, cons
  * \param[out] output The XOF data
  * \param[in] outlen Number of bytes to return
  */
-void FsmSw_Hqc128_SeedExpander(hqc128_seedexpander_state *const state, uint8 *output, uint32 outlen)
+void Hqc128_SeedExpander(hqc128_seedexpander_state *const state, uint8 *output, uint32 outlen)
 {
   const uint8 bsize      = sizeof(uint64);
-  const uint32 remainder = outlen % FsmSw_Convert_u8_to_u32(bsize);
+  const uint32 remainder = outlen % Hqc_Convert_u8_to_u32(bsize);
   uint8 tmp[sizeof(uint64)];
-  FsmSw_Fips202_Shake256_IncSqueeze(output, outlen - remainder, state);
+  Hqc_Fips202_Shake256_IncSqueeze(output, outlen - remainder, state);
   if (remainder != 0)
   {
-    FsmSw_Fips202_Shake256_IncSqueeze(tmp, FsmSw_Convert_u8_to_u32(bsize), state);
+    Hqc_Fips202_Shake256_IncSqueeze(tmp, Hqc_Convert_u8_to_u32(bsize), state);
     uint8 *const output_tmp = &output[outlen - remainder];
     for (uint32 i = 0; i < remainder; ++i)
     {
       output_tmp[i] = tmp[i];
     }
   }
-} // end: FsmSw_Hqc128_SeedExpander
+} // end: Hqc128_SeedExpander
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

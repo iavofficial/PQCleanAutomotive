@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_gf
+/** \addtogroup Hqc128_gf
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_gf.c
+/** \file Hqc128_gf.c
 * \brief  Galois field implementation
 *
 * \details
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc128_parameters.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc128_parameters.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_gf.h"
+#include "Hqc128_gf.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -151,7 +159,7 @@ static void gf_carryless_mul_128(uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE], uin
   uint32 tmp1, tmp2;
   uint16 mask;
   u[0] = 0;
-  u[1] = FsmSw_Convert_u8_to_u16((b & 0x7FU));
+  u[1] = Hqc_Convert_u8_to_u16((b & 0x7FU));
   u[2] = u[1] << 1;
   u[3] = u[2] ^ u[1];
   tmp1 = (uint32)a & (uint32)3;
@@ -168,7 +176,7 @@ static void gf_carryless_mul_128(uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE], uin
   for (uint8 i = 2; i < (2 * PQC_HQC128_GF_CLMUL_TMP_SIZE); i += 2)
   {
     g    = 0;
-    tmp1 = FsmSw_Convert_u8_to_u32(((a >> i) & (uint8)3));
+    tmp1 = Hqc_Convert_u8_to_u32(((a >> i) & (uint8)3));
     for (uint8 j = 0; j < PQC_HQC128_GF_CLMUL_TMP_SIZE; ++j)
     {
       tmp2 = (uint32)(tmp1 - j);
@@ -180,8 +188,8 @@ static void gf_carryless_mul_128(uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE], uin
   }
 
   mask = (uint16)(0u - (((uint16)b >> 7) & 0x01U));
-  l ^= (FsmSw_Convert_u8_to_u16((a << 7)) & mask);
-  h ^= (FsmSw_Convert_u8_to_u16((a >> 1)) & mask);
+  l ^= (Hqc_Convert_u8_to_u16((a << 7)) & mask);
+  h ^= (Hqc_Convert_u8_to_u16((a >> 1)) & mask);
 
   c[0] = (uint8)l;
   c[1] = (uint8)h;
@@ -198,13 +206,13 @@ static void gf_carryless_mul_128(uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE], uin
  * \param[in] a Element of GF(2^GF_M)
  * \param[in] b Element of GF(2^GF_M)
  */
-uint16 FsmSw_Hqc128_Gf_Mul(uint16 a, uint16 b)
+uint16 Hqc128_Gf_Mul(uint16 a, uint16 b)
 {
   uint8 c[PQC_HQC128_GF_CLMUL_OUT_POLY_SIZE] = {0};
   gf_carryless_mul_128(c, (uint8)a, (uint8)b);
-  const uint16 tmp = FsmSw_Convert_u8_to_u16(c[0]) ^ (FsmSw_Convert_u8_to_u16(c[1]) << 8);
+  const uint16 tmp = Hqc_Convert_u8_to_u16(c[0]) ^ (Hqc_Convert_u8_to_u16(c[1]) << 8);
   return hqc128_gf_reduce(tmp, 2 * (HQC128_PARAM_M - 1));
-} //end: FsmSw_Hqc128_Gf_Mul
+} //end: Hqc128_Gf_Mul
 
 /*====================================================================================================================*/
 /**
@@ -212,7 +220,7 @@ uint16 FsmSw_Hqc128_Gf_Mul(uint16 a, uint16 b)
  * \returns a^2
  * \param[in] a Element of GF(2^HQC128_PARAM_M)
  */
-uint16 FsmSw_Hqc128_Gf_Square(uint16 a)
+uint16 Hqc128_Gf_Square(uint16 a)
 {
   uint32 b = a;
   uint32 s = b & (uint32)1;
@@ -223,7 +231,7 @@ uint16 FsmSw_Hqc128_Gf_Square(uint16 a)
   }
 
   return hqc128_gf_reduce(s, 2 * (HQC128_PARAM_M - 1));
-} // end: FsmSw_Hqc128_Gf_Square
+} // end: Hqc128_Gf_Square
 
 /*====================================================================================================================*/
 /**
@@ -232,24 +240,24 @@ uint16 FsmSw_Hqc128_Gf_Square(uint16 a)
  * \returns the inverse of a if a != 0 or 0 if a = 0
  * \param[in] a Element of GF(2^HQC128_PARAM_M)
  */
-uint16 FsmSw_Hqc128_Gf_Inverse(uint16 a)
+uint16 Hqc128_Gf_Inverse(uint16 a)
 {
   uint16 inv = a;
   uint16 tmp1, tmp2;
 
-  inv  = FsmSw_Hqc128_Gf_Square(a);      /* a^2 */
-  tmp1 = FsmSw_Hqc128_Gf_Mul(inv, a);    /* a^3 */
-  inv  = FsmSw_Hqc128_Gf_Square(inv);    /* a^4 */
-  tmp2 = FsmSw_Hqc128_Gf_Mul(inv, tmp1); /* a^7 */
-  tmp1 = FsmSw_Hqc128_Gf_Mul(inv, tmp2); /* a^11 */
-  inv  = FsmSw_Hqc128_Gf_Mul(tmp1, inv); /* a^15 */
-  inv  = FsmSw_Hqc128_Gf_Square(inv);    /* a^30 */
-  inv  = FsmSw_Hqc128_Gf_Square(inv);    /* a^60 */
-  inv  = FsmSw_Hqc128_Gf_Square(inv);    /* a^120 */
-  inv  = FsmSw_Hqc128_Gf_Mul(inv, tmp2); /* a^127 */
-  inv  = FsmSw_Hqc128_Gf_Square(inv);    /* a^254 */
+  inv  = Hqc128_Gf_Square(a);      /* a^2 */
+  tmp1 = Hqc128_Gf_Mul(inv, a);    /* a^3 */
+  inv  = Hqc128_Gf_Square(inv);    /* a^4 */
+  tmp2 = Hqc128_Gf_Mul(inv, tmp1); /* a^7 */
+  tmp1 = Hqc128_Gf_Mul(inv, tmp2); /* a^11 */
+  inv  = Hqc128_Gf_Mul(tmp1, inv); /* a^15 */
+  inv  = Hqc128_Gf_Square(inv);    /* a^30 */
+  inv  = Hqc128_Gf_Square(inv);    /* a^60 */
+  inv  = Hqc128_Gf_Square(inv);    /* a^120 */
+  inv  = Hqc128_Gf_Mul(inv, tmp2); /* a^127 */
+  inv  = Hqc128_Gf_Square(inv);    /* a^254 */
   return inv;
-} // end: FsmSw_Hqc128_Gf_Inverse
+} // end: Hqc128_Gf_Inverse
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

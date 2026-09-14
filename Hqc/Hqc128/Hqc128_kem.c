@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_kem
+/** \addtogroup Hqc128_kem
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_kem.c
+/** \file Hqc128_kem.c
 * \brief Implementation of kem.h
 *
 * \details
@@ -37,17 +45,17 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Fips202.h"
-#include "FsmSw_Hqc128_domains.h"
-#include "FsmSw_Hqc128_hqc.h"
-#include "FsmSw_Hqc128_parameters.h"
-#include "FsmSw_Hqc128_parsing.h"
-#include "FsmSw_Hqc128_shake_ds.h"
-#include "FsmSw_Hqc128_vector.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc_Fips202.h"
+#include "Hqc128_domains.h"
+#include "Hqc128_hqc.h"
+#include "Hqc128_parameters.h"
+#include "Hqc128_parsing.h"
+#include "Hqc128_shake_ds.h"
+#include "Hqc128_vector.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_kem.h"
+#include "Hqc128_kem.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -93,12 +101,12 @@
  * \param[out] sk String containing the secret key
  * \returns 0 if keygen is successful
  */
-sint8 FsmSw_Hqc128_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk)
+sint8 Hqc128_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk)
 {
 
-  FsmSw_Hqc128_Pke_Keygen(pk, sk);
+  Hqc128_Pke_Keygen(pk, sk);
   return 0;
-} // end: FsmSw_Hqc128_Crypto_Kem_KeyPair
+} // end: Hqc128_Crypto_Kem_KeyPair
 
 /*====================================================================================================================*/
 /**
@@ -109,7 +117,7 @@ sint8 FsmSw_Hqc128_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk)
  * \param[in] pk String containing the public key
  * \returns 0 if encapsulation is successful
  */
-sint8 FsmSw_Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk)
+sint8 Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk)
 {
 
   uint8 theta[HQC128_SHAKE256_512_BYTES]                                                   = {0};
@@ -122,32 +130,32 @@ sint8 FsmSw_Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 
   shake256incctx shake256state;
 
   // Computing m
-  (void)FsmSw_CommonLib_RandomBytes(m, HQC128_VEC_K_SIZE_BYTES);
+  (void)Hqc_CommonLib_RandomBytes(m, HQC128_VEC_K_SIZE_BYTES);
 
   // Computing theta
-  (void)FsmSw_CommonLib_RandomBytes(salt, HQC128_SALT_SIZE_BYTES);
-  FsmSw_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
-  FsmSw_Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
+  (void)Hqc_CommonLib_RandomBytes(salt, HQC128_SALT_SIZE_BYTES);
+  Hqc_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+  Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_PUBLIC_KEY_BYTES + HQC128_SALT_SIZE_BYTES,
                                HQC128_G_FCT_DOMAIN);
 
   // Encrypting m
-  FsmSw_Hqc128_Pke_Encrypt(u, v, m, theta, pk);
+  Hqc128_Pke_Encrypt(u, v, m, theta, pk);
 
   // Computing shared secret
-  FsmSw_CommonLib_MemCpy(mc, m, HQC128_VEC_K_SIZE_BYTES);
-  FsmSw_Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES], HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
-  FsmSw_Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v,
+  Hqc_CommonLib_MemCpy(mc, m, HQC128_VEC_K_SIZE_BYTES);
+  Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES], HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
+  Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v,
                           HQC128_VEC_N1N2_SIZE_64);
-  FsmSw_Hqc128_Shake256_512_Ds(&shake256state, ss, mc,
+  Hqc128_Shake256_512_Ds(&shake256state, ss, mc,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES,
                                HQC128_K_FCT_DOMAIN);
 
   // Computing ciphertext
-  FsmSw_Hqc128_Ciphertext_To_String(ct, u, v, salt);
+  Hqc128_Ciphertext_To_String(ct, u, v, salt);
 
   return 0;
-} // end: FsmSw_Hqc128_Crypto_Kem_Enc
+} // end: Hqc128_Crypto_Kem_Enc
 
 /*====================================================================================================================*/
 /**
@@ -158,7 +166,7 @@ sint8 FsmSw_Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 
  * \param[in] sk String containing the secret key
  * \returns 0 if decapsulation is successful, -1 otherwise
  */
-sint8 FsmSw_Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk)
+sint8 Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk)
 {
 
   uint8 result;
@@ -176,23 +184,23 @@ sint8 FsmSw_Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const 
   shake256incctx shake256state;
 
   // Retrieving u, v and d from ciphertext
-  FsmSw_Hqc128_Ciphertext_From_String(u, v, salt, ct);
+  Hqc128_Ciphertext_From_String(u, v, salt, ct);
 
   // Decrypting
-  result = FsmSw_Hqc128_Pke_Decrypt(m, sigma, u, v, sk);
+  result = Hqc128_Pke_Decrypt(m, sigma, u, v, sk);
 
   // Computing theta
-  FsmSw_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
-  FsmSw_Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
+  Hqc_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+  Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_PUBLIC_KEY_BYTES + HQC128_SALT_SIZE_BYTES,
                                HQC128_G_FCT_DOMAIN);
 
   // Encrypting m'
-  FsmSw_Hqc128_Pke_Encrypt(u2, v2, m, theta, pk);
+  Hqc128_Pke_Encrypt(u2, v2, m, theta, pk);
 
   // Check if c != c'
-  result |= FsmSw_Hqc128_Vect_Compare((uint8 *)u, (uint8 *)u2, HQC128_VEC_N_SIZE_BYTES);
-  result |= FsmSw_Hqc128_Vect_Compare((uint8 *)v, (uint8 *)v2, HQC128_VEC_N1N2_SIZE_BYTES);
+  result |= Hqc128_Vect_Compare((uint8 *)u, (uint8 *)u2, HQC128_VEC_N_SIZE_BYTES);
+  result |= Hqc128_Vect_Compare((uint8 *)v, (uint8 *)v2, HQC128_VEC_N1N2_SIZE_BYTES);
 
   result -= 1;
 
@@ -202,16 +210,16 @@ sint8 FsmSw_Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const 
   }
 
   // Computing shared secret
-  FsmSw_Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES], HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
-  FsmSw_Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v,
+  Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES], HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
+  Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v,
                           HQC128_VEC_N1N2_SIZE_64);
-  FsmSw_Hqc128_Shake256_512_Ds(&shake256state, ss, mc,
+  Hqc128_Shake256_512_Ds(&shake256state, ss, mc,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES,
                                HQC128_K_FCT_DOMAIN);
 
   result = result & 1U;
   return (sint8)result - (sint8)1;
-} // end: FsmSw_Hqc128_Crypto_Kem_Dec
+} // end: Hqc128_Crypto_Kem_Dec
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_gf
+/** \addtogroup Hqc256_gf
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_gf.h
-* \brief  Header file of FsmSw_Hqc256_gf.c
+/** \file Hqc256_gf.h
+* \brief  Header file of Hqc256_gf.c
 *
 * \details
 *
@@ -63,11 +71,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-uint16 FsmSw_Hqc256_Gf_Mul(uint16 a, uint16 b);
+uint16 Hqc256_Gf_Mul(uint16 a, uint16 b);
 
-uint16 FsmSw_Hqc256_Gf_Square(uint16 a);
+uint16 Hqc256_Gf_Square(uint16 a);
 
-uint16 FsmSw_Hqc256_Gf_Inverse(uint16 a);
+uint16 Hqc256_Gf_Inverse(uint16 a);
 
 #endif /* GF_H */
 

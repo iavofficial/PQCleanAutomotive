@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_vector
+/** \addtogroup Hqc128_vector
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_vector.c
+/** \file Hqc128_vector.c
 * \brief Implementation of vectors sampling and some utilities for the HQC scheme
 *
 * \details
@@ -37,12 +45,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc128_parameters.h"
-#include "FsmSw_Hqc128_parsing.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc128_parameters.h"
+#include "Hqc128_parsing.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_vector.h"
+#include "Hqc128_vector.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -103,7 +111,7 @@ static uint64 single_bit_mask_128(uint32 pos)
 
   for (uint8 i = 0; i < PQC_HQC128_WORD_BITS; ++i)
   {
-    tmp = FsmSw_Convert_u32_to_u64(pos - i);
+    tmp = Hqc_Convert_u32_to_u64(pos - i);
     tmp = 0 - (1 - ((uint64)(tmp | (~tmp + 1U)) >> 63));
     ret |= mask & tmp;
     mask <<= 1;
@@ -126,7 +134,7 @@ static inline uint32 hqc128_vector_gf_reduce(uint32 a, uint16 i)
 {
   uint32 q, n, r;
   q = (uint32)((((uint64)a * hqc128_m_val[i]) >> 32) & 0xFFFFFFFFU);
-  n = FsmSw_Convert_u16_to_u32((uint16)HQC128_PARAM_N - i);
+  n = Hqc_Convert_u16_to_u32((uint16)HQC128_PARAM_N - i);
   r = a - (q * n);
   return cond_sub_128(r, n);
 } // end: reduce
@@ -145,7 +153,7 @@ static inline uint32 hqc128_vector_gf_reduce(uint32 a, uint16 i)
  * \param[in] v Pointer to an array
  * \param[in] weight Integer that is the Hamming weight
  */
-void FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight(hqc128_seedexpander_state *const ctx, uint64 *const v, uint16 weight)
+void Hqc128_Vect_Set_Random_Fixed_Weight(hqc128_seedexpander_state *const ctx, uint64 *const v, uint16 weight)
 {
   uint8 rand_bytes[4 * HQC128_PARAM_OMEGA_R] = {0}; // to be interpreted as HQC128_PARAM_OMEGA_R 32-bit unsigned ints
   uint32 support[HQC128_PARAM_OMEGA_R]       = {0};
@@ -154,14 +162,14 @@ void FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight(hqc128_seedexpander_state *const 
   uint32 pos, found, mask32, tmp;
   uint64 mask64, val;
 
-  FsmSw_Hqc128_SeedExpander(ctx, rand_bytes, FsmSw_Convert_u16_to_u32(4 * weight));
+  Hqc128_SeedExpander(ctx, rand_bytes, Hqc_Convert_u16_to_u32(4 * weight));
 
   for (uint16 i = 0; i < weight; ++i)
   {
     support[i] = rand_bytes[4 * i];
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
-    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
+    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
     support[i] = (uint32)(i + hqc128_vector_gf_reduce(support[i], i)); // use constant-tme reduction
   }
 
@@ -197,27 +205,27 @@ void FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight(hqc128_seedexpander_state *const 
     }
     v[i] |= val;
   }
-} // end: FsmSw_Hqc128_Vect_Set_Random_Fixed_Weight
+} // end: Hqc128_Vect_Set_Random_Fixed_Weight
 
 /*====================================================================================================================*/
 /**
  * \brief Generates a random vector of dimension <b>PARAM_N</b>
  *
  * This function generates a random binary vector of dimension <b>PARAM_N</b>. It generates a random
- * array of bytes using the FsmSw_Hqc128_seedexpander function, and drop the extra bits using a mask.
+ * array of bytes using the Hqc128_seedexpander function, and drop the extra bits using a mask.
  *
  * \param[in] v Pointer to an array
  * \param[in] ctx Pointer to the context of the seed expander
  */
-void FsmSw_Hqc128_Vect_Set_Random(hqc128_seedexpander_state *const ctx, uint64 *const v)
+void Hqc128_Vect_Set_Random(hqc128_seedexpander_state *const ctx, uint64 *const v)
 {
   uint8 rand_bytes[HQC128_VEC_N_SIZE_BYTES] = {0};
 
-  FsmSw_Hqc128_SeedExpander(ctx, rand_bytes, HQC128_VEC_N_SIZE_BYTES);
+  Hqc128_SeedExpander(ctx, rand_bytes, HQC128_VEC_N_SIZE_BYTES);
 
-  FsmSw_Hqc128_Load8_Arr(v, HQC128_VEC_N_SIZE_64, rand_bytes, HQC128_VEC_N_SIZE_BYTES);
+  Hqc128_Load8_Arr(v, HQC128_VEC_N_SIZE_64, rand_bytes, HQC128_VEC_N_SIZE_BYTES);
   v[HQC128_VEC_N_SIZE_64 - 1] &= (uint64)HQC128_RED_MASK;
-} // end: FsmSw_Hqc128_Vect_Set_Random
+} // end: Hqc128_Vect_Set_Random
 
 /*====================================================================================================================*/
 /**
@@ -228,13 +236,13 @@ void FsmSw_Hqc128_Vect_Set_Random(hqc128_seedexpander_state *const ctx, uint64 *
  * \param[in] v2 Pointer to an array that is the second vector
  * \param[in] size Integer that is the size of the vectors
  */
-void FsmSw_Hqc128_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size)
+void Hqc128_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64 *const v2, uint16 size)
 {
   for (uint16 i = 0; i < size; ++i)
   {
     o[i] = v1[i] ^ v2[i];
   }
-} // end: FsmSw_Hqc128_Vect_Add
+} // end: Hqc128_Vect_Add
 
 /*====================================================================================================================*/
 /**
@@ -245,17 +253,17 @@ void FsmSw_Hqc128_Vect_Add(uint64 *const o, const uint64 *const v1, const uint64
  * \param[in] size Integer that is the size of the vectors
  * \returns 0 if the vectors are equal and 1 otherwise
  */
-uint8 FsmSw_Hqc128_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size)
+uint8 Hqc128_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 size)
 {
   uint16 r = 0x0100;
 
   for (uint16 i = 0; i < size; i++)
   {
-    r |= FsmSw_Convert_u8_to_u16(v1[i] ^ v2[i]);
+    r |= Hqc_Convert_u8_to_u16(v1[i] ^ v2[i]);
   }
 
   return (uint8)(((r - 1) >> 8) & 0xFFU);
-} // end: FsmSw_Hqc128_Vect_Compare
+} // end: Hqc128_Vect_Compare
 
 /*====================================================================================================================*/
 /**
@@ -266,7 +274,7 @@ uint8 FsmSw_Hqc128_Vect_Compare(const uint8 *const v1, const uint8 *const v2, ui
  * \param[in] v Pointer to the input vector
  * \param[in] size_v Integer that is the size of the input vector in bits
  */
-void FsmSw_Hqc128_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v)
+void Hqc128_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, uint16 size_v)
 {
   const uint64 mask = 0x7FFFFFFFFFFFFFFFU;
   uint8 val         = 0;
@@ -278,7 +286,7 @@ void FsmSw_Hqc128_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *cons
       val = (uint8)((64 - (size_o % 64)) & 0xFFU);
     }
 
-    FsmSw_CommonLib_MemCpy(o, v, HQC128_VEC_N1N2_SIZE_BYTES);
+    Hqc_CommonLib_MemCpy(o, v, HQC128_VEC_N1N2_SIZE_BYTES);
 
     for (uint8 i = 0; i < val; ++i)
     {
@@ -287,9 +295,9 @@ void FsmSw_Hqc128_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *cons
   }
   else
   {
-    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
+    Hqc_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
   }
-} // end: FsmSw_Hqc128_Vect_Resize
+} // end: Hqc128_Vect_Resize
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

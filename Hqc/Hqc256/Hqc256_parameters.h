@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC256
 *    includes the modules for HQC256
  ** @{ */
-/** \addtogroup FsmSw_Hqc256_parameters
+/** \addtogroup Hqc256_parameters
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc256_parameters.h
+/** \file Hqc256_parameters.h
 * \brief Parameters of the HQC_KEM IND-CCA2 scheme
 *
 * \details
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_HQC256_PARAMETERS_H
-#define FSMSW_HQC256_PARAMETERS_H
+#ifndef HQC256_PARAMETERS_H
+#define HQC256_PARAMETERS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Hqc256_kem.h"
+#include "Hqc256_kem.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -99,7 +107,7 @@ inline functions would not provide significant benefits." */
 #define HQC256_PARAM_OMEGA_E 149
 #define HQC256_PARAM_OMEGA_R 149
 
-#define HQC256_PUBLIC_KEY_BYTES FSMSW_HQC256_CRYPTO_PUBLICKEYBYTES
+#define HQC256_PUBLIC_KEY_BYTES HQC256_CRYPTO_PUBLICKEYBYTES
 
 #define HQC256_VEC_N_SIZE_BYTES    CEIL_DIVIDE(HQC256_PARAM_N, 8)
 #define HQC256_VEC_K_SIZE_BYTES    HQC256_PARAM_K
@@ -147,7 +155,7 @@ inline functions would not provide significant benefits." */
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_HQC256_PARAMETERS_H */
+#endif /* HQC256_PARAMETERS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

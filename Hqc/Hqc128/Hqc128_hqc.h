@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup HQC128
 *    includes the modules for HQC128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_hqc
+/** \addtogroup Hqc128_hqc
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_hqc.h
-* \brief  Declarations for the modul FsmSw_Hqc128_hqc.c
+/** \file Hqc128_hqc.h
+* \brief  Declarations for the modul Hqc128_hqc.c
 *
 * \details
 *
@@ -63,12 +71,12 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Hqc128_Pke_Keygen(uint8 *const pk, uint8 *const sk);
+void Hqc128_Pke_Keygen(uint8 *const pk, uint8 *const sk);
 
-void FsmSw_Hqc128_Pke_Encrypt(uint64 *const u, uint64 *const v, const uint8 *const m, const uint8 *const theta,
+void Hqc128_Pke_Encrypt(uint64 *const u, uint64 *const v, const uint8 *const m, const uint8 *const theta,
                               const uint8 *const pk);
 
-uint8 FsmSw_Hqc128_Pke_Decrypt(uint8 *const m, uint8 *const sigma, const uint64 *const u, const uint64 *const v,
+uint8 Hqc128_Pke_Decrypt(uint8 *const m, uint8 *const sigma, const uint64 *const u, const uint64 *const v,
                                const uint8 *const sk);
 
 #endif /* HQC_H */

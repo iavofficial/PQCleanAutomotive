@@ -1,21 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, HQC
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
  ** @{ */
 /** \addtogroup Hqc128
 *    includes the modules for Hqc128
  ** @{ */
-/** \addtogroup FsmSw_Hqc128_gf2x
+/** \addtogroup Hqc128_gf2x
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Hqc128_gf2x.c
+/** \file Hqc128_gf2x.c
 * \brief  Implementation of multiplication of two polynomials
 *
 * \details
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Hqc128_parameters.h"
+#include "Hqc_CommonLib.h"
+#include "Hqc128_parameters.h"
 #include "Platform_Types.h"
 
-#include "FsmSw_Hqc128_gf2x.h"
+#include "Hqc128_gf2x.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -110,7 +118,7 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   u[15] = u[14] ^ u[1];
 
   g    = 0;
-  tmp1 = a & FsmSw_Convert_u8_to_u64(0x0f);
+  tmp1 = a & Hqc_Convert_u8_to_u64(0x0f);
 
   for (uint8 i = 0; i < PQC_HQC128_NIBBLE_SIZE; ++i)
   {
@@ -125,7 +133,7 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   for (uint8 i = 4; i < (4 * PQC_HQC128_NIBBLE_SIZE); i += 4)
   {
     g    = 0;
-    tmp1 = (a >> i) & FsmSw_Convert_u8_to_u64(0x0f);
+    tmp1 = (a >> i) & Hqc_Convert_u8_to_u64(0x0f);
     for (uint8 j = 0; j < PQC_HQC128_NIBBLE_SIZE; ++j)
     {
       tmp2 = tmp1 - j;
@@ -259,8 +267,8 @@ static void hqc128_gf2x_gf_reduce(uint64 *const o, const uint64 *const a)
 
   for (uint16 i = 0; i < HQC128_VEC_N_SIZE_64; ++i)
   {
-    r     = a[i + HQC128_VEC_N_SIZE_64 - 1] >> (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F));
-    carry = a[i + HQC128_VEC_N_SIZE_64] << (64 - (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F)));
+    r     = a[i + HQC128_VEC_N_SIZE_64 - 1] >> (((uint16)HQC128_PARAM_N) & Hqc_Convert_u8_to_u16(0x3F));
+    carry = a[i + HQC128_VEC_N_SIZE_64] << (64 - (((uint16)HQC128_PARAM_N) & Hqc_Convert_u8_to_u16(0x3F)));
     o[i]  = a[i] ^ r ^ carry;
   }
 
@@ -282,14 +290,14 @@ static void hqc128_gf2x_gf_reduce(uint64 *const o, const uint64 *const a)
  * \param[in] v1 Pointer to the first polynomial
  * \param[in] v2 Pointer to the second polynomial
  */
-void FsmSw_Hqc128_Vect_Mul(uint64 *const o, const uint64 *const v1, const uint64 *const v2)
+void Hqc128_Vect_Mul(uint64 *const o, const uint64 *const v1, const uint64 *const v2)
 {
   uint64 stack[(uint32)HQC128_VEC_N_SIZE_64 << 3]   = {0};
   uint64 o_karat[(uint32)HQC128_VEC_N_SIZE_64 << 1] = {0};
 
   hqc128_karatsuba(o_karat, v1, v2, HQC128_VEC_N_SIZE_64, stack);
   hqc128_gf2x_gf_reduce(o, o_karat);
-} // end: FsmSw_Hqc128_Vect_Mul
+} // end: Hqc128_Vect_Mul
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
