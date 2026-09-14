@@ -25,15 +25,20 @@ For the integration of PQCleanAutomotive, the file Crypto.c in the [IAV_quantumS
 In the SLH‑DSA algorithm, dynamic arrays had to be replaced by static arrays in various functions for the microcontroller implementation.
 
 ## License
-PQCleanAutomotive includes some third party libraries or modules that are licensed differently. In particular:
+PQCleanAutomotive contains third-party components with licensing information
+that differs from the Apache-2.0 license applicable to IAV contributions.
+The complete license texts and attribution notices are located in the
+respective component directories and in the root `NOTICE` file.
 
-* ML‑KEM: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* ML‑DSA: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* SLH‑DSA: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* FN‑DSA: MIT License (https://github.com/PQClean/PQClean/blob/master/crypto_sign/falcon-1024/clean/LICENSE)
-* Fips202: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* HQC: Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
-* CommonLib: Apache License, Version 2.0
+* ML‑KEM: PQClean Public Domain designation; see `ML_KEM/LICENSE` and `NOTICE`.
+* ML‑DSA: PQClean Public Domain designation; see `ML_DSA/LICENSE` and `NOTICE`.
+* SLH‑DSA: CC0 1.0 Universal; see `SLH_DSA/LICENSE` and `NOTICE`.
+* FN‑DSA: MIT License; see `FN_DSA/LICENSE` and `NOTICE`.
+* FIPS-202 / Keccak and SHA-2 support code: upstream Public Domain
+  designation; see `NOTICE` and the source-file notices.
+* HQC: upstream Public Domain designation; see `Hqc/LICENSE` and `NOTICE`.
+* IAV-authored support code and modifications: Apache License, Version 2.0;
+  see `LICENSE`.
 
 Copyright [2026] [IAV GmbH]
 
@@ -63,4 +68,3 @@ In this repository the post-quantum cryptographic algorithms are warning free co
 Our measurement results are documented in our open access paper for the 23rd escar Europe 2025:\
 \
 &nbsp;&nbsp;&nbsp;https://hss-opus.ub.ruhr-uni-bochum.de/opus4/frontdoor/index/index/year/2025/docId/13649
-
