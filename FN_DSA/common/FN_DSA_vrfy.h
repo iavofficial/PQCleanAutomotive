@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_sign
+/** \addtogroup FN_DSA_vrfy
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_sign.h
-* \brief  description of FsmSw_Falcon_sign.h
+/** \file FN_DSA_vrfy.h
+* \brief  description of FN_DSA_vrfy.h
 *
 * \details
 *
@@ -33,12 +40,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_SIGN_H
-#define FSMSW_FALCON_SIGN_H
+#ifndef FN_DSA_VRFY_H
+#define FN_DSA_VRFY_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-
+#include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -46,8 +53,7 @@
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
-#include "FsmSw_Falcon_common.h"
-#include "Std_Types.h"
+
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -63,11 +69,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_Sign_Dyn(sint16 *const sig, inner_shake256_context *const rng, const sint8 *const f,
-                           const sint8 *const g, const sint8 *const F, const sint8 *const G, const uint16 *const hm,
-                           uint32 logn, uint8 *const tmp);
+void FN_DSA_ToNttMonty(uint16 *const h, uint32 logn);
 
-#endif /* FSMSW_FALCON_SIGN_H */
+sint32 FN_DSA_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
+                              uint8 *const tmp);
+
+sint32 FN_DSA_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
+                                  uint8 *const tmp);
+
+sint32 FN_DSA_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
+                                    uint32 logn, uint8 *const tmp);
+
+#endif /* FN_DSA_VRFY_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_fft
+/** \addtogroup FN_DSA_fft
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_fft.c
-* \brief  description of FsmSw_Falcon_fft.c
+/** \file FN_DSA_fft.c
+* \brief  description of FN_DSA_fft.c
 *
 * \details
 *
@@ -49,9 +56,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_sha2.h"
 
-#include "FsmSw_Falcon_fft.h"
+#include "FN_DSA_fft.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -71,8 +77,8 @@ inline functions would not provide significant benefits." */
   do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_re, fpct_im;                                                                                              \
-    fpct_re = FsmSw_Falcon_Fpr_Add(a_re, b_re);                                                                        \
-    fpct_im = FsmSw_Falcon_Fpr_Add(a_im, b_im);                                                                        \
+    fpct_re = FN_DSA_Fpr_Add(a_re, b_re);                                                                        \
+    fpct_im = FN_DSA_Fpr_Add(a_im, b_im);                                                                        \
     (d_re)  = fpct_re;                                                                                                 \
     (d_im)  = fpct_im;                                                                                                 \
   } while (0)
@@ -82,8 +88,8 @@ inline functions would not provide significant benefits." */
   do                                                                                                                   \
   {                                                                                                                    \
     fpr fpct_re, fpct_im;                                                                                              \
-    fpct_re = FsmSw_Falcon_Fpr_Sub(a_re, b_re);                                                                        \
-    fpct_im = FsmSw_Falcon_Fpr_Sub(a_im, b_im);                                                                        \
+    fpct_re = FN_DSA_Fpr_Sub(a_re, b_re);                                                                        \
+    fpct_im = FN_DSA_Fpr_Sub(a_im, b_im);                                                                        \
     (d_re)  = fpct_re;                                                                                                 \
     (d_im)  = fpct_im;                                                                                                 \
   } while (0)
@@ -102,9 +108,9 @@ location of dead code unclear." */
     fpct_b_re = (b_re);                                                                                                \
     fpct_b_im = (b_im);                                                                                                \
     fpct_d_re =                                                                                                        \
-        FsmSw_Falcon_Fpr_Sub(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_re), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_im));  \
+        FN_DSA_Fpr_Sub(FN_DSA_Fpr_Mul(fpct_a_re, fpct_b_re), FN_DSA_Fpr_Mul(fpct_a_im, fpct_b_im));  \
     fpct_d_im =                                                                                                        \
-        FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_im), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_re));  \
+        FN_DSA_Fpr_Add(FN_DSA_Fpr_Mul(fpct_a_re, fpct_b_im), FN_DSA_Fpr_Mul(fpct_a_im, fpct_b_re));  \
     (d_re) = fpct_d_re;                                                                                                \
     (d_im) = fpct_d_im;                                                                                                \
   } while (0)
@@ -121,14 +127,14 @@ location of dead code unclear." */
     fpct_a_im = (a_im);                                                                                                \
     fpct_b_re = (b_re);                                                                                                \
     fpct_b_im = (b_im);                                                                                                \
-    fpct_m    = FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(fpct_b_re), FsmSw_Falcon_Fpr_Sqr(fpct_b_im));                \
-    fpct_m    = FsmSw_Falcon_Fpr_Inv(fpct_m);                                                                          \
-    fpct_b_re = FsmSw_Falcon_Fpr_Mul(fpct_b_re, fpct_m);                                                               \
-    fpct_b_im = FsmSw_Falcon_Fpr_Mul(FsmSw_Falcon_Fpr_Neg(fpct_b_im), fpct_m);                                         \
+    fpct_m    = FN_DSA_Fpr_Add(FN_DSA_Fpr_Sqr(fpct_b_re), FN_DSA_Fpr_Sqr(fpct_b_im));                \
+    fpct_m    = FN_DSA_Fpr_Inv(fpct_m);                                                                          \
+    fpct_b_re = FN_DSA_Fpr_Mul(fpct_b_re, fpct_m);                                                               \
+    fpct_b_im = FN_DSA_Fpr_Mul(FN_DSA_Fpr_Neg(fpct_b_im), fpct_m);                                         \
     fpct_d_re =                                                                                                        \
-        FsmSw_Falcon_Fpr_Sub(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_re), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_im));  \
+        FN_DSA_Fpr_Sub(FN_DSA_Fpr_Mul(fpct_a_re, fpct_b_re), FN_DSA_Fpr_Mul(fpct_a_im, fpct_b_im));  \
     fpct_d_im =                                                                                                        \
-        FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Mul(fpct_a_re, fpct_b_im), FsmSw_Falcon_Fpr_Mul(fpct_a_im, fpct_b_re));  \
+        FN_DSA_Fpr_Add(FN_DSA_Fpr_Mul(fpct_a_re, fpct_b_im), FN_DSA_Fpr_Mul(fpct_a_im, fpct_b_re));  \
     (d_re) = fpct_d_re;                                                                                                \
     (d_im) = fpct_d_im;                                                                                                \
   } while (0)
@@ -171,7 +177,7 @@ location of dead code unclear." */
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-void FsmSw_Falcon_FFT(fpr *const f, uint32 logn)
+void FN_DSA_FFT(fpr *const f, uint32 logn)
 {
   /* FFT algorithm in bit-reversal order uses the following iterative algorithm:
      *
@@ -249,7 +255,7 @@ void FsmSw_Falcon_FFT(fpr *const f, uint32 logn)
 
     m <<= 1;
   }
-} // end: FsmSw_Falcon_FFT
+} // end: FN_DSA_FFT
 
 /*====================================================================================================================*/
 /**
@@ -262,7 +268,7 @@ void FsmSw_Falcon_FFT(fpr *const f, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 **/
-void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn)
+void FN_DSA_IFFT(fpr *const f, uint32 logn)
 {
   /* Inverse FFT algorithm in bit-reversal order uses the following iterative algorithm:
      *
@@ -331,7 +337,7 @@ void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn)
       fpr s_re, s_im;
 
       s_re = fpr_gm_tab[((hm + i1) << 1)];
-      s_im = FsmSw_Falcon_Fpr_Neg(fpr_gm_tab[((hm + i1) << 1) + 1u]);
+      s_im = FN_DSA_Fpr_Neg(fpr_gm_tab[((hm + i1) << 1) + 1u]);
 
       for (j = j1; j < j2; j++)
       {
@@ -357,10 +363,10 @@ void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn)
     ni = fpr_p2_tab[logn];
     for (u = 0; u < n; u++)
     {
-      f[u] = FsmSw_Falcon_Fpr_Mul(f[u], ni);
+      f[u] = FN_DSA_Fpr_Mul(f[u], ni);
     }
   }
-} // end: FsmSw_Falcon_IFFT
+} // end: FN_DSA_IFFT
 
 /*====================================================================================================================*/
 /**
@@ -372,7 +378,7 @@ void FsmSw_Falcon_IFFT(fpr *const f, uint32 logn)
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Add(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_Add(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -380,9 +386,9 @@ void FsmSw_Falcon_Poly_Add(fpr *const a, const fpr *const b, uint32 logn)
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    a[u] = FsmSw_Falcon_Fpr_Add(a[u], b[u]);
+    a[u] = FN_DSA_Fpr_Add(a[u], b[u]);
   }
-} // end: FsmSw_Falcon_Poly_Add
+} // end: FN_DSA_Poly_Add
 
 /*====================================================================================================================*/
 /**
@@ -394,7 +400,7 @@ void FsmSw_Falcon_Poly_Add(fpr *const a, const fpr *const b, uint32 logn)
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -402,9 +408,9 @@ void FsmSw_Falcon_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn)
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    a[u] = FsmSw_Falcon_Fpr_Sub(a[u], b[u]);
+    a[u] = FN_DSA_Fpr_Sub(a[u], b[u]);
   }
-} // end: FsmSw_Falcon_Poly_Sub
+} // end: FN_DSA_Poly_Sub
 
 /*====================================================================================================================*/
 /**
@@ -414,7 +420,7 @@ void FsmSw_Falcon_Poly_Sub(fpr *const a, const fpr *const b, uint32 logn)
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Neg(fpr *const a, uint32 logn)
+void FN_DSA_Poly_Neg(fpr *const a, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -422,9 +428,9 @@ void FsmSw_Falcon_Poly_Neg(fpr *const a, uint32 logn)
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    a[u] = FsmSw_Falcon_Fpr_Neg(a[u]);
+    a[u] = FN_DSA_Fpr_Neg(a[u]);
   }
-} // end: FsmSw_Falcon_Poly_Neg
+} // end: FN_DSA_Poly_Neg
 
 /*====================================================================================================================*/
 /**
@@ -434,7 +440,7 @@ void FsmSw_Falcon_Poly_Neg(fpr *const a, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_AdjFFT(fpr *const a, uint32 logn)
+void FN_DSA_Poly_AdjFFT(fpr *const a, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -442,9 +448,9 @@ void FsmSw_Falcon_Poly_AdjFFT(fpr *const a, uint32 logn)
   n = (uint32)1 << logn;
   for (u = (n >> 1); u < n; u++)
   {
-    a[u] = FsmSw_Falcon_Fpr_Neg(a[u]);
+    a[u] = FN_DSA_Fpr_Neg(a[u]);
   }
-} // end: FsmSw_Falcon_Poly_AdjFFT
+} // end: FN_DSA_Poly_AdjFFT
 
 /*====================================================================================================================*/
 /**
@@ -456,7 +462,7 @@ void FsmSw_Falcon_Poly_AdjFFT(fpr *const a, uint32 logn)
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -476,7 +482,7 @@ void FsmSw_Falcon_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn)
     b_im = b[u + hn];
     FPC_MUL(a[u], a[u + hn], a_re, a_im, b_re, b_im);
   }
-} // end: FsmSw_Falcon_Poly_MulFFT
+} // end: FN_DSA_Poly_MulFFT
 
 /*====================================================================================================================*/
 /**
@@ -488,7 +494,7 @@ void FsmSw_Falcon_Poly_MulFFT(fpr *const a, const fpr *const b, uint32 logn)
 * \param[in]  uint32  logn: t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -503,10 +509,10 @@ void FsmSw_Falcon_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn)
     a_re = a[u];
     a_im = a[u + hn];
     b_re = b[u];
-    b_im = FsmSw_Falcon_Fpr_Neg(b[u + hn]);
+    b_im = FN_DSA_Fpr_Neg(b[u + hn]);
     FPC_MUL(a[u], a[u + hn], a_re, a_im, b_re, b_im);
   }
-} // end: FsmSw_Falcon_Poly_MuladjFFT
+} // end: FN_DSA_Poly_MuladjFFT
 
 /*====================================================================================================================*/
 /**
@@ -516,7 +522,7 @@ void FsmSw_Falcon_Poly_MuladjFFT(fpr *const a, const fpr *const b, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *const a, uint32 logn)
+void FN_DSA_Poly_MulselfadjFFT(fpr *const a, uint32 logn)
 {
   /* Since each coefficient is multiplied with its own conjugate, the result contains only real values. */
   uint32 n  = 0;
@@ -531,10 +537,10 @@ void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *const a, uint32 logn)
   {
     a_re      = a[u];
     a_im      = a[u + hn];
-    a[u]      = FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(a_re), FsmSw_Falcon_Fpr_Sqr(a_im));
+    a[u]      = FN_DSA_Fpr_Add(FN_DSA_Fpr_Sqr(a_re), FN_DSA_Fpr_Sqr(a_im));
     a[u + hn] = fpr_zero;
   }
-} // end: FsmSw_Falcon_Poly_MulselfadjFFT
+} // end: FN_DSA_Poly_MulselfadjFFT
 
 /*====================================================================================================================*/
 /**
@@ -545,7 +551,7 @@ void FsmSw_Falcon_Poly_MulselfadjFFT(fpr *const a, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Mulconst(fpr *const a, fpr x, uint32 logn)
+void FN_DSA_Poly_Mulconst(fpr *const a, fpr x, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -553,9 +559,9 @@ void FsmSw_Falcon_Poly_Mulconst(fpr *const a, fpr x, uint32 logn)
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    a[u] = FsmSw_Falcon_Fpr_Mul(a[u], x);
+    a[u] = FN_DSA_Fpr_Mul(a[u], x);
   }
-} // end: FsmSw_Falcon_Poly_Mulconst
+} // end: FN_DSA_Poly_Mulconst
 
 /*====================================================================================================================*/
 /**
@@ -570,7 +576,7 @@ void FsmSw_Falcon_Poly_Mulconst(fpr *const a, fpr x, uint32 logn)
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -588,11 +594,11 @@ void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *
     a_im = a[u + hn];
     b_re = b[u];
     b_im = b[u + hn];
-    d[u] = FsmSw_Falcon_Fpr_Inv(
-        FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(a_re), FsmSw_Falcon_Fpr_Sqr(a_im)),
-                             FsmSw_Falcon_Fpr_Add(FsmSw_Falcon_Fpr_Sqr(b_re), FsmSw_Falcon_Fpr_Sqr(b_im))));
+    d[u] = FN_DSA_Fpr_Inv(
+        FN_DSA_Fpr_Add(FN_DSA_Fpr_Add(FN_DSA_Fpr_Sqr(a_re), FN_DSA_Fpr_Sqr(a_im)),
+                             FN_DSA_Fpr_Add(FN_DSA_Fpr_Sqr(b_re), FN_DSA_Fpr_Sqr(b_im))));
   }
-} // end: FsmSw_Falcon_Poly_Invnorm2FFT
+} // end: FN_DSA_Poly_Invnorm2FFT
 
 /*====================================================================================================================*/
 /**
@@ -607,7 +613,7 @@ void FsmSw_Falcon_Poly_Invnorm2FFT(fpr *const d, const fpr *const a, const fpr *
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr *const G, const fpr *const f,
+void FN_DSA_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr *const G, const fpr *const f,
                                      const fpr *const g, uint32 logn)
 {
   uint32 n             = 0;
@@ -639,12 +645,12 @@ void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr
     adj_g_real       = g[u];
     adj_g_imaginary  = g[u + hn];
 
-    FPC_MUL(a_re, a_im, poly_F_real, poly_F_imaginary, adj_f_real, FsmSw_Falcon_Fpr_Neg(adj_f_imaginary));
-    FPC_MUL(b_re, b_im, poly_G_real, poly_G_imaginary, adj_g_real, FsmSw_Falcon_Fpr_Neg(adj_g_imaginary));
-    d[u]      = FsmSw_Falcon_Fpr_Add(a_re, b_re);
-    d[u + hn] = FsmSw_Falcon_Fpr_Add(a_im, b_im);
+    FPC_MUL(a_re, a_im, poly_F_real, poly_F_imaginary, adj_f_real, FN_DSA_Fpr_Neg(adj_f_imaginary));
+    FPC_MUL(b_re, b_im, poly_G_real, poly_G_imaginary, adj_g_real, FN_DSA_Fpr_Neg(adj_g_imaginary));
+    d[u]      = FN_DSA_Fpr_Add(a_re, b_re);
+    d[u + hn] = FN_DSA_Fpr_Add(a_im, b_im);
   }
-} // end: FsmSw_Falcon_Poly_Add_MuladjFFT
+} // end: FN_DSA_Poly_Add_MuladjFFT
 
 /*====================================================================================================================*/
 /**
@@ -657,7 +663,7 @@ void FsmSw_Falcon_Poly_Add_MuladjFFT(fpr *const d, const fpr *const F, const fpr
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -667,10 +673,10 @@ void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 l
   hn = n >> 1;
   for (u = 0; u < hn; u++)
   {
-    a[u]      = FsmSw_Falcon_Fpr_Mul(a[u], b[u]);
-    a[u + hn] = FsmSw_Falcon_Fpr_Mul(a[u + hn], b[u]);
+    a[u]      = FN_DSA_Fpr_Mul(a[u], b[u]);
+    a[u + hn] = FN_DSA_Fpr_Mul(a[u + hn], b[u]);
   }
-} // end: FsmSw_Falcon_Poly_Mul_AutoadjFFT
+} // end: FN_DSA_Poly_Mul_AutoadjFFT
 
 /*====================================================================================================================*/
 /**
@@ -683,7 +689,7 @@ void FsmSw_Falcon_Poly_Mul_AutoadjFFT(fpr *const a, const fpr *const b, uint32 l
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
+void FN_DSA_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -695,11 +701,11 @@ void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 l
   {
     fpr ib;
 
-    ib        = FsmSw_Falcon_Fpr_Inv(b[u]);
-    a[u]      = FsmSw_Falcon_Fpr_Mul(a[u], ib);
-    a[u + hn] = FsmSw_Falcon_Fpr_Mul(a[u + hn], ib);
+    ib        = FN_DSA_Fpr_Inv(b[u]);
+    a[u]      = FN_DSA_Fpr_Mul(a[u], ib);
+    a[u + hn] = FN_DSA_Fpr_Mul(a[u + hn], ib);
   }
-} // end: FsmSw_Falcon_Poly_Div_AutoadjFFT
+} // end: FN_DSA_Poly_Div_AutoadjFFT
 
 /*====================================================================================================================*/
 /**
@@ -714,7 +720,7 @@ void FsmSw_Falcon_Poly_Div_AutoadjFFT(fpr *const a, const fpr *const b, uint32 l
 * \param[in]  uint32    logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g11, uint32 logn)
+void FN_DSA_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g11, uint32 logn)
 {
   uint32 n   = 0;
   uint32 hn  = 0;
@@ -739,12 +745,12 @@ void FsmSw_Falcon_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g
     g11_re = g11[u];
     g11_im = g11[u + hn];
     FPC_DIV(mu_re, mu_im, g01_re, g01_im, g00_re, g00_im);
-    FPC_MUL(g01_re, g01_im, mu_re, mu_im, g01_re, FsmSw_Falcon_Fpr_Neg(g01_im));
+    FPC_MUL(g01_re, g01_im, mu_re, mu_im, g01_re, FN_DSA_Fpr_Neg(g01_im));
     FPC_SUB(g11[u], g11[u + hn], g11_re, g11_im, g01_re, g01_im);
     g01[u]      = mu_re;
-    g01[u + hn] = FsmSw_Falcon_Fpr_Neg(mu_im);
+    g01[u + hn] = FN_DSA_Fpr_Neg(mu_im);
   }
-} // end: FsmSw_Falcon_Poly_LdlFFT
+} // end: FN_DSA_Poly_LdlFFT
 
 /*====================================================================================================================*/
 /**
@@ -760,7 +766,7 @@ void FsmSw_Falcon_Poly_LdlFFT(const fpr *const g00, fpr *const g01, fpr *const g
 * \param[in]  uint32    logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const g00, const fpr *const g01,
+void FN_DSA_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const g00, const fpr *const g01,
                                 const fpr *const g11, uint32 logn)
 {
   uint32 n   = 0;
@@ -786,12 +792,12 @@ void FsmSw_Falcon_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const
     g11_re = g11[u];
     g11_im = g11[u + hn];
     FPC_DIV(mu_re, mu_im, g01_re, g01_im, g00_re, g00_im);
-    FPC_MUL(g01_re, g01_im, mu_re, mu_im, g01_re, FsmSw_Falcon_Fpr_Neg(g01_im));
+    FPC_MUL(g01_re, g01_im, mu_re, mu_im, g01_re, FN_DSA_Fpr_Neg(g01_im));
     FPC_SUB(d11[u], d11[u + hn], g11_re, g11_im, g01_re, g01_im);
     l10[u]      = mu_re;
-    l10[u + hn] = FsmSw_Falcon_Fpr_Neg(mu_im);
+    l10[u + hn] = FN_DSA_Fpr_Neg(mu_im);
   }
-} // end: FsmSw_Falcon_Poly_LdlMvFFT
+} // end: FN_DSA_Poly_LdlMvFFT
 
 /*====================================================================================================================*/
 /**
@@ -805,10 +811,10 @@ void FsmSw_Falcon_Poly_LdlMvFFT(fpr *const d11, fpr *const l10, const fpr *const
 * \param[in]  uint32  logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f, uint32 logn)
+void FN_DSA_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f, uint32 logn)
 {
   /* The FFT representation we use is in bit-reversed order (element i contains f(w^(rev(i))), where rev() is the
-     * bit-reversal function over the ring degree. This changes indexes with regards to the Falcon specification. */
+     * bit-reversal function over the ring degree. This changes indexes with regards to the FN_DSA specification. */
   uint32 n  = 0;
   uint32 hn = 0;
   uint32 qn = 0;
@@ -837,16 +843,16 @@ void FsmSw_Falcon_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f
     b_im = f[(u << 1) + 1u + hn];
 
     FPC_ADD(t_re, t_im, a_re, a_im, b_re, b_im);
-    f0[u]      = FsmSw_Falcon_Fpr_Half(t_re);
-    f0[u + qn] = FsmSw_Falcon_Fpr_Half(t_im);
+    f0[u]      = FN_DSA_Fpr_Half(t_re);
+    f0[u + qn] = FN_DSA_Fpr_Half(t_im);
 
     FPC_SUB(t_re, t_im, a_re, a_im, b_re, b_im);
     FPC_MUL(t_re, t_im, t_re, t_im, fpr_gm_tab[((u + hn) << 1) + 0u],
-            FsmSw_Falcon_Fpr_Neg(fpr_gm_tab[((u + hn) << 1) + 1u]));
-    f1[u]      = FsmSw_Falcon_Fpr_Half(t_re);
-    f1[u + qn] = FsmSw_Falcon_Fpr_Half(t_im);
+            FN_DSA_Fpr_Neg(fpr_gm_tab[((u + hn) << 1) + 1u]));
+    f1[u]      = FN_DSA_Fpr_Half(t_re);
+    f1[u + qn] = FN_DSA_Fpr_Half(t_im);
   }
-} // end: FsmSw_Falcon_Poly_SplitFFT
+} // end: FN_DSA_Poly_SplitFFT
 
 /*====================================================================================================================*/
 /**
@@ -860,7 +866,7 @@ void FsmSw_Falcon_Poly_SplitFFT(fpr *const f0, fpr *const f1, const fpr *const f
 * \param[in]  uint32   logn : t.b.d.
 *
 */
-void FsmSw_Falcon_Poly_MergeFFT(fpr *const f, const fpr *const f0, const fpr *const f1, uint32 logn)
+void FN_DSA_Poly_MergeFFT(fpr *const f, const fpr *const f0, const fpr *const f1, uint32 logn)
 {
   uint32 n  = 0;
   uint32 hn = 0;
@@ -893,7 +899,7 @@ void FsmSw_Falcon_Poly_MergeFFT(fpr *const f, const fpr *const f0, const fpr *co
     f[(u << 1) + 1u]      = t_re;
     f[(u << 1) + 1u + hn] = t_im;
   }
-} // end: FsmSw_Falcon_Poly_MergeFFT
+} // end: FN_DSA_Poly_MergeFFT
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

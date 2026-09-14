@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_fpr
+/** \addtogroup FN_DSA_fpr
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_fpr.h
-* \brief  description of FsmSw_Falcon_fpr.h
+/** \file FN_DSA_fpr.h
+* \brief  description of FN_DSA_fpr.h
 *
 * \details
 *
@@ -33,12 +40,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_FPR_H
-#define FSMSW_FALCON_FPR_H
+#ifndef FN_DSA_FPR_H
+#define FN_DSA_FPR_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Falcon_common.h"
+#include "FN_DSA_common.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -2156,21 +2163,21 @@ static const fpr fpr_p2_tab[] = {4611686018427387904U, 4607182418800017408U, 460
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-fpr FsmSw_Falcon_Fpr_Of(sint64 i);
-sint64 FsmSw_Falcon_Fpr_Rint(fpr x);
-sint64 FsmSw_Falcon_Fpr_Floor(fpr x);
-sint64 FsmSw_Falcon_Fpr_Trunc(fpr x);
-fpr FsmSw_Falcon_Fpr_Sub(fpr x, fpr y);
-fpr FsmSw_Falcon_Fpr_Neg(fpr x);
-fpr FsmSw_Falcon_Fpr_Half(fpr x);
-fpr FsmSw_Falcon_Fpr_Double(fpr x);
-fpr FsmSw_Falcon_Fpr_Sqr(fpr x);
-fpr FsmSw_Falcon_Fpr_Inv(fpr x);
-sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y);
-fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y);
-fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y);
-fpr FsmSw_Falcon_Fpr_Sqrt(fpr x);
-uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs);
+fpr FN_DSA_Fpr_Of(sint64 i);
+sint64 FN_DSA_Fpr_Rint(fpr x);
+sint64 FN_DSA_Fpr_Floor(fpr x);
+sint64 FN_DSA_Fpr_Trunc(fpr x);
+fpr FN_DSA_Fpr_Sub(fpr x, fpr y);
+fpr FN_DSA_Fpr_Neg(fpr x);
+fpr FN_DSA_Fpr_Half(fpr x);
+fpr FN_DSA_Fpr_Double(fpr x);
+fpr FN_DSA_Fpr_Sqr(fpr x);
+fpr FN_DSA_Fpr_Inv(fpr x);
+sint32 FN_DSA_Fpr_Lt(fpr x, fpr y);
+fpr FN_DSA_Fpr_Add(fpr x, fpr y);
+fpr FN_DSA_Fpr_Mul(fpr x, fpr y);
+fpr FN_DSA_Fpr_Sqrt(fpr x);
+uint64 FN_DSA_Fpr_ExpmP63(fpr x, fpr ccs);
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -2179,7 +2186,7 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs);
 /* MISRA C 2012 rule 8.2 violation: [R] Function types shall be in prototype form with named parameters: We ignore
  * this MISRA finding because the constant values are used in other modules, but not in every module. The constants are
  * not moved to the modules where they are used, as the fpr is provided for this. */
-static inline void FsmSw_Falcon_TriCoreVXToolSet_CompilerWarning_IgnoreUnusedConst(void)
+static inline void FN_DSA_TriCoreVXToolSet_CompilerWarning_IgnoreUnusedConst(void)
 {
   (void)fpr_q;
   (void)fpr_inverse_of_q;
@@ -2206,7 +2213,7 @@ static inline void FsmSw_Falcon_TriCoreVXToolSet_CompilerWarning_IgnoreUnusedCon
   (void)fpr_p2_tab;
 }
 
-#endif /* FSMSW_FALCON_FPR_H */
+#endif /* FN_DSA_FPR_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

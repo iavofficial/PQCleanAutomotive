@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_keygen
+/** \addtogroup FN_DSA_keygen
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_keygen.c
-* \brief  description of FsmSw_Falcon_keygen.c
+/** \file FN_DSA_keygen.c
+* \brief  description of FN_DSA_keygen.c
 *
 * \details
 *
@@ -33,7 +40,7 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-/* Falcon key pair generation. */
+/* FN_DSA key pair generation. */
 
 /* Modular arithmetics.
  * We implement a few functions for computing modulo a small integer p.
@@ -62,13 +69,13 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Falcon_codec.h"
-#include "FsmSw_Falcon_common.h"
-#include "FsmSw_Falcon_fft.h"
-#include "FsmSw_Falcon_vrfy.h"
+#include "FN_DSA_CommonLib.h"
+#include "FN_DSA_codec.h"
+#include "FN_DSA_common.h"
+#include "FN_DSA_fft.h"
+#include "FN_DSA_vrfy.h"
 
-#include "FsmSw_Falcon_keygen.h"
+#include "FN_DSA_keygen.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -81,12 +88,12 @@ inline functions would not provide significant benefits." */
 
 /* Minimal recursion depth at which we rebuild intermediate values when reconstructing f and g. */
 #define DEPTH_INT_FG                    4u
-#define FSMSW_FALCON_MIN_DEPTH          2u
-#define FSMSW_FALCON_MODPDIV_INDEX      30
-#define FSMSW_FALCON_MAX_LOGN_SUPPORTED 10u
-#define FSMSW_FALCON_ZINTBEZOU_STEPS    31
-#define FSMSW_FALCON_UINT32_MAX_VALUE   0xFFFFFFFFu
-#define FSMSW_FALCON_GETRNG64_TMP_SIZE  8
+#define FN_DSA_MIN_DEPTH          2u
+#define FN_DSA_MODPDIV_INDEX      30
+#define FN_DSA_MAX_LOGN_SUPPORTED 10u
+#define FN_DSA_ZINTBEZOU_STEPS    31
+#define FN_DSA_UINT32_MAX_VALUE   0xFFFFFFFFu
+#define FN_DSA_GETRNG64_TMP_SIZE  8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -799,7 +806,7 @@ static const uint64 gauss_1024_12289[] = {1283868770400643928u,
  * the largest values.
  *
  * IMPORTANT: if these values are modified, then the temporary buffer
- * sizes (FALCON_KEYGEN_TEMP_*, in inner.h) must be recomputed
+ * sizes (FN_DSA_KEYGEN_TEMP_*, in inner.h) must be recomputed
  * accordingly.
  */
 
@@ -818,74 +825,74 @@ static const uint32 MAX_BL_LARGE[] = {2, 2, 5, 7, 12, 21, 40, 78, 157, 308};
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p);
-static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p);
-static uint32 fsmsw_falcon_ModpNinv31(uint32 p);
-static uint32 fsmsw_falcon_ModpR(uint32 p);
-static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p);
-static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p);
-static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i);
-static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i);
-static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2);
-static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R);
-static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i);
-static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
+static uint32 fn_dsa_ModpSet(sint32 x, uint32 p);
+static sint32 fn_dsa_ModpNorm(uint32 x, uint32 p);
+static uint32 fn_dsa_ModpNinv31(uint32 p);
+static uint32 fn_dsa_ModpR(uint32 p);
+static uint32 fn_dsa_ModpAdd(uint32 a, uint32 b, uint32 p);
+static uint32 fn_dsa_ModpSub(uint32 a, uint32 b, uint32 p);
+static uint32 fn_dsa_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i);
+static uint32 fn_dsa_ModpR2(uint32 p, uint32 p0i);
+static uint32 fn_dsa_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2);
+static uint32 fn_dsa_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R);
+static void fn_dsa_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i);
+static void fn_dsa_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
                                      uint32 p0i);
-static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
+static void fn_dsa_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
                                       uint32 p0i);
-static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2);
-static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl);
-static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x);
-static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2);
-static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
+static void fn_dsa_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2);
+static uint32 fn_dsa_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl);
+static uint32 fn_dsa_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x);
+static uint32 fn_dsa_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2);
+static uint32 fn_dsa_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
                                               uint32 Rx);
-static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s);
-static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len);
-static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
+static void fn_dsa_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s);
+static void fn_dsa_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len);
+static void fn_dsa_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
                                         const small_prime *const primes_zintRebuildCrt, sint32 normalize_signed,
                                         uint32 *const tmp);
-static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl);
-static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
+static void fn_dsa_ZintNegate(uint32 *const a, uint32 len, uint32 ctl);
+static uint32 fn_dsa_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
                                         sint64 yb);
-static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg);
-static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
+static void fn_dsa_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg);
+static void fn_dsa_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
                                          uint32 m0i, sint64 xa, sint64 xb, sint64 ya, sint64 yb);
-static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
+static sint32 fn_dsa_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
                                       uint32 len, uint32 *const tmp);
-static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
+static void fn_dsa_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
                                                sint32 k, uint32 sch, uint32 scl);
-static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
+static void fn_dsa_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
                                        uint32 scl);
-static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x);
-static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
+static sint32 fn_dsa_ZintOneToPlain(const uint32 *const x);
+static void fn_dsa_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
                                      uint32 fstride_polyBigToFp, uint32 logn);
-static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn);
-static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+static sint32 fn_dsa_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn);
+static void fn_dsa_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
                                        uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
                                        uint32 logn);
-static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+static void fn_dsa_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
                                           uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
                                           uint32 logn, uint32 *const tmp);
-static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng);
-static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn);
-static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn);
-static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data);
-static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data);
-static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn);
-static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt);
-static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
+static uint64 fn_dsa_GetRngU64(inner_shake256_context *const rng);
+static sint32 fn_dsa_Mkgauss(RNG_CONTEXT *const rng, uint32 logn);
+static uint32 fn_dsa_PolySmallSqNorm(const sint8 *const f, uint32 logn);
+static fpr *fn_dsa_AlignFpr(void *const base, void *const data);
+static uint32 *fn_dsa_AlignU32(void *const base, void *const data);
+static void fn_dsa_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn);
+static void fn_dsa_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt);
+static void fn_dsa_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
                                 uint32 depth, sint32 out_ntt);
-static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                             uint32 *const tmp);
-static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                                  uint32 depth, uint32 *const tmp);
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                                  uint32 *const tmp);
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
                                                  uint32 *const tmp);
-static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
+static sint32 fn_dsa_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
                                      const sint8 *const g, sint32 lim, uint32 *const tmp);
-static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn);
+static void fn_dsa_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -900,7 +907,7 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
 * \returns w
 *
 */
-static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
+static uint32 fn_dsa_ModpSet(sint32 x, uint32 p)
 {
   uint32 w = 0;
 
@@ -914,7 +921,7 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
   w += p & (uint32)((sint32)((-1) * (sint32)((uint32)(w >> 31))));
 
   return w;
-} // end: fsmsw_falcon_ModpSet
+} // end: fn_dsa_ModpSet
 
 /*====================================================================================================================*/
 /**
@@ -926,7 +933,7 @@ static uint32 fsmsw_falcon_ModpSet(sint32 x, uint32 p)
 * \returns  t.b.d.
 *
 */
-static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
+static sint32 fn_dsa_ModpNorm(uint32 x, uint32 p)
 {
   /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
@@ -935,7 +942,7 @@ static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
   determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
   the rule would provide no additional benefit and could compromise the stability of the system" */
   return (sint32)((uint32)(x - (p & (((x - ((p + 1u) >> 1)) >> 31) - 1u))));
-} // end: fsmsw_falcon_ModpNorm
+} // end: fn_dsa_ModpNorm
 
 /*====================================================================================================================*/
 /**
@@ -946,12 +953,12 @@ static sint32 fsmsw_falcon_ModpNorm(uint32 x, uint32 p)
 * \returns  t.b.d.
 *
 */
-static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
+static uint32 fn_dsa_ModpNinv31(uint32 p)
 {
   uint32 y = 0;
-  /* polyspace +9 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
-  determined to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would 
-  provide no  additional benefit and could compromise the stability of the system." */
+  /* polyspace +9 DEFECT:UINT_OVFL [Justified:]The current implementation has been carefully reviewed and determined to
+  be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
+  additional benefit and could compromise the stability of the system. */
   /* polyspace +6 CERT-C:INT30-C [Justified:]The current implementation has been carefully reviewed and determined to
   be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
   additional benefit and could compromise the stability of the system. */
@@ -965,7 +972,7 @@ static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
   y *= 2u - (p * y);
 
   return (uint32)(0x7FFFFFFFU & (~y + 1U));
-} // end: fsmsw_falcon_ModpNorm
+} // end: fn_dsa_ModpNorm
 
 /*====================================================================================================================*/
 /**
@@ -976,11 +983,11 @@ static uint32 fsmsw_falcon_ModpNinv31(uint32 p)
 * \returns  t.b.d.
 *
 */
-static uint32 fsmsw_falcon_ModpR(uint32 p)
+static uint32 fn_dsa_ModpR(uint32 p)
 {
   /* Since 2^30 < p < 2^31, we know that 2^31 mod p is simply 2^31 - p. */
   return ((uint32)1 << 31) - p;
-} // end: fsmsw_falcon_ModpR
+} // end: fn_dsa_ModpR
 
 /*====================================================================================================================*/
 /**
@@ -993,7 +1000,7 @@ static uint32 fsmsw_falcon_ModpR(uint32 p)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
+static uint32 fn_dsa_ModpAdd(uint32 a, uint32 b, uint32 p)
 {
   uint32 d = 0;
 
@@ -1007,7 +1014,7 @@ static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-} // end: fsmsw_falcon_ModpAdd
+} // end: fn_dsa_ModpAdd
 
 /*====================================================================================================================*/
 /**
@@ -1020,7 +1027,7 @@ static uint32 fsmsw_falcon_ModpAdd(uint32 a, uint32 b, uint32 p)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
+static uint32 fn_dsa_ModpSub(uint32 a, uint32 b, uint32 p)
 {
   uint32 d = 0;
 
@@ -1034,7 +1041,7 @@ static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-} // end: fsmsw_falcon_ModpSub
+} // end: fn_dsa_ModpSub
 
 /*====================================================================================================================*/
 /**
@@ -1049,7 +1056,7 @@ static uint32 fsmsw_falcon_ModpSub(uint32 a, uint32 b, uint32 p)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i)
+static uint32 fn_dsa_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i)
 {
   uint64 z = 0;
   uint64 w = 0;
@@ -1067,7 +1074,7 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
   d += p & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-} // end: fsmsw_falcon_ModpMontymul
+} // end: fn_dsa_ModpMontymul
 
 /*====================================================================================================================*/
 /**
@@ -1079,20 +1086,20 @@ static uint32 fsmsw_falcon_ModpMontymul(uint32 a, uint32 b, uint32 p, uint32 p0i
 * \returns z
 *
 */
-static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
+static uint32 fn_dsa_ModpR2(uint32 p, uint32 p0i)
 {
   uint32 z = 0;
 
   /* Compute z = 2^31 mod p (this is the value 1 in Montgomery representation), then double it with an addition. */
-  z = fsmsw_falcon_ModpR(p);
-  z = fsmsw_falcon_ModpAdd(z, z, p);
+  z = fn_dsa_ModpR(p);
+  z = fn_dsa_ModpAdd(z, z, p);
 
   /* Square it five times to obtain 2^32 in Montgomery representation (i.e. 2^63 mod p). */
-  z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
-  z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
-  z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
-  z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
-  z = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
+  z = fn_dsa_ModpMontymul(z, z, p, p0i);
+  z = fn_dsa_ModpMontymul(z, z, p, p0i);
+  z = fn_dsa_ModpMontymul(z, z, p, p0i);
+  z = fn_dsa_ModpMontymul(z, z, p, p0i);
+  z = fn_dsa_ModpMontymul(z, z, p, p0i);
 
   /* Halve the value mod p to get 2^62. */
   /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
@@ -1104,7 +1111,7 @@ static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
   z = (z + (p & (uint32)((sint32)((-1) * (sint32)((uint32)(z & 1u)))))) >> 1;
 
   return z;
-} // end: fsmsw_falcon_ModpR2
+} // end: fn_dsa_ModpR2
 
 /*====================================================================================================================*/
 /**
@@ -1118,7 +1125,7 @@ static uint32 fsmsw_falcon_ModpR2(uint32 p, uint32 p0i)
 * \returns z
 *
 */
-static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
+static uint32 fn_dsa_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
 {
   sint32 i = 0;
   uint32 r = 0;
@@ -1131,7 +1138,7 @@ static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
    * R2 is 2^31 in Montgomery representation. */
   x_temp--;
   r = R2;
-  z = fsmsw_falcon_ModpR(p);
+  z = fn_dsa_ModpR(p);
 
   /* polyspace +2 MISRA2012:14.2 [Justified:]"The calculation involving the loop counter directly affects loop 
   continuation, addressing a MISRA 14.2 warning by following its rules for how loops should work." */
@@ -1139,13 +1146,13 @@ static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
   {
     if ((x_temp & (uint32)((uint32)1u << (uint32)i)) != 0u)
     {
-      z = fsmsw_falcon_ModpMontymul(z, r, p, p0i);
+      z = fn_dsa_ModpMontymul(z, r, p, p0i);
     }
 
-    r = fsmsw_falcon_ModpMontymul(r, r, p, p0i);
+    r = fn_dsa_ModpMontymul(r, r, p, p0i);
   }
   return z;
-} // end: fsmsw_falcon_ModpRx
+} // end: fn_dsa_ModpRx
 
 /*====================================================================================================================*/
 /**
@@ -1161,7 +1168,7 @@ static uint32 fsmsw_falcon_ModpRx(uint32 x, uint32 p, uint32 p0i, uint32 R2)
 * \returns t.b.d
 *
 */
-static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R)
+static uint32 fn_dsa_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uint32 R)
 {
   uint32 z = 0;
   uint32 e = 0;
@@ -1170,12 +1177,12 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
   e = p - 2u;
   z = R;
 
-  for (i = FSMSW_FALCON_MODPDIV_INDEX; i >= 0; i--)
+  for (i = FN_DSA_MODPDIV_INDEX; i >= 0; i--)
   {
     uint32 z2;
 
-    z  = fsmsw_falcon_ModpMontymul(z, z, p, p0i);
-    z2 = fsmsw_falcon_ModpMontymul(z, b, p, p0i);
+    z  = fn_dsa_ModpMontymul(z, z, p, p0i);
+    z2 = fn_dsa_ModpMontymul(z, b, p, p0i);
     /* polyspace +6 DEFECT:SIGN_CHANGE [Justified:]"The current implementation has been carefully reviewed and determined 
     to be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
     additional benefit and could compromise the stability of the system." */
@@ -1190,10 +1197,10 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
    * so the loop really returned R/(b/R) = R^2/b.
    * We want a/b, so we need one Montgomery multiplication with a, which also remove one of the R factors, and another
    * such multiplication to remove the second R factor. */
-  z = fsmsw_falcon_ModpMontymul(z, 1, p, p0i);
+  z = fn_dsa_ModpMontymul(z, 1, p, p0i);
 
-  return fsmsw_falcon_ModpMontymul(a, z, p, p0i);
-} // end: fsmsw_falcon_ModpDiv
+  return fn_dsa_ModpMontymul(a, z, p, p0i);
+} // end: fn_dsa_ModpDiv
 
 /*====================================================================================================================*/
 /**
@@ -1214,7 +1221,7 @@ static uint32 fsmsw_falcon_ModpDiv(uint32 a, uint32 b, uint32 p, uint32 p0i, uin
 * \param[in]  uint32  p0i : t.b.d.
 *
 */
-static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i)
+static void fn_dsa_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 logn, uint32 g, uint32 p, uint32 p0i)
 {
   uint32 u  = 0;
   uint32 n  = 0;
@@ -1231,28 +1238,28 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 l
   n = (uint32)1 << logn;
 
   /* We want g such that g^(2N) = 1 mod p, but the provided generator has order 2048. We must square it a few times. */
-  R2               = fsmsw_falcon_ModpR2(p, p0i);
-  g_temp_modpMkgm2 = fsmsw_falcon_ModpMontymul(g_temp_modpMkgm2, R2, p, p0i);
+  R2               = fn_dsa_ModpR2(p, p0i);
+  g_temp_modpMkgm2 = fn_dsa_ModpMontymul(g_temp_modpMkgm2, R2, p, p0i);
 
-  for (k = logn; k < FSMSW_FALCON_MAX_LOGN_SUPPORTED; k++)
+  for (k = logn; k < FN_DSA_MAX_LOGN_SUPPORTED; k++)
   {
-    g_temp_modpMkgm2 = fsmsw_falcon_ModpMontymul(g_temp_modpMkgm2, g_temp_modpMkgm2, p, p0i);
+    g_temp_modpMkgm2 = fn_dsa_ModpMontymul(g_temp_modpMkgm2, g_temp_modpMkgm2, p, p0i);
   }
 
-  ig = fsmsw_falcon_ModpDiv(R2, g_temp_modpMkgm2, p, p0i, fsmsw_falcon_ModpR(p));
+  ig = fn_dsa_ModpDiv(R2, g_temp_modpMkgm2, p, p0i, fn_dsa_ModpR(p));
   k  = 10u - logn;
-  x1 = fsmsw_falcon_ModpR(p);
-  x2 = fsmsw_falcon_ModpR(p);
+  x1 = fn_dsa_ModpR(p);
+  x2 = fn_dsa_ModpR(p);
 
   for (u = 0; u < n; u++)
   {
     v      = REV10[u << k];
     gm[v]  = x1;
     igm[v] = x2;
-    x1     = fsmsw_falcon_ModpMontymul(x1, g_temp_modpMkgm2, p, p0i);
-    x2     = fsmsw_falcon_ModpMontymul(x2, ig, p, p0i);
+    x1     = fn_dsa_ModpMontymul(x1, g_temp_modpMkgm2, p, p0i);
+    x2     = fn_dsa_ModpMontymul(x2, ig, p, p0i);
   }
-} // end: fsmsw_falcon_ModpMkgm2
+} // end: fn_dsa_ModpMkgm2
 
 /*====================================================================================================================*/
 /**
@@ -1267,7 +1274,7 @@ static void fsmsw_falcon_ModpMkgm2(uint32 *const gm, uint32 *const igm, uint32 l
 * \param[in] uint32       p0i : t.b.d.
 *
 */
-static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
+static void fn_dsa_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint32 *const gm, uint32 logn, uint32 p,
                                      uint32 p0i)
 {
   uint32 t               = 0;
@@ -1308,9 +1315,9 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint3
         for (v = 0; v < ht; v++)
         {
           x               = *r1;
-          y               = fsmsw_falcon_ModpMontymul(*r2_ModpNtt2Ext, s, p, p0i);
-          *r1             = fsmsw_falcon_ModpAdd(x, y, p);
-          *r2_ModpNtt2Ext = fsmsw_falcon_ModpSub(x, y, p);
+          y               = fn_dsa_ModpMontymul(*r2_ModpNtt2Ext, s, p, p0i);
+          *r1             = fn_dsa_ModpAdd(x, y, p);
+          *r2_ModpNtt2Ext = fn_dsa_ModpSub(x, y, p);
           r1              = &r1[stride];
           r2_ModpNtt2Ext  = &r2_ModpNtt2Ext[stride];
         }
@@ -1320,7 +1327,7 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint3
       t = ht;
     }
   }
-} // end: fsmsw_falcon_ModpNtt2Ext
+} // end: fn_dsa_ModpNtt2Ext
 
 /*====================================================================================================================*/
 /**
@@ -1334,7 +1341,7 @@ static void fsmsw_falcon_ModpNtt2Ext(uint32 *const a, uint32 stride, const uint3
 * \param[in] uint32        p0i : t.b.d.
 *
 */
-static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
+static void fn_dsa_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint32 *const igm, uint32 logn, uint32 p,
                                       uint32 p0i)
 {
   uint32 t                = 0;
@@ -1375,8 +1382,8 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint
         {
           x                = *r1;
           y                = *r2_ModpIntt2Ext;
-          *r1              = fsmsw_falcon_ModpAdd(x, y, p);
-          *r2_ModpIntt2Ext = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpSub(x, y, p), s, p, p0i);
+          *r1              = fn_dsa_ModpAdd(x, y, p);
+          *r2_ModpIntt2Ext = fn_dsa_ModpMontymul(fn_dsa_ModpSub(x, y, p), s, p, p0i);
           r1               = &r1[stride];
           r2_ModpIntt2Ext  = &r2_ModpIntt2Ext[stride];
         }
@@ -1393,11 +1400,11 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint
 
     for (k = 0; k < n; k++)
     {
-      *r = fsmsw_falcon_ModpMontymul(*r, ni, p, p0i);
+      *r = fn_dsa_ModpMontymul(*r, ni, p, p0i);
       r  = &r[stride];
     }
   }
-} // end: fsmsw_falcon_ModpIntt2Ext
+} // end: fn_dsa_ModpIntt2Ext
 
 /*====================================================================================================================*/
 /**
@@ -1407,7 +1414,7 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint
 *        The new polynomial is written "in place" over the first N/2 elements of f.
 *        If applied logn times successively on a given polynomial, the resulting degree-0 polynomial is the
 *        resultant of f and X^N+1 modulo p.
-*        This function applies only to the binary case; it is invoked from fsmsw_falcon_SolveNtruBinaryDepth1().
+*        This function applies only to the binary case; it is invoked from fn_dsa_SolveNtruBinaryDepth1().
 *
 * \param[out] uint32   *f : t.b.d.
 * \param[in]  uint32 logn : t.b.d.
@@ -1416,7 +1423,7 @@ static void fsmsw_falcon_ModpIntt2Ext(uint32 *const a, uint32 stride, const uint
 * \param[in]  uint32   R2 : t.b.d.
 *
 */
-static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2)
+static void fn_dsa_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, uint32 p0i, uint32 R2)
 {
   uint32 hn = 0;
   uint32 u  = 0;
@@ -1429,9 +1436,9 @@ static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, 
   {
     w0   = f[(u << 1)];
     w1   = f[(u << 1) + 1u];
-    f[u] = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
+    f[u] = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
   }
-} // end: fsmsw_falcon_ModpPolyRecRes
+} // end: fn_dsa_ModpPolyRecRes
 
 /* ================================================================================================================== */
 /*
@@ -1469,7 +1476,7 @@ static void fsmsw_falcon_ModpPolyRecRes(uint32 *const f, uint32 logn, uint32 p, 
 * \returns cc
 *
 */
-static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl)
+static uint32 fn_dsa_ZintSub(uint32 *const a, const uint32 *const b, uint32 len, uint32 ctl)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1490,7 +1497,7 @@ static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint3
   }
 
   return cc;
-} // end: fsmsw_falcon_ZintSub
+} // end: fn_dsa_ZintSub
 
 /*====================================================================================================================*/
 /**
@@ -1504,7 +1511,7 @@ static uint32 fsmsw_falcon_ZintSub(uint32 *const a, const uint32 *const b, uint3
 * \returns cc
 *
 */
-static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x)
+static uint32 fn_dsa_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1518,7 +1525,7 @@ static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x)
   }
 
   return cc;
-} // end: fsmsw_falcon_ZintMulSmall
+} // end: fn_dsa_ZintMulSmall
 
 /*====================================================================================================================*/
 /**
@@ -1539,7 +1546,7 @@ static uint32 fsmsw_falcon_ZintMulSmall(uint32 *const m, uint32 mlen, uint32 x)
 * \returns x
 *
 */
-static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2)
+static uint32 fn_dsa_ZintModSmallUnsigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2)
 {
   uint32 x = 0;
   uint32 u = 0;
@@ -1553,7 +1560,7 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dl
   while (u > 0u)
   {
     u--;
-    x = fsmsw_falcon_ModpMontymul(x, R2, p, p0i);
+    x = fn_dsa_ModpMontymul(x, R2, p, p0i);
     w = d[u] - p;
     /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
@@ -1562,15 +1569,15 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dl
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */
     w += p & (uint32)((sint32)((-1) * (sint32)((uint32)(w >> 31))));
-    x = fsmsw_falcon_ModpAdd(x, w, p);
+    x = fn_dsa_ModpAdd(x, w, p);
   }
 
   return x;
-} // end: fsmsw_falcon_ZintModSmallUnsigned
+} // end: fn_dsa_ZintModSmallUnsigned
 
 /*====================================================================================================================*/
 /**
-* \brief Similar to fsmsw_falcon_ZintModSmallUnsigned(), except that d may be signed. Extra parameter is Rx = 2^(31*dlen)
+* \brief Similar to fn_dsa_ZintModSmallUnsigned(), except that d may be signed. Extra parameter is Rx = 2^(31*dlen)
 *        mod p.
 *
 * \param[in] const uint32 *d : t.b.d.
@@ -1583,14 +1590,14 @@ static uint32 fsmsw_falcon_ZintModSmallUnsigned(const uint32 *const d, uint32 dl
 * \returns z or 0
 *
 */
-static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
+static uint32 fn_dsa_ZintModSmallSigned(const uint32 *const d, uint32 dlen, uint32 p, uint32 p0i, uint32 R2,
                                               uint32 Rx)
 {
   uint32 z      = 0;
   uint32 retVal = 0;
 
-  z      = fsmsw_falcon_ZintModSmallUnsigned(d, dlen, p, p0i, R2);
-  z      = fsmsw_falcon_ModpSub(z, Rx & (uint32)((sint32)((-1) * (sint32)((uint32)(d[dlen - 1u] >> 30)))), p);
+  z      = fn_dsa_ZintModSmallUnsigned(d, dlen, p, p0i, R2);
+  z      = fn_dsa_ModpSub(z, Rx & (uint32)((sint32)((-1) * (sint32)((uint32)(d[dlen - 1u] >> 30)))), p);
   retVal = z;
 
   if (dlen == 0u)
@@ -1599,7 +1606,7 @@ static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen
   }
 
   return retVal;
-} // end: fsmsw_falcon_ZintModSmallSigned
+} // end: fn_dsa_ZintModSmallSigned
 
 /*====================================================================================================================*/
 /**
@@ -1612,7 +1619,7 @@ static uint32 fsmsw_falcon_ZintModSmallSigned(const uint32 *const d, uint32 dlen
 * \param[in]  uint32        s : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s)
+static void fn_dsa_ZintAddMulSmall(uint32 *const x, const uint32 *const y, uint32 len, uint32 s)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1632,7 +1639,7 @@ static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y,
   }
 
   x[len] = cc;
-} // end: fsmsw_falcon_ZintAddMulSmall
+} // end: fn_dsa_ZintAddMulSmall
 
 /*====================================================================================================================*/
 /**
@@ -1644,7 +1651,7 @@ static void fsmsw_falcon_ZintAddMulSmall(uint32 *const x, const uint32 *const y,
 * \param[in]  uint32      len : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len)
+static void fn_dsa_ZintNormZero(uint32 *const x, const uint32 *const p, uint32 len)
 {
   uint32 u  = 0;
   uint32 r  = 0;
@@ -1684,8 +1691,8 @@ static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, ui
 
   /* At this point, r = -1, 0 or 1, depending on whether (p-1)/2 is lower than, equal to, or greater than x. We thus
    * want to do the subtraction only if r = -1. */
-  (void)fsmsw_falcon_ZintSub(x, p, len, (r >> 31));
-} // end: fsmsw_falcon_ZintNormZero
+  (void)fn_dsa_ZintSub(x, p, len, (r >> 31));
+} // end: fn_dsa_ZintNormZero
 
 /*====================================================================================================================*/
 /**
@@ -1706,7 +1713,7 @@ static void fsmsw_falcon_ZintNormZero(uint32 *const x, const uint32 *const p, ui
 * \param[out] uint32               *tmp : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
+static void fn_dsa_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xstride, uint32 num,
                                         const small_prime *const primes_zintRebuildCrt, sint32 normalize_signed,
                                         uint32 *const tmp)
 {
@@ -1733,8 +1740,8 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
 
     p   = primes_zintRebuildCrt[u].p;
     s   = primes_zintRebuildCrt[u].s;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
     x   = xx;
 
     for (v = 0; v < num; v++)
@@ -1742,16 +1749,16 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
       /* xp = the integer x modulo the prime p for this iteration
        * xq = (x mod q) mod p */
       xp = x[u];
-      xq = fsmsw_falcon_ZintModSmallUnsigned(x, u, p, p0i, R2);
+      xq = fn_dsa_ZintModSmallUnsigned(x, u, p, p0i, R2);
 
       /* New value is (x mod q) + q * (s * (xp - xq) mod p) */
-      xr = fsmsw_falcon_ModpMontymul(s, fsmsw_falcon_ModpSub(xp, xq, p), p, p0i);
-      fsmsw_falcon_ZintAddMulSmall(x, tmp, u, xr);
+      xr = fn_dsa_ModpMontymul(s, fn_dsa_ModpSub(xp, xq, p), p, p0i);
+      fn_dsa_ZintAddMulSmall(x, tmp, u, xr);
       x = &x[xstride];
     }
 
     /* Update product of primes in tmp[]. */
-    tmp[u] = fsmsw_falcon_ZintMulSmall(tmp, u, p);
+    tmp[u] = fn_dsa_ZintMulSmall(tmp, u, p);
   }
 
   /* Normalize the reconstructed values around 0. */
@@ -1761,11 +1768,11 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
 
     for (u = 0; u < num; u++)
     {
-      fsmsw_falcon_ZintNormZero(x, tmp, xlen);
+      fn_dsa_ZintNormZero(x, tmp, xlen);
       x = &x[xstride];
     }
   }
-} // end: fsmsw_falcon_ZintRebuildCrt
+} // end: fn_dsa_ZintRebuildCrt
 
 /*====================================================================================================================*/
 /**
@@ -1777,7 +1784,7 @@ static void fsmsw_falcon_ZintRebuildCrt(uint32 *const xx, uint32 xlen, uint32 xs
 * \param[in]  uint32 ct1 : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl)
+static void fn_dsa_ZintNegate(uint32 *const a, uint32 len, uint32 ctl)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1796,7 +1803,7 @@ static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl)
     a[u] = aw & 0x7FFFFFFFu;
     cc   = aw >> 31;
   }
-} // end: fsmsw_falcon_ZintNegate
+} // end: fn_dsa_ZintNegate
 
 /*====================================================================================================================*/
 /**
@@ -1820,7 +1827,7 @@ static void fsmsw_falcon_ZintNegate(uint32 *const a, uint32 len, uint32 ctl)
 *  3  both new a and new b had to be negated
 *
 */
-static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
+static uint32 fn_dsa_ZintCoReduce(uint32 *const a, uint32 *const b, uint32 len, sint64 xa, sint64 xb, sint64 ya,
                                         sint64 yb)
 {
   uint32 u    = 0;
@@ -1896,11 +1903,11 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
 
   nega = (uint32)((uint64)cca >> 63);
   negb = (uint32)((uint64)ccb >> 63);
-  fsmsw_falcon_ZintNegate(a, len, nega);
-  fsmsw_falcon_ZintNegate(b, len, negb);
+  fn_dsa_ZintNegate(a, len, nega);
+  fn_dsa_ZintNegate(b, len, negb);
 
   return nega | (negb << 1);
-} // end: fsmsw_falcon_ZintCoReduce
+} // end: fn_dsa_ZintCoReduce
 
 /*====================================================================================================================*/
 /**
@@ -1916,7 +1923,7 @@ static uint32 fsmsw_falcon_ZintCoReduce(uint32 *const a, uint32 *const b, uint32
 * \param[in]  uint32      neg : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg)
+static void fn_dsa_ZintFinishMod(uint32 *const a, uint32 len, const uint32 *const m, uint32 neg)
 {
   uint32 u  = 0;
   uint32 cc = 0;
@@ -1950,7 +1957,7 @@ static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32
     a[u] = aw & 0x7FFFFFFFu;
     cc   = aw >> 31;
   }
-} // end: fsmsw_falcon_ZintFinishMod
+} // end: fn_dsa_ZintFinishMod
 
 /*====================================================================================================================*/
 /**
@@ -1967,7 +1974,7 @@ static void fsmsw_falcon_ZintFinishMod(uint32 *const a, uint32 len, const uint32
 * \param[in]  sint64  yb:  t.b.d.
 *
 */
-static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
+static void fn_dsa_ZintCoReduceMod(uint32 *const a, uint32 *const b, const uint32 *const m, uint32 len,
                                          uint32 m0i, sint64 xa, sint64 xb, sint64 ya, sint64 yb)
 {
   uint32 u    = 0;
@@ -2047,9 +2054,9 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
    *   -m <= b < 2*m
    * (this is a case of Montgomery reduction) The top words of 'a' and 'b' may have a 32-th bit set. We want to add or
    * subtract the modulus, as required. */
-  fsmsw_falcon_ZintFinishMod(a, len, m, (uint32)((uint64)cca >> 63));
-  fsmsw_falcon_ZintFinishMod(b, len, m, (uint32)((uint64)ccb >> 63));
-} // end: fsmsw_falcon_ZintCoReduceMod
+  fn_dsa_ZintFinishMod(a, len, m, (uint32)((uint64)cca >> 63));
+  fn_dsa_ZintFinishMod(b, len, m, (uint32)((uint64)ccb >> 63));
+} // end: fn_dsa_ZintCoReduceMod
 
 /*====================================================================================================================*/
 /**
@@ -2072,7 +2079,7 @@ static void fsmsw_falcon_ZintCoReduceMod(uint32 *const a, uint32 *const b, const
 * \returns t.b.d.
 *
 */
-static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
+static sint32 fn_dsa_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *const x, const uint32 *const y,
                                       uint32 len, uint32 *const tmp)
 {
   /* Algorithm is an extended binary GCD. We maintain 6 values a, b, u0, u1, v0 and v1 with the following invariants:
@@ -2201,20 +2208,20 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
     b  = &a[len];
 
     /* We'll need the Montgomery reduction coefficients. */
-    x0i = fsmsw_falcon_ModpNinv31(x[0]);
-    y0i = fsmsw_falcon_ModpNinv31(y[0]);
+    x0i = fn_dsa_ModpNinv31(x[0]);
+    y0i = fn_dsa_ModpNinv31(y[0]);
 
     /* Initialize a, b, u0, u1, v0 and v1.
     *  a = x   u0 = 1   v0 = 0
     *  b = y   u1 = y   v1 = x-1
     * Note that x is odd, so computing x-1 is easy. */
-    FsmSw_CommonLib_MemCpy(a, x, len * sizeof(*x));
-    FsmSw_CommonLib_MemCpy(b, y, len * sizeof(*y));
+    FN_DSA_CommonLib_MemCpy(a, x, len * sizeof(*x));
+    FN_DSA_CommonLib_MemCpy(b, y, len * sizeof(*y));
     u0[0] = 1;
-    FsmSw_CommonLib_MemSet(&u0[1], 0, (len - 1u) * sizeof(*u0));
-    FsmSw_CommonLib_MemSet(v0, 0, len * sizeof(*v0));
-    FsmSw_CommonLib_MemCpy(u1, y, len * sizeof(*u1));
-    FsmSw_CommonLib_MemCpy(v1, x, len * sizeof(*v1));
+    FN_DSA_CommonLib_MemSet(&u0[1], 0, (len - 1u) * sizeof(*u0));
+    FN_DSA_CommonLib_MemSet(v0, 0, len * sizeof(*v0));
+    FN_DSA_CommonLib_MemCpy(u1, y, len * sizeof(*u1));
+    FN_DSA_CommonLib_MemCpy(v1, x, len * sizeof(*v1));
     v1[0]--;
 
     /* Each input operand may be as large as 31*len bits, and we reduce the total length by at least 30 bits at each
@@ -2265,7 +2272,7 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
       qa = 0;
       qb = 1;
 
-      for (i = 0; i < FSMSW_FALCON_ZINTBEZOU_STEPS; i++)
+      for (i = 0; i < FN_DSA_ZINTBEZOU_STEPS; i++)
       {
         /* At each iteration:
         *   a <- (a-b)/2 if: a is odd, b is odd, a_hi > b_hi
@@ -2326,8 +2333,8 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
       }
 
       /* Apply the computed parameters to our values. We may have to correct pa and pb depending on the returned value of
-      * fsmsw_falcon_ZintCoReduce() (when a and/or b had to be negated). */
-      r = fsmsw_falcon_ZintCoReduce(a, b, len, pa, pb, qa, qb);
+      * fn_dsa_ZintCoReduce() (when a and/or b had to be negated). */
+      r = fn_dsa_ZintCoReduce(a, b, len, pa, pb, qa, qb);
       pa -=
           (sint64)((uint64)(((uint64)pa + (uint64)pa) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)r & 1u))))));
       pb -=
@@ -2337,8 +2344,8 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
       qb -=
           (sint64)((uint64)(((uint64)qb + (uint64)qb) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)r >> 1))))));
 
-      fsmsw_falcon_ZintCoReduceMod(u0, u1, y, len, y0i, pa, pb, qa, qb);
-      fsmsw_falcon_ZintCoReduceMod(v0, v1, x, len, x0i, pa, pb, qa, qb);
+      fn_dsa_ZintCoReduceMod(u0, u1, y, len, y0i, pa, pb, qa, qb);
+      fn_dsa_ZintCoReduceMod(v0, v1, x, len, x0i, pa, pb, qa, qb);
     }
 
     /* At that point, array a[] should contain the GCD, and the results (u,v) should already be set. We check that the
@@ -2351,7 +2358,7 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
     retVal = (sint32)((uint32)((1u - ((rc | ((uint32)((sint32)((-1) * (sint32)rc)))) >> 31)) & x[0] & y[0]));
   }
   return retVal;
-} // end: fsmsw_falcon_ZintBezout
+} // end: fn_dsa_ZintBezout
 
 /*====================================================================================================================*/
 /**
@@ -2371,7 +2378,7 @@ static sint32 fsmsw_falcon_ZintBezout(uint32 *const u, uint32 *const v, const ui
 * \param[in]  uint32      scl : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
+static void fn_dsa_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen,
                                                sint32 k, uint32 sch, uint32 scl)
 {
   uint32 u;
@@ -2416,7 +2423,7 @@ static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, con
       cc  = (sint32)ccu;
     }
   }
-} // end: fsmsw_falcon_ZintAddScaledMulSmall
+} // end: fn_dsa_ZintAddScaledMulSmall
 
 /*====================================================================================================================*/
 /**
@@ -2435,7 +2442,7 @@ static void fsmsw_falcon_ZintAddScaledMulSmall(uint32 *const x, uint32 xlen, con
 * \param[in]  uint32      scl : t.b.d.
 *
 */
-static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
+static void fn_dsa_ZintSubScaled(uint32 *const x, uint32 xlen, const uint32 *const y, uint32 ylen, uint32 sch,
                                        uint32 scl)
 {
   uint32 u     = 0;
@@ -2475,7 +2482,7 @@ static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint3
       cc   = w >> 31;
     }
   }
-} // end: fsmsw_falcon_ZintSubScaled
+} // end: fn_dsa_ZintSubScaled
 
 /*====================================================================================================================*/
 /**
@@ -2486,7 +2493,7 @@ static void fsmsw_falcon_ZintSubScaled(uint32 *const x, uint32 xlen, const uint3
 * \returns t.b.d.
 *
 */
-static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x)
+static sint32 fn_dsa_ZintOneToPlain(const uint32 *const x)
 {
   uint32 w = 0;
 
@@ -2494,7 +2501,7 @@ static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x)
   w |= (w & 0x40000000u) << 1;
 
   return (sint32)w;
-} // end: fsmsw_falcon_ZintOneToPlain
+} // end: fn_dsa_ZintOneToPlain
 
 /*====================================================================================================================*/
 /**
@@ -2511,7 +2518,7 @@ static sint32 fsmsw_falcon_ZintOneToPlain(const uint32 *const x)
 * \param[in]  uint32     logn : t.b.d.
 *
 ***********************************************************************************************************************/
-static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
+static void fn_dsa_PolyBigToFp(fpr *const d, const uint32 *const f, uint32 flen_polyBgiToFp,
                                      uint32 fstride_polyBigToFp, uint32 logn)
 {
   uint32 n   = 0;
@@ -2560,8 +2567,8 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
         determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
         the rule would provide no additional benefit and could compromise the stability of the system" */
         w -= (w << 1) & neg;
-        x   = FsmSw_Falcon_Fpr_Add(x, FsmSw_Falcon_Fpr_Mul(FsmSw_Falcon_Fpr_Of((sint32)w), fsc));
-        fsc = FsmSw_Falcon_Fpr_Mul(fsc, fpr_ptwo31);
+        x   = FN_DSA_Fpr_Add(x, FN_DSA_Fpr_Mul(FN_DSA_Fpr_Of((sint32)w), fsc));
+        fsc = FN_DSA_Fpr_Mul(fsc, fpr_ptwo31);
       }
 
       d[u] = x;
@@ -2569,7 +2576,7 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
       f_temp = &f_temp[fstride_polyBigToFp];
     }
   }
-} // end: fsmsw_falcon_PolyBigToFp
+} // end: fn_dsa_PolyBigToFp
 
 /*====================================================================================================================*/
 /**
@@ -2587,7 +2594,7 @@ static void fsmsw_falcon_PolyBigToFp(fpr *const d, const uint32 *const f, uint32
 * \returns 1 on success, 0 on error.
 *
 */
-static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn)
+static sint32 fn_dsa_PolyBigToSmall(sint8 *const d, const uint32 *const s, sint32 lim, uint32 logn)
 {
   uint32 n     = 0;
   uint32 u     = 0;
@@ -2598,7 +2605,7 @@ static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s,
 
   for (u = 0; u < n; u++)
   {
-    z = fsmsw_falcon_ZintOneToPlain(&s[u]);
+    z = fn_dsa_ZintOneToPlain(&s[u]);
 
     if ((z < -lim) || (z > lim))
     {
@@ -2610,7 +2617,7 @@ static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s,
   }
 
   return retVal;
-} // end: fsmsw_falcon_PolyBigToSmall
+} // end: fn_dsa_PolyBigToSmall
 
 /*====================================================================================================================*/
 /**
@@ -2632,7 +2639,7 @@ static sint32 fsmsw_falcon_PolyBigToSmall(sint8 *const d, const uint32 *const s,
 * \param[in]  uint32     logn : t.b.d.
 *
 */
-static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+static void fn_dsa_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
                                        uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
                                        uint32 logn)
 {
@@ -2653,7 +2660,7 @@ static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstr
 
     for (v = 0; v < n; v++)
     {
-      fsmsw_falcon_ZintAddScaledMulSmall(x, Flen, y, flen1, kf, sch, scl);
+      fn_dsa_ZintAddScaledMulSmall(x, Flen, y, flen1, kf, sch, scl);
 
       if ((u + v) == (n - 1u))
       {
@@ -2668,7 +2675,7 @@ static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstr
       y = &y[fstride1];
     }
   }
-} // end: fsmsw_falcon_PolySubScaled
+} // end: fn_dsa_PolySubScaled
 
 /*====================================================================================================================*/
 /**
@@ -2689,7 +2696,7 @@ static void fsmsw_falcon_PolySubScaled(uint32 *const F, uint32 Flen, uint32 Fstr
 * \param[out] uint32     *tmp : t.b.d.
 *
 */
-static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
+static void fn_dsa_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 Fstride, const uint32 *const f,
                                           uint32 flen1, uint32 fstride1, const sint32 *const k, uint32 sch, uint32 scl,
                                           uint32 logn, uint32 *const tmp)
 {
@@ -2722,52 +2729,52 @@ static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 F
   for (u = 0; u < tlen; u++)
   {
     p   = smallPrimes[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
-    Rx  = fsmsw_falcon_ModpRx((uint32)flen1, p, p0i, R2);
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
+    Rx  = fn_dsa_ModpRx((uint32)flen1, p, p0i, R2);
+    fn_dsa_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
 
     for (v = 0; v < n; v++)
     {
-      t1[v] = fsmsw_falcon_ModpSet(k[v], p);
+      t1[v] = fn_dsa_ModpSet(k[v], p);
     }
 
-    fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
+    fn_dsa_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
 
     y = f;
     x = &fk[u];
     for (v = 0; v < n; v++)
     {
-      *x = fsmsw_falcon_ZintModSmallSigned(y, flen1, p, p0i, R2, Rx);
+      *x = fn_dsa_ZintModSmallSigned(y, flen1, p, p0i, R2, Rx);
       y  = &y[fstride1];
       x  = &x[tlen];
     }
 
-    fsmsw_falcon_ModpNtt2Ext(&fk[u], tlen, gm, logn, p, p0i);
+    fn_dsa_ModpNtt2Ext(&fk[u], tlen, gm, logn, p, p0i);
 
     x = &fk[u];
     for (v = 0; v < n; v++)
     {
-      *x = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(t1[v], *x, p, p0i), R2, p, p0i);
+      *x = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(t1[v], *x, p, p0i), R2, p, p0i);
       x  = &x[tlen];
     }
 
-    fsmsw_falcon_ModpIntt2Ext(&fk[u], tlen, igm, logn, p, p0i);
+    fn_dsa_ModpIntt2Ext(&fk[u], tlen, igm, logn, p, p0i);
   }
 
   /* Rebuild k*f. */
-  fsmsw_falcon_ZintRebuildCrt(fk, tlen, tlen, n, smallPrimes, 1, t1);
+  fn_dsa_ZintRebuildCrt(fk, tlen, tlen, n, smallPrimes, 1, t1);
 
   /* Subtract k*f, scaled, from F. */
   x = F;
   y = fk;
   for (u = 0; u < n; u++)
   {
-    fsmsw_falcon_ZintSubScaled(x, Flen, y, tlen, sch, scl);
+    fn_dsa_ZintSubScaled(x, Flen, y, tlen, sch, scl);
     x = &x[Fstride];
     y = &y[tlen];
   }
-} // end: fsmsw_falcon_PolySubScaledNtt
+} // end: fn_dsa_PolySubScaledNtt
 
 /*====================================================================================================================*/
 /**
@@ -2780,16 +2787,16 @@ static void fsmsw_falcon_PolySubScaledNtt(uint32 *const F, uint32 Flen, uint32 F
 * \returns t.b.d.
 *
 */
-static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng)
+static uint64 fn_dsa_GetRngU64(inner_shake256_context *const rng)
 {
   /* We enforce little-endian representation. */
-  uint8 tmp[FSMSW_FALCON_GETRNG64_TMP_SIZE] = {0};
+  uint8 tmp[FN_DSA_GETRNG64_TMP_SIZE] = {0};
 
-  FsmSw_Fips202_Shake256_IncSqueeze(tmp, sizeof(tmp), rng);
+  FN_DSA_Fips202_Shake256_IncSqueeze(tmp, sizeof(tmp), rng);
 
   return (uint64)tmp[0] | ((uint64)tmp[1] << 8) | ((uint64)tmp[2] << 16) | ((uint64)tmp[3] << 24) |
          ((uint64)tmp[4] << 32) | ((uint64)tmp[5] << 40) | ((uint64)tmp[6] << 48) | ((uint64)tmp[7] << 56);
-} // end: fsmsw_falcon_GetRngU64
+} // end: fn_dsa_GetRngU64
 
 /*====================================================================================================================*/
 /**
@@ -2805,7 +2812,7 @@ static uint64 fsmsw_falcon_GetRngU64(inner_shake256_context *const rng)
 * \returns t.b.d.
 *
 */
-static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
+static sint32 fn_dsa_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
 {
   uint32 u   = 0;
   uint32 g   = 0;
@@ -2831,7 +2838,7 @@ static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
     /* First value:
      *  - flag 'neg' is randomly selected to be 0 or 1.
      *  - flag 'f' is set to 1 if the generated value is zero, or set to 0 otherwise. */
-    r   = fsmsw_falcon_GetRngU64(rng);
+    r   = fn_dsa_GetRngU64(rng);
     neg = (uint32)(r >> 63);
     r &= ~((uint64)1 << 63);
     f = (uint32)((r - gauss_1024_12289[0]) >> 63);
@@ -2839,7 +2846,7 @@ static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
     /* We produce a new random 63-bit integer r, and go over the array, starting at index 1. We store in v the index of
      * the first array element which is not greater than r, unless the flag f was already 1. */
     v = 0;
-    r = fsmsw_falcon_GetRngU64(rng);
+    r = fn_dsa_GetRngU64(rng);
     r &= ~((uint64)1 << 63);
 
     for (k = 1; k < ((sizeof(gauss_1024_12289)) / (sizeof(gauss_1024_12289[0]))); k++)
@@ -2857,7 +2864,7 @@ static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
   }
 
   return val;
-} // end: fsmsw_falcon_Mkgauss
+} // end: fn_dsa_Mkgauss
 
 /*====================================================================================================================*/
 /**
@@ -2870,7 +2877,7 @@ static sint32 fsmsw_falcon_Mkgauss(RNG_CONTEXT *const rng, uint32 logn)
 * \returns  1 on success, 0 on error.
 *
 */
-static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn)
+static uint32 fn_dsa_PolySmallSqNorm(const sint8 *const f, uint32 logn)
 {
   uint32 n  = 0;
   uint32 u  = 0;
@@ -2890,7 +2897,7 @@ static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn)
   }
 
   return s | (uint32)((sint32)((-1) * (sint32)((uint32)(ng >> 31))));
-} // end: fsmsw_falcon_PolySmallSqNorm
+} // end: fn_dsa_PolySmallSqNorm
 
 /*====================================================================================================================*/
 /**
@@ -2903,7 +2910,7 @@ static uint32 fsmsw_falcon_PolySmallSqNorm(const sint8 *const f, uint32 logn)
 * \returns t.b.d.
 *
 */
-static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data)
+static fpr *fn_dsa_AlignFpr(void *const base, void *const data)
 {
   uint8 *cb = (uint8 *)NULL_PTR;
   uint8 *cd = (uint8 *)NULL_PTR;
@@ -2932,7 +2939,7 @@ static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data)
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   return (fpr *)((void *)(&cb[k]));
-} // end: *fsmsw_falcon_AlignFpr
+} // end: *fn_dsa_AlignFpr
 
 /*====================================================================================================================*/
 /**
@@ -2945,7 +2952,7 @@ static fpr *fsmsw_falcon_AlignFpr(void *const base, void *const data)
 * \returns t.b.d.
 *
 */
-static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data)
+static uint32 *fn_dsa_AlignU32(void *const base, void *const data)
 {
   uint8 *cb = (uint8 *)NULL_PTR;
   uint8 *cd = (uint8 *)NULL_PTR;
@@ -2974,7 +2981,7 @@ static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data)
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   return (uint32 *)((void *)(&cb[k]));
-} // end: *fsmsw_falcon_AlignU32
+} // end: *fn_dsa_AlignU32
 
 /*====================================================================================================================*/
 /**
@@ -2985,7 +2992,7 @@ static uint32 *fsmsw_falcon_AlignU32(void *const base, void *const data)
 * \param[in]  uint32    logn : t.b.d.
 *
 */
-static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn)
+static void fn_dsa_PolySmallToFp(fpr *const x, const sint8 *const f, uint32 logn)
 {
   uint32 n = 0;
   uint32 u = 0;
@@ -2994,9 +3001,9 @@ static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint3
 
   for (u = 0; u < n; u++)
   {
-    x[u] = FsmSw_Falcon_Fpr_Of(f[u]);
+    x[u] = FN_DSA_Fpr_Of(f[u]);
   }
-} // end: fsmsw_falcon_PolySmallToFp
+} // end: fn_dsa_PolySmallToFp
 
 /*====================================================================================================================*/
 /**
@@ -3011,7 +3018,7 @@ static void fsmsw_falcon_PolySmallToFp(fpr *const x, const sint8 *const f, uint3
 * \param[in]  sint32 out_ntt : t.b.d.
 *
 */
-static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt)
+static void fn_dsa_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sint32 in_ntt, sint32 out_ntt)
 {
   uint32 n                       = 0;
   uint32 hn                      = 0;
@@ -3050,15 +3057,15 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
   igm           = &gm[n];
   t1            = &igm[n];
 
-  FsmSw_CommonLib_MemMove(fs, data, 2u * n * slen * sizeof(*data));
+  FN_DSA_CommonLib_MemMove(fs, data, 2u * n * slen * sizeof(*data));
 
   /* First slen words: we use the input values directly, and apply inverse NTT as we go. */
   for (u = 0; u < slen; u++)
   {
     p   = smallPrimes[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
+    fn_dsa_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
 
     x = &fs[u];
     for (v = 0; v < n; v++)
@@ -3069,7 +3076,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     if (0 == in_ntt)
     {
-      fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
+      fn_dsa_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
     }
 
     x = &fd_makeFgStep[u];
@@ -3077,13 +3084,13 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
     {
       w0 = t1[(v << 1)];
       w1 = t1[(v << 1) + 1u];
-      *x = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
+      *x = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
       x  = &x[tlen];
     }
 
     if (0 < in_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&fs[u], slen, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(&fs[u], slen, igm, logn, p, p0i);
     }
 
     x = &gs[u];
@@ -3095,7 +3102,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 
     if (0 == in_ntt)
     {
-      fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
+      fn_dsa_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
     }
 
     x = &gd_makeFgStep[u];
@@ -3103,78 +3110,78 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
     {
       w0 = t1[(v << 1)];
       w1 = t1[(v << 1) + 1u];
-      *x = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
+      *x = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
       x  = &x[tlen];
     }
 
     if (0 < in_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&gs[u], slen, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(&gs[u], slen, igm, logn, p, p0i);
     }
 
     if (0 == out_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fn_dsa_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fn_dsa_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
     }
   }
 
   /* Since the fs and gs words have been de-NTTized, we can use the CRT to rebuild the values. */
-  fsmsw_falcon_ZintRebuildCrt(fs, slen, slen, n, smallPrimes, 1, gm);
-  fsmsw_falcon_ZintRebuildCrt(gs, slen, slen, n, smallPrimes, 1, gm);
+  fn_dsa_ZintRebuildCrt(fs, slen, slen, n, smallPrimes, 1, gm);
+  fn_dsa_ZintRebuildCrt(gs, slen, slen, n, smallPrimes, 1, gm);
 
   /* Remaining words: use modular reductions to extract the values. */
   for (u = slen; u < tlen; u++)
   {
     p   = smallPrimes[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
-    Rx  = fsmsw_falcon_ModpRx((uint32)slen, p, p0i, R2);
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
+    Rx  = fn_dsa_ModpRx((uint32)slen, p, p0i, R2);
+    fn_dsa_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
 
     x = fs;
     for (v = 0; v < n; v++)
     {
-      t1[v] = fsmsw_falcon_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
+      t1[v] = fn_dsa_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
       x     = &x[slen];
     }
 
-    fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
+    fn_dsa_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
 
     x = &fd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
       w1 = t1[(v << 1) + 1u];
-      *x = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
+      *x = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
       x  = &x[tlen];
     }
 
     x = gs;
     for (v = 0; v < n; v++)
     {
-      t1[v] = fsmsw_falcon_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
+      t1[v] = fn_dsa_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
       x     = &x[slen];
     }
 
-    fsmsw_falcon_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
+    fn_dsa_ModpNtt2Ext(t1, 1, gm, logn, p, p0i);
 
     x = &gd_makeFgStep[u];
     for (v = 0; v < hn; v++)
     {
       w0 = t1[(v << 1)];
       w1 = t1[(v << 1) + 1u];
-      *x = fsmsw_falcon_ModpMontymul(fsmsw_falcon_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
+      *x = fn_dsa_ModpMontymul(fn_dsa_ModpMontymul(w0, w1, p, p0i), R2, p, p0i);
       x  = &x[tlen];
     }
 
     if (0 == out_ntt)
     {
-      fsmsw_falcon_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fn_dsa_ModpIntt2Ext(&fd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
+      fn_dsa_ModpIntt2Ext(&gd_makeFgStep[u], tlen, igm, logn - 1u, p, p0i);
     }
   }
-} // end: fsmsw_falcon_MakeFgStep
+} // end: fn_dsa_MakeFgStep
 
 /*====================================================================================================================*/
 /**
@@ -3194,7 +3201,7 @@ static void fsmsw_falcon_MakeFgStep(uint32 *const data, uint32 logn, uint32 dept
 * \returns  1 on success, 0 on error.
 *
 */
-static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
+static void fn_dsa_MakeFg(uint32 *const data, const sint8 *const f, const sint8 *const g, uint32 logn,
                                 uint32 depth, sint32 out_ntt)
 {
   uint32 n                       = 0;
@@ -3218,19 +3225,19 @@ static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const 
 
   for (u = 0; u < n; u++)
   {
-    ft_makeFg[u] = fsmsw_falcon_ModpSet(f[u], p0);
-    gt_makeFg[u] = fsmsw_falcon_ModpSet(g[u], p0);
+    ft_makeFg[u] = fn_dsa_ModpSet(f[u], p0);
+    gt_makeFg[u] = fn_dsa_ModpSet(g[u], p0);
   }
 
   if ((depth == 0u) && (0 < out_ntt))
   {
     p   = smallPrimes[0].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
+    p0i = fn_dsa_ModpNinv31(p);
     gm  = &gt_makeFg[n];
     igm = &gm[MKN(logn)];
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[0].g, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(ft_makeFg, 1, gm, logn, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(gt_makeFg, 1, gm, logn, p, p0i);
+    fn_dsa_ModpMkgm2(gm, igm, logn, smallPrimes[0].g, p, p0i);
+    fn_dsa_ModpNtt2Ext(ft_makeFg, 1, gm, logn, p, p0i);
+    fn_dsa_ModpNtt2Ext(gt_makeFg, 1, gm, logn, p, p0i);
 
     bStopFunc = TRUE;
   }
@@ -3242,25 +3249,25 @@ static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const 
 
   if ((depth == 1u) && (FALSE == bStopFunc))
   {
-    fsmsw_falcon_MakeFgStep(data, logn, 0, 0, out_ntt);
+    fn_dsa_MakeFgStep(data, logn, 0, 0, out_ntt);
 
     bStopFunc = TRUE;
   }
 
   if (FALSE == bStopFunc)
   {
-    fsmsw_falcon_MakeFgStep(data, logn, 0, 0, 1);
+    fn_dsa_MakeFgStep(data, logn, 0, 0, 1);
 
     /* polyspace +2 MISRA2012:14.2 [Justified:]"The calculation involving the loop counter directly affects loop 
     continuation, addressing a MISRA 14.2 warning by following its rules for how loops should work." */
     for (d = 1; (d + 1u) < depth; d++)
     {
-      fsmsw_falcon_MakeFgStep(data, logn - d, d, 1, 1);
+      fn_dsa_MakeFgStep(data, logn - d, d, 1, 1);
     }
 
-    fsmsw_falcon_MakeFgStep(data, logn - depth + 1u, depth - 1u, 1, out_ntt);
+    fn_dsa_MakeFgStep(data, logn - depth + 1u, depth - 1u, 1, out_ntt);
   }
-} // end: fsmsw_falcon_MakeFg
+} // end: fn_dsa_MakeFg
 
 /*====================================================================================================================*/
 /**
@@ -3275,7 +3282,7 @@ static void fsmsw_falcon_MakeFg(uint32 *const data, const sint8 *const f, const 
 * \returns  1 on success, 0 on error.
 *
 */
-static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruDeepest(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                             uint32 *const tmp)
 {
   uint32 len                     = 0;
@@ -3297,37 +3304,37 @@ static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const 
   gp1 = &fp1[len];
   t1  = &gp1[len];
 
-  fsmsw_falcon_MakeFg(fp1, f, g, logn_top, logn_top, 0);
+  fn_dsa_MakeFg(fp1, f, g, logn_top, logn_top, 0);
 
   /* We use the CRT to rebuild the resultants as big integers. There are two such big integers. The resultants are
    * always nonnegative. */
-  fsmsw_falcon_ZintRebuildCrt(fp1, len, len, 2, smallPrimes, 0, t1);
+  fn_dsa_ZintRebuildCrt(fp1, len, len, 2, smallPrimes, 0, t1);
 
-  /* Apply the binary GCD. The fsmsw_falcon_ZintBezout() function works only if both inputs are odd.   *
+  /* Apply the binary GCD. The fn_dsa_ZintBezout() function works only if both inputs are odd.   *
    * We can test on the result and return 0 because that would imply failure of the NTRU solving equation, and the
    * (f,g) values will be abandoned in that case. */
-  if (0 == fsmsw_falcon_ZintBezout(Gp, Fp, fp1, gp1, len, t1))
+  if (0 == fn_dsa_ZintBezout(Gp, Fp, fp1, gp1, len, t1))
   {
     retVal = 0;
   }
 
   /* Multiply the two values by the target value q. Values must fit in the destination arrays. We can again test on the
-   * returned words: a non-zero output of fsmsw_falcon_ZintMulSmall() means that we exceeded our array capacity, and that implies
+   * returned words: a non-zero output of fn_dsa_ZintMulSmall() means that we exceeded our array capacity, and that implies
    * failure and rejection of (f,g). */
   q = 12289;
 
-  if (0u != fsmsw_falcon_ZintMulSmall(Fp, len, q))
+  if (0u != fn_dsa_ZintMulSmall(Fp, len, q))
   {
     retVal = 0;
   }
 
-  if (0u != fsmsw_falcon_ZintMulSmall(Gp, len, q))
+  if (0u != fn_dsa_ZintMulSmall(Gp, len, q))
   {
     retVal = 0;
   }
 
   return retVal;
-} // end: fsmsw_falcon_SolveNtruDeepest
+} // end: fn_dsa_SolveNtruDeepest
 
 /*====================================================================================================================*/
 /**
@@ -3343,7 +3350,7 @@ static sint32 fsmsw_falcon_SolveNtruDeepest(uint32 logn_top, const sint8 *const 
 * \returns  1 on success, 0 on error.
 *
 */
-static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                                  uint32 depth, uint32 *const tmp)
 {
   /* In this function, 'logn' is the log2 of the degree for this step. If N = 2^logn, then:
@@ -3432,19 +3439,19 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
 
   /* Compute the input f and g for this level. Note that we get f and g in RNS + NTT representation. */
   ft1_solveNtruIntermediate = &Gd[dlen * hn];
-  fsmsw_falcon_MakeFg(ft1_solveNtruIntermediate, f, g, logn_top, depth, 1);
+  fn_dsa_MakeFg(ft1_solveNtruIntermediate, f, g, logn_top, depth, 1);
 
   /* Move the newly computed f and g to make room for our candidate F and G (unreduced). */
   Ft = tmp;
   Gt = &Ft[n * llen];
   t1 = &Gt[n * llen];
-  FsmSw_CommonLib_MemMove(t1, ft1_solveNtruIntermediate, 2u * n * slen * sizeof(*ft1_solveNtruIntermediate));
+  FN_DSA_CommonLib_MemMove(t1, ft1_solveNtruIntermediate, 2u * n * slen * sizeof(*ft1_solveNtruIntermediate));
   ft1_solveNtruIntermediate = t1;
   gt1_solveNtruIntermediate = &ft1_solveNtruIntermediate[slen * n];
   t1                        = &gt1_solveNtruIntermediate[slen * n];
 
   /* Move Fd and Gd _after_ f and g. */
-  FsmSw_CommonLib_MemMove(t1, Fd, 2u * hn * dlen * sizeof(*Fd));
+  FN_DSA_CommonLib_MemMove(t1, Fd, 2u * hn * dlen * sizeof(*Fd));
   Fd = t1;
   Gd = &Fd[hn * dlen];
 
@@ -3453,9 +3460,9 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
   for (u = 0; u < llen; u++)
   {
     p   = smallPrimes[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
-    Rx  = fsmsw_falcon_ModpRx((uint32)dlen, p, p0i, R2);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
+    Rx  = fn_dsa_ModpRx((uint32)dlen, p, p0i, R2);
 
     xs = Fd;
     ys = Gd;
@@ -3463,8 +3470,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     yd = &Gt[u];
     for (v = 0; v < hn; v++)
     {
-      *xd = fsmsw_falcon_ZintModSmallSigned(xs, dlen, p, p0i, R2, Rx);
-      *yd = fsmsw_falcon_ZintModSmallSigned(ys, dlen, p, p0i, R2, Rx);
+      *xd = fn_dsa_ZintModSmallSigned(xs, dlen, p, p0i, R2, Rx);
+      *yd = fn_dsa_ZintModSmallSigned(ys, dlen, p, p0i, R2, Rx);
       xs  = &xs[dlen];
       ys  = &ys[dlen];
       xd  = &xd[llen];
@@ -3479,14 +3486,14 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
   {
     /* All computations are done modulo p. */
     p   = smallPrimes[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
 
     /* If we processed slen words, then f and g have been de-NTTized, and are in RNS; we can rebuild them. */
     if (u == slen)
     {
-      fsmsw_falcon_ZintRebuildCrt(ft1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
-      fsmsw_falcon_ZintRebuildCrt(gt1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
+      fn_dsa_ZintRebuildCrt(ft1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
+      fn_dsa_ZintRebuildCrt(gt1_solveNtruIntermediate, slen, slen, n, smallPrimes, 1, t1);
     }
 
     gm  = t1;
@@ -3494,7 +3501,7 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     fx  = &igm[n];
     gx  = &fx[n];
 
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
+    fn_dsa_ModpMkgm2(gm, igm, logn, smallPrimes[u].g, p, p0i);
 
     if (u < slen)
     {
@@ -3508,25 +3515,25 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
         y     = &y[slen];
       }
 
-      fsmsw_falcon_ModpIntt2Ext(&ft1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(&gt1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(&ft1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(&gt1_solveNtruIntermediate[u], slen, igm, logn, p, p0i);
     }
     else
     {
-      Rx = fsmsw_falcon_ModpRx((uint32)slen, p, p0i, R2);
+      Rx = fn_dsa_ModpRx((uint32)slen, p, p0i, R2);
 
       x = ft1_solveNtruIntermediate;
       y = gt1_solveNtruIntermediate;
       for (v = 0; v < n; v++)
       {
-        fx[v] = fsmsw_falcon_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
-        gx[v] = fsmsw_falcon_ZintModSmallSigned(y, slen, p, p0i, R2, Rx);
+        fx[v] = fn_dsa_ZintModSmallSigned(x, slen, p, p0i, R2, Rx);
+        gx[v] = fn_dsa_ZintModSmallSigned(y, slen, p, p0i, R2, Rx);
         x     = &x[slen];
         y     = &y[slen];
       }
 
-      fsmsw_falcon_ModpNtt2Ext(fx, 1, gm, logn, p, p0i);
-      fsmsw_falcon_ModpNtt2Ext(gx, 1, gm, logn, p, p0i);
+      fn_dsa_ModpNtt2Ext(fx, 1, gm, logn, p, p0i);
+      fn_dsa_ModpNtt2Ext(gx, 1, gm, logn, p, p0i);
     }
 
     /* Get F' and G' modulo p and in NTT representation (they have degree n/2). These values were computed in a
@@ -3544,8 +3551,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
       y     = &y[llen];
     }
 
-    fsmsw_falcon_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
+    fn_dsa_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
+    fn_dsa_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
 
     /* Compute our F and G modulo p.
      * General case:
@@ -3574,23 +3581,23 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
       ftB     = fx[(v << 1) + 1u];
       gtA     = gx[(v << 1)];
       gtB     = gx[(v << 1) + 1u];
-      mFp     = fsmsw_falcon_ModpMontymul(Fp[v], R2, p, p0i);
-      mGp     = fsmsw_falcon_ModpMontymul(Gp[v], R2, p, p0i);
-      x[0]    = fsmsw_falcon_ModpMontymul(gtB, mFp, p, p0i);
-      x[llen] = fsmsw_falcon_ModpMontymul(gtA, mFp, p, p0i);
-      y[0]    = fsmsw_falcon_ModpMontymul(ftB, mGp, p, p0i);
-      y[llen] = fsmsw_falcon_ModpMontymul(ftA, mGp, p, p0i);
+      mFp     = fn_dsa_ModpMontymul(Fp[v], R2, p, p0i);
+      mGp     = fn_dsa_ModpMontymul(Gp[v], R2, p, p0i);
+      x[0]    = fn_dsa_ModpMontymul(gtB, mFp, p, p0i);
+      x[llen] = fn_dsa_ModpMontymul(gtA, mFp, p, p0i);
+      y[0]    = fn_dsa_ModpMontymul(ftB, mGp, p, p0i);
+      y[llen] = fn_dsa_ModpMontymul(ftA, mGp, p, p0i);
 
       x = &x[(llen << 1)];
       y = &y[(llen << 1)];
     }
-    fsmsw_falcon_ModpIntt2Ext(&Ft[u], llen, igm, logn, p, p0i);
-    fsmsw_falcon_ModpIntt2Ext(&Gt[u], llen, igm, logn, p, p0i);
+    fn_dsa_ModpIntt2Ext(&Ft[u], llen, igm, logn, p, p0i);
+    fn_dsa_ModpIntt2Ext(&Gt[u], llen, igm, logn, p, p0i);
   }
 
   /* Rebuild F and G with the CRT. */
-  fsmsw_falcon_ZintRebuildCrt(Ft, llen, llen, n, smallPrimes, 1, t1);
-  fsmsw_falcon_ZintRebuildCrt(Gt, llen, llen, n, smallPrimes, 1, t1);
+  fn_dsa_ZintRebuildCrt(Ft, llen, llen, n, smallPrimes, 1, t1);
+  fn_dsa_ZintRebuildCrt(Gt, llen, llen, n, smallPrimes, 1, t1);
 
   /* At that point, Ft, Gt, ft1 and gt1 are consecutive in RAM (in that order). */
 
@@ -3628,7 +3635,7 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
    * Arrays of 'fpr' are obtained from the temporary array itself. We ensure that the base is at a properly aligned
    * offset (the source array tmp[] is supposed to be already aligned). */
 
-  rt3 = fsmsw_falcon_AlignFpr(tmp, t1);
+  rt3 = fn_dsa_AlignFpr(tmp, t1);
   rt4 = &rt3[n];
   rt5 = &rt4[n];
   rt1 = &rt5[(n >> 1)];
@@ -3636,8 +3643,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
   Ensured proper alignment and validity." */
-  k   = (sint32 *)((void *)fsmsw_falcon_AlignU32(tmp, rt1));
-  rt2 = fsmsw_falcon_AlignFpr(tmp, &k[n]);
+  k   = (sint32 *)((void *)fn_dsa_AlignU32(tmp, rt1));
+  rt2 = fn_dsa_AlignFpr(tmp, &k[n]);
 
   if (rt2 < (&(rt1[n])))
   {
@@ -3664,8 +3671,8 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     rlen = slen;
   }
 
-  fsmsw_falcon_PolyBigToFp(rt3, &ft1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
-  fsmsw_falcon_PolyBigToFp(rt4, &gt1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
+  fn_dsa_PolyBigToFp(rt3, &ft1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
+  fn_dsa_PolyBigToFp(rt4, &gt1_solveNtruIntermediate[slen - rlen], rlen, slen, logn);
 
   /* Values in rt3 and rt4 are downscaled by 2^(scale_fg). */
   scale_fg = 31 * (sint32)((uint32)(slen - rlen));
@@ -3676,11 +3683,11 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
   maxbl_fg = BITLENGTH[depth].avg + (6 * BITLENGTH[depth].std);
 
   /* Compute 1/(f*adj(f)+g*adj(g)) in rt5. We also keep adj(f) and adj(g) in rt3 and rt4, respectively. */
-  FsmSw_Falcon_FFT(rt3, logn);
-  FsmSw_Falcon_FFT(rt4, logn);
-  FsmSw_Falcon_Poly_Invnorm2FFT(rt5, rt3, rt4, logn);
-  FsmSw_Falcon_Poly_AdjFFT(rt3, logn);
-  FsmSw_Falcon_Poly_AdjFFT(rt4, logn);
+  FN_DSA_FFT(rt3, logn);
+  FN_DSA_FFT(rt4, logn);
+  FN_DSA_Poly_Invnorm2FFT(rt5, rt3, rt4, logn);
+  FN_DSA_Poly_AdjFFT(rt3, logn);
+  FN_DSA_Poly_AdjFFT(rt4, logn);
 
   /* Reduce F and G repeatedly.
    * The expected maximum bit length of coefficients of F and G is kept in maxbl_FG1, with the corresponding word length
@@ -3695,7 +3702,7 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
    * the size of the coefficients of (f,g). Thus, the maximum size of the coefficients of k is, at the start,
    * maxbl_FG1 - minbl_fg; this is our starting scale value for k.
    * We need to estimate the size of (F,G) during the execution of the algorithm; we are allowed some overestimation
-   * but not too much (fsmsw_falcon_PolyBigToFp() uses a 310-bit window). Generally speaking, after applying a reduction with k
+   * but not too much (fn_dsa_PolyBigToFp() uses a 310-bit window). Generally speaking, after applying a reduction with k
    * scaled to scale_k, the size of (F,G) will be size(f,g) + scale_k + dd, where 'dd' is a few bits to account for the
    * fact that the reduction is never perfect (intuitively, dd is on the order of sqrt(N), so at most 5 bits; we here
    * allow for 10 extra bits).
@@ -3703,7 +3710,7 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
    */
   scale_k = maxbl_FG1 - minbl_fg;
 
-  for (v = 0; v < FSMSW_FALCON_UINT32_MAX_VALUE; v++)
+  for (v = 0; v < FN_DSA_UINT32_MAX_VALUE; v++)
   {
     /* Convert current F and G into floating-point. We apply scaling if the current length is more than 10 words. */
     if (FGlen > 10u)
@@ -3715,17 +3722,17 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
       rlen = FGlen;
     }
     scale_FG1 = 31 * ((sint32)FGlen - (sint32)rlen);
-    fsmsw_falcon_PolyBigToFp(rt1, &Ft[FGlen - rlen], rlen, llen, logn);
-    fsmsw_falcon_PolyBigToFp(rt2, &Gt[FGlen - rlen], rlen, llen, logn);
+    fn_dsa_PolyBigToFp(rt1, &Ft[FGlen - rlen], rlen, llen, logn);
+    fn_dsa_PolyBigToFp(rt2, &Gt[FGlen - rlen], rlen, llen, logn);
 
     /* Compute (F*adj(f)+G*adj(g))/(f*adj(f)+g*adj(g)) in rt2. */
-    FsmSw_Falcon_FFT(rt1, logn);
-    FsmSw_Falcon_FFT(rt2, logn);
-    FsmSw_Falcon_Poly_MulFFT(rt1, rt3, logn);
-    FsmSw_Falcon_Poly_MulFFT(rt2, rt4, logn);
-    FsmSw_Falcon_Poly_Add(rt2, rt1, logn);
-    FsmSw_Falcon_Poly_Mul_AutoadjFFT(rt2, rt5, logn);
-    FsmSw_Falcon_IFFT(rt2, logn);
+    FN_DSA_FFT(rt1, logn);
+    FN_DSA_FFT(rt2, logn);
+    FN_DSA_Poly_MulFFT(rt1, rt3, logn);
+    FN_DSA_Poly_MulFFT(rt2, rt4, logn);
+    FN_DSA_Poly_Add(rt2, rt1, logn);
+    FN_DSA_Poly_Mul_AutoadjFFT(rt2, rt5, logn);
+    FN_DSA_IFFT(rt2, logn);
 
     /* (f,g) are scaled by 'scale_fg', meaning that the numbers in rt3/rt4 should be multiplied by 2^(scale_fg) to have
      * their true mathematical value.
@@ -3754,27 +3761,27 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
     {
       if (((uint32)dc & 1u) != 0u)
       {
-        pdc = FsmSw_Falcon_Fpr_Mul(pdc, pt);
+        pdc = FN_DSA_Fpr_Mul(pdc, pt);
       }
       dc = (sint32)((uint32)((uint32)dc >> 1));
-      pt = FsmSw_Falcon_Fpr_Sqr(pt);
+      pt = FN_DSA_Fpr_Sqr(pt);
     }
 
     for (u = 0; u < n; u++)
     {
-      xv = FsmSw_Falcon_Fpr_Mul(rt2[u], pdc);
+      xv = FN_DSA_Fpr_Mul(rt2[u], pdc);
 
-      /* Sometimes the values can be out-of-bounds if the algorithm fails; we must not call FsmSw_Falcon_Fpr_Rint()
+      /* Sometimes the values can be out-of-bounds if the algorithm fails; we must not call FN_DSA_Fpr_Rint()
        * (and cast to sint32) if the value is not in-bounds. Note that the test does not break constant-time discipline,
        * since any failure here implies that we discard the current secret key (f,g). */
-      if ((0 == FsmSw_Falcon_Fpr_Lt(fpr_mtwo31m1, xv)) || (0 == FsmSw_Falcon_Fpr_Lt(xv, fpr_ptwo31m1)))
+      if ((0 == FN_DSA_Fpr_Lt(fpr_mtwo31m1, xv)) || (0 == FN_DSA_Fpr_Lt(xv, fpr_ptwo31m1)))
       {
         retVal    = 0;
         bStopFunc = TRUE;
         break;
       }
 
-      k[u] = (sint32)FsmSw_Falcon_Fpr_Rint(xv);
+      k[u] = (sint32)FN_DSA_Fpr_Rint(xv);
     }
 
     if (FALSE == bStopFunc)
@@ -3785,13 +3792,13 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
       scl = ((uint32)scale_k % 31u);
       if (depth <= DEPTH_INT_FG)
       {
-        fsmsw_falcon_PolySubScaledNtt(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
-        fsmsw_falcon_PolySubScaledNtt(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
+        fn_dsa_PolySubScaledNtt(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
+        fn_dsa_PolySubScaledNtt(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn, t1);
       }
       else
       {
-        fsmsw_falcon_PolySubScaled(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
-        fsmsw_falcon_PolySubScaled(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
+        fn_dsa_PolySubScaled(Ft, FGlen, llen, ft1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
+        fn_dsa_PolySubScaled(Gt, FGlen, llen, gt1_solveNtruIntermediate, slen, slen, k, sch, scl, logn);
       }
 
       /* We compute the new maximum size of (F,G), assuming that (f,g) has _maximal_ length (i.e. that reduction is
@@ -3851,12 +3858,12 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
   y = tmp;
   for (u = 0; u < (n << 1); u++)
   {
-    FsmSw_CommonLib_MemMove(x, y, slen * sizeof(*y));
+    FN_DSA_CommonLib_MemMove(x, y, slen * sizeof(*y));
     x = &x[slen];
     y = &y[llen];
   }
   return retVal;
-} // end: fsmsw_falcon_SolveNtruIntermediate
+} // end: fn_dsa_SolveNtruIntermediate
 
 /*====================================================================================================================*/
 /**
@@ -3874,10 +3881,10 @@ static sint32 fsmsw_falcon_SolveNtruIntermediate(uint32 logn_top, const sint8 *c
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f, const sint8 *const g,
                                                  uint32 *const tmp)
 {
-  /* The first half of this function is a copy of the corresponding part in fsmsw_falcon_SolveNtruIntermediate(), for the
+  /* The first half of this function is a copy of the corresponding part in fn_dsa_SolveNtruIntermediate(), for the
    * reconstruction of the unreduced F and G. The second half (Babai reduction) is done differently, because the
    * unreduced F and G fit in 53 bits of precision, allowing a much simpler process with lower RAM usage. */
   uint32 depth                      = 0;
@@ -3961,9 +3968,9 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   for (u = 0; u < llen; u++)
   {
     p   = PRIMES[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
-    Rx  = fsmsw_falcon_ModpRx((uint32)dlen, p, p0i, R2);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
+    Rx  = fn_dsa_ModpRx((uint32)dlen, p, p0i, R2);
 
     xs = Fd;
     ys = Gd;
@@ -3971,8 +3978,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
     yd = &Gt[u];
     for (v = 0; v < hn; v++)
     {
-      *xd = fsmsw_falcon_ZintModSmallSigned(xs, dlen, p, p0i, R2, Rx);
-      *yd = fsmsw_falcon_ZintModSmallSigned(ys, dlen, p, p0i, R2, Rx);
+      *xd = fn_dsa_ZintModSmallSigned(xs, dlen, p, p0i, R2, Rx);
+      *yd = fn_dsa_ZintModSmallSigned(ys, dlen, p, p0i, R2, Rx);
       xs  = &xs[dlen];
       ys  = &ys[dlen];
       xd  = &xd[llen];
@@ -3981,9 +3988,9 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   }
 
   /* Now Fd and Gd are not needed anymore; we can squeeze them out. */
-  FsmSw_CommonLib_MemMove(tmp, Ft, llen * n * sizeof(uint32));
+  FN_DSA_CommonLib_MemMove(tmp, Ft, llen * n * sizeof(uint32));
   Ft = tmp;
-  FsmSw_CommonLib_MemMove(&Ft[llen * n], Gt, llen * n * sizeof(uint32));
+  FN_DSA_CommonLib_MemMove(&Ft[llen * n], Gt, llen * n * sizeof(uint32));
   Gt                        = &Ft[llen * n];
   ft1_solveNtruBinaryDepth1 = &Gt[llen * n];
   gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
@@ -3995,8 +4002,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
   {
     /* All computations are done modulo p. */
     p   = PRIMES[u].p;
-    p0i = fsmsw_falcon_ModpNinv31(p);
-    R2  = fsmsw_falcon_ModpR2(p, p0i);
+    p0i = fn_dsa_ModpNinv31(p);
+    R2  = fn_dsa_ModpR2(p, p0i);
 
     /* We recompute things from the source f and g, of full degree. However, we will need only the n first elements
      * of the inverse NTT table (igm); the call to modp_mkgm() below will fill n_top elements in igm[] (thus
@@ -4005,31 +4012,31 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
     igm = &gm[n_top];
     fx  = &igm[n];
     gx  = &fx[n_top];
-    fsmsw_falcon_ModpMkgm2(gm, igm, logn_top, PRIMES[u].g, p, p0i);
+    fn_dsa_ModpMkgm2(gm, igm, logn_top, PRIMES[u].g, p, p0i);
 
     /* Set ft1 and gt1 to f and g modulo p, respectively. */
     for (v = 0; v < n_top; v++)
     {
-      fx[v] = fsmsw_falcon_ModpSet(f[v], p);
-      gx[v] = fsmsw_falcon_ModpSet(g[v], p);
+      fx[v] = fn_dsa_ModpSet(f[v], p);
+      gx[v] = fn_dsa_ModpSet(g[v], p);
     }
 
     /* Convert to NTT and compute our f and g. */
-    fsmsw_falcon_ModpNtt2Ext(fx, 1, gm, logn_top, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(gx, 1, gm, logn_top, p, p0i);
+    fn_dsa_ModpNtt2Ext(fx, 1, gm, logn_top, p, p0i);
+    fn_dsa_ModpNtt2Ext(gx, 1, gm, logn_top, p, p0i);
 
     for (e = logn_top; e > logn; e--)
     {
-      fsmsw_falcon_ModpPolyRecRes(fx, e, p, p0i, R2);
-      fsmsw_falcon_ModpPolyRecRes(gx, e, p, p0i, R2);
+      fn_dsa_ModpPolyRecRes(fx, e, p, p0i, R2);
+      fn_dsa_ModpPolyRecRes(gx, e, p, p0i, R2);
     }
 
     /* From that point onward, we only need tables for degree n, so we can save some space. */
-    FsmSw_CommonLib_MemMove(&gm[n], igm, n * sizeof(*igm));
+    FN_DSA_CommonLib_MemMove(&gm[n], igm, n * sizeof(*igm));
     igm = &gm[n];
-    FsmSw_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1_solveNtruBinaryDepth1));
+    FN_DSA_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1_solveNtruBinaryDepth1));
     fx = &igm[n];
-    FsmSw_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1_solveNtruBinaryDepth1));
+    FN_DSA_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1_solveNtruBinaryDepth1));
     gx = &fx[n];
 
     /* Get F' and G' modulo p and in NTT representation (they have degree n/2). These values were computed in a
@@ -4047,8 +4054,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
       x = &x[llen];
       y = &y[llen];
     }
-    fsmsw_falcon_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
-    fsmsw_falcon_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
+    fn_dsa_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
+    fn_dsa_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
 
     /* Compute our F and G modulo p.
      * Equations are:
@@ -4076,24 +4083,24 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
       ftB     = fx[(v << 1) + 1u];
       gtA     = gx[(v << 1)];
       gtB     = gx[(v << 1) + 1u];
-      mFp     = fsmsw_falcon_ModpMontymul(Fp[v], R2, p, p0i);
-      mGp     = fsmsw_falcon_ModpMontymul(Gp[v], R2, p, p0i);
-      x[0]    = fsmsw_falcon_ModpMontymul(gtB, mFp, p, p0i);
-      x[llen] = fsmsw_falcon_ModpMontymul(gtA, mFp, p, p0i);
-      y[0]    = fsmsw_falcon_ModpMontymul(ftB, mGp, p, p0i);
-      y[llen] = fsmsw_falcon_ModpMontymul(ftA, mGp, p, p0i);
+      mFp     = fn_dsa_ModpMontymul(Fp[v], R2, p, p0i);
+      mGp     = fn_dsa_ModpMontymul(Gp[v], R2, p, p0i);
+      x[0]    = fn_dsa_ModpMontymul(gtB, mFp, p, p0i);
+      x[llen] = fn_dsa_ModpMontymul(gtA, mFp, p, p0i);
+      y[0]    = fn_dsa_ModpMontymul(ftB, mGp, p, p0i);
+      y[llen] = fn_dsa_ModpMontymul(ftA, mGp, p, p0i);
 
       x = &x[(llen << 1)];
       y = &y[(llen << 1)];
     }
-    fsmsw_falcon_ModpIntt2Ext(&Ft[u], llen, igm, logn, p, p0i);
-    fsmsw_falcon_ModpIntt2Ext(&Gt[u], llen, igm, logn, p, p0i);
+    fn_dsa_ModpIntt2Ext(&Ft[u], llen, igm, logn, p, p0i);
+    fn_dsa_ModpIntt2Ext(&Gt[u], llen, igm, logn, p, p0i);
 
     /* Also save ft1 and gt1 (only up to size slen). */
     if (u < slen)
     {
-      fsmsw_falcon_ModpIntt2Ext(fx, 1, igm, logn, p, p0i);
-      fsmsw_falcon_ModpIntt2Ext(gx, 1, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(fx, 1, igm, logn, p, p0i);
+      fn_dsa_ModpIntt2Ext(gx, 1, igm, logn, p, p0i);
 
       x = &ft1_solveNtruBinaryDepth1[u];
       y = &gt1_solveNtruBinaryDepth1[u];
@@ -4109,36 +4116,36 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
 
   /* Rebuild f, g, F and G with the CRT. Note that the elements of F and G are consecutive, and thus can be rebuilt in
    * a single loop; similarly, the elements of f and g are consecutive. */
-  fsmsw_falcon_ZintRebuildCrt(Ft, llen, llen, n << 1, PRIMES, 1, t1);
-  fsmsw_falcon_ZintRebuildCrt(ft1_solveNtruBinaryDepth1, slen, slen, n << 1, PRIMES, 1, t1);
+  fn_dsa_ZintRebuildCrt(Ft, llen, llen, n << 1, PRIMES, 1, t1);
+  fn_dsa_ZintRebuildCrt(ft1_solveNtruBinaryDepth1, slen, slen, n << 1, PRIMES, 1, t1);
 
   /* Here starts the Babai reduction, specialized for depth = 1.
    * Candidates F and G (from Ft and Gt), and base f and g (ft1 and gt1), are converted to floating point. There is no
    * scaling, and a single pass is sufficient. */
 
   /* Convert F and G into floating point (rt1 and rt2). */
-  rt1 = fsmsw_falcon_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
+  rt1 = fn_dsa_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
   rt2 = &rt1[n];
-  fsmsw_falcon_PolyBigToFp(rt1, Ft, llen, llen, logn);
-  fsmsw_falcon_PolyBigToFp(rt2, Gt, llen, llen, logn);
+  fn_dsa_PolyBigToFp(rt1, Ft, llen, llen, logn);
+  fn_dsa_PolyBigToFp(rt2, Gt, llen, llen, logn);
 
   /* Integer representation of F and G is no longer needed, we can remove it. */
-  FsmSw_CommonLib_MemMove(tmp, ft1_solveNtruBinaryDepth1, 2u * slen * n * sizeof(*ft1_solveNtruBinaryDepth1));
+  FN_DSA_CommonLib_MemMove(tmp, ft1_solveNtruBinaryDepth1, 2u * slen * n * sizeof(*ft1_solveNtruBinaryDepth1));
   ft1_solveNtruBinaryDepth1 = tmp;
   gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
-  rt3                       = fsmsw_falcon_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
-  FsmSw_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
+  rt3                       = fn_dsa_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
+  FN_DSA_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
   rt1 = rt3;
   rt2 = &rt1[n];
   rt3 = &rt2[n];
   rt4 = &rt3[n];
 
   /* Convert f and g into floating point (rt3 and rt4). */
-  fsmsw_falcon_PolyBigToFp(rt3, ft1_solveNtruBinaryDepth1, slen, slen, logn);
-  fsmsw_falcon_PolyBigToFp(rt4, gt1_solveNtruBinaryDepth1, slen, slen, logn);
+  fn_dsa_PolyBigToFp(rt3, ft1_solveNtruBinaryDepth1, slen, slen, logn);
+  fn_dsa_PolyBigToFp(rt4, gt1_solveNtruBinaryDepth1, slen, slen, logn);
 
   /* Remove unneeded ft1 and gt1. */
-  FsmSw_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
+  FN_DSA_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
@@ -4154,10 +4161,10 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
    *   rt3 = f
    *   rt4 = g
    * in that order in RAM. We convert all of them to FFT. */
-  FsmSw_Falcon_FFT(rt1, logn);
-  FsmSw_Falcon_FFT(rt2, logn);
-  FsmSw_Falcon_FFT(rt3, logn);
-  FsmSw_Falcon_FFT(rt4, logn);
+  FN_DSA_FFT(rt1, logn);
+  FN_DSA_FFT(rt2, logn);
+  FN_DSA_FFT(rt3, logn);
+  FN_DSA_FFT(rt4, logn);
 
   /* Compute:
    *   rt5 = F*adj(f) + G*adj(g)
@@ -4165,57 +4172,57 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
    * (Note that rt6 is half-length.) */
   rt5 = &rt4[n];
   rt6 = &rt5[n];
-  FsmSw_Falcon_Poly_Add_MuladjFFT(rt5, rt1, rt2, rt3, rt4, logn);
-  FsmSw_Falcon_Poly_Invnorm2FFT(rt6, rt3, rt4, logn);
+  FN_DSA_Poly_Add_MuladjFFT(rt5, rt1, rt2, rt3, rt4, logn);
+  FN_DSA_Poly_Invnorm2FFT(rt6, rt3, rt4, logn);
 
   /* Compute: rt5 = (F*adj(f)+G*adj(g)) / (f*adj(f)+g*adj(g)) */
-  FsmSw_Falcon_Poly_Mul_AutoadjFFT(rt5, rt6, logn);
+  FN_DSA_Poly_Mul_AutoadjFFT(rt5, rt6, logn);
 
   /* Compute k as the rounded version of rt5. Check that none of the values is larger than 2^63-1 (in absolute value)
-   * because that would make the FsmSw_Falcon_Fpr_Rint() do something undefined; note that any out-of-bounds value here
+   * because that would make the FN_DSA_Fpr_Rint() do something undefined; note that any out-of-bounds value here
    * implies a failure and (f,g) will be discarded, so we can make a simple test. */
-  FsmSw_Falcon_IFFT(rt5, logn);
+  FN_DSA_IFFT(rt5, logn);
   for (u = 0; u < n; u++)
   {
     z = rt5[u];
 
-    if (0 == FsmSw_Falcon_Fpr_Lt(z, fpr_ptwo63m1))
+    if (0 == FN_DSA_Fpr_Lt(z, fpr_ptwo63m1))
     {
       return 0;
     }
-    if (0 == FsmSw_Falcon_Fpr_Lt(fpr_mtwo63m1, z))
+    if (0 == FN_DSA_Fpr_Lt(fpr_mtwo63m1, z))
     {
       return 0;
     }
 
-    rt5[u] = FsmSw_Falcon_Fpr_Of(FsmSw_Falcon_Fpr_Rint(z));
+    rt5[u] = FN_DSA_Fpr_Of(FN_DSA_Fpr_Rint(z));
   }
-  FsmSw_Falcon_FFT(rt5, logn);
+  FN_DSA_FFT(rt5, logn);
 
   /* Subtract k*f from F, and k*g from G. */
-  FsmSw_Falcon_Poly_MulFFT(rt3, rt5, logn);
-  FsmSw_Falcon_Poly_MulFFT(rt4, rt5, logn);
-  FsmSw_Falcon_Poly_Sub(rt1, rt3, logn);
-  FsmSw_Falcon_Poly_Sub(rt2, rt4, logn);
-  FsmSw_Falcon_IFFT(rt1, logn);
-  FsmSw_Falcon_IFFT(rt2, logn);
+  FN_DSA_Poly_MulFFT(rt3, rt5, logn);
+  FN_DSA_Poly_MulFFT(rt4, rt5, logn);
+  FN_DSA_Poly_Sub(rt1, rt3, logn);
+  FN_DSA_Poly_Sub(rt2, rt4, logn);
+  FN_DSA_IFFT(rt1, logn);
+  FN_DSA_IFFT(rt2, logn);
 
   /* Convert back F and G to integers, and return. */
   Ft  = tmp;
   Gt  = &Ft[n];
-  rt3 = fsmsw_falcon_AlignFpr(tmp, &Gt[n]);
-  FsmSw_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
+  rt3 = fn_dsa_AlignFpr(tmp, &Gt[n]);
+  FN_DSA_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
   rt1 = rt3;
   rt2 = &rt1[n];
 
   for (u = 0; u < n; u++)
   {
-    Ft[u] = (uint32)FsmSw_Falcon_Fpr_Rint(rt1[u]);
-    Gt[u] = (uint32)FsmSw_Falcon_Fpr_Rint(rt2[u]);
+    Ft[u] = (uint32)FN_DSA_Fpr_Rint(rt1[u]);
+    Gt[u] = (uint32)FN_DSA_Fpr_Rint(rt2[u]);
   }
 
   return 1;
-} // end: fsmsw_falcon_SolveNtruBinaryDepth1
+} // end: fn_dsa_SolveNtruBinaryDepth1
 
 /*====================================================================================================================*/
 /**
@@ -4230,7 +4237,7 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *c
 * \returns  1 on success, 0 on error.
 *
 */
-static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
+static sint32 fn_dsa_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, const sint8 *const g,
                                                  uint32 *const tmp)
 {
   uint32 n                         = 0;
@@ -4273,8 +4280,8 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
    * f0, f1, g0, g1, f', g', F' and G' are all "compressed" to degree N/2 (their odd-indexed coefficients are all zero).
    * Everything should fit in 31-bit integers, hence we can just use the first small prime p = 2147473409. */
   p   = PRIMES[0].p;
-  p0i = fsmsw_falcon_ModpNinv31(p);
-  R2  = fsmsw_falcon_ModpR2(p, p0i);
+  p0i = fn_dsa_ModpNinv31(p);
+  R2  = fn_dsa_ModpR2(p, p0i);
 
   Fp                       = tmp;
   Gp                       = &Fp[hn];
@@ -4283,25 +4290,25 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
   gm                       = &gt_solveNtruBinaryDepth0[n];
   igm                      = &gm[n];
 
-  fsmsw_falcon_ModpMkgm2(gm, igm, logn, PRIMES[0].g, p, p0i);
+  fn_dsa_ModpMkgm2(gm, igm, logn, PRIMES[0].g, p, p0i);
 
   /* Convert F' anf G' in NTT representation. */
   for (u = 0; u < hn; u++)
   {
-    Fp[u] = fsmsw_falcon_ModpSet(fsmsw_falcon_ZintOneToPlain(&Fp[u]), p);
-    Gp[u] = fsmsw_falcon_ModpSet(fsmsw_falcon_ZintOneToPlain(&Gp[u]), p);
+    Fp[u] = fn_dsa_ModpSet(fn_dsa_ZintOneToPlain(&Fp[u]), p);
+    Gp[u] = fn_dsa_ModpSet(fn_dsa_ZintOneToPlain(&Gp[u]), p);
   }
-  fsmsw_falcon_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
+  fn_dsa_ModpNtt2Ext(Fp, 1, gm, logn - 1u, p, p0i);
+  fn_dsa_ModpNtt2Ext(Gp, 1, gm, logn - 1u, p, p0i);
 
   /* Load f and g and convert them to NTT representation. */
   for (u = 0; u < n; u++)
   {
-    ft_solveNtruBinaryDepth0[u] = fsmsw_falcon_ModpSet(f[u], p);
-    gt_solveNtruBinaryDepth0[u] = fsmsw_falcon_ModpSet(g[u], p);
+    ft_solveNtruBinaryDepth0[u] = fn_dsa_ModpSet(f[u], p);
+    gt_solveNtruBinaryDepth0[u] = fn_dsa_ModpSet(g[u], p);
   }
-  fsmsw_falcon_ModpNtt2Ext(ft_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(gt_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(ft_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(gt_solveNtruBinaryDepth0, 1, gm, logn, p, p0i);
 
   /* Build the unreduced F,G in ft and gt. */
   for (u = 0; u < n; u += 2u)
@@ -4310,20 +4317,20 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
     ftB                              = ft_solveNtruBinaryDepth0[u + 1u];
     gtA                              = gt_solveNtruBinaryDepth0[u];
     gtB                              = gt_solveNtruBinaryDepth0[u + 1u];
-    mFp                              = fsmsw_falcon_ModpMontymul(Fp[u >> 1], R2, p, p0i);
-    mGp                              = fsmsw_falcon_ModpMontymul(Gp[u >> 1], R2, p, p0i);
-    ft_solveNtruBinaryDepth0[u]      = fsmsw_falcon_ModpMontymul(gtB, mFp, p, p0i);
-    ft_solveNtruBinaryDepth0[u + 1u] = fsmsw_falcon_ModpMontymul(gtA, mFp, p, p0i);
-    gt_solveNtruBinaryDepth0[u]      = fsmsw_falcon_ModpMontymul(ftB, mGp, p, p0i);
-    gt_solveNtruBinaryDepth0[u + 1u] = fsmsw_falcon_ModpMontymul(ftA, mGp, p, p0i);
+    mFp                              = fn_dsa_ModpMontymul(Fp[u >> 1], R2, p, p0i);
+    mGp                              = fn_dsa_ModpMontymul(Gp[u >> 1], R2, p, p0i);
+    ft_solveNtruBinaryDepth0[u]      = fn_dsa_ModpMontymul(gtB, mFp, p, p0i);
+    ft_solveNtruBinaryDepth0[u + 1u] = fn_dsa_ModpMontymul(gtA, mFp, p, p0i);
+    gt_solveNtruBinaryDepth0[u]      = fn_dsa_ModpMontymul(ftB, mGp, p, p0i);
+    gt_solveNtruBinaryDepth0[u + 1u] = fn_dsa_ModpMontymul(ftA, mGp, p, p0i);
   }
 
-  fsmsw_falcon_ModpIntt2Ext(ft_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
-  fsmsw_falcon_ModpIntt2Ext(gt_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
+  fn_dsa_ModpIntt2Ext(ft_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
+  fn_dsa_ModpIntt2Ext(gt_solveNtruBinaryDepth0, 1, igm, logn, p, p0i);
 
   Gp = &Fp[n];
   t1 = &Gp[n];
-  FsmSw_CommonLib_MemMove(Fp, ft_solveNtruBinaryDepth0, 2u * n * sizeof(*ft_solveNtruBinaryDepth0));
+  FN_DSA_CommonLib_MemMove(Fp, ft_solveNtruBinaryDepth0, 2u * n * sizeof(*ft_solveNtruBinaryDepth0));
 
   /* We now need to apply the Babai reduction. At that point, we have F and G in two n-word arrays.
    * We can compute F*adj(f)+G*adj(g) and f*adj(f)+g*adj(g) modulo p, using the NTT. We still move memory around in
@@ -4334,64 +4341,64 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
   t5 = &t4[n];
 
   /* Compute the NTT tables in t1 and t2. We do not keep t2 (we'll recompute it later on). */
-  fsmsw_falcon_ModpMkgm2(t1, t2, logn, PRIMES[0].g, p, p0i);
+  fn_dsa_ModpMkgm2(t1, t2, logn, PRIMES[0].g, p, p0i);
 
   /* Convert F and G to NTT. */
-  fsmsw_falcon_ModpNtt2Ext(Fp, 1, t1, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(Gp, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(Fp, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(Gp, 1, t1, logn, p, p0i);
 
   /* Load f and adj(f) in t4 and t5, and convert them to NTT representation. */
-  t4[0] = fsmsw_falcon_ModpSet(f[0], p);
-  t5[0] = fsmsw_falcon_ModpSet(f[0], p);
+  t4[0] = fn_dsa_ModpSet(f[0], p);
+  t5[0] = fn_dsa_ModpSet(f[0], p);
 
   for (u = 1; u < n; u++)
   {
-    t4[u]     = fsmsw_falcon_ModpSet(f[u], p);
-    t5[n - u] = fsmsw_falcon_ModpSet(-f[u], p);
+    t4[u]     = fn_dsa_ModpSet(f[u], p);
+    t5[n - u] = fn_dsa_ModpSet(-f[u], p);
   }
 
-  fsmsw_falcon_ModpNtt2Ext(t4, 1, t1, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(t5, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t4, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t5, 1, t1, logn, p, p0i);
 
   /* Compute F*adj(f) in t2, and f*adj(f) in t3. */
   for (u = 0; u < n; u++)
   {
-    w     = fsmsw_falcon_ModpMontymul(t5[u], R2, p, p0i);
-    t2[u] = fsmsw_falcon_ModpMontymul(w, Fp[u], p, p0i);
-    t3[u] = fsmsw_falcon_ModpMontymul(w, t4[u], p, p0i);
+    w     = fn_dsa_ModpMontymul(t5[u], R2, p, p0i);
+    t2[u] = fn_dsa_ModpMontymul(w, Fp[u], p, p0i);
+    t3[u] = fn_dsa_ModpMontymul(w, t4[u], p, p0i);
   }
 
   /* Load g and adj(g) in t4 and t5, and convert them to NTT representation. */
-  t4[0] = fsmsw_falcon_ModpSet(g[0], p);
-  t5[0] = fsmsw_falcon_ModpSet(g[0], p);
+  t4[0] = fn_dsa_ModpSet(g[0], p);
+  t5[0] = fn_dsa_ModpSet(g[0], p);
 
   for (u = 1; u < n; u++)
   {
-    t4[u]     = fsmsw_falcon_ModpSet(g[u], p);
-    t5[n - u] = fsmsw_falcon_ModpSet(-g[u], p);
+    t4[u]     = fn_dsa_ModpSet(g[u], p);
+    t5[n - u] = fn_dsa_ModpSet(-g[u], p);
   }
 
-  fsmsw_falcon_ModpNtt2Ext(t4, 1, t1, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(t5, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t4, 1, t1, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t5, 1, t1, logn, p, p0i);
 
   /* Add G*adj(g) to t2, and g*adj(g) to t3. */
   for (u = 0; u < n; u++)
   {
-    w     = fsmsw_falcon_ModpMontymul(t5[u], R2, p, p0i);
-    t2[u] = fsmsw_falcon_ModpAdd(t2[u], fsmsw_falcon_ModpMontymul(w, Gp[u], p, p0i), p);
-    t3[u] = fsmsw_falcon_ModpAdd(t3[u], fsmsw_falcon_ModpMontymul(w, t4[u], p, p0i), p);
+    w     = fn_dsa_ModpMontymul(t5[u], R2, p, p0i);
+    t2[u] = fn_dsa_ModpAdd(t2[u], fn_dsa_ModpMontymul(w, Gp[u], p, p0i), p);
+    t3[u] = fn_dsa_ModpAdd(t3[u], fn_dsa_ModpMontymul(w, t4[u], p, p0i), p);
   }
 
   /* Convert back t2 and t3 to normal representation (normalized around 0), and then move them to t1 and t2. We first
    * need to recompute the inverse table for NTT. */
-  fsmsw_falcon_ModpMkgm2(t1, t4, logn, PRIMES[0].g, p, p0i);
-  fsmsw_falcon_ModpIntt2Ext(t2, 1, t4, logn, p, p0i);
-  fsmsw_falcon_ModpIntt2Ext(t3, 1, t4, logn, p, p0i);
+  fn_dsa_ModpMkgm2(t1, t4, logn, PRIMES[0].g, p, p0i);
+  fn_dsa_ModpIntt2Ext(t2, 1, t4, logn, p, p0i);
+  fn_dsa_ModpIntt2Ext(t3, 1, t4, logn, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    t1[u] = (uint32)fsmsw_falcon_ModpNorm(t2[u], p);
-    t2[u] = (uint32)fsmsw_falcon_ModpNorm(t3[u], p);
+    t1[u] = (uint32)fn_dsa_ModpNorm(t2[u], p);
+    t2[u] = (uint32)fn_dsa_ModpNorm(t3[u], p);
   }
 
   /* At that point, array contents are:
@@ -4403,34 +4410,34 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
 
   /* Get f*adj(f)+g*adj(g) in FFT representation. Since this polynomial is auto-adjoint, all its coordinates in FFT
    * representation are actually real, so we can truncate off the imaginary parts. */
-  rt3 = fsmsw_falcon_AlignFpr(tmp, t3);
+  rt3 = fn_dsa_AlignFpr(tmp, t3);
 
   for (u = 0; u < n; u++)
   {
-    rt3[u] = FsmSw_Falcon_Fpr_Of((sint64)((sint32)t2[u]));
+    rt3[u] = FN_DSA_Fpr_Of((sint64)((sint32)t2[u]));
   }
 
-  FsmSw_Falcon_FFT(rt3, logn);
-  rt2 = fsmsw_falcon_AlignFpr(tmp, t2);
-  FsmSw_CommonLib_MemMove(rt2, rt3, hn * sizeof(*rt3));
+  FN_DSA_FFT(rt3, logn);
+  rt2 = fn_dsa_AlignFpr(tmp, t2);
+  FN_DSA_CommonLib_MemMove(rt2, rt3, hn * sizeof(*rt3));
 
   /* Convert F*adj(f)+G*adj(g) in FFT representation. */
   rt3 = &rt2[hn];
 
   for (u = 0; u < n; u++)
   {
-    rt3[u] = FsmSw_Falcon_Fpr_Of((sint64)((sint32)t1[u]));
+    rt3[u] = FN_DSA_Fpr_Of((sint64)((sint32)t1[u]));
   }
 
-  FsmSw_Falcon_FFT(rt3, logn);
+  FN_DSA_FFT(rt3, logn);
 
   /* Compute (F*adj(f)+G*adj(g))/(f*adj(f)+g*adj(g)) and get its rounded normal representation in t1. */
-  FsmSw_Falcon_Poly_Div_AutoadjFFT(rt3, rt2, logn);
-  FsmSw_Falcon_IFFT(rt3, logn);
+  FN_DSA_Poly_Div_AutoadjFFT(rt3, rt2, logn);
+  FN_DSA_IFFT(rt3, logn);
 
   for (u = 0; u < n; u++)
   {
-    t1[u] = fsmsw_falcon_ModpSet((sint32)FsmSw_Falcon_Fpr_Rint(rt3[u]), p);
+    t1[u] = fn_dsa_ModpSet((sint32)FN_DSA_Fpr_Rint(rt3[u]), p);
   }
 
   /* RAM contents are now:
@@ -4442,36 +4449,36 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
   t3 = &t2[n];
   t4 = &t3[n];
   t5 = &t4[n];
-  fsmsw_falcon_ModpMkgm2(t2, t3, logn, PRIMES[0].g, p, p0i);
+  fn_dsa_ModpMkgm2(t2, t3, logn, PRIMES[0].g, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    t4[u] = fsmsw_falcon_ModpSet(f[u], p);
-    t5[u] = fsmsw_falcon_ModpSet(g[u], p);
+    t4[u] = fn_dsa_ModpSet(f[u], p);
+    t5[u] = fn_dsa_ModpSet(g[u], p);
   }
 
-  fsmsw_falcon_ModpNtt2Ext(t1, 1, t2, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(t4, 1, t2, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(t5, 1, t2, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t1, 1, t2, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t4, 1, t2, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(t5, 1, t2, logn, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    kw    = fsmsw_falcon_ModpMontymul(t1[u], R2, p, p0i);
-    Fp[u] = fsmsw_falcon_ModpSub(Fp[u], fsmsw_falcon_ModpMontymul(kw, t4[u], p, p0i), p);
-    Gp[u] = fsmsw_falcon_ModpSub(Gp[u], fsmsw_falcon_ModpMontymul(kw, t5[u], p, p0i), p);
+    kw    = fn_dsa_ModpMontymul(t1[u], R2, p, p0i);
+    Fp[u] = fn_dsa_ModpSub(Fp[u], fn_dsa_ModpMontymul(kw, t4[u], p, p0i), p);
+    Gp[u] = fn_dsa_ModpSub(Gp[u], fn_dsa_ModpMontymul(kw, t5[u], p, p0i), p);
   }
 
-  fsmsw_falcon_ModpIntt2Ext(Fp, 1, t3, logn, p, p0i);
-  fsmsw_falcon_ModpIntt2Ext(Gp, 1, t3, logn, p, p0i);
+  fn_dsa_ModpIntt2Ext(Fp, 1, t3, logn, p, p0i);
+  fn_dsa_ModpIntt2Ext(Gp, 1, t3, logn, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    Fp[u] = (uint32)fsmsw_falcon_ModpNorm(Fp[u], p);
-    Gp[u] = (uint32)fsmsw_falcon_ModpNorm(Gp[u], p);
+    Fp[u] = (uint32)fn_dsa_ModpNorm(Fp[u], p);
+    Gp[u] = (uint32)fn_dsa_ModpNorm(Gp[u], p);
   }
 
   return 1;
-} // end: fsmsw_falcon_SolveNtruBinaryDepth0
+} // end: fn_dsa_SolveNtruBinaryDepth0
 
 /*====================================================================================================================*/
 /**
@@ -4492,7 +4499,7 @@ static sint32 fsmsw_falcon_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
+static sint32 fn_dsa_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G, const sint8 *const f,
                                      const sint8 *const g, sint32 lim, uint32 *const tmp)
 {
   uint32 n                       = 0;
@@ -4514,20 +4521,20 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
 
   n = MKN(logn);
 
-  if (0 == fsmsw_falcon_SolveNtruDeepest(logn, f, g, tmp))
+  if (0 == fn_dsa_SolveNtruDeepest(logn, f, g, tmp))
   {
     return 0;
   }
 
-  /* For logn <= 2, we need to use fsmsw_falcon_SolveNtruIntermediate() directly, because coefficients are a bit too large and
-   * do not fit the hypotheses in fsmsw_falcon_SolveNtruBinaryDepth0(). */
+  /* For logn <= 2, we need to use fn_dsa_SolveNtruIntermediate() directly, because coefficients are a bit too large and
+   * do not fit the hypotheses in fn_dsa_SolveNtruBinaryDepth0(). */
   if (logn <= 2u)
   {
     depth = logn;
     while (depth > 0u)
     {
       depth--;
-      if (0 == fsmsw_falcon_SolveNtruIntermediate(logn, f, g, depth, tmp))
+      if (0 == fn_dsa_SolveNtruIntermediate(logn, f, g, depth, tmp))
       {
         return 0;
       }
@@ -4536,20 +4543,20 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
   else
   {
     depth = logn;
-    while (depth > FSMSW_FALCON_MIN_DEPTH)
+    while (depth > FN_DSA_MIN_DEPTH)
     {
       depth--;
-      if (0 == fsmsw_falcon_SolveNtruIntermediate(logn, f, g, depth, tmp))
+      if (0 == fn_dsa_SolveNtruIntermediate(logn, f, g, depth, tmp))
       {
         return 0;
       }
     }
 
-    if (0 == fsmsw_falcon_SolveNtruBinaryDepth1(logn, f, g, tmp))
+    if (0 == fn_dsa_SolveNtruBinaryDepth1(logn, f, g, tmp))
     {
       return 0;
     }
-    (void)fsmsw_falcon_SolveNtruBinaryDepth0(logn, f, g, tmp);
+    (void)fn_dsa_SolveNtruBinaryDepth0(logn, f, g, tmp);
   }
 
   /* If no buffer has been provided for G, use a temporary one. */
@@ -4563,11 +4570,11 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
   }
 
   /* Final F and G are in fk->tmp, one word per coefficient (signed value over 31 bits). */
-  if (0 == fsmsw_falcon_PolyBigToSmall(F, tmp, lim, logn))
+  if (0 == fn_dsa_PolyBigToSmall(F, tmp, lim, logn))
   {
     return 0;
   }
-  if (0 == fsmsw_falcon_PolyBigToSmall(G_temp, &tmp[n], lim, logn))
+  if (0 == fn_dsa_PolyBigToSmall(G_temp, &tmp[n], lim, logn))
   {
     return 0;
   }
@@ -4584,31 +4591,31 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
 
   smallPrimes = PRIMES;
   p           = smallPrimes[0].p;
-  p0i         = fsmsw_falcon_ModpNinv31(p);
-  fsmsw_falcon_ModpMkgm2(gm, tmp, logn, smallPrimes[0].g, p, p0i);
+  p0i         = fn_dsa_ModpNinv31(p);
+  fn_dsa_ModpMkgm2(gm, tmp, logn, smallPrimes[0].g, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    Gt1[u] = fsmsw_falcon_ModpSet(G_temp[u], p);
+    Gt1[u] = fn_dsa_ModpSet(G_temp[u], p);
   }
 
   for (u = 0; u < n; u++)
   {
-    ft_solveNtru[u] = fsmsw_falcon_ModpSet(f[u], p);
-    gt_solveNtru[u] = fsmsw_falcon_ModpSet(g[u], p);
-    Ft1[u]          = fsmsw_falcon_ModpSet(F[u], p);
+    ft_solveNtru[u] = fn_dsa_ModpSet(f[u], p);
+    gt_solveNtru[u] = fn_dsa_ModpSet(g[u], p);
+    Ft1[u]          = fn_dsa_ModpSet(F[u], p);
   }
 
-  fsmsw_falcon_ModpNtt2Ext(ft_solveNtru, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(gt_solveNtru, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(Ft1, 1, gm, logn, p, p0i);
-  fsmsw_falcon_ModpNtt2Ext(Gt1, 1, gm, logn, p, p0i);
-  r = fsmsw_falcon_ModpMontymul(12289, 1, p, p0i);
+  fn_dsa_ModpNtt2Ext(ft_solveNtru, 1, gm, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(gt_solveNtru, 1, gm, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(Ft1, 1, gm, logn, p, p0i);
+  fn_dsa_ModpNtt2Ext(Gt1, 1, gm, logn, p, p0i);
+  r = fn_dsa_ModpMontymul(12289, 1, p, p0i);
 
   for (u = 0; u < n; u++)
   {
-    z = fsmsw_falcon_ModpSub(fsmsw_falcon_ModpMontymul(ft_solveNtru[u], Gt1[u], p, p0i),
-                             fsmsw_falcon_ModpMontymul(gt_solveNtru[u], Ft1[u], p, p0i), p);
+    z = fn_dsa_ModpSub(fn_dsa_ModpMontymul(ft_solveNtru[u], Gt1[u], p, p0i),
+                             fn_dsa_ModpMontymul(gt_solveNtru[u], Ft1[u], p, p0i), p);
 
     if (z != r)
     {
@@ -4617,7 +4624,7 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
   }
 
   return 1;
-} // end: fsmsw_falcon_SolveNtru
+} // end: fn_dsa_SolveNtru
 
 /*====================================================================================================================*/
 /**
@@ -4629,7 +4636,7 @@ static sint32 fsmsw_falcon_SolveNtru(uint32 logn, sint8 *const F, sint8 *const G
 * \param[in]  uint32      logn : t.b.d.
 *
 */
-static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn)
+static void fn_dsa_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f, uint32 logn)
 {
   uint32 n     = 0;
   uint32 u     = 0;
@@ -4645,7 +4652,7 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
     loop = TRUE;
     while (TRUE == loop)
     {
-      s = fsmsw_falcon_Mkgauss(rng, logn);
+      s = fn_dsa_Mkgauss(rng, logn);
       /* We need the coefficient to fit within -127..+127; realistically, this is always the case except for the very
          * low degrees (N = 2 or 4), for which there is no real security anyway. */
       if ((s < -127) || (s > 127))
@@ -4686,7 +4693,7 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
       loop = FALSE;
     }
   }
-} // end: fsmsw_falcon_PolySmallMkgauss
+} // end: fn_dsa_PolySmallMkgauss
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
@@ -4695,7 +4702,7 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
 /*====================================================================================================================*/
 /**
 * \brief Generate a new key pair. Randomness is extracted from the provided SHAKE256 context, which must have
-*        already been seeded and flipped. The tmp[] array must have suitable size (see FALCON_KEYGEN_TEMP_*
+*        already been seeded and flipped. The tmp[] array must have suitable size (see FN_DSA_KEYGEN_TEMP_*
 *        macros) and be aligned for the uint32, uint64 and fpr types.
 *        The private key elements are written in f, g, F and G, and the public key is written in h. Either or
 *        both of G and h may be NULL, in which case the corresponding element is not returned (they can be
@@ -4712,7 +4719,7 @@ static void fsmsw_falcon_PolySmallMkgauss(RNG_CONTEXT *const rng, sint8 *const f
 * \param[out] uint8                  *tmp : tmp[] must have 64-bit alignment.
 *
 */
-void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint8 *const g, sint8 *const F,
+void FN_DSA_Keygen(inner_shake256_context *const rng, sint8 *const f, sint8 *const g, sint8 *const F,
                          sint8 *const G, uint16 *const h, uint32 logn, uint8 *const tmp)
 {
   /* Algorithm is the following:
@@ -4752,14 +4759,14 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
    * We require that Res(f,phi) and Res(g,phi) are both odd (the NTRU equation solver requires it). */
   for (;;)
   {
-    /* The fsmsw_falcon_PolySmallMkgauss() function makes sure that the sum of coefficients is 1 modulo 2 (i.e. the resultant of
+    /* The fn_dsa_PolySmallMkgauss() function makes sure that the sum of coefficients is 1 modulo 2 (i.e. the resultant of
      * the polynomial with phi will be odd). */
-    fsmsw_falcon_PolySmallMkgauss(rc, f, logn);
-    fsmsw_falcon_PolySmallMkgauss(rc, g, logn);
+    fn_dsa_PolySmallMkgauss(rc, f, logn);
+    fn_dsa_PolySmallMkgauss(rc, g, logn);
 
     /* Verify that all coefficients are within the bounds defined in max_fg_bits. This is the case with overwhelming
-     * probability; this guarantees that the key will be encodable with FALCON_COMP_TRIM. */
-    lim = (sint32)((uint8)(1u << (FsmSw_Falcon_max_small_fg_bits[logn] - 1u)));
+     * probability; this guarantees that the key will be encodable with FN_DSA_COMP_TRIM. */
+    lim = (sint32)((uint8)(1u << (FN_DSA_max_small_fg_bits[logn] - 1u)));
 
     for (u = 0; u < n; u++)
     {
@@ -4778,8 +4785,8 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
     /* Bound is 1.17*sqrt(q). We compute the squared norms. With q = 12289, the squared bound is:
      *   (1.17^2)* 12289 = 16822.4121
      * Since f and g are integral, the squared norm of (g,-f) is an integer. */
-    normf = fsmsw_falcon_PolySmallSqNorm(f, logn);
-    normg = fsmsw_falcon_PolySmallSqNorm(g, logn);
+    normf = fn_dsa_PolySmallSqNorm(f, logn);
+    normg = fn_dsa_PolySmallSqNorm(g, logn);
     /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
      the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -4801,28 +4808,28 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
     rt1 = (fpr *)((void *)tmp);
     rt2 = &rt1[n];
     rt3 = &rt2[n];
-    fsmsw_falcon_PolySmallToFp(rt1, f, logn);
-    fsmsw_falcon_PolySmallToFp(rt2, g, logn);
-    FsmSw_Falcon_FFT(rt1, logn);
-    FsmSw_Falcon_FFT(rt2, logn);
-    FsmSw_Falcon_Poly_Invnorm2FFT(rt3, rt1, rt2, logn);
-    FsmSw_Falcon_Poly_AdjFFT(rt1, logn);
-    FsmSw_Falcon_Poly_AdjFFT(rt2, logn);
-    FsmSw_Falcon_Poly_Mulconst(rt1, fpr_q, logn);
-    FsmSw_Falcon_Poly_Mulconst(rt2, fpr_q, logn);
-    FsmSw_Falcon_Poly_Mul_AutoadjFFT(rt1, rt3, logn);
-    FsmSw_Falcon_Poly_Mul_AutoadjFFT(rt2, rt3, logn);
-    FsmSw_Falcon_IFFT(rt1, logn);
-    FsmSw_Falcon_IFFT(rt2, logn);
+    fn_dsa_PolySmallToFp(rt1, f, logn);
+    fn_dsa_PolySmallToFp(rt2, g, logn);
+    FN_DSA_FFT(rt1, logn);
+    FN_DSA_FFT(rt2, logn);
+    FN_DSA_Poly_Invnorm2FFT(rt3, rt1, rt2, logn);
+    FN_DSA_Poly_AdjFFT(rt1, logn);
+    FN_DSA_Poly_AdjFFT(rt2, logn);
+    FN_DSA_Poly_Mulconst(rt1, fpr_q, logn);
+    FN_DSA_Poly_Mulconst(rt2, fpr_q, logn);
+    FN_DSA_Poly_Mul_AutoadjFFT(rt1, rt3, logn);
+    FN_DSA_Poly_Mul_AutoadjFFT(rt2, rt3, logn);
+    FN_DSA_IFFT(rt1, logn);
+    FN_DSA_IFFT(rt2, logn);
     bnorm = fpr_zero;
 
     for (u = 0; u < n; u++)
     {
-      bnorm = FsmSw_Falcon_Fpr_Add(bnorm, FsmSw_Falcon_Fpr_Sqr(rt1[u]));
-      bnorm = FsmSw_Falcon_Fpr_Add(bnorm, FsmSw_Falcon_Fpr_Sqr(rt2[u]));
+      bnorm = FN_DSA_Fpr_Add(bnorm, FN_DSA_Fpr_Sqr(rt1[u]));
+      bnorm = FN_DSA_Fpr_Add(bnorm, FN_DSA_Fpr_Sqr(rt2[u]));
     }
 
-    if (0 == FsmSw_Falcon_Fpr_Lt(bnorm, fpr_bnorm_max))
+    if (0 == FN_DSA_Fpr_Lt(bnorm, fpr_bnorm_max))
     {
       continue;
     }
@@ -4851,19 +4858,19 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
         Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
-    if (0 == FsmSw_Falcon_ComputePublic(h2, f, g, logn, (uint8 *)((void *)tmp2)))
+    if (0 == FN_DSA_ComputePublic(h2, f, g, logn, (uint8 *)((void *)tmp2)))
     {
       continue;
     }
 
     /* Solve the NTRU equation to get F and G. */
-    lim = (sint32)((uint8)(1u << (FsmSw_Falcon_max_big_FG_bits[logn] - 1u)));
+    lim = (sint32)((uint8)(1u << (FN_DSA_max_big_FG_bits[logn] - 1u)));
 
     /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
-    if (0 == fsmsw_falcon_SolveNtru(logn, F, G, f, g, lim, (uint32 *)((void *)tmp)))
+    if (0 == fn_dsa_SolveNtru(logn, F, G, f, g, lim, (uint32 *)((void *)tmp)))
     {
       continue;
     }
@@ -4872,7 +4879,7 @@ void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint
 
     break;
   }
-} // end: FsmSw_Falcon_Keygen
+} // end: FN_DSA_Keygen
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
-/** \addtogroup Falcon1024
-*    includes the modules for Falcon1024
+/** \addtogroup FN_DSA_1024
+*    includes the modules for FN_DSA_1024
  ** @{ */
-/** \addtogroup Falcon1024_api
+/** \addtogroup FN_DSA_1024_api
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon1024_api.c
-* \brief  description of FsmSw_Falcon1024_api.c
+/** \file FN_DSA_1024_api.c
+* \brief  description of FN_DSA_1024_api.c
 *
 * \details
 *
@@ -37,49 +44,49 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Falcon_codec.h"
-#include "FsmSw_Falcon_common.h"
-#include "FsmSw_Falcon_fpr.h"
-#include "FsmSw_Falcon_keygen.h"
-#include "FsmSw_Falcon_sign.h"
-#include "FsmSw_Falcon_vrfy.h"
+#include "FN_DSA_CommonLib.h"
+#include "FN_DSA_codec.h"
+#include "FN_DSA_common.h"
+#include "FN_DSA_fpr.h"
+#include "FN_DSA_keygen.h"
+#include "FN_DSA_sign.h"
+#include "FN_DSA_vrfy.h"
 
-#include "FsmSw_Falcon1024_api.h"
+#include "FN_DSA_1024_api.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON1024_NONCELEN                40u
-#define FSMSW_FALCON1024_BUFFER_SIZE             1024
-#define FSMSW_FALCON1024_SEED_BUFFER_SIZE        48
-#define FSMSW_UINT32_MAX_VALUE                   0xFFFFFFFFu
-#define FSMSW_FALCON1024_TMP2_STRUCT_BUFFER_SIZE 73728
-#define FSMSW_FALCON1024_TMP3_STRUCT_BUFFER_SIZE 2048
-#define FSMSW_FALCON1024_LOGN                    10u
+#define FN_DSA_1024_NONCELEN                40u
+#define FN_DSA_1024_BUFFER_SIZE             1024
+#define FN_DSA_1024_SEED_BUFFER_SIZE        48
+#define FN_DSA_UINT32_MAX_VALUE                   0xFFFFFFFFu
+#define FN_DSA_1024_TMP2_STRUCT_BUFFER_SIZE 73728
+#define FN_DSA_1024_TMP3_STRUCT_BUFFER_SIZE 2048
+#define FN_DSA_1024_LOGN                    10u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
 typedef struct
 {
-  uint8 b[FALCON_KEYGEN_TEMP_10];
+  uint8 b[FN_DSA_KEYGEN_TEMP_10];
 
 } tmp1_struct;
 
 typedef struct
 {
-  uint8 b[FSMSW_FALCON1024_TMP2_STRUCT_BUFFER_SIZE];
+  uint8 b[FN_DSA_1024_TMP2_STRUCT_BUFFER_SIZE];
 } tmp2_struct;
 
 typedef struct
 {
-  uint8 b[FSMSW_FALCON1024_TMP3_STRUCT_BUFFER_SIZE];
+  uint8 b[FN_DSA_1024_TMP3_STRUCT_BUFFER_SIZE];
 
 } tmp3_struct;
 
 typedef struct
 {
-  sint16 sig[FSMSW_FALCON1024_BUFFER_SIZE];
-  uint16 hm[FSMSW_FALCON1024_BUFFER_SIZE];
+  sint16 sig[FN_DSA_1024_BUFFER_SIZE];
+  uint16 hm[FN_DSA_1024_BUFFER_SIZE];
 } r_struct;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -96,9 +103,9 @@ static r_struct r_1024;
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
+static sint32 fn_dsa1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
                                       const uint8 *const m, uint32 mlen, const uint8 *const sk);
-static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
+static sint32 fn_dsa1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
                                         const uint8 *const m, uint32 mlen, const uint8 *const pk);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -110,7 +117,7 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *c
  *        new signature is computed. If the provided buffer size is too low, this could loop indefinitely, so the
  *        caller must provide a size that can accommodate signatures with a large enough probability.
  *
- * \param[out] uint8      *nonce : receives the nonce and must have length FSMSW_FALCON1024_NONCELEN bytes
+ * \param[out] uint8      *nonce : receives the nonce and must have length FN_DSA_1024_NONCELEN bytes
  * \param[out] uint8     *sigbuf : receives the signature value (without nonce or header byte)
  * \param[out] uint32 *sigbuflen : providing the maximum value length and receiving the actual value length
  * \param[in]  const uint8    *m : t.b.d.
@@ -120,14 +127,14 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *c
  * \returns 0 on success, -1 on error.
  *
  */
-static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
+static sint32 fn_dsa1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 *const sigbuflen,
                                       const uint8 *const m, uint32 mlen, const uint8 *const sk)
 {
-  sint8 f[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  sint8 g[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  sint8 F[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  sint8 G[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  uint8 seed[FSMSW_FALCON1024_SEED_BUFFER_SIZE] = {0};
+  sint8 f[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  sint8 g[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  sint8 F[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  sint8 G[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  uint8 seed[FN_DSA_1024_SEED_BUFFER_SIZE] = {0};
   inner_shake256_context sc                     = {{0}};
   uint32 u                                      = 0;
   uint32 v                                      = 0;
@@ -136,38 +143,38 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
   tmp2_struct tmp2_1024                         = {{0}};
 
   /* Decode the private key. */
-  if (sk[0] != (0x50u + FSMSW_FALCON1024_LOGN))
+  if (sk[0] != (0x50u + FN_DSA_1024_LOGN))
   {
     bStopFunc = TRUE;
   }
 
   u = 1u;
-  v = FsmSw_Falcon_TrimI8Decode(f, FSMSW_FALCON1024_LOGN, FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON1024_LOGN], &sk[u],
-                                FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u);
+  v = FN_DSA_TrimI8Decode(f, FN_DSA_1024_LOGN, FN_DSA_max_small_fg_bits[FN_DSA_1024_LOGN], &sk[u],
+                                FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u);
   if (v == 0u)
   {
     bStopFunc = TRUE;
   }
   u += v;
-  v = FsmSw_Falcon_TrimI8Decode(g, FSMSW_FALCON1024_LOGN, FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON1024_LOGN], &sk[u],
-                                FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u);
+  v = FN_DSA_TrimI8Decode(g, FN_DSA_1024_LOGN, FN_DSA_max_small_fg_bits[FN_DSA_1024_LOGN], &sk[u],
+                                FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u);
   if (v == 0u)
   {
     bStopFunc = TRUE;
   }
   u += v;
-  v = FsmSw_Falcon_TrimI8Decode(F, FSMSW_FALCON1024_LOGN, FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON1024_LOGN], &sk[u],
-                                FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u);
+  v = FN_DSA_TrimI8Decode(F, FN_DSA_1024_LOGN, FN_DSA_max_big_FG_bits[FN_DSA_1024_LOGN], &sk[u],
+                                FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u);
   if (v == 0u)
   {
     bStopFunc = TRUE;
   }
   u += v;
-  if (u != FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES)
+  if (u != FN_DSA_1024_CRYPTO_SECRETKEYBYTES)
   {
     bStopFunc = TRUE;
   }
-  if (0 == FsmSw_Falcon_CompletePrivate(G, f, g, F, FSMSW_FALCON1024_LOGN, tmp2_1024.b))
+  if (0 == FN_DSA_CompletePrivate(G, f, g, F, FN_DSA_1024_LOGN, tmp2_1024.b))
   {
     bStopFunc = TRUE;
   }
@@ -175,27 +182,27 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
   if (bStopFunc == FALSE)
   {
     /* Create a random nonce (40 bytes). */
-    (void)FsmSw_CommonLib_RandomBytes(nonce, FSMSW_FALCON1024_NONCELEN);
+    (void)FN_DSA_CommonLib_RandomBytes(nonce, FN_DSA_1024_NONCELEN);
 
     /* Hash message nonce + message into a vector. */
-    FsmSw_Fips202_Shake256_IncInit(&sc);
-    FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FSMSW_FALCON1024_NONCELEN);
-    FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
-    FsmSw_Fips202_Shake256_IncFinalize(&sc);
-    FsmSw_Falcon_HashToPointCt(&sc, r_1024.hm, FSMSW_FALCON1024_LOGN, tmp2_1024.b);
+    FN_DSA_Fips202_Shake256_IncInit(&sc);
+    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
+    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
+    FN_DSA_Fips202_Shake256_IncFinalize(&sc);
+    FN_DSA_HashToPointCt(&sc, r_1024.hm, FN_DSA_1024_LOGN, tmp2_1024.b);
 
     /* Initialize a RNG. */
-    (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
-    FsmSw_Fips202_Shake256_IncInit(&sc);
-    FsmSw_Fips202_Shake256_IncAbsorb(&sc, seed, sizeof(seed));
-    FsmSw_Fips202_Shake256_IncFinalize(&sc);
+    (void)FN_DSA_CommonLib_RandomBytes(seed, sizeof(seed));
+    FN_DSA_Fips202_Shake256_IncInit(&sc);
+    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, seed, sizeof(seed));
+    FN_DSA_Fips202_Shake256_IncFinalize(&sc);
 
     /* Compute and return the signature. This loops until a signature value is found that fits in the provided
          * buffer. */
-    for (uint32 i = 0; i < FSMSW_UINT32_MAX_VALUE; i++)
+    for (uint32 i = 0; i < FN_DSA_UINT32_MAX_VALUE; i++)
     {
-      FsmSw_Falcon_Sign_Dyn(r_1024.sig, &sc, f, g, F, G, r_1024.hm, FSMSW_FALCON1024_LOGN, tmp2_1024.b);
-      v = FsmSw_Falcon_CompEncode(sigbuf, *sigbuflen, r_1024.sig, FSMSW_FALCON1024_LOGN);
+      FN_DSA_Sign_Dyn(r_1024.sig, &sc, f, g, F, G, r_1024.hm, FN_DSA_1024_LOGN, tmp2_1024.b);
+      v = FN_DSA_CompEncode(sigbuf, *sigbuflen, r_1024.sig, FN_DSA_1024_LOGN);
       if (v != 0u)
       {
         *sigbuflen = v;
@@ -206,13 +213,13 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
   }
 
   return retVal;
-} // end: fsmsw_falcon1024_DoSign
+} // end: fn_dsa1024_DoSign
 
 /*====================================================================================================================*/
 /**
  * \brief Verify a signature.
  *
- * \param[out] uint8     *nonce : The nonce has size FSMSW_FALCON1024_NONCELEN bytes
+ * \param[out] uint8     *nonce : The nonce has size FN_DSA_1024_NONCELEN bytes
  * \param[out] uint8    *sigbuf : contains the signature value
  * \param[in]  uint32 sigbuflen : providing the maximum value length
  * \param[in]  const uint8   *m : t.b.d.
@@ -222,64 +229,64 @@ static sint32 fsmsw_falcon1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, u
  * \returns 0 on success, -1 on error.
  *
  */
-static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
+static sint32 fn_dsa1024_DoVerify(const uint8 *const nonce, const uint8 *const sigbuf, uint32 sigbuflen,
                                         const uint8 *const m, uint32 mlen, const uint8 *const pk)
 {
-  uint16 h[FSMSW_FALCON1024_BUFFER_SIZE]   = {0};
-  uint16 hm[FSMSW_FALCON1024_BUFFER_SIZE]  = {0};
-  sint16 sig[FSMSW_FALCON1024_BUFFER_SIZE] = {0};
+  uint16 h[FN_DSA_1024_BUFFER_SIZE]   = {0};
+  uint16 hm[FN_DSA_1024_BUFFER_SIZE]  = {0};
+  sint16 sig[FN_DSA_1024_BUFFER_SIZE] = {0};
   inner_shake256_context sc                = {{0}};
   sint8 retVal                             = 0;
   tmp3_struct tmp3_1024                    = {{0}};
 
   /* Decode public key. */
-  if (pk[0] != (FSMSW_FALCON1024_LOGN))
+  if (pk[0] != (FN_DSA_1024_LOGN))
   {
     retVal = -1;
   }
-  else if (FsmSw_Falcon_ModqDecode(h, FSMSW_FALCON1024_LOGN, &pk[1], FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u) !=
-           FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u)
+  else if (FN_DSA_ModqDecode(h, FN_DSA_1024_LOGN, &pk[1], FN_DSA_1024_CRYPTO_PUBLICKEYBYTES - 1u) !=
+           FN_DSA_1024_CRYPTO_PUBLICKEYBYTES - 1u)
   {
     retVal = -1;
   }
   else
   {
-    FsmSw_Falcon_ToNttMonty(h, FSMSW_FALCON1024_LOGN);
+    FN_DSA_ToNttMonty(h, FN_DSA_1024_LOGN);
 
     /* Decode signature. */
     if (sigbuflen == 0u)
     {
       retVal = -1;
     }
-    else if (FsmSw_Falcon_CompDecode(sig, FSMSW_FALCON1024_LOGN, sigbuf, sigbuflen) != sigbuflen)
+    else if (FN_DSA_CompDecode(sig, FN_DSA_1024_LOGN, sigbuf, sigbuflen) != sigbuflen)
     {
       retVal = -1;
     }
     else
     {
       /* Hash nonce + message into a vector. */
-      FsmSw_Fips202_Shake256_IncInit(&sc);
-      FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FSMSW_FALCON1024_NONCELEN);
-      FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
-      FsmSw_Fips202_Shake256_IncFinalize(&sc);
-      FsmSw_Falcon_HashToPointCt(&sc, hm, FSMSW_FALCON1024_LOGN, tmp3_1024.b);
+      FN_DSA_Fips202_Shake256_IncInit(&sc);
+      FN_DSA_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
+      FN_DSA_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
+      FN_DSA_Fips202_Shake256_IncFinalize(&sc);
+      FN_DSA_HashToPointCt(&sc, hm, FN_DSA_1024_LOGN, tmp3_1024.b);
 
       /* Verify signature. */
-      if (0 == FsmSw_Falcon_VerifyRaw(hm, sig, h, FSMSW_FALCON1024_LOGN, tmp3_1024.b))
+      if (0 == FN_DSA_VerifyRaw(hm, sig, h, FN_DSA_1024_LOGN, tmp3_1024.b))
       {
         retVal = -1;
       }
     }
   }
   return retVal;
-} // end: fsmsw_falcon1024_DoVerify
+} // end: fn_dsa1024_DoVerify
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
 
 /*
- * Encoding formats (nnnn = log of degree, 9 for Falcon-512, 10 for Falcon-1024)
+ * Encoding formats (nnnn = log of degree, 9 for FN_DSA-512, 10 for FN_DSA-1024)
  *
  *   private key:
  *      header byte: 0101nnnn
@@ -310,19 +317,19 @@ static sint32 fsmsw_falcon1024_DoVerify(const uint8 *const nonce, const uint8 *c
  * \brief Computes a root node given a leaf and an auth path. Expects address to be complete other than the
  *        tree_height and tree_index.
  *
- * \param[out] uint8 *pk : public key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
- * \param[out] uint8 *sk : private key with length FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES
+ * \param[out] uint8 *pk : public key with length FN_DSA_1024_CRYPTO_PUBLICKEYBYTES
+ * \param[out] uint8 *sk : private key with length FN_DSA_1024_CRYPTO_PUBLICKEYBYTES
  *
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
+uint8 FN_DSA_1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
-  sint8 f[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  sint8 g[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  sint8 F[FSMSW_FALCON1024_BUFFER_SIZE]         = {0};
-  uint16 h[FSMSW_FALCON1024_BUFFER_SIZE]        = {0};
-  uint8 seed[FSMSW_FALCON1024_SEED_BUFFER_SIZE] = {0};
+  sint8 f[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  sint8 g[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  sint8 F[FN_DSA_1024_BUFFER_SIZE]         = {0};
+  uint16 h[FN_DSA_1024_BUFFER_SIZE]        = {0};
+  uint8 seed[FN_DSA_1024_SEED_BUFFER_SIZE] = {0};
   inner_shake256_context rng                    = {{0}};
   uint32 u                                      = 0;
   uint32 v                                      = 0;
@@ -331,40 +338,40 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   tmp1_struct tmp1_1024                         = {{0}};
 
   /* Generate key pair. */
-  (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
-  FsmSw_Fips202_Shake256_IncInit(&rng);
-  FsmSw_Fips202_Shake256_IncAbsorb(&rng, seed, sizeof(seed));
-  FsmSw_Fips202_Shake256_IncFinalize(&rng);
-  FsmSw_Falcon_Keygen(&rng, f, g, F, ((void *)0), h, FSMSW_FALCON1024_LOGN, tmp1_1024.b);
+  (void)FN_DSA_CommonLib_RandomBytes(seed, sizeof(seed));
+  FN_DSA_Fips202_Shake256_IncInit(&rng);
+  FN_DSA_Fips202_Shake256_IncAbsorb(&rng, seed, sizeof(seed));
+  FN_DSA_Fips202_Shake256_IncFinalize(&rng);
+  FN_DSA_Keygen(&rng, f, g, F, (sint8 *)NULL_PTR, h, FN_DSA_1024_LOGN, tmp1_1024.b);
 
   /* Encode private key. */
-  sk[0] = 0x50u + FSMSW_FALCON1024_LOGN;
+  sk[0] = 0x50u + FN_DSA_1024_LOGN;
   u     = 1u;
-  v     = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u, f, FSMSW_FALCON1024_LOGN,
-                                    FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON1024_LOGN]);
+  v     = FN_DSA_TrimI8Encode(&sk[u], FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u, f, FN_DSA_1024_LOGN,
+                                    FN_DSA_max_small_fg_bits[FN_DSA_1024_LOGN]);
   if (v == 0u)
   {
     retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
-  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u, g, FSMSW_FALCON1024_LOGN,
-                                FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON1024_LOGN]);
+  v = FN_DSA_TrimI8Encode(&sk[u], FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u, g, FN_DSA_1024_LOGN,
+                                FN_DSA_max_small_fg_bits[FN_DSA_1024_LOGN]);
   if (v == 0u)
   {
     retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
-  v = FsmSw_Falcon_TrimI8Encode(&sk[u], FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES - u, F, FSMSW_FALCON1024_LOGN,
-                                (uint32)FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON1024_LOGN]);
+  v = FN_DSA_TrimI8Encode(&sk[u], FN_DSA_1024_CRYPTO_SECRETKEYBYTES - u, F, FN_DSA_1024_LOGN,
+                                (uint32)FN_DSA_max_big_FG_bits[FN_DSA_1024_LOGN]);
   if (v == 0u)
   {
     retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
   }
   u += v;
-  if (u != FSMSW_FALCON1024_CRYPTO_SECRETKEYBYTES)
+  if (u != FN_DSA_1024_CRYPTO_SECRETKEYBYTES)
   {
     retVal    = ERR_NOT_OK;
     bStopFunc = TRUE;
@@ -373,16 +380,16 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   if (FALSE == bStopFunc)
   {
     /* Encode public key. */
-    pk[0] = FSMSW_FALCON1024_LOGN;
-    v     = FsmSw_Falcon_ModqEncode(&pk[1], FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u, h, FSMSW_FALCON1024_LOGN);
-    if (v != FSMSW_FALCON1024_CRYPTO_PUBLICKEYBYTES - 1u)
+    pk[0] = FN_DSA_1024_LOGN;
+    v     = FN_DSA_ModqEncode(&pk[1], FN_DSA_1024_CRYPTO_PUBLICKEYBYTES - 1u, h, FN_DSA_1024_LOGN);
+    if (v != FN_DSA_1024_CRYPTO_PUBLICKEYBYTES - 1u)
     {
       retVal = ERR_NOT_OK;
     }
   }
 
   return retVal;
-} // end: FsmSw_Falcon1024_Crypto_Sign_KeyPair
+} // end: FN_DSA_1024_Crypto_Sign_KeyPair
 
 /*====================================================================================================================*/
 /**
@@ -390,7 +397,7 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
  *        sig[], m[] and pk[] may overlap each other arbitrarily.
  *
  * \param[out] uint8      *sig : Signature is written in sig
- * \param[in]  uint32   siglen : maximum signature length (in bytes) is FSMSW_FALCON1024_CRYPTO_BYTES
+ * \param[in]  uint32   siglen : maximum signature length (in bytes) is FN_DSA_1024_CRYPTO_BYTES
  * \param[in]  const uint8  *m : t.b.d.
  * \param[in]  uint32     mlen : t.b.d.
  * \param[in]  const uint8 *sk : t.b.d.
@@ -398,25 +405,25 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+uint8 FN_DSA_1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
                                              const uint8 *const sk)
 {
   uint32 vlen  = 0;
   uint8 retVal = ERR_OK;
 
-  vlen = FSMSW_FALCON1024_CRYPTO_BYTES - FSMSW_FALCON1024_NONCELEN - 3u;
+  vlen = FN_DSA_1024_CRYPTO_BYTES - FN_DSA_1024_NONCELEN - 3u;
 
-  if (fsmsw_falcon1024_DoSign(&sig[1], &sig[1u + FSMSW_FALCON1024_NONCELEN], &vlen, m, mlen, sk) < 0)
+  if (fn_dsa1024_DoSign(&sig[1], &sig[1u + FN_DSA_1024_NONCELEN], &vlen, m, mlen, sk) < 0)
   {
     retVal = ERR_NOT_OK;
   }
   else
   {
-    sig[0]  = 0x30 + FSMSW_FALCON1024_LOGN;
-    *siglen = 1u + FSMSW_FALCON1024_NONCELEN + vlen;
+    sig[0]  = 0x30 + FN_DSA_1024_LOGN;
+    *siglen = 1u + FN_DSA_1024_NONCELEN + vlen;
   }
   return retVal;
-} // end: FsmSw_Falcon1024_Crypto_Sign_Signature
+} // end: FN_DSA_1024_Crypto_Sign_Signature
 
 /*====================================================================================================================*/
 /**
@@ -432,35 +439,35 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const sig
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+uint8 FN_DSA_1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
                                           const uint8 *const pk)
 {
   uint8 retVal = ERR_OK;
 
-  if (0 != fsmsw_falcon1024_DoVerify(&sig[1], &sig[1u + FSMSW_FALCON1024_NONCELEN],
-                                     siglen - 1u - FSMSW_FALCON1024_NONCELEN, m, mlen, pk))
+  if (0 != fn_dsa1024_DoVerify(&sig[1], &sig[1u + FN_DSA_1024_NONCELEN],
+                                     siglen - 1u - FN_DSA_1024_NONCELEN, m, mlen, pk))
   {
     retVal = ERR_NOT_OK;
   }
 
-  if (siglen < (1u + FSMSW_FALCON1024_NONCELEN))
+  if (siglen < (1u + FN_DSA_1024_NONCELEN))
   {
     retVal = ERR_NOT_OK;
   }
 
-  if (sig[0] != (0x30u + FSMSW_FALCON1024_LOGN))
+  if (sig[0] != (0x30u + FN_DSA_1024_LOGN))
   {
     retVal = ERR_NOT_OK;
   }
 
   return retVal;
-} // end: FsmSw_Falcon1024_Crypto_Sign_Verify
+} // end: FN_DSA_1024_Crypto_Sign_Verify
 
 /*====================================================================================================================*/
 /**
  * \brief Compute a signature on a message and pack the signature and message into a single object, written
  *        into sm[]. The length of that output is written in *smlen; that length may be larger than the message
- *        length (mlen) by up to FSMSW_FALCON1024_CRYPTO_BYTES.
+ *        length (mlen) by up to FN_DSA_1024_CRYPTO_BYTES.
  *        sm[] and m[] may overlap each other arbitrarily; however, sm[] shall not overlap with sk[].
  *
  * \param[out] uint8       *sm : t.b.d.
@@ -472,42 +479,40 @@ uint8 FsmSw_Falcon1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen,
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+uint8 FN_DSA_1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
                                    const uint8 *const sk)
 {
   uint8 *pm        = (uint8 *)NULL_PTR;
   uint8 *sigbuf    = (uint8 *)NULL_PTR;
   uint32 sigbuflen = 0;
   uint8 retVal     = ERR_OK;
-
   /* Move the message to its final location; this is a memmove() so it handles overlaps properly. */
-  FsmSw_CommonLib_MemMove(&sm[2u + FSMSW_FALCON1024_NONCELEN], m, mlen);
-  pm        = &sm[2u + FSMSW_FALCON1024_NONCELEN];
+  FN_DSA_CommonLib_MemMove(&sm[2u + FN_DSA_1024_NONCELEN], m, mlen);
+  pm        = &sm[2u + FN_DSA_1024_NONCELEN];
   sigbuf    = &pm[1u + mlen];
-  sigbuflen = FSMSW_FALCON1024_CRYPTO_BYTES - FSMSW_FALCON1024_NONCELEN - 3u;
-
-  if (fsmsw_falcon1024_DoSign(&sm[2u], sigbuf, &sigbuflen, pm, mlen, sk) < 0)
+  sigbuflen = FN_DSA_1024_CRYPTO_BYTES - FN_DSA_1024_NONCELEN - 3u;
+  if (fn_dsa1024_DoSign(&sm[2u], sigbuf, &sigbuflen, pm, mlen, sk) < 0)
   {
     retVal = ERR_NOT_OK;
   }
   else
   {
-    pm[mlen] = 0x20 + FSMSW_FALCON1024_LOGN;
+    pm[mlen] = 0x20 + FN_DSA_1024_LOGN;
     sigbuflen++;
     sm[0]  = (uint8)(sigbuflen >> 8);
     sm[1]  = (uint8)sigbuflen;
-    *smlen = mlen + 2u + FSMSW_FALCON1024_NONCELEN + sigbuflen;
+    *smlen = mlen + 2u + FN_DSA_1024_NONCELEN + sigbuflen;
   }
   return retVal;
 
-} // end: FsmSw_Falcon1024_Crypto_Sign
+} // end: FN_DSA_1024_Crypto_Sign
 
 /*====================================================================================================================*/
 /**
  * \brief Open a signed message object (sm, smlen) and verify the signature; on success, the message itself is
  *        written into m[] and its length into *mlen. The message is shorter than the signed message object, but
  *        the size difference depends on the signature value; the difference may range up to
- *        FSMSW_FALCON1024_CRYPTO_BYTES.
+ *        FN_DSA_1024_CRYPTO_BYTES.
  *        m[], sm[] and pk[] may overlap each other arbitrarily.
  *
  * \param[out] uint8        *m : t.b.d.
@@ -519,52 +524,59 @@ uint8 FsmSw_Falcon1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const u
  * \returns ERR_OK on success, ERR_NOT_OK on error.
  *
  */
-uint8 FsmSw_Falcon1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+uint8 FN_DSA_1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
                                         const uint8 *const pk)
 {
   const uint8 *sigbuf = (uint8 *)NULL_PTR;
   uint32 pmlen        = 0;
   uint32 sigbuflen    = 0;
   uint8 retVal        = ERR_OK;
+  boolean bStopFunc   = FALSE;
 
-  if (smlen < (3u + FSMSW_FALCON1024_NONCELEN))
+  if (smlen < (3u + FN_DSA_1024_NONCELEN))
   {
-    retVal = ERR_NOT_OK;
+    retVal    = ERR_NOT_OK;
+    bStopFunc = TRUE;
   }
-
   sigbuflen = ((uint32)sm[0] << 8) | (uint32)sm[1];
-
-  if ((sigbuflen < 2u) || (sigbuflen > (smlen - FSMSW_FALCON1024_NONCELEN - 2u)))
+  if (bStopFunc == FALSE)
   {
-    retVal = ERR_NOT_OK;
-  }
+    if ((sigbuflen < 2u) || (sigbuflen > (smlen - FN_DSA_1024_NONCELEN - 2u)))
+    {
+      retVal    = ERR_NOT_OK;
+      bStopFunc = TRUE;
+    }
+    sigbuflen--;
+    pmlen = smlen - FN_DSA_1024_NONCELEN - 3u - sigbuflen;
 
-  sigbuflen--;
-  pmlen = smlen - FSMSW_FALCON1024_NONCELEN - 3u - sigbuflen;
+    if ((bStopFunc == FALSE) && (sm[2u + FN_DSA_1024_NONCELEN + pmlen] != (0x20u + FN_DSA_1024_LOGN)))
+    {
+      retVal    = ERR_NOT_OK;
+      bStopFunc = TRUE;
+    }
 
-  if (sm[2u + FSMSW_FALCON1024_NONCELEN + pmlen] != (0x20u + FSMSW_FALCON1024_LOGN))
-  {
-    retVal = ERR_NOT_OK;
-  }
+    sigbuf = &sm[2u + FN_DSA_1024_NONCELEN + pmlen + 1u];
 
-  sigbuf = &sm[2u + FSMSW_FALCON1024_NONCELEN + pmlen + 1u];
-
-  /* The 2-byte length header and the one-byte signature header have been verified. Nonce is at sm+2, followed by the
-     * message itself. Message length is in pmlen. sigbuf/sigbuflen point to the signature value (excluding the header
-     * byte). */
-  if (fsmsw_falcon1024_DoVerify(&sm[2u], sigbuf, sigbuflen, &sm[2u + FSMSW_FALCON1024_NONCELEN], pmlen, pk) < 0)
-  {
-    retVal = ERR_NOT_OK;
-  }
-  if (retVal != ERR_NOT_OK)
-  {
-    /* Signature is correct, we just have to copy/move the message to its final destination.
-     * The FsmSw_CommonLib_MemMove() properly handles overlaps. */
-    FsmSw_CommonLib_MemMove(m, &sm[2u + FSMSW_FALCON1024_NONCELEN], pmlen);
-    *mlen = pmlen;
+    /* The 2-byte length header and the one-byte signature header have been verified. Nonce is at sm+2, followed by the
+      * message itself. Message length is in pmlen. sigbuf/sigbuflen point to the signature value (excluding the header
+      * byte). */
+    /* polyspace +2 MISRA2012:13.5 [Justified:]"DoVerify function returns 0 on success and -1 on error, which is
+    equivalent to works/doesn't work" */
+    if ((bStopFunc == FALSE) &&
+        (fn_dsa1024_DoVerify(&sm[2], sigbuf, sigbuflen, &sm[2u + FN_DSA_1024_NONCELEN], pmlen, pk) < 0))
+    {
+      retVal = ERR_NOT_OK;
+    }
+    else
+    {
+      /* Signature is correct, we just have to copy/move the message to its final destination.
+      * The FN_DSA_CommonLib_MemMove() properly handles overlaps. */
+      FN_DSA_CommonLib_MemMove(m, &sm[2u + FN_DSA_1024_NONCELEN], pmlen);
+      *mlen = pmlen;
+    }
   }
   return retVal;
-} // end: FsmSw_Falcon1024_Crypto_Sign_Open
+} // end: FN_DSA_1024_Crypto_Sign_Open
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

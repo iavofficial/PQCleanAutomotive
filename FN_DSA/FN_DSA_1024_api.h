@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN-DSA
  *
+ * Copyright (c) 2017-2019 Falcon Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
-/** \addtogroup common
-*    includes the modules for common
+/** \addtogroup FN_DSA_1024
+*    includes the modules for FN_DSA_1024
  ** @{ */
-/** \addtogroup Falcon_vrfy
+/** \addtogroup FN_DSA_1024_api
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_vrfy.h
-* \brief  description of FsmSw_Falcon_vrfy.h
+/** \file FN_DSA_1024_api.h
+* \brief  description of FN_DSA_1024_api.h
 *
 * \details
 *
@@ -33,16 +40,18 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_VRFY_H
-#define FSMSW_FALCON_VRFY_H
+#ifndef FN_DSA_1024_API_H
+#define FN_DSA_1024_API_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Std_Types.h"
+
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-
+#define FN_DSA_1024_CRYPTO_SECRETKEYBYTES 2305u
+#define FN_DSA_1024_CRYPTO_PUBLICKEYBYTES 1793u
+#define FN_DSA_1024_CRYPTO_BYTES          1280u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -62,18 +71,21 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_ToNttMonty(uint16 *const h, uint32 logn);
+uint8 FN_DSA_1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk);
 
-sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
-                              uint8 *const tmp);
+uint8 FN_DSA_1024_Crypto_Sign_Signature(uint8 *const sig, uint32 *const siglen, const uint8 *const m, uint32 mlen,
+                                             const uint8 *const sk);
 
-sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
-                                  uint8 *const tmp);
+uint8 FN_DSA_1024_Crypto_Sign_Verify(const uint8 *const sig, uint32 siglen, const uint8 *const m, uint32 mlen,
+                                          const uint8 *const pk);
 
-sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
-                                    uint32 logn, uint8 *const tmp);
+uint8 FN_DSA_1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 *const m, uint32 mlen,
+                                   const uint8 *const sk);
 
-#endif /* FSMSW_FALCON_VRFY_H */
+uint8 FN_DSA_1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uint8 *const sm, uint32 smlen,
+                                        const uint8 *const pk);
+
+#endif /* FN_DSA_1024_API_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

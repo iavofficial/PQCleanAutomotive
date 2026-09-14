@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_rng
+/** \addtogroup FN_DSA_common
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_rng.h
-* \brief  description of FsmSw_Falcon_rng.h
+/** \file FN_DSA_common.h
+* \brief  description of FN_DSA_common.h
 *
 * \details
 *
@@ -33,45 +40,52 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_RNG_H
-#define FSMSW_FALCON_RNG_H
+#ifndef FN_DSA_COMMON_H
+#define FN_DSA_COMMON_H
+
+/* IMPORTANT API RULES
+ * -------------------
+ *
+ * This API has some non-trivial usage rules:
+ *  - All public functions (i.e. the non-static ones) must be referenced with the FN_DSA_ macro (e.g.
+ *    FN_DSA_VerifyRaw for the verify_raw() function). That macro adds a prefix to the name, which is
+ *    configurable with the FN_DSA_PREFIX macro. This allows compiling the code into a specific "namespace" and
+ *    potentially including several versions of this code into a single application (e.g. to have an AVX2 and a
+ *    non-AVX2 variants and select the one to use at runtime based on availability of AVX2 opcodes).
+ *  - Functions that need temporary buffers expects them as a final tmp[] array of type uint8*, with a size which is
+ *    documented for each function. However, most have some alignment requirements, because they will use the array to
+ *    store 16-bit, 32-bit or 64-bit values (e.g. uint64 or double). The caller must ensure proper alignment. What
+ *    happens on unaligned access depends on the underlying architecture, ranging from a slight time penalty to
+ *    immediate termination of the process.
+ *  - Some functions rely on specific rounding rules and precision for floating-point numbers. On some systems (in
+ *    particular 32-bit x86 with the 387 FPU), this requires setting an hardware control word. The caller MUST use
+ *    set_fpu_cw() to ensure proper precision:
+ *      oldcw = set_fpu_cw(2);
+ *      FN_DSA_Sign_Dyn(...);
+ *      set_fpu_cw(oldcw);
+ *
+ *    On systems where the native floating-point precision is already proper, or integer-based emulation is used, the
+ *    set_fpu_cw() function does nothing, so it can be called systematically. */
+
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-
+#include "FN_DSA_Fips202.h"
+#include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_STATE_SIZE 256
-#define FSMSW_FALCON_BUF_SIZE   512
+/* API is defined to be easily replaced with the fips202.h API defined as part of PQClean. */
+#define inner_shake256_context shake256incctx
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
-/* Structure for a PRNG. This includes a large buffer so that values get generated in advance. The 'state' is used to
- * keep the current PRNG algorithm state (contents depend on the selected algorithm).*
- * The unions with 'dummy_u64' are there to ensure proper alignment for 64-bit direct access. */
-typedef struct
-{
-  /* polyspace +2 MISRA2012:19.2 [Justified:]"The buffer and the remainder of the code require 
-    the use of the union keyword." */
-  union
-  {
-    uint8 d[FSMSW_FALCON_BUF_SIZE]; /* MUST be 512, exactly */
-    uint64 dummy_u64;
-  } buf;
+/* Normally we should declare the 'fpr' type to be a struct or union around the internal 64-bit value; however, we want
+ * to use the direct 64-bit integer type to enable a lighter call convention on ARM platforms. This means that direct
+ * (invalid) use of operators such as '*' or '+' will not be caught by the compiler. We rely on the "normal"
+ * (non-emulated) code to detect such instances. */
+typedef uint64 fpr;
 
-  uint32 ptr;
-
-  /* polyspace +2 MISRA2012:19.2 [Justified:]"The buffer and the remainder of the code require 
-    the use of the union keyword." */
-  union
-  {
-    uint8 d[FSMSW_FALCON_STATE_SIZE];
-    uint64 dummy_u64;
-  } state;
-
-  sint32 type;
-} prng;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -87,12 +101,12 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src);
-void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len);
-uint64 FsmSw_Falcon_Prng_GetU64(prng *const p);
-uint32 FsmSw_Falcon_Prng_GetU8(prng *const p);
+void FN_DSA_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn);
+void FN_DSA_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp);
+sint32 FN_DSA_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn);
+sint32 FN_DSA_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn);
 
-#endif /* FSMSW_FALCON_RNG_H */
+#endif /* FN_DSA_COMMON_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

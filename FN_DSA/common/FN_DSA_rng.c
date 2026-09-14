@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_rng
+/** \addtogroup FN_DSA_rng
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_rng.c
-* \brief  description of FsmSw_Falcon_rng.c
+/** \file FN_DSA_rng.c
+* \brief  description of FN_DSA_rng.c
 *
 * \details
 *
@@ -38,10 +45,10 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Falcon_common.h"
+#include "FN_DSA_CommonLib.h"
+#include "FN_DSA_common.h"
 
-#include "FsmSw_Falcon_rng.h"
+#include "FN_DSA_rng.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -65,14 +72,14 @@ inline functions would not provide significant benefits." */
     state[b] ^= state[c];                                                                                              \
     state[b] = (state[b] << 7) | (state[b] >> 25);                                                                     \
   } while (0)
-#define FSMSW_FALCON_PRNG_D32_COUNTER               14
-#define FSMSW_FALCON_PRNG_TEMP2_SIZE                256
-#define FSMSW_FALCON_PRNG_STATE_SIZE                16u
-#define FSMSW_FALCON_PRNG_CW_SIZE                   4u
-#define FSMSW_FALCON_PRNG_STATE_ARRAY_PROCESS_COUNT 14u
-#define FSMSW_FALCON_PRNG_BLOCK_COUNT               8u
-#define FSMSW_FALCON_PRNG_ROUNDS                    10
-#define FSMSW_FALCON_PRNG_INIT_TMP_SIZE             56
+#define FN_DSA_PRNG_D32_COUNTER               14
+#define FN_DSA_PRNG_TEMP2_SIZE                256
+#define FN_DSA_PRNG_STATE_SIZE                16u
+#define FN_DSA_PRNG_CW_SIZE                   4u
+#define FN_DSA_PRNG_STATE_ARRAY_PROCESS_COUNT 14u
+#define FN_DSA_PRNG_BLOCK_COUNT               8u
+#define FN_DSA_PRNG_ROUNDS                    10
+#define FN_DSA_PRNG_INIT_TMP_SIZE             56
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -92,14 +99,14 @@ inline functions would not provide significant benefits." */
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_falcon_prng_Refill(prng *p);
+static void fn_dsa_prng_Refill(prng *p);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
 
 /*====================================================================================================================*/
 /**
-* \brief fsmsw_falcon_prng_Refill based on ChaCha20.
+* \brief fn_dsa_prng_Refill based on ChaCha20.
 *        State consists in key (32 bytes) then IV (16 bytes) and block counter (8 bytes). Normally, we should not
 *        care about local endianness (this is for a PRNG), but for the NIST competition we need reproducible KAT
 *        vectors that work across architectures, so we enforce little-endian interpretation where applicable.
@@ -110,7 +117,7 @@ static void fsmsw_falcon_prng_Refill(prng *p);
 * \param[out] prng *p : t.b.d.
 *
 */
-static void fsmsw_falcon_prng_Refill(prng *p)
+static void fn_dsa_prng_Refill(prng *p)
 {
   static const uint32 CW[] = {0x61707865, 0x3320646e, 0x79622d32, 0x6b206574};
 
@@ -124,17 +131,17 @@ static void fsmsw_falcon_prng_Refill(prng *p)
   /* State uses local endianness. Only the output bytes must be converted to little endian (if used on a
      * big-endian machine). */
   cc = *(uint64 *)((void *)(&p->state.d[48]));
-  for (u = 0; u < FSMSW_FALCON_PRNG_BLOCK_COUNT; u++)
+  for (u = 0; u < FN_DSA_PRNG_BLOCK_COUNT; u++)
   {
-    uint32 state[FSMSW_FALCON_PRNG_STATE_SIZE];
+    uint32 state[FN_DSA_PRNG_STATE_SIZE];
     uint32 v;
     sint32 i;
 
-    FsmSw_CommonLib_MemCpy(&state[0], CW, sizeof(CW));
-    FsmSw_CommonLib_MemCpy(&state[4], p->state.d, 48);
+    FN_DSA_CommonLib_MemCpy(&state[0], CW, sizeof(CW));
+    FN_DSA_CommonLib_MemCpy(&state[4], p->state.d, 48);
     state[14] ^= (uint32)cc;
     state[15] ^= (uint32)(cc >> 32);
-    for (i = 0; i < FSMSW_FALCON_PRNG_ROUNDS; i++)
+    for (i = 0; i < FN_DSA_PRNG_ROUNDS; i++)
     {
       QROUND(0, 4, 8, 12);
       QROUND(1, 5, 9, 13);
@@ -146,12 +153,12 @@ static void fsmsw_falcon_prng_Refill(prng *p)
       QROUND(3, 4, 9, 14);
     }
 
-    for (v = 0; v < FSMSW_FALCON_PRNG_CW_SIZE; v++)
+    for (v = 0; v < FN_DSA_PRNG_CW_SIZE; v++)
     {
       state[v] += CW[v];
     }
 
-    for (v = 4; v < FSMSW_FALCON_PRNG_STATE_ARRAY_PROCESS_COUNT; v++)
+    for (v = 4; v < FN_DSA_PRNG_STATE_ARRAY_PROCESS_COUNT; v++)
     {
       /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
           Ensured proper alignment and validity." */
@@ -160,14 +167,14 @@ static void fsmsw_falcon_prng_Refill(prng *p)
       state[v] = state[v] + ((uint32 *)((void *)p->state.d))[v - 4u];
     }
 
-    uint32 temp2[FSMSW_FALCON_PRNG_TEMP2_SIZE];
-    FsmSw_CommonLib_MemCpy(temp2, p->state.d, 256);
+    uint32 temp2[FN_DSA_PRNG_TEMP2_SIZE];
+    FN_DSA_CommonLib_MemCpy(temp2, p->state.d, 256);
     state[14] += temp2[10] ^ (uint32)cc;
     state[15] += temp2[11] ^ (uint32)(cc >> 32);
     cc++;
 
     /* We mimic the interleaving that is used in the AVX2 implementation.*/
-    for (v = 0; v < FSMSW_FALCON_PRNG_STATE_SIZE; v++)
+    for (v = 0; v < FN_DSA_PRNG_STATE_SIZE; v++)
     {
       p->buf.d[(u << 2) + (v << 5)]      = (uint8)state[v];
       p->buf.d[(u << 2) + (v << 5) + 1u] = (uint8)(state[v] >> 8);
@@ -183,7 +190,7 @@ static void fsmsw_falcon_prng_Refill(prng *p)
   *((uint64 *)((void *)(&p->state.d[48]))) = cc;
 
   p->ptr = 0;
-} // end: fsmsw_falcon_prng_Refill
+} // end: fn_dsa_prng_Refill
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
@@ -198,10 +205,10 @@ static void fsmsw_falcon_prng_Refill(prng *p)
 * \param[out] inner_shake256_context *src : t.b.d.
 *
 */
-void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
+void FN_DSA_Prng_Init(prng *p, inner_shake256_context *const src)
 {
   /* To ensure reproducibility for a given seed, we must enforce little-endian interpretation of the state words. */
-  uint8 tmp[FSMSW_FALCON_PRNG_INIT_TMP_SIZE] = {0};
+  uint8 tmp[FN_DSA_PRNG_INIT_TMP_SIZE] = {0};
   uint64 th                                  = 0;
   uint64 tl                                  = 0;
   sint32 i                                   = 0;
@@ -214,9 +221,9 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
   uint32 *const d32 = (uint32 *)((void *)p->state.d);
   uint64 *const d64 = (uint64 *)((void *)p->state.d);
 
-  FsmSw_Fips202_Shake256_IncSqueeze(tmp, 56, src);
+  FN_DSA_Fips202_Shake256_IncSqueeze(tmp, 56, src);
 
-  for (i = 0; i < FSMSW_FALCON_PRNG_D32_COUNTER; i++)
+  for (i = 0; i < FN_DSA_PRNG_D32_COUNTER; i++)
   {
     w = (uint32)tmp[((uint32)((uint32)i) << 2u)] | ((uint32)tmp[((uint32)((uint32)i) << 2u) + 1u] << 8u) |
         ((uint32)tmp[((uint32)((uint32)i) << 2u) + 2u] << 16u) | ((uint32)tmp[((uint32)((uint32)i) << 2u) + 3u] << 24u);
@@ -226,8 +233,8 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
   tl                        = d32[48u / sizeof(uint32)];
   th                        = d32[52u / sizeof(uint32)];
   d64[48u / sizeof(uint64)] = tl + (th << 32);
-  fsmsw_falcon_prng_Refill(p);
-} // end: FsmSw_Falcon_Prng_Init
+  fn_dsa_prng_Refill(p);
+} // end: FN_DSA_Prng_Init
 
 /*====================================================================================================================*/
 /**
@@ -238,7 +245,7 @@ void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src)
 * \param[out] uint32 len : t.b.d.
 *
 */
-void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
+void FN_DSA_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
 {
   uint8 *buf  = (uint8 *)NULL_PTR;
   uint32 clen = 0;
@@ -260,17 +267,17 @@ void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
       clen = len_temp;
     }
 
-    FsmSw_CommonLib_MemCpy(buf, p->buf.d, clen);
+    FN_DSA_CommonLib_MemCpy(buf, p->buf.d, clen);
     buf = &buf[clen];
     len_temp -= clen;
     p->ptr += clen;
 
     if (p->ptr == sizeof(p->buf.d))
     {
-      fsmsw_falcon_prng_Refill(p);
+      fn_dsa_prng_Refill(p);
     }
   }
-} // end: FsmSw_Falcon_Prng_GetBytes
+} // end: FN_DSA_Prng_GetBytes
 
 /*====================================================================================================================*/
 /**
@@ -279,7 +286,7 @@ void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
 * \param[out] prng *p : t.b.d.
 *
 */
-uint64 FsmSw_Falcon_Prng_GetU64(prng *const p)
+uint64 FN_DSA_Prng_GetU64(prng *const p)
 {
   uint32 u = 0;
 
@@ -288,7 +295,7 @@ uint64 FsmSw_Falcon_Prng_GetU64(prng *const p)
   u = p->ptr;
   if (u >= ((sizeof(p->buf.d)) - 9u))
   {
-    fsmsw_falcon_prng_Refill(p);
+    fn_dsa_prng_Refill(p);
     u = 0;
   }
   p->ptr = u + 8u;
@@ -297,7 +304,7 @@ uint64 FsmSw_Falcon_Prng_GetU64(prng *const p)
                   ((uint64)p->buf.d[u + 3u] << 24) | ((uint64)p->buf.d[u + 4u] << 32) |
                   ((uint64)p->buf.d[u + 5u] << 40) | ((uint64)p->buf.d[u + 6u] << 48) |
                   ((uint64)p->buf.d[u + 7u] << 56));
-} // end: FsmSw_Falcon_Prng_GetU64
+} // end: FN_DSA_Prng_GetU64
 
 /*====================================================================================================================*/
 /**
@@ -306,7 +313,7 @@ uint64 FsmSw_Falcon_Prng_GetU64(prng *const p)
 * \param[out] prng *p : t.b.d.
 *
 */
-uint32 FsmSw_Falcon_Prng_GetU8(prng *const p)
+uint32 FN_DSA_Prng_GetU8(prng *const p)
 {
   uint32 v = 0;
 
@@ -314,10 +321,10 @@ uint32 FsmSw_Falcon_Prng_GetU8(prng *const p)
   p->ptr++;
   if (p->ptr == sizeof(p->buf.d))
   {
-    fsmsw_falcon_prng_Refill(p);
+    fn_dsa_prng_Refill(p);
   }
   return v;
-} // end: FsmSw_Falcon_Prng_GetU8
+} // end: FN_DSA_Prng_GetU8
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
