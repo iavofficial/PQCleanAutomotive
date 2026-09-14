@@ -1,0 +1,168 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC FsmSw
+*    includes the modules for SwC FsmSw
+ ** @{ */
+/** \addtogroup common
+*    includes the modules for common
+ ** @{ */
+/** \addtogroup ML_KEM_verify
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file ML_KEM_verify.c
+* \brief  description of FsmSw_symmetric_verify.c
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "Std_Types.h"
+
+#include "ML_KEM_verify.h"
+/**********************************************************************************************************************/
+/* DEFINES                                                                                                            */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION PROTOTYPES                                                                                        */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+* \brief Compare two arrays for equality in constant time.
+*
+* \param[in] const uint8 *a : pointer to first byte array
+* \param[in] const uint8 *b : pointer to second byte array
+* \param[in] uint32     len : length of the byte arrays
+*
+* \returns 0 if the byte arrays are equal, 1 otherwise
+*/
+uint8 ML_KEM_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
+{
+  uint32 i = 0;
+  uint8 r  = 0;
+
+  sint64 temp1 = 0;
+  uint64 temp2 = 0;
+
+  for (i = 0; i < len; i++)
+  {
+    r |= a[i] ^ b[i];
+  }
+
+  temp1 = (-1) * (sint64)r;
+
+  if (((uint64)temp1 & 0x8000000000000000u) != 0u)
+  {
+    temp2 = ((uint64)temp1 >> 63u) | 0xFFFFFFFFFFFFFFFEu;
+  }
+  else
+  {
+    temp2 = ((uint64)temp1 >> 63u);
+  }
+
+  return (uint8)temp2;
+} // end: ML_KEM_Verify
+
+/*====================================================================================================================*/
+/**
+* \brief Copy len bytes from x to r if b is 1;
+*        don't modify x if b is 0. Requires b to be in {0,1};
+*        assumes two's complement representation of negative integers.
+*        Runs in constant time.
+*
+* \param[out] uint8       *r : pointer to output byte array
+* \param[in]  const uint8 *x : pointer to input byte array
+* \param[in]  uint32     len : Amount of bytes to be copied
+* \param[in]  uint8        b : Condition bit; has to be in {0,1}
+*/
+void ML_KEM_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
+{
+  uint32 i     = 0;
+  sint8 b_sint = 0;
+
+  PQCLEAN_PREVENT_BRANCH_HACK(b)
+
+  b_sint = (-1) * (sint8)b;
+
+  for (i = 0; i < len; i++)
+  {
+    r[i] = r[i] ^ ((uint8)b_sint & (r[i] ^ x[i]));
+  }
+} // end: ML_KEM_Cmov
+
+/*====================================================================================================================*/
+/*************************************************
+* \brief Copy input v to *r if b is 1, don't modify *r if b is 0.
+*              Requires b to be in {0,1};
+*              Runs in constant time.
+*
+* \param[out] sint16 *r :       pointer to output int16_t
+* \param[in]  sint16  v :       input int16_t
+* \param[in]  uint8   b :       Condition bit; has to be in {0,1}
+**************************************************/
+void ML_KEM_Cmov_int16(sint16 *r, sint16 v, uint16 b)
+{
+  sint16 b_sint = 0;
+  uint16 r_uint = (uint16)(*r);
+  b_sint        = (-1) * (sint16)b;
+  r_uint        = r_uint ^ ((uint16)b_sint & (r_uint ^ (uint16)v));
+  *r            = (sint16)r_uint;
+}
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
