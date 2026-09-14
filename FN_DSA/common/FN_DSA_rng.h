@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_rng
+/** \addtogroup FN_DSA_rng
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_rng.h
-* \brief  description of FsmSw_Falcon_rng.h
+/** \file FN_DSA_rng.h
+* \brief  description of FN_DSA_rng.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_RNG_H
-#define FSMSW_FALCON_RNG_H
+#ifndef FN_DSA_RNG_H
+#define FN_DSA_RNG_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -42,8 +49,8 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_STATE_SIZE 256
-#define FSMSW_FALCON_BUF_SIZE   512
+#define FN_DSA_STATE_SIZE 256
+#define FN_DSA_BUF_SIZE   512
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -56,7 +63,7 @@ typedef struct
     the use of the union keyword." */
   union
   {
-    uint8 d[FSMSW_FALCON_BUF_SIZE]; /* MUST be 512, exactly */
+    uint8 d[FN_DSA_BUF_SIZE]; /* MUST be 512, exactly */
     uint64 dummy_u64;
   } buf;
 
@@ -66,7 +73,7 @@ typedef struct
     the use of the union keyword." */
   union
   {
-    uint8 d[FSMSW_FALCON_STATE_SIZE];
+    uint8 d[FN_DSA_STATE_SIZE];
     uint64 dummy_u64;
   } state;
 
@@ -87,12 +94,12 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_Prng_Init(prng *p, inner_shake256_context *const src);
-void FsmSw_Falcon_Prng_GetBytes(prng *const p, void *const dst, uint32 len);
-uint64 FsmSw_Falcon_Prng_GetU64(prng *const p);
-uint32 FsmSw_Falcon_Prng_GetU8(prng *const p);
+void FN_DSA_Prng_Init(prng *p, inner_shake256_context *const src);
+void FN_DSA_Prng_GetBytes(prng *const p, void *const dst, uint32 len);
+uint64 FN_DSA_Prng_GetU64(prng *const p);
+uint32 FN_DSA_Prng_GetU8(prng *const p);
 
-#endif /* FSMSW_FALCON_RNG_H */
+#endif /* FN_DSA_RNG_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

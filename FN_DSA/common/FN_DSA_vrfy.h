@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_vrfy
+/** \addtogroup FN_DSA_vrfy
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_vrfy.h
-* \brief  description of FsmSw_Falcon_vrfy.h
+/** \file FN_DSA_vrfy.h
+* \brief  description of FN_DSA_vrfy.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_VRFY_H
-#define FSMSW_FALCON_VRFY_H
+#ifndef FN_DSA_VRFY_H
+#define FN_DSA_VRFY_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -62,18 +69,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_ToNttMonty(uint16 *const h, uint32 logn);
+void FN_DSA_ToNttMonty(uint16 *const h, uint32 logn);
 
-sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
+sint32 FN_DSA_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
                               uint8 *const tmp);
 
-sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
+sint32 FN_DSA_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
                                   uint8 *const tmp);
 
-sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
+sint32 FN_DSA_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
                                     uint32 logn, uint8 *const tmp);
 
-#endif /* FSMSW_FALCON_VRFY_H */
+#endif /* FN_DSA_VRFY_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

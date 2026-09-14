@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_keygen
+/** \addtogroup FN_DSA_keygen
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_keygen.h
-* \brief  description of FsmSw_Falcon_keygen.h
+/** \file FN_DSA_keygen.h
+* \brief  description of FN_DSA_keygen.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_KEYGEN_H
-#define FSMSW_FALCON_KEYGEN_H
+#ifndef FN_DSA_KEYGEN_H
+#define FN_DSA_KEYGEN_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -44,8 +51,8 @@
 /**********************************************************************************************************************/
 /* Required sizes of the temporary buffer (in bytes). This size is 28*2^logn bytes, except for degrees 2 and 4
  * (logn = 1 or 2) where it is slightly greater. */
-#define FALCON_KEYGEN_TEMP_9  14336
-#define FALCON_KEYGEN_TEMP_10 28672
+#define FN_DSA_KEYGEN_TEMP_9  14336
+#define FN_DSA_KEYGEN_TEMP_10 28672
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -65,10 +72,10 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_Keygen(inner_shake256_context *const rng, sint8 *const f, sint8 *const g, sint8 *const F,
+void FN_DSA_Keygen(inner_shake256_context *const rng, sint8 *const f, sint8 *const g, sint8 *const F,
                          sint8 *const G, uint16 *const h, uint32 logn, uint8 *const tmp);
 
-#endif /* FSMSW_FALCON_KEYGEN_H */
+#endif /* FN_DSA_KEYGEN_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

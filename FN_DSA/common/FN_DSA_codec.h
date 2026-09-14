@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_codec
+/** \addtogroup FN_DSA_codec
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_code.h
-* \brief  description of FsmSw_Falcon_code.h
+/** \file FN_DSA_code.h
+* \brief  description of FN_DSA_code.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_CODEC_H
-#define FSMSW_FALCON_CODEC_H
+#ifndef FN_DSA_CODEC_H
+#define FN_DSA_CODEC_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -42,7 +49,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_BUFFER_SIZE 11
+#define FN_DSA_BUFFER_SIZE 11
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -52,11 +59,11 @@
 /**********************************************************************************************************************/
 /* Number of bits for key elements, indexed by logn (1 to 10). This is at most 8 bits for all degrees, but some degrees
  * may have shorter elements. */
-extern const uint8 FsmSw_Falcon_max_small_fg_bits[FSMSW_FALCON_BUFFER_SIZE];
-extern const uint8 FsmSw_Falcon_max_big_FG_bits[FSMSW_FALCON_BUFFER_SIZE];
+extern const uint8 FN_DSA_max_small_fg_bits[FN_DSA_BUFFER_SIZE];
+extern const uint8 FN_DSA_max_big_FG_bits[FN_DSA_BUFFER_SIZE];
 
 /* Maximum size, in bits, of elements in a signature, indexed by logn (1 to 10). The size includes the sign bit. */
-extern const uint8 FsmSw_Falcon_max_sig_bits[FSMSW_FALCON_BUFFER_SIZE];
+extern const uint8 FN_DSA_max_sig_bits[FN_DSA_BUFFER_SIZE];
 
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
@@ -93,14 +100,14 @@ extern const uint8 FsmSw_Falcon_max_sig_bits[FSMSW_FALCON_BUFFER_SIZE];
  *   - comp: variable-length encoding for signed integers; each integer uses a minimum of 9 bits, possibly more. This
  *           is normally used only for signatures. */
 
-uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn);
-uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
-uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits);
-uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len);
-uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn);
-uint32 FsmSw_Falcon_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
+uint32 FN_DSA_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn);
+uint32 FN_DSA_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
+uint32 FN_DSA_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits);
+uint32 FN_DSA_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len);
+uint32 FN_DSA_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn);
+uint32 FN_DSA_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len);
 
-#endif /* FSMSW_FALCON_CODEC_H */
+#endif /* FN_DSA_CODEC_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

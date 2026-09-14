@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_sign
+/** \addtogroup FN_DSA_sign
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_sign.h
-* \brief  description of FsmSw_Falcon_sign.h
+/** \file FN_DSA_sign.h
+* \brief  description of FN_DSA_sign.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_SIGN_H
-#define FSMSW_FALCON_SIGN_H
+#ifndef FN_DSA_SIGN_H
+#define FN_DSA_SIGN_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -46,7 +53,7 @@
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
-#include "FsmSw_Falcon_common.h"
+#include "FN_DSA_common.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -63,11 +70,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_Sign_Dyn(sint16 *const sig, inner_shake256_context *const rng, const sint8 *const f,
+void FN_DSA_Sign_Dyn(sint16 *const sig, inner_shake256_context *const rng, const sint8 *const f,
                            const sint8 *const g, const sint8 *const F, const sint8 *const G, const uint16 *const hm,
                            uint32 logn, uint8 *const tmp);
 
-#endif /* FSMSW_FALCON_SIGN_H */
+#endif /* FN_DSA_SIGN_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

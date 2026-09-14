@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_vrfy
+/** \addtogroup FN_DSA_vrfy
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_vrfy.c
-* \brief  description of FsmSw_Falcon_vrfy.c
+/** \file FN_DSA_vrfy.c
+* \brief  description of FN_DSA_vrfy.c
 *
 * \details
 *
@@ -33,14 +40,14 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-/* Falcon signature verification. */
+/* FN_DSA signature verification. */
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Falcon_common.h"
+#include "FN_DSA_CommonLib.h"
+#include "FN_DSA_common.h"
 
-#include "FsmSw_Falcon_vrfy.h"
+#include "FN_DSA_vrfy.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -203,18 +210,18 @@ static const uint16 iGMb[] = {
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static uint32 fsmsw_falcon_MqConvSmall(sint32 x);
-static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y);
-static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y);
-static uint32 fsmsw_falcon_MqRShift1(uint32 x);
-static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y);
-static uint32 fsmsw_falcon_MqMontySqr(uint32 x);
-static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y);
-static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn);
-static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn);
-static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn);
-static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn);
-static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn);
+static uint32 fn_dsa_MqConvSmall(sint32 x);
+static uint32 fn_dsa_MqAdd(uint32 x, uint32 y);
+static uint32 fn_dsa_MqSub(uint32 x, uint32 y);
+static uint32 fn_dsa_MqRShift1(uint32 x);
+static uint32 fn_dsa_MqMontymul(uint32 x, uint32 y);
+static uint32 fn_dsa_MqMontySqr(uint32 x);
+static uint32 fn_dsa_MqDiv12289(uint32 x, uint32 y);
+static void fn_dsa_MqNtt(uint16 *const a, uint32 logn);
+static void fn_dsa_MqIntt(uint16 *const a, uint32 logn);
+static void fn_dsa_MqPolyTomonty(uint16 *const f, uint32 logn);
+static void fn_dsa_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn);
+static void fn_dsa_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -228,7 +235,7 @@ static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint3
 * \returns y
 *
 */
-static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
+static uint32 fn_dsa_MqConvSmall(sint32 x)
 {
   /* If x < 0, the cast to uint32 will set the high bit to 1. */
   uint32 y = 0;
@@ -243,7 +250,7 @@ static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
   y += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(y >> 31))));
 
   return y;
-} // end: fsmsw_falcon_MqConvSmall
+} // end: fn_dsa_MqConvSmall
 
 /*====================================================================================================================*/
 /**
@@ -255,7 +262,7 @@ static uint32 fsmsw_falcon_MqConvSmall(sint32 x)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
+static uint32 fn_dsa_MqAdd(uint32 x, uint32 y)
 {
   /* We compute x + y - q. If the result is negative, then the high bit will be set, and 'd >> 31' will be equal to 1;
    * thus '-(d >> 31)' will be an all-one pattern. Otherwise, it will be an all-zero pattern. In other words, this
@@ -272,7 +279,7 @@ static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-} // end: fsmsw_falcon_MqAdd
+} // end: fn_dsa_MqAdd
 
 /*====================================================================================================================*/
 /**
@@ -284,9 +291,9 @@ static uint32 fsmsw_falcon_MqAdd(uint32 x, uint32 y)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
+static uint32 fn_dsa_MqSub(uint32 x, uint32 y)
 {
-  /* As in fsmsw_falcon_MqAdd(), we use a conditional addition to ensure the result is in the 0..q-1 range. */
+  /* As in fn_dsa_MqAdd(), we use a conditional addition to ensure the result is in the 0..q-1 range. */
   uint32 d = 0;
 
   d = x - y;
@@ -299,7 +306,7 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
   d += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(d >> 31))));
 
   return d;
-} // end: fsmsw_falcon_MqSub
+} // end: fn_dsa_MqSub
 
 /*====================================================================================================================*/
 /**
@@ -310,7 +317,7 @@ static uint32 fsmsw_falcon_MqSub(uint32 x, uint32 y)
 * \returns t.b.d.
 *
 */
-static uint32 fsmsw_falcon_MqRShift1(uint32 x)
+static uint32 fn_dsa_MqRShift1(uint32 x)
 {
   /* x_temp is used to avoid modifying the input. */
   uint32 x_temp = x;
@@ -320,7 +327,7 @@ static uint32 fsmsw_falcon_MqRShift1(uint32 x)
   const uint32 bit = (uint32)(0u - (x_temp & 1U));
   x_temp += Q & bit;
   return (x_temp >> 1);
-} // end: fsmsw_falcon_MqRShift1
+} // end: fn_dsa_MqRShift1
 
 /*====================================================================================================================*/
 /**
@@ -333,7 +340,7 @@ static uint32 fsmsw_falcon_MqRShift1(uint32 x)
 * \returns z
 *
 */
-static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
+static uint32 fn_dsa_MqMontymul(uint32 x, uint32 y)
 {
   uint32 z = 0;
   uint32 w = 0;
@@ -360,7 +367,7 @@ static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
   the rule would provide no additional benefit and could compromise the stability of the system" */
   z += Q & (uint32)((sint32)((-1) * (sint32)((uint32)(z >> 31))));
   return z;
-} // end: fsmsw_falcon_MqMontymul
+} // end: fn_dsa_MqMontymul
 
 /*====================================================================================================================*/
 /**
@@ -371,10 +378,10 @@ static uint32 fsmsw_falcon_MqMontymul(uint32 x, uint32 y)
 * \returns t.b.d.
 *
 */
-static uint32 fsmsw_falcon_MqMontySqr(uint32 x)
+static uint32 fn_dsa_MqMontySqr(uint32 x)
 {
-  return fsmsw_falcon_MqMontymul(x, x);
-} // end: fsmsw_falcon_MqMontySqr
+  return fn_dsa_MqMontymul(x, x);
+} // end: fn_dsa_MqMontySqr
 
 /*====================================================================================================================*/
 /**
@@ -386,7 +393,7 @@ static uint32 fsmsw_falcon_MqMontySqr(uint32 x)
 * \returns d
 *
 */
-static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y)
+static uint32 fn_dsa_MqDiv12289(uint32 x, uint32 y)
 {
   /*
    * We invert y by computing y^(q-2) mod q.
@@ -433,29 +440,29 @@ static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y)
   uint32 y17 = 0;
   uint32 y18 = 0;
 
-  y0  = fsmsw_falcon_MqMontymul(y, R2);
-  y1  = fsmsw_falcon_MqMontySqr(y0);
-  y2  = fsmsw_falcon_MqMontymul(y1, y0);
-  y3  = fsmsw_falcon_MqMontymul(y2, y1);
-  y4  = fsmsw_falcon_MqMontySqr(y3);
-  y5  = fsmsw_falcon_MqMontySqr(y4);
-  y6  = fsmsw_falcon_MqMontySqr(y5);
-  y7  = fsmsw_falcon_MqMontySqr(y6);
-  y8  = fsmsw_falcon_MqMontySqr(y7);
-  y9  = fsmsw_falcon_MqMontymul(y8, y2);
-  y10 = fsmsw_falcon_MqMontymul(y9, y8);
-  y11 = fsmsw_falcon_MqMontySqr(y10);
-  y12 = fsmsw_falcon_MqMontySqr(y11);
-  y13 = fsmsw_falcon_MqMontymul(y12, y9);
-  y14 = fsmsw_falcon_MqMontySqr(y13);
-  y15 = fsmsw_falcon_MqMontySqr(y14);
-  y16 = fsmsw_falcon_MqMontymul(y15, y10);
-  y17 = fsmsw_falcon_MqMontySqr(y16);
-  y18 = fsmsw_falcon_MqMontymul(y17, y0);
+  y0  = fn_dsa_MqMontymul(y, R2);
+  y1  = fn_dsa_MqMontySqr(y0);
+  y2  = fn_dsa_MqMontymul(y1, y0);
+  y3  = fn_dsa_MqMontymul(y2, y1);
+  y4  = fn_dsa_MqMontySqr(y3);
+  y5  = fn_dsa_MqMontySqr(y4);
+  y6  = fn_dsa_MqMontySqr(y5);
+  y7  = fn_dsa_MqMontySqr(y6);
+  y8  = fn_dsa_MqMontySqr(y7);
+  y9  = fn_dsa_MqMontymul(y8, y2);
+  y10 = fn_dsa_MqMontymul(y9, y8);
+  y11 = fn_dsa_MqMontySqr(y10);
+  y12 = fn_dsa_MqMontySqr(y11);
+  y13 = fn_dsa_MqMontymul(y12, y9);
+  y14 = fn_dsa_MqMontySqr(y13);
+  y15 = fn_dsa_MqMontySqr(y14);
+  y16 = fn_dsa_MqMontymul(y15, y10);
+  y17 = fn_dsa_MqMontySqr(y16);
+  y18 = fn_dsa_MqMontymul(y17, y0);
 
   /* Final multiplication with x, which is not in Montgomery representation, computes the correct division result. */
-  return fsmsw_falcon_MqMontymul(y18, x);
-} // end: fsmsw_falcon_MqDiv12289
+  return fn_dsa_MqMontymul(y18, x);
+} // end: fn_dsa_MqDiv12289
 
 /*====================================================================================================================*/
 /**
@@ -465,7 +472,7 @@ static uint32 fsmsw_falcon_MqDiv12289(uint32 x, uint32 y)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn)
+static void fn_dsa_MqNtt(uint16 *const a, uint32 logn)
 {
   uint32 n  = 0;
   uint32 t  = 0;
@@ -495,9 +502,9 @@ static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn)
       for (j = j1; j < j2; j++)
       {
         u         = a[j];
-        v         = fsmsw_falcon_MqMontymul(a[j + ht], s);
-        a[j]      = (uint16)fsmsw_falcon_MqAdd(u, v);
-        a[j + ht] = (uint16)fsmsw_falcon_MqSub(u, v);
+        v         = fn_dsa_MqMontymul(a[j + ht], s);
+        a[j]      = (uint16)fn_dsa_MqAdd(u, v);
+        a[j + ht] = (uint16)fn_dsa_MqSub(u, v);
       }
 
       j1 += t;
@@ -505,7 +512,7 @@ static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn)
 
     t = ht;
   }
-} // end: fsmsw_falcon_MqNtt
+} // end: fn_dsa_MqNtt
 
 /*====================================================================================================================*/
 /**
@@ -515,7 +522,7 @@ static void fsmsw_falcon_MqNtt(uint16 *const a, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
+static void fn_dsa_MqIntt(uint16 *const a, uint32 logn)
 {
   uint32 n  = 0;
   uint32 t  = 0;
@@ -551,9 +558,9 @@ static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
       {
         u        = a[j];
         v        = a[j + t];
-        a[j]     = (uint16)fsmsw_falcon_MqAdd(u, v);
-        w        = fsmsw_falcon_MqSub(u, v);
-        a[j + t] = (uint16)fsmsw_falcon_MqMontymul(w, s);
+        a[j]     = (uint16)fn_dsa_MqAdd(u, v);
+        w        = fn_dsa_MqSub(u, v);
+        a[j + t] = (uint16)fn_dsa_MqMontymul(w, s);
       }
 
       j1 += dt;
@@ -570,14 +577,14 @@ static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
 
   for (m = n; m > 1u; m >>= 1)
   {
-    ni = fsmsw_falcon_MqRShift1(ni);
+    ni = fn_dsa_MqRShift1(ni);
   }
 
   for (m = 0; m < n; m++)
   {
-    a[m] = (uint16)fsmsw_falcon_MqMontymul(a[m], ni);
+    a[m] = (uint16)fn_dsa_MqMontymul(a[m], ni);
   }
-} // end: fsmsw_falcon_MqIntt
+} // end: fn_dsa_MqIntt
 
 /*====================================================================================================================*/
 /**
@@ -587,7 +594,7 @@ static void fsmsw_falcon_MqIntt(uint16 *const a, uint32 logn)
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn)
+static void fn_dsa_MqPolyTomonty(uint16 *const f, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -595,9 +602,9 @@ static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn)
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    f[u] = (uint16)fsmsw_falcon_MqMontymul(f[u], R2);
+    f[u] = (uint16)fn_dsa_MqMontymul(f[u], R2);
   }
-} // end: fsmsw_falcon_MqPolyTomonty
+} // end: fn_dsa_MqPolyTomonty
 
 /*====================================================================================================================*/
 /**
@@ -609,7 +616,7 @@ static void fsmsw_falcon_MqPolyTomonty(uint16 *const f, uint32 logn)
 * \param[in]  uint32     logn : t.b.d.
 *
 */
-static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn)
+static void fn_dsa_MqPolyMontymulNtt(uint16 *const f, const uint16 *const g, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -617,9 +624,9 @@ static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const 
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    f[u] = (uint16)fsmsw_falcon_MqMontymul(f[u], g[u]);
+    f[u] = (uint16)fn_dsa_MqMontymul(f[u], g[u]);
   }
-} // end: fsmsw_falcon_MqPolyMontymulNtt
+} // end: fn_dsa_MqPolyMontymulNtt
 
 /*====================================================================================================================*/
 /**
@@ -630,7 +637,7 @@ static void fsmsw_falcon_MqPolyMontymulNtt(uint16 *const f, const uint16 *const 
 * \param[in]  uint32     logn : t.b.d.
 *
 */
-static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn)
+static void fn_dsa_MqPolySub(uint16 *const f, const uint16 *const g, uint32 logn)
 {
   uint32 u = 0;
   uint32 n = 0;
@@ -638,9 +645,9 @@ static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint3
   n = (uint32)1 << logn;
   for (u = 0; u < n; u++)
   {
-    f[u] = (uint16)fsmsw_falcon_MqSub(f[u], g[u]);
+    f[u] = (uint16)fn_dsa_MqSub(f[u], g[u]);
   }
-} // end: fsmsw_falcon_MqPolySub
+} // end: fn_dsa_MqPolySub
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
@@ -654,11 +661,11 @@ static void fsmsw_falcon_MqPolySub(uint16 *const f, const uint16 *const g, uint3
 * \param[in]  uint32 logn : t.b.d.
 *
 */
-void FsmSw_Falcon_ToNttMonty(uint16 *const h, uint32 logn)
+void FN_DSA_ToNttMonty(uint16 *const h, uint32 logn)
 {
-  fsmsw_falcon_MqNtt(h, logn);
-  fsmsw_falcon_MqPolyTomonty(h, logn);
-} // end: FsmSw_Falcon_ToNttMonty
+  fn_dsa_MqNtt(h, logn);
+  fn_dsa_MqPolyTomonty(h, logn);
+} // end: FN_DSA_ToNttMonty
 
 /*====================================================================================================================*/
 /**
@@ -673,7 +680,7 @@ void FsmSw_Falcon_ToNttMonty(uint16 *const h, uint32 logn)
 * \returns 1 on success, 0 on error.
 *
 */
-sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
+sint32 FN_DSA_VerifyRaw(const uint16 *const c0, const sint16 *const s2, const uint16 *const h, uint32 logn,
                               uint8 *const tmp)
 {
   uint32 u   = 0;
@@ -704,10 +711,10 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, co
   }
 
   /* Compute -s1 = s2*h - c0 mod phi mod q (in tt[]). */
-  fsmsw_falcon_MqNtt(tt, logn);
-  fsmsw_falcon_MqPolyMontymulNtt(tt, h, logn);
-  fsmsw_falcon_MqIntt(tt, logn);
-  fsmsw_falcon_MqPolySub(tt, c0, logn);
+  fn_dsa_MqNtt(tt, logn);
+  fn_dsa_MqPolyMontymulNtt(tt, h, logn);
+  fn_dsa_MqIntt(tt, logn);
+  fn_dsa_MqPolySub(tt, c0, logn);
 
   /* Normalize -s1 elements into the [-q/2..q/2] range. */
   for (u = 0; u < n; u++)
@@ -723,8 +730,8 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, co
   /* polyspace +3 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* Signature is valid if and only if the aggregate (-s1,s2) vector is short enough. */
-  return FsmSw_Falcon_IsShort((sint16 *)((void *)tt), s2, logn);
-} // end: FsmSw_Falcon_VerifyRaw
+  return FN_DSA_IsShort((sint16 *)((void *)tt), s2, logn);
+} // end: FN_DSA_VerifyRaw
 
 /*====================================================================================================================*/
 /**
@@ -741,7 +748,7 @@ sint32 FsmSw_Falcon_VerifyRaw(const uint16 *const c0, const sint16 *const s2, co
 * \returns 1 on success, 0 on error (an error is reported if f is not invertible mod phi mod q).
 *
 */
-sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
+sint32 FN_DSA_ComputePublic(uint16 *const h, const sint8 *const f, const sint8 *const g, uint32 logn,
                                   uint8 *const tmp)
 {
   uint32 u      = 0;
@@ -758,12 +765,12 @@ sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const s
 
   for (u = 0; u < n; u++)
   {
-    tt[u] = (uint16)fsmsw_falcon_MqConvSmall(f[u]);
-    h[u]  = (uint16)fsmsw_falcon_MqConvSmall(g[u]);
+    tt[u] = (uint16)fn_dsa_MqConvSmall(f[u]);
+    h[u]  = (uint16)fn_dsa_MqConvSmall(g[u]);
   }
 
-  fsmsw_falcon_MqNtt(h, logn);
-  fsmsw_falcon_MqNtt(tt, logn);
+  fn_dsa_MqNtt(h, logn);
+  fn_dsa_MqNtt(tt, logn);
 
   for (u = 0; u < n; u++)
   {
@@ -772,13 +779,13 @@ sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const s
       retVal = 0;
     }
 
-    h[u] = (uint16)fsmsw_falcon_MqDiv12289(h[u], tt[u]);
+    h[u] = (uint16)fn_dsa_MqDiv12289(h[u], tt[u]);
   }
 
-  fsmsw_falcon_MqIntt(h, logn);
+  fn_dsa_MqIntt(h, logn);
 
   return retVal;
-} // end: FsmSw_Falcon_ComputePublic
+} // end: FN_DSA_ComputePublic
 
 /*====================================================================================================================*/
 /**
@@ -797,7 +804,7 @@ sint32 FsmSw_Falcon_ComputePublic(uint16 *const h, const sint8 *const f, const s
 * \returns 1 on success, 0 on error (f not invertible).
 *
 */
-sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
+sint32 FN_DSA_CompletePrivate(sint8 *const G, const sint8 *const f, const sint8 *const g, const sint8 *const F,
                                     uint32 logn, uint8 *const tmp)
 {
   uint32 u      = 0;
@@ -818,21 +825,21 @@ sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const 
 
   for (u = 0; u < n; u++)
   {
-    t1[u] = (uint16)fsmsw_falcon_MqConvSmall(g[u]);
-    t2[u] = (uint16)fsmsw_falcon_MqConvSmall(F[u]);
+    t1[u] = (uint16)fn_dsa_MqConvSmall(g[u]);
+    t2[u] = (uint16)fn_dsa_MqConvSmall(F[u]);
   }
 
-  fsmsw_falcon_MqNtt(t1, logn);
-  fsmsw_falcon_MqNtt(t2, logn);
-  fsmsw_falcon_MqPolyTomonty(t1, logn);
-  fsmsw_falcon_MqPolyMontymulNtt(t1, t2, logn);
+  fn_dsa_MqNtt(t1, logn);
+  fn_dsa_MqNtt(t2, logn);
+  fn_dsa_MqPolyTomonty(t1, logn);
+  fn_dsa_MqPolyMontymulNtt(t1, t2, logn);
 
   for (u = 0; u < n; u++)
   {
-    t2[u] = (uint16)fsmsw_falcon_MqConvSmall(f[u]);
+    t2[u] = (uint16)fn_dsa_MqConvSmall(f[u]);
   }
 
-  fsmsw_falcon_MqNtt(t2, logn);
+  fn_dsa_MqNtt(t2, logn);
 
   for (u = 0; u < n; u++)
   {
@@ -841,10 +848,10 @@ sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const 
       retVal = 0;
     }
 
-    t1[u] = (uint16)fsmsw_falcon_MqDiv12289(t1[u], t2[u]);
+    t1[u] = (uint16)fn_dsa_MqDiv12289(t1[u], t2[u]);
   }
 
-  fsmsw_falcon_MqIntt(t1, logn);
+  fn_dsa_MqIntt(t1, logn);
 
   for (u = 0; u < n; u++)
   {
@@ -862,7 +869,7 @@ sint32 FsmSw_Falcon_CompletePrivate(sint8 *const G, const sint8 *const f, const 
   }
 
   return retVal;
-} // end: FsmSw_Falcon_CompletePrivate
+} // end: FN_DSA_CompletePrivate
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

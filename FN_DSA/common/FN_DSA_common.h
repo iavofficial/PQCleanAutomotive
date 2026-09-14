@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_common
+/** \addtogroup FN_DSA_common
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_common.h
-* \brief  description of FsmSw_Falcon_common.h
+/** \file FN_DSA_common.h
+* \brief  description of FN_DSA_common.h
 *
 * \details
 *
@@ -33,16 +40,16 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_FALCON_COMMON_H
-#define FSMSW_FALCON_COMMON_H
+#ifndef FN_DSA_COMMON_H
+#define FN_DSA_COMMON_H
 
 /* IMPORTANT API RULES
  * -------------------
  *
  * This API has some non-trivial usage rules:
- *  - All public functions (i.e. the non-static ones) must be referenced with the FsmSw_Falcon_ macro (e.g.
- *    FsmSw_Falcon_VerifyRaw for the verify_raw() function). That macro adds a prefix to the name, which is
- *    configurable with the FALCON_PREFIX macro. This allows compiling the code into a specific "namespace" and
+ *  - All public functions (i.e. the non-static ones) must be referenced with the FN_DSA_ macro (e.g.
+ *    FN_DSA_VerifyRaw for the verify_raw() function). That macro adds a prefix to the name, which is
+ *    configurable with the FN_DSA_PREFIX macro. This allows compiling the code into a specific "namespace" and
  *    potentially including several versions of this code into a single application (e.g. to have an AVX2 and a
  *    non-AVX2 variants and select the one to use at runtime based on availability of AVX2 opcodes).
  *  - Functions that need temporary buffers expects them as a final tmp[] array of type uint8*, with a size which is
@@ -54,7 +61,7 @@
  *    particular 32-bit x86 with the 387 FPU), this requires setting an hardware control word. The caller MUST use
  *    set_fpu_cw() to ensure proper precision:
  *      oldcw = set_fpu_cw(2);
- *      FsmSw_Falcon_Sign_Dyn(...);
+ *      FN_DSA_Sign_Dyn(...);
  *      set_fpu_cw(oldcw);
  *
  *    On systems where the native floating-point precision is already proper, or integer-based emulation is used, the
@@ -63,7 +70,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Fips202.h"
+#include "FN_DSA_Fips202.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -94,12 +101,12 @@ typedef uint64 fpr;
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn);
-void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp);
-sint32 FsmSw_Falcon_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn);
-sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn);
+void FN_DSA_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn);
+void FN_DSA_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp);
+sint32 FN_DSA_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn);
+sint32 FN_DSA_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn);
 
-#endif /* FSMSW_FALCON_COMMON_H */
+#endif /* FN_DSA_COMMON_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

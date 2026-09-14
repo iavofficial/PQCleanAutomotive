@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_codec
+/** \addtogroup FN_DSA_codec
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_code.c
-* \brief  description of FsmSw_Falcon_code.c
+/** \file FN_DSA_code.c
+* \brief  description of FN_DSA_code.c
 *
 * \details
 *
@@ -38,13 +45,13 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Falcon_codec.h"
-#include "FsmSw_CommonLib.h"
+#include "FN_DSA_codec.h"
+#include "FN_DSA_CommonLib.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_BITS_PER_BYTE   8
-#define FSMSW_FALCON_BITS_PER_BYTE_U 8u
+#define FN_DSA_BITS_PER_BYTE   8
+#define FN_DSA_BITS_PER_BYTE_U 8u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -76,8 +83,8 @@
  * IMPORTANT: the code assumes that all coefficients of f, g, F and G ultimately fit in the -127..+127 range. Thus,
  * none of the elements of max_fg_bits[] and max_FG_bits[] shall be greater than 8. */
 
-const uint8 FsmSw_Falcon_max_small_fg_bits[11] = {0, /* unused */ 8, 8, 8, 8, 8, 7, 7, 6, 6, 5};
-const uint8 FsmSw_Falcon_max_big_FG_bits[11]   = {0, /* unused */ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+const uint8 FN_DSA_max_small_fg_bits[11] = {0, /* unused */ 8, 8, 8, 8, 8, 7, 7, 6, 6, 5};
+const uint8 FN_DSA_max_big_FG_bits[11]   = {0, /* unused */ 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
 
 /* When generating a new key pair, we can always reject keys which feature an abnormally large coefficient. This can
  * also be done for signatures, albeit with some care: in case the signature process is used in a derandomized setup
@@ -100,7 +107,7 @@ const uint8 FsmSw_Falcon_max_big_FG_bits[11]   = {0, /* unused */ 8, 8, 8, 8, 8,
  * However, the largest observed signature coefficients during our experiments was 1077 (in absolute value), hence we
  * can assume that, with overwhelming probability, signature coefficients will fit in -2047..2047, i.e. 12 bits. */
 
-const uint8 FsmSw_Falcon_max_sig_bits[11] = {0, /* unused */ 10, 11, 11, 12, 12, 12, 12, 12, 12, 12};
+const uint8 FN_DSA_max_sig_bits[11] = {0, /* unused */ 10, 11, 11, 12, 12, 12, 12, 12, 12, 12};
 
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
@@ -138,7 +145,7 @@ const uint8 FsmSw_Falcon_max_sig_bits[11] = {0, /* unused */ 10, 11, 11, 12, 12,
 * \returns out_len.
 *
 */
-uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn)
+uint32 FN_DSA_ModqEncode(void *const out, uint32 max_out_len, const uint16 *const x, uint32 logn)
 {
   uint32 n          = 0;
   uint32 u          = 0;
@@ -189,7 +196,7 @@ uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16
       acc = (acc << 14) | x[u];
       acc_len += 14;
 
-      while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE)
+      while (acc_len >= FN_DSA_BITS_PER_BYTE)
       {
         acc_len -= 8;
         *buf = (uint8)(acc >> (uint32)acc_len);
@@ -203,7 +210,7 @@ uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16
     }
   }
   return out_len;
-} // end: FsmSw_Falcon_ModqEncode
+} // end: FN_DSA_ModqEncode
 
 /*====================================================================================================================*/
 /**
@@ -219,7 +226,7 @@ uint32 FsmSw_Falcon_ModqEncode(void *const out, uint32 max_out_len, const uint16
 * \returns out_len.
 *
 */
-uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
+uint32 FN_DSA_ModqDecode(uint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
 {
   uint32 n          = 0;
   uint32 in_len     = 0;
@@ -274,7 +281,7 @@ uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const i
     }
   }
   return in_len;
-} // end: FsmSw_Falcon_ModqDecode
+} // end: FN_DSA_ModqDecode
 
 /*====================================================================================================================*/
 /**
@@ -293,7 +300,7 @@ uint32 FsmSw_Falcon_ModqDecode(uint16 *const x, uint32 logn, const void *const i
 * \returns out_len.
 *
 */
-uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits)
+uint32 FN_DSA_TrimI8Encode(void *const out, uint32 max_out_len, const sint8 *const x, uint32 logn, uint32 bits)
 {
   uint32 n          = 0;
   uint32 u          = 0;
@@ -350,7 +357,7 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint
         acc = (acc << bits) | ((uint8)x[u] & mask);
         acc_len += bits;
 
-        while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE_U)
+        while (acc_len >= FN_DSA_BITS_PER_BYTE_U)
         {
           acc_len -= 8u;
           *buf = (uint8)(acc >> acc_len);
@@ -365,7 +372,7 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint
     }
   }
   return out_len;
-} // end: FsmSw_Falcon_TrimI8Encode
+} // end: FN_DSA_TrimI8Encode
 
 /*====================================================================================================================*/
 /**
@@ -382,7 +389,7 @@ uint32 FsmSw_Falcon_TrimI8Encode(void *const out, uint32 max_out_len, const sint
 * \returns out_len.
 *
 */
-uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len)
+uint32 FN_DSA_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const void *const in, uint32 max_in_len)
 {
   uint32 n          = 0;
   uint32 in_len     = 0;
@@ -453,7 +460,7 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const
     }
   }
   return in_len;
-} // end: FsmSw_Falcon_TrimI8Decode
+} // end: FN_DSA_TrimI8Decode
 
 /*====================================================================================================================*/
 /**
@@ -471,7 +478,7 @@ uint32 FsmSw_Falcon_TrimI8Decode(sint8 *const x, uint32 logn, uint32 bits, const
 * \returns out_len.
 *
 */
-uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn)
+uint32 FN_DSA_CompEncode(void *const out, uint32 max_out_len, const sint16 *const x, uint32 logn)
 {
   uint8 *buf        = (uint8 *)NULL_PTR;
   uint32 n          = 0;
@@ -536,7 +543,7 @@ uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16
       acc_len += w + 1u;
 
       /* Produce all full bytes. */
-      while (acc_len >= FSMSW_FALCON_BITS_PER_BYTE_U)
+      while (acc_len >= FN_DSA_BITS_PER_BYTE_U)
       {
         acc_len -= 8u;
         if (buf != ((void *)0))
@@ -572,7 +579,7 @@ uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16
     }
   }
   return v;
-} // end: FsmSw_Falcon_CompEncode
+} // end: FN_DSA_CompEncode
 
 /*====================================================================================================================*/
 /**
@@ -591,7 +598,7 @@ uint32 FsmSw_Falcon_CompEncode(void *const out, uint32 max_out_len, const sint16
 /* polyspace +3 MISRA2012:15.5 [Justified:]"Multiple return points enhance readability and efficiency 
 by allowing early exits on error conditions. Using a single return variable (retVal) 
 was evaluated but didn't work in this context." */
-uint32 FsmSw_Falcon_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
+uint32 FN_DSA_CompDecode(sint16 *const x, uint32 logn, const void *const in, uint32 max_in_len)
 {
   const uint8 *buf = (uint8 *)NULL_PTR;
   uint32 n         = 0;
@@ -672,7 +679,7 @@ uint32 FsmSw_Falcon_CompDecode(sint16 *const x, uint32 logn, const void *const i
   }
 
   return v;
-} // end: FsmSw_Falcon_CompDecode
+} // end: FN_DSA_CompDecode
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_common
+/** \addtogroup FN_DSA_common
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_common.c
-* \brief  description of FsmSw_Falcon_common.c
+/** \file FN_DSA_common.c
+* \brief  description of FN_DSA_common.c
 *
 * \details
 *
@@ -37,15 +44,15 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
+#include "FN_DSA_CommonLib.h"
 
-#include "FsmSw_Falcon_common.h"
+#include "FN_DSA_common.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_BUF_SIZE 2
-#define FSMSW_FALCON_TT2_SIZE 63
-#define FSMSW_FALCON_MODULO   12289u
+#define FN_DSA_BUF_SIZE 2
+#define FN_DSA_TT2_SIZE 63
+#define FN_DSA_MODULO   12289u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -94,7 +101,7 @@ static const uint32 l2bound[] = {0, /* unused */
 * Note:        This function is currently not used.
 *
 */
-void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn)
+void FN_DSA_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x, uint32 logn)
 {
   /* This is the straightforward per-the-spec implementation. It is not constant-time, thus it might reveal
      * information on the plaintext (at least, enough to check the plaintext against a list of potential plaintexts)
@@ -108,19 +115,19 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *c
 
   while (n > 0u)
   {
-    uint8 buf[FSMSW_FALCON_BUF_SIZE];
+    uint8 buf[FN_DSA_BUF_SIZE];
     uint32 w;
 
     /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
-    FsmSw_Fips202_Shake256_IncSqueeze((void *)buf, sizeof(buf), sc);
+    FN_DSA_Fips202_Shake256_IncSqueeze((void *)buf, sizeof(buf), sc);
     w = ((uint32)buf[0] << 8) | (uint32)buf[1];
 
     if (w < 61445u)
     {
-      while (w >= FSMSW_FALCON_MODULO)
+      while (w >= FN_DSA_MODULO)
       {
         w -= 12289u;
       }
@@ -129,13 +136,13 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *c
       n--;
     }
   }
-} // end: FsmSw_Falcon_HashToPointVartime
+} // end: FN_DSA_HashToPointVartime
 
 /*====================================================================================================================*/
 /**
 * \brief From a SHAKE256 context (must be already flipped), produce a new point. The temporary buffer (tmp) must #
 *        have room for 2*2^logn bytes. This function is constant-time but is typically more expensive than
-*        FsmSw_Falcon_HashToPointVartime(). tmp[] must have 16-bit alignment.
+*        FN_DSA_HashToPointVartime(). tmp[] must have 16-bit alignment.
 *
 * \param[out] inner_shake256_context *sc : t.b.d.
 * \param[out] uint16                  *x : t.b.d.
@@ -143,7 +150,7 @@ void FsmSw_Falcon_HashToPointVartime(inner_shake256_context *const sc, uint16 *c
 * \param[out] uint8                 *tmp : t.b.d.
 *
 */
-void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp)
+void FN_DSA_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uint32 logn, uint8 *const tmp)
 {
   /* Each 16-bit sample is a value in 0..65535. The value is kept if it falls in 0..61444 (because 61445 = 5*12289)
      * and rejected otherwise; thus, each sample has probability about 0.93758 of being selected. We want to oversample
@@ -172,7 +179,7 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
   uint32 p                          = 0;
   uint32 over                       = 0;
   uint16 *tt1                       = (uint16 *)NULL_PTR;
-  uint16 tt2[FSMSW_FALCON_TT2_SIZE] = {0};
+  uint16 tt2[FN_DSA_TT2_SIZE] = {0};
   uint32 temp                       = 0;
 
   /* We first generate m 16-bit value. Values 0..n-1 go to x[]. Values n..2*n-1 go to tt1[]. Values 2*n and later
@@ -189,10 +196,10 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
 
   for (u = 0; u < m; u++)
   {
-    uint8 buf[FSMSW_FALCON_BUF_SIZE];
+    uint8 buf[FN_DSA_BUF_SIZE];
     uint32 w, wr;
 
-    FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), sc);
+    FN_DSA_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), sc);
     w  = ((uint32)buf[0] << 8) | (uint32)buf[1];
     wr = w - ((uint32)24578 & (((w - 24578u) >> 31) - 1u));
     wr = wr - ((uint32)24578 & (((wr - 24578u) >> 31) - 1u));
@@ -283,7 +290,7 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
       *d = (uint16)(dv ^ (mk & (sv ^ dv)));
     }
   }
-} // end: FsmSw_Falcon_HashToPointCt
+} // end: FN_DSA_HashToPointCt
 
 /*====================================================================================================================*/
 /**
@@ -297,7 +304,7 @@ void FsmSw_Falcon_HashToPointCt(inner_shake256_context *const sc, uint16 *const 
 * \returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
 *
 */
-sint32 FsmSw_Falcon_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn)
+sint32 FN_DSA_IsShort(const sint16 *const s1, const sint16 *const s2, uint32 logn)
 {
   /* We use the l2-norm. Code below uses only 32-bit operations to compute the square of the norm with saturation to
      * 2^32-1 if the value exceeds 2^31-1. */
@@ -330,7 +337,7 @@ sint32 FsmSw_Falcon_IsShort(const sint16 *const s1, const sint16 *const s2, uint
   }
 
   return retVal;
-} // end: FsmSw_Falcon_IsShort
+} // end: FN_DSA_IsShort
 
 /*====================================================================================================================*/
 /**
@@ -345,7 +352,7 @@ sint32 FsmSw_Falcon_IsShort(const sint16 *const s1, const sint16 *const s2, uint
 * \returns 1 on success (vector is short enough to be acceptable), 0 otherwise.
 *
 */
-sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn)
+sint32 FN_DSA_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn)
 {
   uint32 n  = 0;
   uint32 u  = 0;
@@ -374,7 +381,7 @@ sint32 FsmSw_Falcon_IsShortHalf(uint32 sqn, const sint16 *const s2, uint32 logn)
   }
 
   return retVal;
-} // end: FsmSw_Falcon_IsShortHalf
+} // end: FN_DSA_IsShortHalf
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

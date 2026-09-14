@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, FN_DSA
  *
+ * Copyright (c) 2017-2019 FN_DSA Project
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are licensed under the MIT License.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: MIT AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC FN_DSA
+*    includes the modules for SwC FN_DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Falcon_fpr
+/** \addtogroup FN_DSA_fpr
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Falcon_fpr.c
-* \brief  description of FsmSw_Falcon_fpr.c
+/** \file FN_DSA_fpr.c
+* \brief  description of FN_DSA_fpr.c
 *
 * \details
 *
@@ -84,12 +91,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Falcon_fpr.h"
+#include "FN_DSA_fpr.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_FALCON_XU_YU_DIVISION       55
-#define FSMSW_FALCON_SQRT_ITERATION_COUNT 54
+#define FN_DSA_XU_YU_DIVISION       55
+#define FN_DSA_SQRT_ITERATION_COUNT 54
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -113,13 +120,13 @@ static const uint64 C[] = {0x00000004741183A3u, 0x00000036548CFC06u, 0x0000024FD
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc);
-static uint64 fsmsw_falcon_fpr_Ursh(uint64 x, sint32 n);
-static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n);
-static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n);
-static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m);
-static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y);
-static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep);
+static fpr fn_dsa_fpr_Scaled(sint64 i, sint32 sc);
+static uint64 fn_dsa_fpr_Ursh(uint64 x, sint32 n);
+static sint64 fn_dsa_fpr_Irsh(sint64 x, sint32 n);
+static uint64 fn_dsa_fpr_Ulsh(uint64 x, sint32 n);
+static fpr fn_dsa_fpr_CheckExponent(sint32 s, sint32 e, uint64 m);
+static fpr fn_dsa_fpr_Div(fpr x, fpr y);
+static void fn_dsa_fpr_Norm64(uint64 *const mp, sint32 *const ep);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -140,18 +147,18 @@ static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep);
 * \returns t.b.d.
 *
 */
-static uint64 fsmsw_falcon_fpr_Ursh(uint64 x, sint32 n)
+static uint64 fn_dsa_fpr_Ursh(uint64 x, sint32 n)
 {
   /* x_temp is used to avoid modifying the input. */
   uint64 x_temp = x;
 
   x_temp ^= (x_temp ^ (x_temp >> 32)) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)n >> 5))));
   return x_temp >> ((uint64)n & 31u);
-} // end: fsmsw_falcon_fpr_Ursh
+} // end: fn_dsa_fpr_Ursh
 
 /*====================================================================================================================*/
 /**
-* \brief Right-shift a 64-bit signed value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
+* \brief Right-shift a 64-bit signed value by a possibly secret shift count (see fn_dsa_fpr_Ursh() for the rationale).
 *
 * \param[in] sint64 x : t.b.d.
 * \param[in] sint32 n : Shift count n MUST be in the 0..63 range.
@@ -159,7 +166,7 @@ static uint64 fsmsw_falcon_fpr_Ursh(uint64 x, sint32 n)
 * \returns t.b.d.
 *
 */
-static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
+static sint64 fn_dsa_fpr_Irsh(sint64 x, sint32 n)
 {
   sint64 temp3       = 0;
   uint64 temp2       = 0;
@@ -191,11 +198,11 @@ static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
   x_temp = (sint64)((uint64)((uint64)x_temp ^ (uint64)((uint64)temp3 & (uint64)temp1)));
 
   return (sint64)((uint64)((uint64)x_temp >> ((uint64)n & 31u)));
-} // end: fsmsw_falcon_fpr_Irsh
+} // end: fn_dsa_fpr_Irsh
 
 /*====================================================================================================================*/
 /**
-* \brief Left-shift a 64-bit unsigned value by a possibly secret shift count (see fsmsw_falcon_fpr_Ursh() for the rationale).
+* \brief Left-shift a 64-bit unsigned value by a possibly secret shift count (see fn_dsa_fpr_Ursh() for the rationale).
 *
 * \param[in] uint64 x : t.b.d.
 * \param[in] sint32 n : Shift count n MUST be in the 0..63 range.
@@ -203,14 +210,14 @@ static sint64 fsmsw_falcon_fpr_Irsh(sint64 x, sint32 n)
 * \returns t.b.d.
 *
 */
-static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n)
+static uint64 fn_dsa_fpr_Ulsh(uint64 x, sint32 n)
 {
   /* x_temp is used to avoid modifying the input. */
   uint64 x_temp = x;
 
   x_temp ^= (x_temp ^ (x_temp << 32u)) & (uint64)((sint64)((-1) * (sint64)((uint64)((uint64)n >> 5))));
   return x_temp << ((uint64)n & 31u);
-} // end: fsmsw_falcon_fpr_Ulsh
+} // end: fn_dsa_fpr_Ulsh
 
 /*====================================================================================================================*/
 /**
@@ -227,7 +234,7 @@ static uint64 fsmsw_falcon_fpr_Ulsh(uint64 x, sint32 n)
 * \returns x
 *
 */
-static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
+static fpr fn_dsa_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
 {
   fpr x       = 0;
   uint32 t    = 0;
@@ -281,7 +288,7 @@ static fpr fsmsw_falcon_fpr_CheckExponent(sint32 s, sint32 e, uint64 m)
 * \returns t.b.d.
 *
 */
-static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
+static fpr fn_dsa_fpr_Div(fpr x, fpr y)
 {
   uint64 xu = 0;
   uint64 yu = 0;
@@ -303,7 +310,7 @@ static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
   /* Perform bit-by-bit division of xu by yu. We run it for 55 bits. */
   q = 0;
 
-  for (i = 0; i < FSMSW_FALCON_XU_YU_DIVISION; i++)
+  for (i = 0; i < FN_DSA_XU_YU_DIVISION; i++)
   {
     /* If yu is less than or equal xu, then subtract it and push a 1 in the quotient; otherwise, leave xu unchanged
          * and push a 0. */
@@ -349,9 +356,9 @@ static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
   e = (sint32)((uint32)((uint32)e & (uint32)((sint32)((-1) * d))));
   q &= (uint64)((sint32)((-1) * d));
 
-  /* fsmsw_falcon_fpr_CheckExponent() packs the result and applies proper rounding. */
-  return fsmsw_falcon_fpr_CheckExponent(s, e, q);
-} // end: fsmsw_falcon_fpr_Div
+  /* fn_dsa_fpr_CheckExponent() packs the result and applies proper rounding. */
+  return fn_dsa_fpr_CheckExponent(s, e, q);
+} // end: fn_dsa_fpr_Div
 
 /*====================================================================================================================*/
 /**
@@ -368,7 +375,7 @@ static fpr fsmsw_falcon_fpr_Div(fpr x, fpr y)
 * \returns t.b.d.
 *
 */
-static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
+static fpr fn_dsa_fpr_Scaled(sint64 i, sint32 sc)
 {
   sint32 s = 0;
   sint32 e = 0;
@@ -387,7 +394,7 @@ static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
      * top bit. We can do that in a logarithmic number of conditional shifts. */
   m = (uint64)i_temp;
   e = 9 + sc;
-  fsmsw_falcon_fpr_Norm64(&m, &e);
+  fn_dsa_fpr_Norm64(&m, &e);
 
   /* Now m is in the 2^63..2^64-1 range. We must divide it by 512; if one of the dropped bits is a 1, this should go
      * into the "sticky bit". */
@@ -399,9 +406,9 @@ static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
   m &= (uint64)((sint64)((-1) * (sint64)t));
   e = (sint32)((uint32)((uint32)e & (uint32)((sint32)((-1) * (sint32)t))));
 
-  /* Assemble back everything. The fsmsw_falcon_fpr_CheckExponent() function will handle cases where e is too low. */
-  return fsmsw_falcon_fpr_CheckExponent(s, e, m);
-} // end: fsmsw_falcon_fpr_Scaled
+  /* Assemble back everything. The fn_dsa_fpr_CheckExponent() function will handle cases where e is too low. */
+  return fn_dsa_fpr_CheckExponent(s, e, m);
+} // end: fn_dsa_fpr_Scaled
 
 /*====================================================================================================================*/
 /**
@@ -416,7 +423,7 @@ static fpr fsmsw_falcon_fpr_Scaled(sint64 i, sint32 sc)
 * \returns t.b.d.????
 *
 */
-static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep)
+static void fn_dsa_fpr_Norm64(uint64 *const mp, sint32 *const ep)
 {
   uint32 nt = 0;
 
@@ -456,7 +463,7 @@ static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep)
 
   *mp = m;
   *ep = e;
-} // end: fsmsw_falcon_fpr_Norm64
+} // end: fn_dsa_fpr_Norm64
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
@@ -471,10 +478,10 @@ static void fsmsw_falcon_fpr_Norm64(uint64 *const mp, sint32 *const ep)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Of(sint64 i)
+fpr FN_DSA_Fpr_Of(sint64 i)
 {
-  return fsmsw_falcon_fpr_Scaled(i, 0);
-} // end: FsmSw_Falcon_Fpr_Of
+  return fn_dsa_fpr_Scaled(i, 0);
+} // end: FN_DSA_Fpr_Of
 
 /*====================================================================================================================*/
 /**
@@ -485,7 +492,7 @@ fpr FsmSw_Falcon_Fpr_Of(sint64 i)
 * \returns t.b.d.
 *
 */
-sint64 FsmSw_Falcon_Fpr_Rint(fpr x)
+sint64 FN_DSA_Fpr_Rint(fpr x)
 {
   uint64 m  = 0;
   uint64 d  = 0;
@@ -512,15 +519,15 @@ sint64 FsmSw_Falcon_Fpr_Rint(fpr x)
      *
      * We thus first extract a word consisting of all the dropped bit AND the lowest kept bit; then we shrink it down
      * to three bits, the lowest being "sticky". */
-  d  = fsmsw_falcon_fpr_Ulsh(m, 63 - e);
+  d  = fn_dsa_fpr_Ulsh(m, 63 - e);
   dd = (uint32)d | ((uint32)(d >> 32) & 0x1FFFFFFFu);
   f  = (uint32)(d >> 61) | ((dd | (uint32)((sint32)((-1) * (sint32)dd))) >> 31);
-  m  = fsmsw_falcon_fpr_Ursh(m, e) + (uint64)((uint32)(((uint32)0xC8u >> f) & 1u));
+  m  = fn_dsa_fpr_Ursh(m, e) + (uint64)((uint32)(((uint32)0xC8u >> f) & 1u));
 
   /* Apply the sign bit. */
   s = (uint32)(x >> 63);
   return (sint64)((uint64)((m ^ (uint64)((uint32)((sint32)((-1) * (sint32)s)))) + s));
-} // end: FsmSw_Falcon_Fpr_Rint
+} // end: FN_DSA_Fpr_Rint
 
 /*====================================================================================================================*/
 /**
@@ -531,7 +538,7 @@ sint64 FsmSw_Falcon_Fpr_Rint(fpr x)
 * \returns t.b.d.
 *
 */
-sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
+sint64 FN_DSA_Fpr_Floor(fpr x)
 {
   uint64 t     = 0;
   sint64 xi    = 0;
@@ -551,7 +558,7 @@ sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
 
   /* We perform an arithmetic right-shift on the value. This applies floor() semantics on both positive and negative
      * values (rounding toward minus infinity). */
-  xi = fsmsw_falcon_fpr_Irsh(xi, (sint32)((uint32)((uint32)cc & 63u)));
+  xi = fn_dsa_fpr_Irsh(xi, (sint32)((uint32)((uint32)cc & 63u)));
 
   /* If the true shift count was 64 or more, then we should instead replace xi with 0 (if nonnegative) or -1
      * (if negative). Edge case: -0 will be floored to -1, not 0 (whether this is correct is debatable; in any case,
@@ -563,7 +570,7 @@ sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
   xi    = (sint64)((uint64)((uint64)xi ^ (temp2 & (uint64)temp1)));
 
   return xi;
-} // end: FsmSw_Falcon_Fpr_Floor
+} // end: FN_DSA_Fpr_Floor
 
 /*====================================================================================================================*/
 /**
@@ -574,7 +581,7 @@ sint64 FsmSw_Falcon_Fpr_Floor(fpr x)
 * \returns t.b.d.
 *
 */
-sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
+sint64 FN_DSA_Fpr_Trunc(fpr x)
 {
   uint64 t  = 0;
   uint64 xu = 0;
@@ -586,7 +593,7 @@ sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
   e  = (sint32)((uint64)((x >> (fpr)52) & 0x7FFu));
   xu = ((x << 10) | ((uint64)1 << 62)) & (((uint64)1 << 63) - 1u);
   cc = 1085 - e;
-  xu = fsmsw_falcon_fpr_Ursh(xu, (sint32)((uint32)((uint32)cc & 63u)));
+  xu = fn_dsa_fpr_Ursh(xu, (sint32)((uint32)((uint32)cc & 63u)));
 
   /* If the exponent is too low (cc > 63), then the shift was wrong and we must clamp the value to 0. This also
      * covers the case of an input equal to zero. */
@@ -597,7 +604,7 @@ sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
   xu = (uint64)(xu ^ (uint64)((sint64)((-1) * (sint64)t))) + t;
 
   return (sint64)xu;
-} // end: FsmSw_Falcon_Fpr_Trunc
+} // end: FN_DSA_Fpr_Trunc
 
 /*====================================================================================================================*/
 /**
@@ -609,7 +616,7 @@ sint64 FsmSw_Falcon_Fpr_Trunc(fpr x)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
+fpr FN_DSA_Fpr_Add(fpr x, fpr y)
 {
   uint64 m  = 0;
   uint64 xu = 0;
@@ -662,7 +669,7 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
   cc = (sint32)((uint32)((uint32)cc & 63u));
 
   /* The lowest bit of yu is "sticky". */
-  m = fsmsw_falcon_fpr_Ulsh(1, cc) - 1u;
+  m = fn_dsa_fpr_Ulsh(1, cc) - 1u;
   /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
      the rule would provide no additional benefit and could compromise the stability of the system" */
@@ -670,7 +677,7 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
       be safe and reliable in this specific context. Modifying the code solely to conform to the rule would provide no 
       additional benefit and could compromise the stability of the system." */
   yu |= (yu & m) + m;
-  yu = fsmsw_falcon_fpr_Ursh(yu, cc);
+  yu = fn_dsa_fpr_Ursh(yu, cc);
 
   /* polyspace +7 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
@@ -683,7 +690,7 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
 
   /* The result may be smaller, or slightly larger. We normalize it to the 2^63..2^64-1 range (if xu is zero, then it
      * stays at zero). */
-  fsmsw_falcon_fpr_Norm64(&xu, &ex);
+  fn_dsa_fpr_Norm64(&xu, &ex);
 
   /* Scale down the value to 2^54..s^55-1, handling the last bit as sticky. */
   xu |= (xu & 0x1FFu) + 0x1FFu;
@@ -703,12 +710,12 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
      * of x was 1, then x and y were swapped. Thus, the two following cases cannot actually happen:
      *   x < 0, y = -x
      *   x = -0, y = +0
-     * In all other cases, the sign bit of x is conserved, which is what the fsmsw_falcon_fpr_CheckExponent() function does.
-     * The fsmsw_falcon_fpr_CheckExponent() function also properly clamps values to zero when the exponent is too low, but does not
+     * In all other cases, the sign bit of x is conserved, which is what the fn_dsa_fpr_CheckExponent() function does.
+     * The fn_dsa_fpr_CheckExponent() function also properly clamps values to zero when the exponent is too low, but does not
      * alter the sign in that case. */
 
-  return fsmsw_falcon_fpr_CheckExponent(sx, ex, xu);
-} // end: FsmSw_Falcon_Fpr_Add
+  return fn_dsa_fpr_CheckExponent(sx, ex, xu);
+} // end: FN_DSA_Fpr_Add
 
 /*====================================================================================================================*/
 /**
@@ -720,14 +727,14 @@ fpr FsmSw_Falcon_Fpr_Add(fpr x, fpr y)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Sub(fpr x, fpr y)
+fpr FN_DSA_Fpr_Sub(fpr x, fpr y)
 {
   /* y_temp is used to avoid modifying the input. */
   fpr y_temp = y;
 
   y_temp ^= (uint64)1 << 63;
-  return FsmSw_Falcon_Fpr_Add(x, y_temp);
-} // end: FsmSw_Falcon_Fpr_Sub
+  return FN_DSA_Fpr_Add(x, y_temp);
+} // end: FN_DSA_Fpr_Sub
 
 /*====================================================================================================================*/
 /**
@@ -738,14 +745,14 @@ fpr FsmSw_Falcon_Fpr_Sub(fpr x, fpr y)
 * \returns x
 *
 */
-fpr FsmSw_Falcon_Fpr_Neg(fpr x)
+fpr FN_DSA_Fpr_Neg(fpr x)
 {
   /* x_temp is used to avoid modifying the input. */
   fpr x_temp = x;
 
   x_temp ^= (uint64)1 << 63;
   return x_temp;
-} // end: FsmSw_Falcon_Fpr_Neg
+} // end: FN_DSA_Fpr_Neg
 
 /*====================================================================================================================*/
 /**
@@ -756,7 +763,7 @@ fpr FsmSw_Falcon_Fpr_Neg(fpr x)
 * \returns x
 *
 */
-fpr FsmSw_Falcon_Fpr_Half(fpr x)
+fpr FN_DSA_Fpr_Half(fpr x)
 {
   /* To divide a value by 2, we just have to subtract 1 from its exponent, but we have to take care of zero. */
   uint32 t;
@@ -768,7 +775,7 @@ fpr FsmSw_Falcon_Fpr_Half(fpr x)
   t = (uint32)((uint64)(((uint64)((uint64)(x_temp >> 52) & 0x7FFu)) + 1u) >> 11);
   x_temp &= t - (fpr)1u;
   return x_temp;
-} // end: FsmSw_Falcon_Fpr_Half
+} // end: FN_DSA_Fpr_Half
 
 /*====================================================================================================================*/
 /**
@@ -779,7 +786,7 @@ fpr FsmSw_Falcon_Fpr_Half(fpr x)
 * \returns x
 *
 */
-fpr FsmSw_Falcon_Fpr_Double(fpr x)
+fpr FN_DSA_Fpr_Double(fpr x)
 {
   /* x_temp is used to avoid modifying the input. */
   fpr x_temp = x;
@@ -793,7 +800,7 @@ fpr FsmSw_Falcon_Fpr_Double(fpr x)
      * special case. */
   x_temp += (fpr)(((uint64)((uint64)(((uint64)((uint64)(x_temp >> 52) & 0x7FFu) + 0x7FFu) >> 11))) << 52);
   return x_temp;
-} // end: FsmSw_Falcon_Fpr_Double
+} // end: FN_DSA_Fpr_Double
 
 /*====================================================================================================================*/
 /**
@@ -804,10 +811,10 @@ fpr FsmSw_Falcon_Fpr_Double(fpr x)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Sqr(fpr x)
+fpr FN_DSA_Fpr_Sqr(fpr x)
 {
-  return FsmSw_Falcon_Fpr_Mul(x, x);
-} // end: FsmSw_Falcon_Fpr_Sqr
+  return FN_DSA_Fpr_Mul(x, x);
+} // end: FN_DSA_Fpr_Sqr
 
 /*====================================================================================================================*/
 /**
@@ -818,10 +825,10 @@ fpr FsmSw_Falcon_Fpr_Sqr(fpr x)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Inv(fpr x)
+fpr FN_DSA_Fpr_Inv(fpr x)
 {
-  return fsmsw_falcon_fpr_Div(4607182418800017408u, x);
-} // end: FsmSw_Falcon_Fpr_Inv
+  return fn_dsa_fpr_Div(4607182418800017408u, x);
+} // end: FN_DSA_Fpr_Inv
 
 /*====================================================================================================================*/
 /**
@@ -840,7 +847,7 @@ fpr FsmSw_Falcon_Fpr_Inv(fpr x)
 * \returns t.b.d.
 *
 */
-sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
+sint32 FN_DSA_Fpr_Lt(fpr x, fpr y)
 {
   sint32 cc0   = 0;
   sint32 cc1   = 0;
@@ -886,7 +893,7 @@ sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
   cc1 = (sint32)((uint64)((uint64)((uint64)(((uint64)((uint64)sy - (uint64)sx))) >> 63) & 1u));
 
   return (sint32)((uint32)((uint32)cc0 ^ ((uint32)(((uint32)((uint32)cc0 ^ (uint32)cc1)) & ((x & y) >> 63)))));
-} // end: FsmSw_Falcon_Fpr_Lt
+} // end: FN_DSA_Fpr_Lt
 
 /*====================================================================================================================*/
 /**
@@ -898,7 +905,7 @@ sint32 FsmSw_Falcon_Fpr_Lt(fpr x, fpr y)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
+fpr FN_DSA_Fpr_Mul(fpr x, fpr y)
 {
   uint64 xu = 0;
   uint64 yu = 0;
@@ -970,14 +977,14 @@ fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
   s = (sint32)((uint32)((uint64)((uint64)(x ^ y)) >> 63));
 
   /* Corrective actions for zeros: if either of the operands is zero, then the computations above were wrong. Test
-     * for zero is whether ex or ey is zero. We just have to set the mantissa (zu) to zero, the fsmsw_falcon_fpr_CheckExponent()
+     * for zero is whether ex or ey is zero. We just have to set the mantissa (zu) to zero, the fn_dsa_fpr_CheckExponent()
      * function will normalize e. */
   d = (sint32)((uint32)((uint32)(((uint32)(((uint32)((uint32)ex + 0x7FFu)) & ((uint32)((uint32)ey + 0x7FFu)))) >> 11)));
   zu &= (uint64)((sint32)((-1) * d));
 
-  /* fsmsw_falcon_fpr_CheckExponent() packs the result and applies proper rounding. */
-  return fsmsw_falcon_fpr_CheckExponent(s, e, zu);
-} // end: FsmSw_Falcon_Fpr_Mul
+  /* fn_dsa_fpr_CheckExponent() packs the result and applies proper rounding. */
+  return fn_dsa_fpr_CheckExponent(s, e, zu);
+} // end: FN_DSA_Fpr_Mul
 
 /*====================================================================================================================*/
 /**
@@ -988,7 +995,7 @@ fpr FsmSw_Falcon_Fpr_Mul(fpr x, fpr y)
 * \returns t.b.d.
 *
 */
-fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
+fpr FN_DSA_Fpr_Sqrt(fpr x)
 {
   uint64 xu = 0;
   uint64 q  = 0;
@@ -1027,7 +1034,7 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
   q = 0;
   s = 0;
   r = (uint64)1 << 53;
-  for (sint32 i = 0; i < FSMSW_FALCON_SQRT_ITERATION_COUNT; i++)
+  for (sint32 i = 0; i < FN_DSA_SQRT_ITERATION_COUNT; i++)
   {
     t = s + r;
     /* polyspace +6 DEFECT:UINT_OVFL [Justified:]"he current implementation has been carefully reviewed and 
@@ -1057,8 +1064,8 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
   q &= (uint64)((sint32)((-1) * (sint32)((uint32)((uint32)((uint32)((uint32)ex + 0x7FFu)) >> 11))));
 
   /* Apply rounding and back result. */
-  return fsmsw_falcon_fpr_CheckExponent(0, e, q);
-} // end: FsmSw_Falcon_Fpr_Sqrt
+  return fn_dsa_fpr_CheckExponent(0, e, q);
+} // end: FN_DSA_Fpr_Sqrt
 
 /*====================================================================================================================*/
 /**
@@ -1070,7 +1077,7 @@ fpr FsmSw_Falcon_Fpr_Sqrt(fpr x)
 * \returns t.b.d.
 *
 */
-uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
+uint64 FN_DSA_Fpr_ExpmP63(fpr x, fpr ccs)
 {
   /* polyspace +1 MISRA2012:3.1 [Justified:]"The comment is a link and therefore contains a slash" */
   /* Polynomial approximation of exp(-x) is taken from FACCT: https://eprint.iacr.org/2018/1234 */
@@ -1092,7 +1099,7 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
   uint64 b  = 0;
 
   y = C[0];
-  z = (uint64)FsmSw_Falcon_Fpr_Trunc(FsmSw_Falcon_Fpr_Mul(x, fpr_ptwo63)) << 1;
+  z = (uint64)FN_DSA_Fpr_Trunc(FN_DSA_Fpr_Mul(x, fpr_ptwo63)) << 1;
   for (u = 1; u < ((sizeof(C)) / sizeof(C[0])); u++)
   {
     /* Compute product z * y over 128 bits, but keep only the top 64 bits.
@@ -1122,7 +1129,7 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
 
   /* The scaling factor must be applied at the end. Since y is now in fixed-point notation, we have to convert the
      * factor to the same format, and do an extra integer multiplication. */
-  z  = (uint64)FsmSw_Falcon_Fpr_Trunc(FsmSw_Falcon_Fpr_Mul(ccs, fpr_ptwo63)) << 1;
+  z  = (uint64)FN_DSA_Fpr_Trunc(FN_DSA_Fpr_Mul(ccs, fpr_ptwo63)) << 1;
   z0 = (uint32)z;
   z1 = (uint32)(z >> 32);
   y0 = (uint32)y;
@@ -1134,7 +1141,7 @@ uint64 FsmSw_Falcon_Fpr_ExpmP63(fpr x, fpr ccs)
   y += (uint64)z1 * (uint64)y1;
 
   return y;
-} // end: FsmSw_Falcon_Fpr_ExpmP63
+} // end: FN_DSA_Fpr_ExpmP63
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
