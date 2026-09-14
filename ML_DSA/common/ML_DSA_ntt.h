@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Dilithium_ntt
+/** \addtogroup ML_DSA_ntt
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium_ntt.h
-* \brief  Declarations for the modul FsmSw_Dilithium_ntt.c
+/** \file ML_DSA_ntt.h
+* \brief  Declarations for the modul ML_DSA_ntt.c
 *
 * \details
 *
@@ -33,13 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM_NTT_H
-#define FSMSW_DILITHIUM_NTT_H
-
+#ifndef FSMSW_ML_DSA_NTT_H
+#define FSMSW_ML_DSA_NTT_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium_params.h"
+#include "ML_DSA_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
@@ -65,11 +72,11 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM]);
+void ML_DSA_Ntt(sint32 a[N_ML_DSA]);
 
-void FsmSw_Dilithium_InvnttTomont(sint32 a[N_DILITHIUM]);
+void ML_DSA_InvnttTomont(sint32 a[N_ML_DSA]);
 
-#endif /* FSMSW_DILITHIUM_NTT_H */
+#endif /* FSMSW_ML_DSA_NTT_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

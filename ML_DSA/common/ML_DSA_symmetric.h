@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Dilithium_symmetric
+/** \addtogroup ML_DSA_symmetric
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium_symmetric.h
-* \brief  Description of FsmSw_Dilithium_symmetric.h 
+/** \file ML_DSA_symmetric.h
+* \brief  Description of ML_DSA_symmetric.h 
 *
 * \details
 *
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM_SYMMETRIC_H
-#define FSMSW_DILITHIUM_SYMMETRIC_H
+#ifndef FSMSW_ML_DSA_SYMMETRIC_H
+#define FSMSW_ML_DSA_SYMMETRIC_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium_params.h"
+#include "ML_DSA_params.h"
 #include "FsmSw_Fips202.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
@@ -49,8 +57,8 @@
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
-typedef shake128incctx FsmSw_Dilithium_stream128_state;
-typedef shake256incctx FsmSw_Dilithium_stream256_state;
+typedef shake128incctx ML_DSA_stream128_state;
+typedef shake256incctx ML_DSA_stream256_state;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -67,12 +75,12 @@ typedef shake256incctx FsmSw_Dilithium_stream256_state;
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_DILITHIUM],
+void ML_DSA_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_ML_DSA],
                                          uint16 nonce);
-void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_DILITHIUM],
+void ML_DSA_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_ML_DSA],
                                          uint16 nonce);
 
-#endif /* FSMSW_DILITHIUM_SYMMETRIC_H */
+#endif /* FSMSW_ML_DSA_SYMMETRIC_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

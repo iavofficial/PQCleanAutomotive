@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium2
-*    includes the modules for Dilithium2
+/** \addtogroup ML_DSA_44
+*    includes the modules for ML_DSA_44
  ** @{ */
-/** \addtogroup FsmSw_Dilithium2_params
+/** \addtogroup ML_DSA_44_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium2_params.h
-* \brief  Description of FsmSw_Dilithium2_params.h
+/** \file ML_DSA_44_params.h
+* \brief  Description of ML_DSA_44_params.h
 *
 * \details
 *
@@ -33,44 +41,44 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM2_PARAMS_H
-#define FSMSW_DILITHIUM2_PARAMS_H
+#ifndef FSMSW_ML_DSA_44_PARAMS_H
+#define FSMSW_ML_DSA_44_PARAMS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium2_api.h"
-#include "FsmSw_Dilithium_params.h"
+#include "ML_DSA_44_api.h"
+#include "ML_DSA_params.h"
 #include "FsmSw_StaticAssert.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define K_DILITHIUM2    4u
-#define L_DILITHIUM2    4u
-#define ETA_DILITHIUM2  2u
-#define TAU_DILITHIUM2  39u
-#define BETA_DILITHIUM2 78u
+#define K_ML_DSA_44    4u
+#define L_ML_DSA_44    4u
+#define ETA_ML_DSA_44  2u
+#define TAU_ML_DSA_44  39u
+#define BETA_ML_DSA_44 78u
 /* (1u << 17u) = 131072 */
-#define GAMMA1_DILITHIUM2 131072u
-/* MISRA check for GAMMA2_DILITHIUM2 is ongoing. You get an error if GAMMA2_DILITHIUM2 get a type cast. */
-#define GAMMA2_DILITHIUM2      ((Q_DILITHIUM - 1) / 88)
-#define OMEGA_DILITHIUM2       80u
-#define CTILDEBYTES_DILITHIUM2 32u
+#define GAMMA1_ML_DSA_44 131072u
+/* MISRA check for GAMMA2_ML_DSA_44 is ongoing. You get an error if GAMMA2_ML_DSA_44 get a type cast. */
+#define GAMMA2_ML_DSA_44      ((Q_ML_DSA - 1) / 88)
+#define OMEGA_ML_DSA_44       80u
+#define CTILDEBYTES_ML_DSA_44 32u
 
-#define POLYVECH_PACKEDBYTES_DILITHIUM2 (OMEGA_DILITHIUM2 + K_DILITHIUM2)
+#define POLYVECH_PACKEDBYTES_ML_DSA_44 (OMEGA_ML_DSA_44 + K_ML_DSA_44)
 
-#define POLYZ_PACKEDBYTES_DILITHIUM2   576u
-#define POLYW1_PACKEDBYTES_DILITHIUM2  192u
-#define POLYETA_PACKEDBYTES_DILITHIUM2 96u
+#define POLYZ_PACKEDBYTES_ML_DSA_44   576u
+#define POLYW1_PACKEDBYTES_ML_DSA_44  192u
+#define POLYETA_PACKEDBYTES_ML_DSA_44 96u
 
-FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_PUBLICKEYBYTES ==
-                    (SEEDBYTES_DILITHIUM + (K_DILITHIUM2 * POLYT1_PACKEDBYTES_DILITHIUM)));
-FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_SECRETKEYBYTES ==
-                    ((2u * SEEDBYTES_DILITHIUM) + TRBYTES_DILITHIUM + (L_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) +
-                     (K_DILITHIUM2 * POLYETA_PACKEDBYTES_DILITHIUM2) + (K_DILITHIUM2 * POLYT0_PACKEDBYTES_DILITHIUM)));
-FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_BYTES ==
-                    (CTILDEBYTES_DILITHIUM2 + (L_DILITHIUM2 * POLYZ_PACKEDBYTES_DILITHIUM2) +
-                     POLYVECH_PACKEDBYTES_DILITHIUM2));
+FSMSW_STATIC_ASSERT(FSMSW_ML_DSA_44_CRYPTO_PUBLICKEYBYTES ==
+                    (SEEDBYTES_ML_DSA + (K_ML_DSA_44 * POLYT1_PACKEDBYTES_ML_DSA)));
+FSMSW_STATIC_ASSERT(FSMSW_ML_DSA_44_CRYPTO_SECRETKEYBYTES ==
+                    ((2u * SEEDBYTES_ML_DSA) + TRBYTES_ML_DSA + (L_ML_DSA_44 * POLYETA_PACKEDBYTES_ML_DSA_44) +
+                     (K_ML_DSA_44 * POLYETA_PACKEDBYTES_ML_DSA_44) + (K_ML_DSA_44 * POLYT0_PACKEDBYTES_ML_DSA)));
+FSMSW_STATIC_ASSERT(FSMSW_ML_DSA_44_CRYPTO_BYTES ==
+                    (CTILDEBYTES_ML_DSA_44 + (L_ML_DSA_44 * POLYZ_PACKEDBYTES_ML_DSA_44) +
+                     POLYVECH_PACKEDBYTES_ML_DSA_44));
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -92,7 +100,7 @@ FSMSW_STATIC_ASSERT(FSMSW_DILITHIUM2_CRYPTO_BYTES ==
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_DILITHIUM2_PARAMS_H */
+#endif /* FSMSW_ML_DSA_44_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

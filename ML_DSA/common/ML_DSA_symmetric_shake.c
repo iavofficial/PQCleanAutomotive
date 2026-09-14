@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Dilithium_symmetric
+/** \addtogroup ML_DSA_symmetric
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium_symmetric_shake.c
-* \brief  description of FsmSw_Dilithium_symmetric_shake.c
+/** \file ML_DSA_symmetric_shake.c
+* \brief  description of ML_DSA_symmetric_shake.c
 *
 * \details
 *
@@ -37,10 +45,10 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium_params.h"
+#include "ML_DSA_params.h"
 #include "FsmSw_Fips202.h"
 
-#include "FsmSw_Dilithium_symmetric.h"
+#include "ML_DSA_symmetric.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -77,7 +85,7 @@
 * \param[in]  const   uint8   *seed:
 * \param[in]          uint16  nonce:
 */
-void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_DILITHIUM],
+void ML_DSA_Shake128_StreamInit(shake128incctx *const state, const uint8 seed[SEEDBYTES_ML_DSA],
                                          uint16 nonce)
 {
   uint8 t[SHAKE128_STREAMINIT_BUFFER_SIZE];
@@ -86,10 +94,10 @@ void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint
   t[1] = (uint8)(nonce >> 8);
 
   FsmSw_Fips202_Shake128_IncInit(state);
-  FsmSw_Fips202_Shake128_IncAbsorb(state, seed, SEEDBYTES_DILITHIUM);
+  FsmSw_Fips202_Shake128_IncAbsorb(state, seed, SEEDBYTES_ML_DSA);
   FsmSw_Fips202_Shake128_IncAbsorb(state, t, 2);
   FsmSw_Fips202_Shake128_IncFinalize(state);
-} // end: FsmSw_Dilithium_Shake128_StreamInit
+} // end: ML_DSA_Shake128_StreamInit
 
 /*====================================================================================================================*/
 /**
@@ -99,7 +107,7 @@ void FsmSw_Dilithium_Shake128_StreamInit(shake128incctx *const state, const uint
 * \param[in]  const   uint8   *seed:
 * \param[in]          uint16  nonce:
 */
-void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_DILITHIUM],
+void ML_DSA_Shake256_StreamInit(shake256incctx *const state, const uint8 seed[CRHBYTES_ML_DSA],
                                          uint16 nonce)
 {
   uint8 t[SHAKE256_STREAMINIT_BUFFER_SIZE];
@@ -108,10 +116,10 @@ void FsmSw_Dilithium_Shake256_StreamInit(shake256incctx *const state, const uint
   t[1] = (uint8)(nonce >> 8);
 
   FsmSw_Fips202_Shake256_IncInit(state);
-  FsmSw_Fips202_Shake256_IncAbsorb(state, seed, CRHBYTES_DILITHIUM);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, seed, CRHBYTES_ML_DSA);
   FsmSw_Fips202_Shake256_IncAbsorb(state, t, 2);
   FsmSw_Fips202_Shake256_IncFinalize(state);
-} // end: FsmSw_Dilithium_Shake256_StreamInit
+} // end: ML_DSA_Shake256_StreamInit
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Dilithium_params
+/** \addtogroup ML_DSA_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium_params.h
-* \brief  Description of FsmSw_Dilithium_params.h 
+/** \file ML_DSA_params.h
+* \brief  Description of ML_DSA_params.h 
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM_PARAMS_H
-#define FSMSW_DILITHIUM_PARAMS_H
+#ifndef FSMSW_ML_DSA_PARAMS_H
+#define FSMSW_ML_DSA_PARAMS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -42,16 +50,16 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define SEEDBYTES_DILITHIUM 32u
-#define CRHBYTES_DILITHIUM  64u
-#define TRBYTES_DILITHIUM   64u
-#define RNDBYTES_DILITHIUM  32u
-#define N_DILITHIUM         256u
-#define Q_DILITHIUM         8380417
-#define D_DILITHIUM         13u
+#define SEEDBYTES_ML_DSA 32u
+#define CRHBYTES_ML_DSA  64u
+#define TRBYTES_ML_DSA   64u
+#define RNDBYTES_ML_DSA  32u
+#define N_ML_DSA         256u
+#define Q_ML_DSA         8380417
+#define D_ML_DSA         13u
 
-#define POLYT1_PACKEDBYTES_DILITHIUM 320u
-#define POLYT0_PACKEDBYTES_DILITHIUM 416u
+#define POLYT1_PACKEDBYTES_ML_DSA 320u
+#define POLYT0_PACKEDBYTES_ML_DSA 416u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -72,7 +80,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_DILITHIUM_PARAMS_H */
+#endif /* FSMSW_ML_DSA_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

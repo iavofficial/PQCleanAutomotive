@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium2
-*    includes the modules for Dilithium2
+/** \addtogroup ML_DSA_44
+*    includes the modules for ML_DSA_44
  ** @{ */
-/** \addtogroup FsmSw_Dilithium2_rounding
+/** \addtogroup ML_DSA_44_rounding
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium2_rounding.h
-* \brief  Description of the FsmSw_Dilithium2_rounding.h
+/** \file ML_DSA_44_rounding.h
+* \brief  Description of the ML_DSA_44_rounding.h
 *
 * \details
 *
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM2_ROUNDING_H
-#define FSMSW_DILITHIUM2_ROUNDING_H
+#ifndef FSMSW_ML_DSA_44_ROUNDING_H
+#define FSMSW_ML_DSA_44_ROUNDING_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium2_params.h"
+#include "ML_DSA_44_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,15 +72,15 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-sint32 FsmSw_Dilithium2_Power2Round(sint32 *const a0, sint32 a);
+sint32 ML_DSA_44_Power2Round(sint32 *const a0, sint32 a);
 
-sint32 FsmSw_Dilithium2_Decompose(sint32 *const a0, sint32 a);
+sint32 ML_DSA_44_Decompose(sint32 *const a0, sint32 a);
 
-uint8 FsmSw_Dilithium2_MakeHint(sint32 a0, sint32 a1);
+uint8 ML_DSA_44_MakeHint(sint32 a0, sint32 a1);
 
-sint32 FsmSw_Dilithium2_UseHint(sint32 a, uint32 hint);
+sint32 ML_DSA_44_UseHint(sint32 a, uint32 hint);
 
-#endif /* FSMSW_DILITHIUM2_ROUNDING_H */
+#endif /* FSMSW_ML_DSA_44_ROUNDING_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

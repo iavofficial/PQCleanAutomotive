@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium3
-*    includes the modules for Dilithium3
+/** \addtogroup ML_DSA_65
+*    includes the modules for ML_DSA_65
  ** @{ */
-/** \addtogroup FsmSw_Dilithium3_poly
+/** \addtogroup ML_DSA_65_poly
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium3_poly.c
-* \brief  description of FsmSw_Dilithium3_poly.c
+/** \file ML_DSA_65_poly.c
+* \brief  description of ML_DSA_65_poly.c
 *
 * \details
 *
@@ -37,14 +45,14 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium3_params.h"
-#include "FsmSw_Dilithium3_rounding.h"
-#include "FsmSw_Dilithium_ntt.h"
-#include "FsmSw_Dilithium_reduce.h"
-#include "FsmSw_Dilithium_symmetric.h"
+#include "ML_DSA_65_params.h"
+#include "ML_DSA_65_rounding.h"
+#include "ML_DSA_ntt.h"
+#include "ML_DSA_reduce.h"
+#include "ML_DSA_symmetric.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Dilithium3_poly.h"
+#include "ML_DSA_65_poly.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -54,7 +62,7 @@
 #define POLY_T0PACK_BUFFER_SIZE     8
 #define POLY_UNIFORM_NBLOCKS        ((768u + STREAM128_BLOCKBYTES - 1u) / STREAM128_BLOCKBYTES)
 #define POLY_UNIFORM_ETA_NBLOCKS    ((227u + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
-#define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES_DILITHIUM3 + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
+#define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES_ML_DSA_65 + STREAM256_BLOCKBYTES - 1u) / STREAM256_BLOCKBYTES)
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -70,8 +78,8 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static uint32 fsmsw_dilithium3_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
-static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
+static uint32 fsmsw_ml_dsa_65_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
+static uint32 fsmsw_ml_dsa_65_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen);
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -87,7 +95,7 @@ static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uin
 *
 * \returns number of sampled coefficients. Can be smaller than len if not enough random bytes were given.
 */
-static uint32 fsmsw_dilithium3_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
+static uint32 fsmsw_ml_dsa_65_RejEta(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
 {
   uint32 ctr = 0;
   uint32 pos = 0;
@@ -114,7 +122,7 @@ static uint32 fsmsw_dilithium3_RejEta(sint32 *const a, uint32 len, const uint8 *
   }
 
   return ctr;
-} // end: fsmsw_dilithium3_RejEta
+} // end: fsmsw_ml_dsa_65_RejEta
 /*====================================================================================================================*/
 /**
 * \brief Sample uniformly random coefficients in [0, Q-1] by
@@ -128,7 +136,7 @@ static uint32 fsmsw_dilithium3_RejEta(sint32 *const a, uint32 len, const uint8 *
 * \returns number of sampled coefficients. Can be smaller than len if not enough
 * random bytes were given.
 */
-static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
+static uint32 fsmsw_ml_dsa_65_RejUniform(sint32 *const a, uint32 len, const uint8 *const buf, uint32 buflen)
 {
   uint32 ctr = 0;
   uint32 pos = 0;
@@ -144,7 +152,7 @@ static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uin
     pos++;
     t &= 0x7FFFFFu;
 
-    if (t < (uint32)Q_DILITHIUM)
+    if (t < (uint32)Q_ML_DSA)
     {
       a[ctr] = (sint32)t;
       ctr++;
@@ -152,7 +160,7 @@ static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uin
   }
 
   return ctr;
-} // end: fsmsw_dilithium3_RejUniform
+} // end: fsmsw_ml_dsa_65_RejUniform
 
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
@@ -163,30 +171,30 @@ static uint32 fsmsw_dilithium3_RejUniform(sint32 *const a, uint32 len, const uin
 *
 * \param[in,out] poly_D3 *const a : pointer to input/output polynomial
 */
-void FsmSw_Dilithium3_Poly_Reduce(poly_D3 *const a)
+void ML_DSA_65_Poly_Reduce(poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    a->coeffs[i] = FsmSw_Dilithium_Reduce32(a->coeffs[i]);
+    a->coeffs[i] = ML_DSA_Reduce32(a->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_Reduce
+} // end: ML_DSA_65_Poly_Reduce
 /*====================================================================================================================*/
 /**
 * \brief For all coefficients of in/out polynomial add Q if coefficient is negative.
 *
 * \param[in,out] poly_D3 *const a : pointer to input/output polynomial
 */
-void FsmSw_Dilithium3_Poly_CAddQ(poly_D3 *const a)
+void ML_DSA_65_Poly_CAddQ(poly_D3 *const a)
 {
   uint16 i;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    a->coeffs[i] = FsmSw_Dilithium_CAddQ(a->coeffs[i]);
+    a->coeffs[i] = ML_DSA_CAddQ(a->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_CAddQ
+} // end: ML_DSA_65_Poly_CAddQ
 /*====================================================================================================================*/
 /**
 * \brief Add polynomials. No modular reduction is performed.
@@ -195,15 +203,15 @@ void FsmSw_Dilithium3_Poly_CAddQ(poly_D3 *const a)
 * \param[in]  const poly_D3 *const a : pointer to first summand
 * \param[in]  const poly_D3 *const b : pointer to second summand
 */
-void FsmSw_Dilithium3_Poly_Add(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
+void ML_DSA_65_Poly_Add(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
     c->coeffs[i] = a->coeffs[i] + b->coeffs[i];
   }
-} // end: FsmSw_Dilithium3_Poly_Add
+} // end: ML_DSA_65_Poly_Add
 /*====================================================================================================================*/
 /**
 * \brief Subtract polynomials. No modular reduction is performed.
@@ -212,15 +220,15 @@ void FsmSw_Dilithium3_Poly_Add(poly_D3 *const c, const poly_D3 *const a, const p
 * \param[in]  const poly_D3 *const a : pointer to first input polynomial
 * \param[in]  const poly_D3 *const b : pointer to second input polynomial to be subtraced from first input polynomial
 */
-void FsmSw_Dilithium3_Poly_Sub(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
+void ML_DSA_65_Poly_Sub(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
     c->coeffs[i] = a->coeffs[i] - b->coeffs[i];
   }
-} // end: FsmSw_Dilithium3_Poly_Sub
+} // end: ML_DSA_65_Poly_Sub
 /*====================================================================================================================*/
 /**
 * \brief Multiply polynomial by 2^D without modular reduction.
@@ -228,25 +236,25 @@ void FsmSw_Dilithium3_Poly_Sub(poly_D3 *const c, const poly_D3 *const a, const p
 *
 * \param[in,out] poly_D3 *const a : pointer to input/output polynomial
 */
-void FsmSw_Dilithium3_Poly_Shiftl(poly_D3 *const a)
+void ML_DSA_65_Poly_Shiftl(poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    a->coeffs[i] = (sint32)((uint32)((uint32)(a->coeffs[i]) << D_DILITHIUM));
+    a->coeffs[i] = (sint32)((uint32)((uint32)(a->coeffs[i]) << D_ML_DSA));
   }
-} // end: FsmSw_Dilithium3_Poly_Shiftl
+} // end: ML_DSA_65_Poly_Shiftl
 /*====================================================================================================================*/
 /**
 * \brief Inplace forward NTT. Coefficients can grow by 8*Q in absolute value.
 *
 * \param[in,out] poly_D3 *a : pointer to input/output polynomial
 */
-void FsmSw_Dilithium3_Poly_Ntt(poly_D3 *a)
+void ML_DSA_65_Poly_Ntt(poly_D3 *a)
 {
-  FsmSw_Dilithium_Ntt(a->coeffs);
-} // end: FsmSw_Dilithium3_Poly_Ntt
+  ML_DSA_Ntt(a->coeffs);
+} // end: ML_DSA_65_Poly_Ntt
 /*====================================================================================================================*/
 /**
 * \brief Inplace inverse NTT and multiplication by 2^{32}. Input coefficients need to be less than Q in absolute
@@ -254,10 +262,10 @@ void FsmSw_Dilithium3_Poly_Ntt(poly_D3 *a)
 *
 * \param[in,out] poly_D3 *const a : pointer to input/output polynomial
 */
-void FsmSw_Dilithium3_Poly_InvnttTomont(poly_D3 *const a)
+void ML_DSA_65_Poly_InvnttTomont(poly_D3 *const a)
 {
-  FsmSw_Dilithium_InvnttTomont(a->coeffs);
-} // end: FsmSw_Dilithium3_Poly_InvnttTomont
+  ML_DSA_InvnttTomont(a->coeffs);
+} // end: ML_DSA_65_Poly_InvnttTomont
 /*====================================================================================================================*/
 /**
 * \brief Pointwise multiplication of polynomials in NTT domain representation and multiplication of
@@ -267,15 +275,15 @@ void FsmSw_Dilithium3_Poly_InvnttTomont(poly_D3 *const a)
 * \param[in]  const poly_D3 *const a : pointer to first input polynomial
 * \param[in]  const poly_D3 *const b : pointer to second input polynomial
 */
-void FsmSw_Dilithium3_Poly_PointwiseMontgomery(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
+void ML_DSA_65_Poly_PointwiseMontgomery(poly_D3 *const c, const poly_D3 *const a, const poly_D3 *const b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    c->coeffs[i] = FsmSw_Dilithium_MontgomeryReduce((sint64)a->coeffs[i] * b->coeffs[i]);
+    c->coeffs[i] = ML_DSA_MontgomeryReduce((sint64)a->coeffs[i] * b->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_PointwiseMontgomery
+} // end: ML_DSA_65_Poly_PointwiseMontgomery
 /*====================================================================================================================*/
 /**
 * \brief For all coefficients c of the input polynomial, compute c0, c1 such that c mod Q = c1*2^D + c0
@@ -285,15 +293,15 @@ void FsmSw_Dilithium3_Poly_PointwiseMontgomery(poly_D3 *const c, const poly_D3 *
 * \param[in]  poly_D3            *a0 : pointer to output polynomial with coefficients c0
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_Power2Round(poly_D3 *const a1, poly_D3 *a0, const poly_D3 *const a)
+void ML_DSA_65_Poly_Power2Round(poly_D3 *const a1, poly_D3 *a0, const poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    a1->coeffs[i] = FsmSw_Dilithium3_Power2Round(&a0->coeffs[i], a->coeffs[i]);
+    a1->coeffs[i] = ML_DSA_65_Power2Round(&a0->coeffs[i], a->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_Power2Round
+} // end: ML_DSA_65_Poly_Power2Round
 /*====================================================================================================================*/
 /**
 * \brief For all coefficients c of the input polynomial, compute high and low bits c0, c1 such c mod
@@ -304,15 +312,15 @@ void FsmSw_Dilithium3_Poly_Power2Round(poly_D3 *const a1, poly_D3 *a0, const pol
 * \param[out] poly_D3            *a0 : pointer to output polynomial with coefficients c0
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_Decompose(poly_D3 *const a1, poly_D3 *a0, const poly_D3 *const a)
+void ML_DSA_65_Poly_Decompose(poly_D3 *const a1, poly_D3 *a0, const poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    a1->coeffs[i] = FsmSw_Dilithium3_Decompose(&a0->coeffs[i], a->coeffs[i]);
+    a1->coeffs[i] = ML_DSA_65_Decompose(&a0->coeffs[i], a->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_Decompose
+} // end: ML_DSA_65_Poly_Decompose
 /*====================================================================================================================*/
 /**
 * \brief Compute hint polynomial. The coefficients of which indicate whether the low bits of the corresponding
@@ -324,19 +332,19 @@ void FsmSw_Dilithium3_Poly_Decompose(poly_D3 *const a1, poly_D3 *a0, const poly_
 *
 * \returns number of 1 bits.
 */
-uint32 FsmSw_Dilithium3_Poly_MakeHint(poly_D3 *const h, const poly_D3 *const a0, const poly_D3 *const a1)
+uint32 ML_DSA_65_Poly_MakeHint(poly_D3 *const h, const poly_D3 *const a0, const poly_D3 *const a1)
 {
   uint16 i = 0;
   uint32 s = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    h->coeffs[i] = (sint32)FsmSw_Dilithium3_MakeHint(a0->coeffs[i], a1->coeffs[i]);
+    h->coeffs[i] = (sint32)ML_DSA_65_MakeHint(a0->coeffs[i], a1->coeffs[i]);
     s            = s + (uint32)(h->coeffs[i]);
   }
 
   return s;
-} // end: FsmSw_Dilithium3_Poly_MakeHint
+} // end: ML_DSA_65_Poly_MakeHint
 /*====================================================================================================================*/
 /**
 * \brief Use hint polynomial to correct the high bits of a polynomial.
@@ -345,33 +353,33 @@ uint32 FsmSw_Dilithium3_Poly_MakeHint(poly_D3 *const h, const poly_D3 *const a0,
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 * \param[in]  const poly_D3 *const h : pointer to input hint polynomial
 */
-void FsmSw_Dilithium3_Poly_UseHint(poly_D3 *const b, const poly_D3 *const a, const poly_D3 *const h)
+void ML_DSA_65_Poly_UseHint(poly_D3 *const b, const poly_D3 *const a, const poly_D3 *const h)
 {
   uint16 i = 0;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
-    b->coeffs[i] = FsmSw_Dilithium3_UseHint(a->coeffs[i], (uint32)h->coeffs[i]);
+    b->coeffs[i] = ML_DSA_65_UseHint(a->coeffs[i], (uint32)h->coeffs[i]);
   }
-} // end: FsmSw_Dilithium3_Poly_UseHint
+} // end: ML_DSA_65_Poly_UseHint
 /*====================================================================================================================*/
 /**
 * \brief Check infinity norm of polynomial against given bound.
-*              Assumes input coefficients were reduced by FsmSw_Dilithium3_reduce32().
+*              Assumes input coefficients were reduced by ML_DSA_65_reduce32().
 *
 * \param[in] const poly_D3 *const a : pointer to polynomial
 * \param[in] sint32               B : norm bound
 *
 * \returns 0 if norm is strictly smaller than B <= (Q-1)/8 and 1 otherwise.
 */
-sint8 FsmSw_Dilithium3_Poly_Chknorm(const poly_D3 *const a, sint32 B)
+sint8 ML_DSA_65_Poly_Chknorm(const poly_D3 *const a, sint32 B)
 {
   uint16 i = 0;
   sint32 t = 0;
 
   sint8 retVal = 0;
 
-  if (B > (Q_DILITHIUM - 1) / 8)
+  if (B > (Q_ML_DSA - 1) / 8)
   {
     retVal = 1;
   }
@@ -379,7 +387,7 @@ sint8 FsmSw_Dilithium3_Poly_Chknorm(const poly_D3 *const a, sint32 B)
   /* It is ok to leak which coefficient violates the bound since
        the probability for each coefficient is independent of secret
        data but we must not leak the sign of the centralized representative. */
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
     /* Absolute value */
     t = (sint32)((uint32)((uint64)a->coeffs[i] >> 31));
@@ -392,7 +400,7 @@ sint8 FsmSw_Dilithium3_Poly_Chknorm(const poly_D3 *const a, sint32 B)
   }
 
   return retVal;
-} // end: FsmSw_Dilithium3_Poly_Chknorm
+} // end: ML_DSA_65_Poly_Chknorm
 /*====================================================================================================================*/
 /**
 * \brief Sample polynomial with uniformly random coefficients in [0,Q-1] by performing rejection sampling on the
@@ -402,56 +410,56 @@ sint8 FsmSw_Dilithium3_Poly_Chknorm(const poly_D3 *const a, sint32 B)
 * \param[in]  const uint8 seed[] : byte array with seed of length SEEDBYTES
 * \param[in]  uint16       nonce : 2-byte nonce
 */
-void FsmSw_Dilithium3_Poly_Uniform(poly_D3 *a, const uint8 seed[SEEDBYTES_DILITHIUM], uint16 nonce)
+void ML_DSA_65_Poly_Uniform(poly_D3 *a, const uint8 seed[SEEDBYTES_ML_DSA], uint16 nonce)
 {
   uint32 ctr                                                    = 0;
   uint32 off                                                    = 0;
   uint32 buflen                                                 = POLY_UNIFORM_NBLOCKS * STREAM128_BLOCKBYTES;
   uint8 buf[(POLY_UNIFORM_NBLOCKS * STREAM128_BLOCKBYTES) + 2u] = {0};
-  FsmSw_Dilithium_stream128_state state                         = {{0}};
+  ML_DSA_stream128_state state                         = {{0}};
 
-  FsmSw_Dilithium_Shake128_StreamInit(&state, seed, nonce);
+  ML_DSA_Shake128_StreamInit(&state, seed, nonce);
   FsmSw_Fips202_Shake128_IncSqueeze(buf, POLY_UNIFORM_NBLOCKS * SHAKE128_RATE, &state);
 
-  ctr = fsmsw_dilithium3_RejUniform(a->coeffs, N_DILITHIUM, buf, buflen);
+  ctr = fsmsw_ml_dsa_65_RejUniform(a->coeffs, N_ML_DSA, buf, buflen);
 
-  while (ctr < N_DILITHIUM)
+  while (ctr < N_ML_DSA)
   {
     off = buflen % 3u;
     /* "As part of resolving the MISRA 2 warnings, a for-loop was removed here. If it is needed in the future, it must be reinserted." */
 
     FsmSw_Fips202_Shake128_IncSqueeze(&buf[off], SHAKE128_RATE, &state);
     buflen = (uint32)(STREAM128_BLOCKBYTES + off);
-    ctr += fsmsw_dilithium3_RejUniform(&a->coeffs[ctr], N_DILITHIUM - ctr, buf, buflen);
+    ctr += fsmsw_ml_dsa_65_RejUniform(&a->coeffs[ctr], N_ML_DSA - ctr, buf, buflen);
   }
-} // end: FsmSw_Dilithium3_Poly_Uniform
+} // end: ML_DSA_65_Poly_Uniform
 /*====================================================================================================================*/
 /**
 * \brief Sample polynomial with uniformly random coefficients in [-ETA,ETA] by performing rejection sampling
 *              on the output stream from SHAKE256(seed|nonce)
 *
 * \param[out] poly_D3         *a : pointer to output polynomial
-* \param[in]  const uint8 seed[] : byte array with seed of length CRHBYTES_DILITHIUM
+* \param[in]  const uint8 seed[] : byte array with seed of length CRHBYTES_ML_DSA
 * \param[in]  uint16       nonce : 2-byte nonce
 */
-void FsmSw_Dilithium3_Poly_UniformEta(poly_D3 *a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void ML_DSA_65_Poly_UniformEta(poly_D3 *a, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce)
 {
   uint32 ctr                                                 = 0;
   uint32 const buflen                                        = POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES;
   uint8 buf[POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES] = {0};
-  FsmSw_Dilithium_stream256_state state                      = {{0}};
+  ML_DSA_stream256_state state                      = {{0}};
 
-  FsmSw_Dilithium_Shake256_StreamInit(&state, seed, nonce);
+  ML_DSA_Shake256_StreamInit(&state, seed, nonce);
   FsmSw_Fips202_Shake256_IncSqueeze(buf, POLY_UNIFORM_ETA_NBLOCKS * SHAKE256_RATE, &state);
 
-  ctr = fsmsw_dilithium3_RejEta(a->coeffs, N_DILITHIUM, buf, buflen);
+  ctr = fsmsw_ml_dsa_65_RejEta(a->coeffs, N_ML_DSA, buf, buflen);
 
-  while (ctr < N_DILITHIUM)
+  while (ctr < N_ML_DSA)
   {
     FsmSw_Fips202_Shake256_IncSqueeze(buf, SHAKE256_RATE, &state);
-    ctr += fsmsw_dilithium3_RejEta(&(a->coeffs[ctr]), N_DILITHIUM - ctr, buf, STREAM256_BLOCKBYTES);
+    ctr += fsmsw_ml_dsa_65_RejEta(&(a->coeffs[ctr]), N_ML_DSA - ctr, buf, STREAM256_BLOCKBYTES);
   }
-} // end: FsmSw_Dilithium3_Poly_UniformEta
+} // end: ML_DSA_65_Poly_UniformEta
 /*====================================================================================================================*/
 /**
 * \brief Sample polynomial with uniformly random coefficients in [-(GAMMA1 - 1), GAMMA1] by unpacking
@@ -461,24 +469,24 @@ void FsmSw_Dilithium3_Poly_UniformEta(poly_D3 *a, const uint8 seed[CRHBYTES_DILI
 * \param[in]  const uint8       seed[] : byte array with seed of length CRHBYTES
 * \param[in]  uint16             nonce : 16-bit nonce
 */
-void FsmSw_Dilithium3_Poly_UniformGamma1(poly_D3 *const a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce)
+void ML_DSA_65_Poly_UniformGamma1(poly_D3 *const a, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce)
 {
   uint8 buf[POLY_UNIFORM_GAMMA1_NBLOCKS * STREAM256_BLOCKBYTES] = {0};
-  FsmSw_Dilithium_stream256_state state                         = {{0}};
+  ML_DSA_stream256_state state                         = {{0}};
 
-  FsmSw_Dilithium_Shake256_StreamInit(&state, seed, nonce);
+  ML_DSA_Shake256_StreamInit(&state, seed, nonce);
   FsmSw_Fips202_Shake256_IncSqueeze(buf, POLY_UNIFORM_GAMMA1_NBLOCKS * SHAKE256_RATE, &state);
-  FsmSw_Dilithium3_Poly_ZUnpack(a, buf);
-} // end: FsmSw_Dilithium3_Poly_UniformGamma1
+  ML_DSA_65_Poly_ZUnpack(a, buf);
+} // end: ML_DSA_65_Poly_UniformGamma1
 /*====================================================================================================================*/
 /**
 * \brief Implementation of H. Samples polynomial with TAU nonzero coefficients in {-1,1} using the output stream
 *              of SHAKE256(seed).
 *
-* \param[out] poly_D3 *const c : pointer to output polynomial
-* \param[in]  const uint8 mu[] : byte array containing seed of length SEEDBYTES
+* \param[out] poly_D3 *const c   : pointer to output polynomial
+* \param[in]  const uint8 seed[] : byte array containing challenge of length CTILDEBYTES_ML_DSA_65
 */
-void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTES_DILITHIUM])
+void ML_DSA_65_Poly_Challenge(poly_D3 *const c, const uint8 seed[CTILDEBYTES_ML_DSA_65])
 {
   uint32 i                 = 0;
   uint32 b                 = 0;
@@ -488,7 +496,7 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
   shake256incctx state     = {{0}};
 
   FsmSw_Fips202_Shake256_IncInit(&state);
-  FsmSw_Fips202_Shake256_IncAbsorb(&state, seed, SEEDBYTES_DILITHIUM);
+  FsmSw_Fips202_Shake256_IncAbsorb(&state, seed, CTILDEBYTES_ML_DSA_65);
   FsmSw_Fips202_Shake256_IncFinalize(&state);
   FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), &state);
 
@@ -499,12 +507,12 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
 
   pos = 8;
 
-  for (i = 0; i < N_DILITHIUM; ++i)
+  for (i = 0; i < N_ML_DSA; ++i)
   {
     c->coeffs[i] = 0;
   }
 
-  for (i = N_DILITHIUM - TAU_DILITHIUM3; i < N_DILITHIUM; ++i)
+  for (i = N_ML_DSA - TAU_ML_DSA_65; i < N_ML_DSA; ++i)
   {
     do
     {
@@ -522,7 +530,7 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
     c->coeffs[b] = (sint32)((uint32)((uint64)(1u - (2u * (signs & 1u)))));
     signs >>= 1;
   }
-} // end: FsmSw_Dilithium3_Poly_Challenge
+} // end: ML_DSA_65_Poly_Challenge
 /*====================================================================================================================*/
 /**
 * \brief Bit-pack polynomial with coefficients in [-ETA,ETA].
@@ -530,21 +538,21 @@ void FsmSw_Dilithium3_Poly_Challenge(poly_D3 *const c, const uint8 seed[SEEDBYTE
 * \param[out] uint8         *const r : pointer to output byte array with at least POLYETA_PACKEDBYTES bytes
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Polyeta_EtaPack(uint8 *const r, const poly_D3 *const a)
+void ML_DSA_65_Polyeta_EtaPack(uint8 *const r, const poly_D3 *const a)
 {
   uint16 i = 0;
-  /* polyspace +3 DEFECT:PARTIALLY_ACCESSED_ARRAY [To fix:]"Functionality of FsmSw_Dilithium3_Polyeta_EtaPack differs 
-     (only the first two elements of the array t are written) from that of FsmSw_Dilithium2_Polyeta_EtaPack and 
-     FsmSw_Dilithium5_Polyeta_EtaPack. Fix it after response from github.com/PQClean/PQClean/discussions/605" */
+  /* polyspace +3 DEFECT:PARTIALLY_ACCESSED_ARRAY [To fix:]"Functionality of ML_DSA_65_Polyeta_EtaPack differs 
+     (only the first two elements of the array t are written) from that of ML_DSA_44_Polyeta_EtaPack and 
+     ML_DSA_87_Polyeta_EtaPack. Fix it after response from github.com/PQClean/PQClean/discussions/605" */
   uint8 t[POLY_ETA_BUFFER_SIZE] = {0};
 
-  for (i = 0; i < (N_DILITHIUM / 2u); ++i)
+  for (i = 0; i < (N_ML_DSA / 2u); ++i)
   {
-    t[0] = (uint8)(ETA_DILITHIUM3 - (uint8)a->coeffs[2u * i]);
-    t[1] = (uint8)(ETA_DILITHIUM3 - (uint8)a->coeffs[(2u * i) + 1u]);
+    t[0] = (uint8)(ETA_ML_DSA_65 - (uint8)a->coeffs[2u * i]);
+    t[1] = (uint8)(ETA_ML_DSA_65 - (uint8)a->coeffs[(2u * i) + 1u]);
     r[i] = t[0] | (t[1] << 4);
   }
-} // end: FsmSw_Dilithium3_Polyeta_EtaPack
+} // end: ML_DSA_65_Polyeta_EtaPack
 /*====================================================================================================================*/
 /**
 * \brief Unpack polynomial with coefficients in [-ETA,ETA].
@@ -552,18 +560,18 @@ void FsmSw_Dilithium3_Polyeta_EtaPack(uint8 *const r, const poly_D3 *const a)
 * \param[out] poly_D3     *const r : pointer to output polynomial
 * \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
-void FsmSw_Dilithium3_Polyeta_EtaUnpack(poly_D3 *const r, const uint8 *const a)
+void ML_DSA_65_Polyeta_EtaUnpack(poly_D3 *const r, const uint8 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 2u); ++i)
+  for (i = 0; i < (N_ML_DSA / 2u); ++i)
   {
     r->coeffs[2u * i]        = (sint32)((uint32)((uint32)a[i] & 0x0Fu));
     r->coeffs[(2u * i) + 1u] = (sint32)((uint32)((uint32)a[i] >> 4));
-    r->coeffs[2u * i]        = (sint32)ETA_DILITHIUM3 - r->coeffs[2u * i];
-    r->coeffs[(2u * i) + 1u] = (sint32)ETA_DILITHIUM3 - r->coeffs[(2u * i) + 1u];
+    r->coeffs[2u * i]        = (sint32)ETA_ML_DSA_65 - r->coeffs[2u * i];
+    r->coeffs[(2u * i) + 1u] = (sint32)ETA_ML_DSA_65 - r->coeffs[(2u * i) + 1u];
   }
-} // end: FsmSw_Dilithium3_Polyeta_EtaUnpack
+} // end: ML_DSA_65_Polyeta_EtaUnpack
 /*====================================================================================================================*/
 /**
 * \brief Bit-pack polynomial t1 with coefficients fitting in 10 bits.
@@ -572,11 +580,11 @@ void FsmSw_Dilithium3_Polyeta_EtaUnpack(poly_D3 *const r, const uint8 *const a)
 * \param[out] uint8         *const r : pointer to output byte array with at least POLYT1_PACKEDBYTES bytes
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_T1Pack(uint8 *const r, const poly_D3 *const a)
+void ML_DSA_65_Poly_T1Pack(uint8 *const r, const poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 4u); ++i)
+  for (i = 0; i < (N_ML_DSA / 4u); ++i)
   {
     r[5u * i]        = (uint8)((uint16)a->coeffs[4u * i] >> 0);
     r[(5u * i) + 1u] = (uint8)((uint16)(((uint16)a->coeffs[4u * i] >> 8) | ((uint16)a->coeffs[(4u * i) + 1u] << 2u)));
@@ -586,7 +594,7 @@ void FsmSw_Dilithium3_Poly_T1Pack(uint8 *const r, const poly_D3 *const a)
         (uint8)((uint16)(((uint16)a->coeffs[(4u * i) + 2u] >> 4) | ((uint16)a->coeffs[(4u * i) + 3u] << 6u)));
     r[(5u * i) + 4u] = (uint8)((uint16)a->coeffs[(4u * i) + 3u] >> 2);
   }
-} // end: FsmSw_Dilithium3_Poly_T1Pack
+} // end: ML_DSA_65_Poly_T1Pack
 /*====================================================================================================================*/
 /**
 * \brief Unpack polynomial t1 with 10-bit coefficients.
@@ -595,11 +603,11 @@ void FsmSw_Dilithium3_Poly_T1Pack(uint8 *const r, const poly_D3 *const a)
 * \param[out] poly_D3     *const r : pointer to output polynomial
 * \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
-void FsmSw_Dilithium3_Poly_T1Unpack(poly_D3 *const r, const uint8 *const a)
+void ML_DSA_65_Poly_T1Unpack(poly_D3 *const r, const uint8 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 4u); ++i)
+  for (i = 0; i < (N_ML_DSA / 4u); ++i)
   {
     r->coeffs[4u * i] =
         (sint32)((uint32)(((uint32)(((uint32)a[5u * i] >> 0) | ((uint32)a[(5u * i) + 1u] << 8u))) & 0x3FFu));
@@ -610,29 +618,29 @@ void FsmSw_Dilithium3_Poly_T1Unpack(poly_D3 *const r, const uint8 *const a)
     r->coeffs[(4u * i) + 3u] =
         (sint32)((uint32)(((uint32)(((uint32)a[(5u * i) + 3u] >> 6) | ((uint32)a[(5u * i) + 4u] << 2u))) & 0x3FFu));
   }
-} // end: FsmSw_Dilithium3_Poly_T1Unpack
+} // end: ML_DSA_65_Poly_T1Unpack
 /*====================================================================================================================*/
 /**
 * \brief Bit-pack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
 *
-* \param[out] uint8         *const r : pointer to output byte array with at least POLYT0_PACKEDBYTES_DILITHIUM bytes
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYT0_PACKEDBYTES_ML_DSA bytes
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_T0Pack(uint8 *const r, const poly_D3 *const a)
+void ML_DSA_65_Poly_T0Pack(uint8 *const r, const poly_D3 *const a)
 {
   uint16 i                          = 0;
   uint32 t[POLY_T0PACK_BUFFER_SIZE] = {0};
 
-  for (i = 0; i < (N_DILITHIUM / 8u); ++i)
+  for (i = 0; i < (N_ML_DSA / 8u); ++i)
   {
-    t[0] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[8u * i]);
-    t[1] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 1u]);
-    t[2] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 2u]);
-    t[3] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 3u]);
-    t[4] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 4u]);
-    t[5] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 5u]);
-    t[6] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 6u]);
-    t[7] = ((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)a->coeffs[(8u * i) + 7u]);
+    t[0] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[8u * i]);
+    t[1] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 1u]);
+    t[2] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 2u]);
+    t[3] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 3u]);
+    t[4] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 4u]);
+    t[5] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 5u]);
+    t[6] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 6u]);
+    t[7] = ((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)a->coeffs[(8u * i) + 7u]);
 
     r[13u * i]        = (uint8)t[0];
     r[(13u * i) + 1u] = (uint8)(t[0] >> 8);
@@ -655,7 +663,7 @@ void FsmSw_Dilithium3_Poly_T0Pack(uint8 *const r, const poly_D3 *const a)
     r[(13u * i) + 11u] |= (uint8)(t[7] << 3);
     r[(13u * i) + 12u] = (uint8)(t[7] >> 5);
   }
-} // end: FsmSw_Dilithium3_Poly_T0Pack
+} // end: ML_DSA_65_Poly_T0Pack
 /*====================================================================================================================*/
 /**
 * \brief Unpack polynomial t0 with coefficients in ]-2^{D-1}, 2^{D-1}].
@@ -663,11 +671,11 @@ void FsmSw_Dilithium3_Poly_T0Pack(uint8 *const r, const poly_D3 *const a)
 * \param[out] poly_D3     *const r : pointer to output polynomial
 * \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
-void FsmSw_Dilithium3_Poly_T0Unpack(poly_D3 *const r, const uint8 *const a)
+void ML_DSA_65_Poly_T0Unpack(poly_D3 *const r, const uint8 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 8u); ++i)
+  for (i = 0; i < (N_ML_DSA / 8u); ++i)
   {
     r->coeffs[8u * i] = (sint32)(a[13u * i]);
     r->coeffs[8u * i] = (sint32)((uint32)(((uint32)r->coeffs[8u * i]) | ((uint32)a[(13u * i) + 1u] << 8u)));
@@ -715,42 +723,42 @@ void FsmSw_Dilithium3_Poly_T0Unpack(poly_D3 *const r, const uint8 *const a)
         (sint32)((uint32)(((uint32)r->coeffs[(8u * i) + 7u]) | ((uint32)a[(13u * i) + 12u] << 5u)));
     r->coeffs[(8u * i) + 7u] = (sint32)((uint32)(((uint32)r->coeffs[(8u * i) + 7u]) & 0x1FFFu));
 
-    r->coeffs[8u * i] = (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[8u * i])));
+    r->coeffs[8u * i] = (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[8u * i])));
     r->coeffs[(8u * i) + 1u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 1u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 1u])));
     r->coeffs[(8u * i) + 2u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 2u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 2u])));
     r->coeffs[(8u * i) + 3u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 3u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 3u])));
     r->coeffs[(8u * i) + 4u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 4u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 4u])));
     r->coeffs[(8u * i) + 5u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 5u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 5u])));
     r->coeffs[(8u * i) + 6u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 6u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 6u])));
     r->coeffs[(8u * i) + 7u] =
-        (sint32)((uint32)(((uint32)1u << (D_DILITHIUM - 1u)) - ((uint32)r->coeffs[(8u * i) + 7u])));
+        (sint32)((uint32)(((uint32)1u << (D_ML_DSA - 1u)) - ((uint32)r->coeffs[(8u * i) + 7u])));
   }
-} // end: FsmSw_Dilithium3_Poly_T0Unpack
+} // end: ML_DSA_65_Poly_T0Unpack
 /*====================================================================================================================*/
 /**
 * \brief Bit-pack polynomial with coefficients in [-(GAMMA1 - 1), GAMMA1].
 *
-* \param[out] uint8         *const r : pointer to output byte array with at least POLYZ_PACKEDBYTES_DILITHIUM3 bytes
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYZ_PACKEDBYTES_ML_DSA_65 bytes
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_ZPack(uint8 *const r, const poly_D3 *const a)
+void ML_DSA_65_Poly_ZPack(uint8 *const r, const poly_D3 *const a)
 {
   uint16 i = 0;
-  /* polyspace +3 DEFECT:PARTIALLY_ACCESSED_ARRAY [To fix:]"Functionality of FsmSw_Dilithium3_Poly_ZPack and   
-     FsmSw_Dilithium5_Poly_ZPack (only the first two elements of the array t are written) differs from that of  
-     FsmSw_Dilithium2_Poly_ZPack. Fix it after response from github.com/PQClean/PQClean/discussions/605" */
+  /* polyspace +3 DEFECT:PARTIALLY_ACCESSED_ARRAY [To fix:]"Functionality of ML_DSA_65_Poly_ZPack and   
+     ML_DSA_87_Poly_ZPack (only the first two elements of the array t are written) differs from that of  
+     ML_DSA_44_Poly_ZPack. Fix it after response from github.com/PQClean/PQClean/discussions/605" */
   uint32 t[POLY_ZPACK_BUFFER_SIZE] = {0};
 
-  for (i = 0; i < (N_DILITHIUM / 2u); ++i)
+  for (i = 0; i < (N_ML_DSA / 2u); ++i)
   {
-    t[0] = GAMMA1_DILITHIUM3 - (uint32)a->coeffs[2u * i];
-    t[1] = GAMMA1_DILITHIUM3 - (uint32)a->coeffs[(2u * i) + 1u];
+    t[0] = GAMMA1_ML_DSA_65 - (uint32)a->coeffs[2u * i];
+    t[1] = GAMMA1_ML_DSA_65 - (uint32)a->coeffs[(2u * i) + 1u];
 
     r[5u * i]        = (uint8)t[0];
     r[(5u * i) + 1u] = (uint8)(t[0] >> 8);
@@ -759,7 +767,7 @@ void FsmSw_Dilithium3_Poly_ZPack(uint8 *const r, const poly_D3 *const a)
     r[(5u * i) + 3u] = (uint8)(t[1] >> 4);
     r[(5u * i) + 4u] = (uint8)(t[1] >> 12);
   }
-} // end: FsmSw_Dilithium3_Poly_ZPack
+} // end: ML_DSA_65_Poly_ZPack
 /*====================================================================================================================*/
 /**
 * \brief Unpack polynomial z with coefficients in [-(GAMMA1 - 1), GAMMA1].
@@ -767,11 +775,11 @@ void FsmSw_Dilithium3_Poly_ZPack(uint8 *const r, const poly_D3 *const a)
 * \param[out] poly_D3     *const r : pointer to output polynomial
 * \param[in]  const uint8 *const a : byte array with bit-packed polynomial
 */
-void FsmSw_Dilithium3_Poly_ZUnpack(poly_D3 *const r, const uint8 *const a)
+void ML_DSA_65_Poly_ZUnpack(poly_D3 *const r, const uint8 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 2u); ++i)
+  for (i = 0; i < (N_ML_DSA / 2u); ++i)
   {
     r->coeffs[2u * i] = (sint32)a[5u * i];
     r->coeffs[2u * i] = (sint32)((uint32)((uint32)r->coeffs[2u * i] | ((uint32)a[(5u * i) + 1u] << 8u)));
@@ -782,30 +790,30 @@ void FsmSw_Dilithium3_Poly_ZUnpack(poly_D3 *const r, const uint8 *const a)
     r->coeffs[(2u * i) + 1u] = (sint32)((uint32)((uint32)r->coeffs[(2u * i) + 1u] | ((uint32)a[(5u * i) + 3u] << 4u)));
     r->coeffs[(2u * i) + 1u] = (sint32)((uint32)((uint32)r->coeffs[(2u * i) + 1u] | ((uint32)a[(5u * i) + 4u] << 12u)));
     /* polyspace +1 MISRA2012:3.1 [Justified:]"The comment is a link and therefore contains a slash" */
-    /* Known issue: This row is maybe not correct. See https://github.com/pq-crystals/dilithium/issues/63 */
+    /* Known issue: This row is maybe not correct. See https://github.com/pq-crystals/ml_dsa/issues/63 */
     /* r->coeffs[2u * i + 1] = (sint32)((uint32)((uint32)r->coeffs[2u * i] & 0xFFFFFu)); */ /* No effect, since we're anyway at 20 bits */
 
-    r->coeffs[2u * i]        = (sint32)((uint32)(GAMMA1_DILITHIUM3 - (uint32)r->coeffs[2u * i]));
-    r->coeffs[(2u * i) + 1u] = (sint32)((uint32)(GAMMA1_DILITHIUM3 - (uint32)r->coeffs[(2u * i) + 1u]));
+    r->coeffs[2u * i]        = (sint32)((uint32)(GAMMA1_ML_DSA_65 - (uint32)r->coeffs[2u * i]));
+    r->coeffs[(2u * i) + 1u] = (sint32)((uint32)(GAMMA1_ML_DSA_65 - (uint32)r->coeffs[(2u * i) + 1u]));
   }
-} // end: FsmSw_Dilithium3_Poly_ZUnpack
+} // end: ML_DSA_65_Poly_ZUnpack
 /*====================================================================================================================*/
 /**
 * \brief Bit-pack polynomial w1 with coefficients in [0,15] or [0,43].
 *              Input coefficients are assumed to be standard representatives.
 *
-* \param[out] uint8         *const r : pointer to output byte array with at least POLYW1_PACKEDBYTES_DILITHIUM3 bytes
+* \param[out] uint8         *const r : pointer to output byte array with at least POLYW1_PACKEDBYTES_ML_DSA_65 bytes
 * \param[in]  const poly_D3 *const a : pointer to input polynomial
 */
-void FsmSw_Dilithium3_Poly_W1Pack(uint8 *const r, const poly_D3 *const a)
+void ML_DSA_65_Poly_W1Pack(uint8 *const r, const poly_D3 *const a)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (N_DILITHIUM / 2u); ++i)
+  for (i = 0; i < (N_ML_DSA / 2u); ++i)
   {
     r[i] = (uint8)((uint32)((uint32)a->coeffs[2u * i] | ((uint32)a->coeffs[(2u * i) + 1u] << 4u)));
   }
-} // end: FsmSw_Dilithium3_Poly_W1Pack
+} // end: ML_DSA_65_Poly_W1Pack
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

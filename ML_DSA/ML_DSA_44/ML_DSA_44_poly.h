@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium2
-*    includes the modules for Dilithium2
+/** \addtogroup ML_DSA_44
+*    includes the modules for ML_DSA_44
  ** @{ */
-/** \addtogroup FsmSw_Dilithium2_params
+/** \addtogroup ML_DSA_44_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium2_params.h
-* \brief  Declarations for the modul FsmSw_Dilithium2_params.h
+/** \file ML_DSA_44_params.h
+* \brief  Declarations for the modul ML_DSA_44_params.h
 *
 * \details
 *
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM2_POLY_H
-#define FSMSW_DILITHIUM2_POLY_H
+#ifndef FSMSW_ML_DSA_44_POLY_H
+#define FSMSW_ML_DSA_44_POLY_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium2_params.h"
+#include "ML_DSA_44_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -49,7 +57,7 @@
 /**********************************************************************************************************************/
 typedef struct
 {
-  sint32 coeffs[N_DILITHIUM];
+  sint32 coeffs[N_ML_DSA];
 } poly_D2;
 
 /**********************************************************************************************************************/
@@ -67,43 +75,43 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Dilithium2_Poly_Reduce(poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_CAddQ(poly_D2 *const a);
+void ML_DSA_44_Poly_Reduce(poly_D2 *const a);
+void ML_DSA_44_Poly_CAddQ(poly_D2 *const a);
 
-void FsmSw_Dilithium2_Poly_Add(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
-void FsmSw_Dilithium2_Poly_Sub(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
-void FsmSw_Dilithium2_Poly_Shiftl(poly_D2 *const a);
+void ML_DSA_44_Poly_Add(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
+void ML_DSA_44_Poly_Sub(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
+void ML_DSA_44_Poly_Shiftl(poly_D2 *const a);
 
-void FsmSw_Dilithium2_Poly_Ntt(poly_D2 *a);
-void FsmSw_Dilithium2_Poly_InvnttTomont(poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_PointwiseMontgomery(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
+void ML_DSA_44_Poly_Ntt(poly_D2 *a);
+void ML_DSA_44_Poly_InvnttTomont(poly_D2 *const a);
+void ML_DSA_44_Poly_PointwiseMontgomery(poly_D2 *const c, const poly_D2 *const a, const poly_D2 *const b);
 
-void FsmSw_Dilithium2_Poly_Power2Round(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_Decompose(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a);
-uint32 FsmSw_Dilithium2_Poly_MakeHint(poly_D2 *const h, const poly_D2 *const a0, const poly_D2 *const a1);
-void FsmSw_Dilithium2_Poly_UseHint(poly_D2 *const b, const poly_D2 *const a, const poly_D2 *const h);
+void ML_DSA_44_Poly_Power2Round(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a);
+void ML_DSA_44_Poly_Decompose(poly_D2 *const a1, poly_D2 *a0, const poly_D2 *const a);
+uint32 ML_DSA_44_Poly_MakeHint(poly_D2 *const h, const poly_D2 *const a0, const poly_D2 *const a1);
+void ML_DSA_44_Poly_UseHint(poly_D2 *const b, const poly_D2 *const a, const poly_D2 *const h);
 
-sint8 FsmSw_Dilithium2_Poly_Chknorm(const poly_D2 *const a, sint32 B);
-void FsmSw_Dilithium2_Poly_Uniform(poly_D2 *a, const uint8 seed[SEEDBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium2_Poly_UniformEta(poly_D2 *a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium2_Poly_UniformGamma1(poly_D2 *const a, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium2_Poly_Challenge(poly_D2 *const c, const uint8 seed[SEEDBYTES_DILITHIUM]);
+sint8 ML_DSA_44_Poly_Chknorm(const poly_D2 *const a, sint32 B);
+void ML_DSA_44_Poly_Uniform(poly_D2 *a, const uint8 seed[SEEDBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_44_Poly_UniformEta(poly_D2 *a, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_44_Poly_UniformGamma1(poly_D2 *const a, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_44_Poly_Challenge(poly_D2 *const c, const uint8 seed[CTILDEBYTES_ML_DSA_44]);
 
-void FsmSw_Dilithium2_Polyeta_EtaPack(uint8 *const r, const poly_D2 *const a);
-void FsmSw_Dilithium2_Polyeta_EtaUnpack(poly_D2 *const r, const uint8 *const a);
+void ML_DSA_44_Polyeta_EtaPack(uint8 *const r, const poly_D2 *const a);
+void ML_DSA_44_Polyeta_EtaUnpack(poly_D2 *const r, const uint8 *const a);
 
-void FsmSw_Dilithium2_Poly_T1Pack(uint8 *const r, const poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_T1Unpack(poly_D2 *const r, const uint8 *const a);
+void ML_DSA_44_Poly_T1Pack(uint8 *const r, const poly_D2 *const a);
+void ML_DSA_44_Poly_T1Unpack(poly_D2 *const r, const uint8 *const a);
 
-void FsmSw_Dilithium2_Poly_T0Pack(uint8 *const r, const poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_T0Unpack(poly_D2 *const r, const uint8 *const a);
+void ML_DSA_44_Poly_T0Pack(uint8 *const r, const poly_D2 *const a);
+void ML_DSA_44_Poly_T0Unpack(poly_D2 *const r, const uint8 *const a);
 
-void FsmSw_Dilithium2_Poly_ZPack(uint8 *const r, const poly_D2 *const a);
-void FsmSw_Dilithium2_Poly_ZUnpack(poly_D2 *const r, const uint8 *const a);
+void ML_DSA_44_Poly_ZPack(uint8 *const r, const poly_D2 *const a);
+void ML_DSA_44_Poly_ZUnpack(poly_D2 *const r, const uint8 *const a);
 
-void FsmSw_Dilithium2_Poly_W1Pack(uint8 *const r, const poly_D2 *const a);
+void ML_DSA_44_Poly_W1Pack(uint8 *const r, const poly_D2 *const a);
 
-#endif /* FSMSW_DILITHIUM2_POLY_H */
+#endif /* FSMSW_ML_DSA_44_POLY_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

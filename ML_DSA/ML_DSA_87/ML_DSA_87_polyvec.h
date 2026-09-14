@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium5
-*    includes the modules for Dilithium5
+/** \addtogroup ML_DSA_87
+*    includes the modules for ML_DSA_87
  ** @{ */
-/** \addtogroup FsmSw_Dilithium5_polyvec
+/** \addtogroup ML_DSA_87_polyvec
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium5_polyvec.h
-* \brief  Description of the FsmSw_Dilithium5_polyvec.h
+/** \file ML_DSA_87_polyvec.h
+* \brief  Description of the ML_DSA_87_polyvec.h
 *
 * \details
 *
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_DILITHIUM5_POLYVEC_H
-#define FSMSW_DILITHIUM5_POLYVEC_H
+#ifndef FSMSW_ML_DSA_87_POLYVEC_H
+#define FSMSW_ML_DSA_87_POLYVEC_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium5_params.h"
-#include "FsmSw_Dilithium5_poly.h"
+#include "ML_DSA_87_params.h"
+#include "ML_DSA_87_poly.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -50,13 +58,13 @@
 /**********************************************************************************************************************/
 typedef struct
 {
-  poly_D5 vec[L_DILITHIUM5];
+  poly_D5 vec[L_ML_DSA_87];
 } polyvecl_D5;
 
 /* Vectors of polynomials of length K */
 typedef struct
 {
-  poly_D5 vec[K_DILITHIUM5];
+  poly_D5 vec[K_ML_DSA_87];
 } polyveck_D5;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -73,49 +81,37 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Dilithium5_Polyvecl_UniformEta(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Dilithium5_Polyvecl_UniformGamma1(polyvecl_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium5_Polyvecl_Reduce(polyvecl_D5 *v);
-void FsmSw_Dilithium5_Polyvecl_Add(polyvecl_D5 *w, const polyvecl_D5 *const u, const polyvecl_D5 *const v);
-void FsmSw_Dilithium5_Polyvecl_Ntt(polyvecl_D5 *v);
-void FsmSw_Dilithium5_Polyvecl_InvnttTomont(polyvecl_D5 *v);
-void FsmSw_Dilithium5_Polyvecl_PointwisePolyMontgomery(polyvecl_D5 *r, const poly_D5 *const a,
+void ML_DSA_87_Polyvecl_UniformEta(polyvecl_D5 *v, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_87_Polyvecl_UniformGamma1(polyvecl_D5 *v, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_87_Polyvecl_Reduce(polyvecl_D5 *v);
+void ML_DSA_87_Polyvecl_Add(polyvecl_D5 *w, const polyvecl_D5 *const u, const polyvecl_D5 *const v);
+void ML_DSA_87_Polyvecl_Ntt(polyvecl_D5 *v);
+void ML_DSA_87_Polyvecl_InvnttTomont(polyvecl_D5 *v);
+void ML_DSA_87_Polyvecl_PointwisePolyMontgomery(polyvecl_D5 *r, const poly_D5 *const a,
                                                        const polyvecl_D5 *const v);
-sint8 FsmSw_Dilithium5_Polyvecl_Chknorm(const polyvecl_D5 *const v, sint32 bound);
-void FsmSw_Dilithium5_Polyveck_UniformEta(polyveck_D5 *v, const uint8 seed[CRHBYTES_DILITHIUM], uint16 nonce);
-void FsmSw_Dilithium5_Polyveck_Reduce(polyveck_D5 *v);
-void FsmSw_Dilithium5_Polyveck_CAddQ(polyveck_D5 *v);
-void FsmSw_Dilithium5_Polyveck_Add(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const v);
-void FsmSw_Dilithium5_Polyveck_Sub(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const v);
-void FsmSw_Dilithium5_Polyveck_Shiftl(polyveck_D5 *v);
-void FsmSw_Dilithium5_Polyveck_Ntt(polyveck_D5 *v);
-void FsmSw_Dilithium5_Polyveck_InvnttTomont(polyveck_D5 *v);
-void FsmSw_Dilithium5_Polyveck_PointwisePolyMontgomery(polyveck_D5 *r, const poly_D5 *const a,
+sint8 ML_DSA_87_Polyvecl_Chknorm(const polyvecl_D5 *const v, sint32 bound);
+void ML_DSA_87_Polyveck_UniformEta(polyveck_D5 *v, const uint8 seed[CRHBYTES_ML_DSA], uint16 nonce);
+void ML_DSA_87_Polyveck_Reduce(polyveck_D5 *v);
+void ML_DSA_87_Polyveck_CAddQ(polyveck_D5 *v);
+void ML_DSA_87_Polyveck_Add(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const v);
+void ML_DSA_87_Polyveck_Sub(polyveck_D5 *w, const polyveck_D5 *const u, const polyveck_D5 *const v);
+void ML_DSA_87_Polyveck_Shiftl(polyveck_D5 *v);
+void ML_DSA_87_Polyveck_Ntt(polyveck_D5 *v);
+void ML_DSA_87_Polyveck_InvnttTomont(polyveck_D5 *v);
+void ML_DSA_87_Polyveck_PointwisePolyMontgomery(polyveck_D5 *r, const poly_D5 *const a,
                                                        const polyveck_D5 *const v);
-sint8 FsmSw_Dilithium5_Polyveck_Chknorm(const polyveck_D5 *const v, sint32 bound);
-void FsmSw_Dilithium5_Polyveck_Power2Round(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
-void FsmSw_Dilithium5_Polyveck_Decompose(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
-uint32 FsmSw_Dilithium5_Polyveck_MakeHint(polyveck_D5 *h, const polyveck_D5 *const v0, const polyveck_D5 *const v1);
-void FsmSw_Dilithium5_Polyveck_UseHint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h);
-void FsmSw_Dilithium5_Polyveck_PackW1(uint8 r[K_DILITHIUM5 * POLYW1_PACKEDBYTES_DILITHIUM5],
+sint8 ML_DSA_87_Polyveck_Chknorm(const polyveck_D5 *const v, sint32 bound);
+void ML_DSA_87_Polyveck_Power2Round(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
+void ML_DSA_87_Polyveck_Decompose(polyveck_D5 *v1, polyveck_D5 *v0, const polyveck_D5 *const v);
+uint32 ML_DSA_87_Polyveck_MakeHint(polyveck_D5 *h, const polyveck_D5 *const v0, const polyveck_D5 *const v1);
+void ML_DSA_87_Polyveck_UseHint(polyveck_D5 *w, const polyveck_D5 *const v, const polyveck_D5 *const h);
+void ML_DSA_87_Polyveck_PackW1(uint8 r[K_ML_DSA_87 * POLYW1_PACKEDBYTES_ML_DSA_87],
                                       const polyveck_D5 *const w1);
-void FsmSw_Dilithium5_Polyvec_MatrixExpand(polyvecl_D5 mat[K_DILITHIUM5], const uint8 rho[SEEDBYTES_DILITHIUM]);
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Dilithium5_Polyvec_MatrixPointwiseMontgomery(polyveck_D5 *t, const polyvecl_D5 mat[K_DILITHIUM5],
+void ML_DSA_87_Polyvec_MatrixExpand(polyvecl_D5 mat[K_ML_DSA_87], const uint8 rho[SEEDBYTES_ML_DSA]);
+void ML_DSA_87_Polyvec_MatrixPointwiseMontgomery(polyveck_D5 *t, const polyvecl_D5 mat[K_ML_DSA_87],
                                                         const polyvecl_D5 *const v);
 
-#endif /* FSMSW_DILITHIUM5_POLYVEC_H */
+#endif /* FSMSW_ML_DSA_87_POLYVEC_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

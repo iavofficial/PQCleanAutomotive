@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Dilithium5
-*    includes the modules for Dilithium5
+/** \addtogroup ML_DSA_87
+*    includes the modules for ML_DSA_87
  ** @{ */
-/** \addtogroup FsmSw_Dilithium5_packing
+/** \addtogroup ML_DSA_87_packing
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium5_packing.c
-* \brief  description of FsmSw_Dilithium5_packing.c
+/** \file ML_DSA_87_packing.c
+* \brief  description of ML_DSA_87_packing.c
 *
 * \details
 *
@@ -37,12 +45,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium5_params.h"
-#include "FsmSw_Dilithium5_poly.h"
-#include "FsmSw_Dilithium5_polyvec.h"
+#include "ML_DSA_87_params.h"
+#include "ML_DSA_87_poly.h"
+#include "ML_DSA_87_polyvec.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Dilithium5_packing.h"
+#include "ML_DSA_87_packing.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -74,24 +82,24 @@
  * \param[in]  const uint8     rho[] : byte array containing rho
  * \param[in]  const polyveck_D5 *t1 : pointer to vector t1
  */
-void FsmSw_Dilithium5_PackPk(uint8 pk[FSMSW_DILITHIUM5_CRYPTO_PUBLICKEYBYTES], const uint8 rho[SEEDBYTES_DILITHIUM],
+void ML_DSA_87_PackPk(uint8 pk[FSMSW_ML_DSA_87_CRYPTO_PUBLICKEYBYTES], const uint8 rho[SEEDBYTES_ML_DSA],
                              const polyveck_D5 *const t1)
 {
   uint16 i = 0;
   /* pk_temp is used to avoid modifying the input. */
   uint8 *pk_temp = pk;
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     pk_temp[i] = rho[i];
   }
-  pk_temp = &pk_temp[SEEDBYTES_DILITHIUM];
+  pk_temp = &pk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_T1Pack(&pk_temp[i * POLYT1_PACKEDBYTES_DILITHIUM], &t1->vec[i]);
+    ML_DSA_87_Poly_T1Pack(&pk_temp[i * POLYT1_PACKEDBYTES_ML_DSA], &t1->vec[i]);
   }
-} // end: FsmSw_Dilithium5_PackPk
+} // end: ML_DSA_87_PackPk
 /*====================================================================================================================*/
 /**
  * \brief Unpack public key pk = (rho, t1).
@@ -100,24 +108,24 @@ void FsmSw_Dilithium5_PackPk(uint8 pk[FSMSW_DILITHIUM5_CRYPTO_PUBLICKEYBYTES], c
  * \param[out] polyveck_D5     *t1 : pointer to output vector t1
  * \param[in,out] const uint8 pk[] : byte array containing bit-packed pk
  */
-void FsmSw_Dilithium5_UnpackPk(uint8 rho[SEEDBYTES_DILITHIUM], polyveck_D5 *t1,
-                               const uint8 pk[FSMSW_DILITHIUM5_CRYPTO_PUBLICKEYBYTES])
+void ML_DSA_87_UnpackPk(uint8 rho[SEEDBYTES_ML_DSA], polyveck_D5 *t1,
+                               const uint8 pk[FSMSW_ML_DSA_87_CRYPTO_PUBLICKEYBYTES])
 {
   uint16 i = 0;
   /* pk_temp is used to avoid modifying the input. */
   const uint8 *pk_temp = pk;
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     rho[i] = pk_temp[i];
   }
-  pk_temp = &pk_temp[SEEDBYTES_DILITHIUM];
+  pk_temp = &pk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_T1Unpack(&t1->vec[i], &pk_temp[i * POLYT1_PACKEDBYTES_DILITHIUM]);
+    ML_DSA_87_Poly_T1Unpack(&t1->vec[i], &pk_temp[i * POLYT1_PACKEDBYTES_ML_DSA]);
   }
-} // end: FsmSw_Dilithium5_UnpackPk
+} // end: ML_DSA_87_UnpackPk
 /*====================================================================================================================*/
 /**
  * \brief Bit-pack secret key sk = (rho, tr, key, t0, s1, s2).
@@ -130,49 +138,49 @@ void FsmSw_Dilithium5_UnpackPk(uint8 rho[SEEDBYTES_DILITHIUM], polyveck_D5 *t1,
  * \param[in]  const polyvecl_D5 *s1 : pointer to vector s1
  * \param[in]  const polyveck_D5 *s2 : pointer to vector s2
  */
-void FsmSw_Dilithium5_PackSk(uint8 sk[FSMSW_DILITHIUM5_CRYPTO_SECRETKEYBYTES], const uint8 rho[SEEDBYTES_DILITHIUM],
-                             const uint8 tr[TRBYTES_DILITHIUM], const uint8 key[SEEDBYTES_DILITHIUM],
+void ML_DSA_87_PackSk(uint8 sk[FSMSW_ML_DSA_87_CRYPTO_SECRETKEYBYTES], const uint8 rho[SEEDBYTES_ML_DSA],
+                             const uint8 tr[TRBYTES_ML_DSA], const uint8 key[SEEDBYTES_ML_DSA],
                              const polyveck_D5 *const t0, const polyvecl_D5 *const s1, const polyveck_D5 *const s2)
 {
   uint16 i = 0;
   /* sk_temp is used to avoid modifying the input. */
   uint8 *sk_temp = sk;
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     sk_temp[i] = rho[i];
   }
-  sk_temp = &sk_temp[SEEDBYTES_DILITHIUM];
+  sk_temp = &sk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     sk_temp[i] = key[i];
   }
-  sk_temp = &sk_temp[SEEDBYTES_DILITHIUM];
+  sk_temp = &sk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < TRBYTES_DILITHIUM; ++i)
+  for (i = 0; i < TRBYTES_ML_DSA; ++i)
   {
     sk_temp[i] = tr[i];
   }
-  sk_temp = &sk_temp[TRBYTES_DILITHIUM];
+  sk_temp = &sk_temp[TRBYTES_ML_DSA];
 
-  for (i = 0; i < L_DILITHIUM5; ++i)
+  for (i = 0; i < L_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Polyeta_EtaPack(&sk_temp[i * POLYETA_PACKEDBYTES_DILITHIUM5], &s1->vec[i]);
+    ML_DSA_87_Polyeta_EtaPack(&sk_temp[i * POLYETA_PACKEDBYTES_ML_DSA_87], &s1->vec[i]);
   }
-  sk_temp = &sk_temp[L_DILITHIUM5 * POLYETA_PACKEDBYTES_DILITHIUM5];
+  sk_temp = &sk_temp[L_ML_DSA_87 * POLYETA_PACKEDBYTES_ML_DSA_87];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Polyeta_EtaPack(&sk_temp[i * POLYETA_PACKEDBYTES_DILITHIUM5], &s2->vec[i]);
+    ML_DSA_87_Polyeta_EtaPack(&sk_temp[i * POLYETA_PACKEDBYTES_ML_DSA_87], &s2->vec[i]);
   }
-  sk_temp = &sk_temp[K_DILITHIUM5 * POLYETA_PACKEDBYTES_DILITHIUM5];
+  sk_temp = &sk_temp[K_ML_DSA_87 * POLYETA_PACKEDBYTES_ML_DSA_87];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_T0Pack(&sk_temp[i * POLYT0_PACKEDBYTES_DILITHIUM], &t0->vec[i]);
+    ML_DSA_87_Poly_T0Pack(&sk_temp[i * POLYT0_PACKEDBYTES_ML_DSA], &t0->vec[i]);
   }
-} // end: FsmSw_Dilithium5_PackSk
+} // end: ML_DSA_87_PackSk
 /*====================================================================================================================*/
 /**
  * \brief Unpack secret key sk = (rho, tr, key, t0, s1, s2).
@@ -185,59 +193,59 @@ void FsmSw_Dilithium5_PackSk(uint8 sk[FSMSW_DILITHIUM5_CRYPTO_SECRETKEYBYTES], c
  * \param[out] polyvecl_D5  *s1 : pointer to output vector s1
  * \param[in]  const uint8 sk[] : byte array containing bit-packed sk
  */
-void FsmSw_Dilithium5_UnpackSk(uint8 rho[SEEDBYTES_DILITHIUM], uint8 tr[TRBYTES_DILITHIUM],
-                               uint8 key[SEEDBYTES_DILITHIUM], polyveck_D5 *t0, polyvecl_D5 *s1, polyveck_D5 *s2,
-                               const uint8 sk[FSMSW_DILITHIUM5_CRYPTO_SECRETKEYBYTES])
+void ML_DSA_87_UnpackSk(uint8 rho[SEEDBYTES_ML_DSA], uint8 tr[TRBYTES_ML_DSA],
+                               uint8 key[SEEDBYTES_ML_DSA], polyveck_D5 *t0, polyvecl_D5 *s1, polyveck_D5 *s2,
+                               const uint8 sk[FSMSW_ML_DSA_87_CRYPTO_SECRETKEYBYTES])
 {
   uint16 i = 0;
   /* sk_temp is used to avoid modifying the input. */
   const uint8 *sk_temp = sk;
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     rho[i] = sk_temp[i];
   }
-  sk_temp = &sk_temp[SEEDBYTES_DILITHIUM];
+  sk_temp = &sk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < SEEDBYTES_DILITHIUM; ++i)
+  for (i = 0; i < SEEDBYTES_ML_DSA; ++i)
   {
     key[i] = sk_temp[i];
   }
-  sk_temp = &sk_temp[SEEDBYTES_DILITHIUM];
+  sk_temp = &sk_temp[SEEDBYTES_ML_DSA];
 
-  for (i = 0; i < TRBYTES_DILITHIUM; ++i)
+  for (i = 0; i < TRBYTES_ML_DSA; ++i)
   {
     tr[i] = sk_temp[i];
   }
-  sk_temp = &sk_temp[TRBYTES_DILITHIUM];
+  sk_temp = &sk_temp[TRBYTES_ML_DSA];
 
-  for (i = 0; i < L_DILITHIUM5; ++i)
+  for (i = 0; i < L_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Polyeta_EtaUnpack(&s1->vec[i], &sk_temp[i * POLYETA_PACKEDBYTES_DILITHIUM5]);
+    ML_DSA_87_Polyeta_EtaUnpack(&s1->vec[i], &sk_temp[i * POLYETA_PACKEDBYTES_ML_DSA_87]);
   }
-  sk_temp = &sk_temp[L_DILITHIUM5 * POLYETA_PACKEDBYTES_DILITHIUM5];
+  sk_temp = &sk_temp[L_ML_DSA_87 * POLYETA_PACKEDBYTES_ML_DSA_87];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Polyeta_EtaUnpack(&s2->vec[i], &sk_temp[i * POLYETA_PACKEDBYTES_DILITHIUM5]);
+    ML_DSA_87_Polyeta_EtaUnpack(&s2->vec[i], &sk_temp[i * POLYETA_PACKEDBYTES_ML_DSA_87]);
   }
-  sk_temp = &sk_temp[K_DILITHIUM5 * POLYETA_PACKEDBYTES_DILITHIUM5];
+  sk_temp = &sk_temp[K_ML_DSA_87 * POLYETA_PACKEDBYTES_ML_DSA_87];
 
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_T0Unpack(&t0->vec[i], &sk_temp[i * POLYT0_PACKEDBYTES_DILITHIUM]);
+    ML_DSA_87_Poly_T0Unpack(&t0->vec[i], &sk_temp[i * POLYT0_PACKEDBYTES_ML_DSA]);
   }
-} // end: FsmSw_Dilithium5_UnpackSk
+} // end: ML_DSA_87_UnpackSk
 /*====================================================================================================================*/
 /**
  * Description: Bit-pack signature sig = (c, z, h).
  *
  * \param[out] uint8           sig[] : output byte array
- * \param[in]  const  uint8       *c : pointer to hash length SEEDBYTES_DILITHIUM
+ * \param[in]  const  uint8       *c : pointer to hash length SEEDBYTES_ML_DSA
  * \param[in]  const  polyvecl_D5 *z : pointer to vector z
  * \param[in]  const  polyveck_D5 *h : pointer to hint vector h
  */
-void FsmSw_Dilithium5_PackSig(uint8 sig[FSMSW_DILITHIUM5_CRYPTO_BYTES], const uint8 c[CTILDEBYTES_DILITHIUM5],
+void ML_DSA_87_PackSig(uint8 sig[FSMSW_ML_DSA_87_CRYPTO_BYTES], const uint8 c[CTILDEBYTES_ML_DSA_87],
                               const polyvecl_D5 *const z, const polyveck_D5 *const h)
 {
   uint16 i = 0;
@@ -246,28 +254,28 @@ void FsmSw_Dilithium5_PackSig(uint8 sig[FSMSW_DILITHIUM5_CRYPTO_BYTES], const ui
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
 
-  for (i = 0; i < CTILDEBYTES_DILITHIUM5; ++i)
+  for (i = 0; i < CTILDEBYTES_ML_DSA_87; ++i)
   {
     sig_temp[i] = c[i];
   }
-  sig_temp = &sig_temp[CTILDEBYTES_DILITHIUM5];
+  sig_temp = &sig_temp[CTILDEBYTES_ML_DSA_87];
 
-  for (i = 0; i < L_DILITHIUM5; ++i)
+  for (i = 0; i < L_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_ZPack(&sig_temp[i * POLYZ_PACKEDBYTES_DILITHIUM5], &z->vec[i]);
+    ML_DSA_87_Poly_ZPack(&sig_temp[i * POLYZ_PACKEDBYTES_ML_DSA_87], &z->vec[i]);
   }
-  sig_temp = &sig_temp[L_DILITHIUM5 * POLYZ_PACKEDBYTES_DILITHIUM5];
+  sig_temp = &sig_temp[L_ML_DSA_87 * POLYZ_PACKEDBYTES_ML_DSA_87];
 
   /* Encode h */
-  for (i = 0; i < (OMEGA_DILITHIUM5 + K_DILITHIUM5); ++i)
+  for (i = 0; i < (OMEGA_ML_DSA_87 + K_ML_DSA_87); ++i)
   {
     sig_temp[i] = 0;
   }
 
   k = 0;
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    for (j = 0; j < N_DILITHIUM; ++j)
+    for (j = 0; j < N_ML_DSA; ++j)
     {
       if (h->vec[i].coeffs[j] != 0)
       {
@@ -276,9 +284,9 @@ void FsmSw_Dilithium5_PackSig(uint8 sig[FSMSW_DILITHIUM5_CRYPTO_BYTES], const ui
       }
     }
 
-    sig_temp[OMEGA_DILITHIUM5 + i] = (uint8)k;
+    sig_temp[OMEGA_ML_DSA_87 + i] = (uint8)k;
   }
-} // end: FsmSw_Dilithium5_PackSig
+} // end: ML_DSA_87_PackSig
 /*====================================================================================================================*/
 /**
  * \brief Unpack signature sig = (c, z, h).
@@ -290,8 +298,8 @@ void FsmSw_Dilithium5_PackSig(uint8 sig[FSMSW_DILITHIUM5_CRYPTO_BYTES], const ui
  *
  * \returns 1 in case of malformed signature; otherwise 0.
  */
-sint8 FsmSw_Dilithium5_UnpackSig(uint8 c[CTILDEBYTES_DILITHIUM5], polyvecl_D5 *z, polyveck_D5 *const h,
-                                 const uint8 sig[FSMSW_DILITHIUM5_CRYPTO_BYTES])
+sint8 ML_DSA_87_UnpackSig(uint8 c[CTILDEBYTES_ML_DSA_87], polyvecl_D5 *z, polyveck_D5 *const h,
+                                 const uint8 sig[FSMSW_ML_DSA_87_CRYPTO_BYTES])
 {
   uint16 i     = 0;
   uint16 j     = 0;
@@ -301,33 +309,33 @@ sint8 FsmSw_Dilithium5_UnpackSig(uint8 c[CTILDEBYTES_DILITHIUM5], polyvecl_D5 *z
   /* sig_temp is used to avoid modifying the input. */
   const uint8 *sig_temp = sig;
 
-  for (i = 0; i < CTILDEBYTES_DILITHIUM5; ++i)
+  for (i = 0; i < CTILDEBYTES_ML_DSA_87; ++i)
   {
     c[i] = sig_temp[i];
   }
-  sig_temp = &sig_temp[CTILDEBYTES_DILITHIUM5];
+  sig_temp = &sig_temp[CTILDEBYTES_ML_DSA_87];
 
-  for (i = 0; i < L_DILITHIUM5; ++i)
+  for (i = 0; i < L_ML_DSA_87; ++i)
   {
-    FsmSw_Dilithium5_Poly_ZUnpack(&z->vec[i], &sig_temp[i * POLYZ_PACKEDBYTES_DILITHIUM5]);
+    ML_DSA_87_Poly_ZUnpack(&z->vec[i], &sig_temp[i * POLYZ_PACKEDBYTES_ML_DSA_87]);
   }
-  sig_temp = &sig_temp[L_DILITHIUM5 * POLYZ_PACKEDBYTES_DILITHIUM5];
+  sig_temp = &sig_temp[L_ML_DSA_87 * POLYZ_PACKEDBYTES_ML_DSA_87];
 
   /* Decode h */
   k = 0;
-  for (i = 0; i < K_DILITHIUM5; ++i)
+  for (i = 0; i < K_ML_DSA_87; ++i)
   {
-    for (j = 0; j < N_DILITHIUM; ++j)
+    for (j = 0; j < N_ML_DSA; ++j)
     {
       h->vec[i].coeffs[j] = 0;
     }
 
-    if ((sig_temp[OMEGA_DILITHIUM5 + i] < k) || (sig_temp[OMEGA_DILITHIUM5 + i] > OMEGA_DILITHIUM5))
+    if ((sig_temp[OMEGA_ML_DSA_87 + i] < k) || (sig_temp[OMEGA_ML_DSA_87 + i] > OMEGA_ML_DSA_87))
     {
       retVal = 1;
     }
 
-    for (j = k; j < sig_temp[OMEGA_DILITHIUM5 + i]; ++j)
+    for (j = k; j < sig_temp[OMEGA_ML_DSA_87 + i]; ++j)
     {
       /* Coefficients are ordered for strong unforgeability */
       if ((j > k) && (sig_temp[j] <= sig_temp[j - 1u]))
@@ -337,11 +345,11 @@ sint8 FsmSw_Dilithium5_UnpackSig(uint8 c[CTILDEBYTES_DILITHIUM5], polyvecl_D5 *z
       h->vec[i].coeffs[sig_temp[j]] = 1;
     }
 
-    k = sig_temp[OMEGA_DILITHIUM5 + i];
+    k = sig_temp[OMEGA_ML_DSA_87 + i];
   }
 
   /* Extra indices are zero for strong unforgeability */
-  for (j = k; j < OMEGA_DILITHIUM5; ++j)
+  for (j = k; j < OMEGA_ML_DSA_87; ++j)
   {
     if (0u < sig_temp[j])
     {
@@ -350,7 +358,7 @@ sint8 FsmSw_Dilithium5_UnpackSig(uint8 c[CTILDEBYTES_DILITHIUM5], polyvecl_D5 *z
   }
 
   return retVal;
-} // end: FsmSw_Dilithium5_UnpackSig
+} // end: ML_DSA_87_UnpackSig
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

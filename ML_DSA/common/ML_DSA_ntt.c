@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-DSA
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Dilithium_ntt
+/** \addtogroup ML_DSA_ntt
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Dilithium_ntt.c
-* \brief  description of FsmSw_Dilithium_ntt
+/** \file ML_DSA_ntt.c
+* \brief  description of ML_DSA_ntt
 *
 * \details
 *
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Dilithium_params.h"
-#include "FsmSw_Dilithium_reduce.h"
+#include "ML_DSA_params.h"
+#include "ML_DSA_reduce.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Dilithium_ntt.h"
+#include "ML_DSA_ntt.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -57,7 +65,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
-static const sint32 FsmSw_Dilithium_zetas[N_DILITHIUM] = {
+static const sint32 ML_DSA_zetas[N_ML_DSA] = {
     0,        25847,    -2608894, -518909,  237124,   -777960,  -876248,  466468,   1826347,  2353451,  -359251,
     -2091905, 3119733,  -2884855, 3111497,  2680103,  2725464,  1024112,  -1079900, 3585928,  -549488,  -1119584,
     2619752,  -2108549, -2118186, -3859737, -1399561, -3277672, 1757237,  -19422,   4010497,  280005,   2706023,
@@ -105,7 +113,7 @@ static const sint32 FsmSw_Dilithium_zetas[N_DILITHIUM] = {
 *
 * \param[in,out] uint32 a[N] : input/output coefficient array
 */
-void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM])
+void ML_DSA_Ntt(sint32 a[N_ML_DSA])
 {
   uint16 len   = 0;
   uint16 start = 0;
@@ -116,20 +124,20 @@ void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM])
 
   for (len = 128; len > 0u; len >>= 1)
   {
-    for (start = 0; start < N_DILITHIUM; start = j + len)
+    for (start = 0; start < N_ML_DSA; start = j + len)
     {
       k++;
-      zeta = FsmSw_Dilithium_zetas[k];
+      zeta = ML_DSA_zetas[k];
 
       for (j = start; j < (start + len); ++j)
       {
-        t          = FsmSw_Dilithium_MontgomeryReduce((sint64)zeta * a[j + len]);
+        t          = ML_DSA_MontgomeryReduce((sint64)zeta * a[j + len]);
         a[j + len] = a[j] - t;
         a[j]       = a[j] + t;
       }
     }
   }
-} // end: FsmSw_Dilithium_Ntt
+} // end: ML_DSA_Ntt
 
 /*====================================================================================================================*/
 /**
@@ -139,7 +147,7 @@ void FsmSw_Dilithium_Ntt(sint32 a[N_DILITHIUM])
 *
 * \param[in,out] uint32 a[N] : input/output coefficient array
 */
-void FsmSw_Dilithium_InvnttTomont(sint32 a[N_DILITHIUM])
+void ML_DSA_InvnttTomont(sint32 a[N_ML_DSA])
 {
   uint16 start   = 0;
   uint16 len     = 0;
@@ -151,27 +159,27 @@ void FsmSw_Dilithium_InvnttTomont(sint32 a[N_DILITHIUM])
 
   k = 256;
 
-  for (len = 1; len < N_DILITHIUM; len <<= 1)
+  for (len = 1; len < N_ML_DSA; len <<= 1)
   {
-    for (start = 0; start < N_DILITHIUM; start = j + len)
+    for (start = 0; start < N_ML_DSA; start = j + len)
     {
       k--;
-      zeta = -FsmSw_Dilithium_zetas[k];
+      zeta = -ML_DSA_zetas[k];
       for (j = start; j < (start + len); ++j)
       {
         t          = a[j];
         a[j]       = t + a[j + len];
         a[j + len] = t - a[j + len];
-        a[j + len] = FsmSw_Dilithium_MontgomeryReduce((sint64)zeta * a[j + len]);
+        a[j + len] = ML_DSA_MontgomeryReduce((sint64)zeta * a[j + len]);
       }
     }
   }
 
-  for (j = 0; j < N_DILITHIUM; ++j)
+  for (j = 0; j < N_ML_DSA; ++j)
   {
-    a[j] = FsmSw_Dilithium_MontgomeryReduce((sint64)f * a[j]);
+    a[j] = ML_DSA_MontgomeryReduce((sint64)f * a[j]);
   }
-} // end: FsmSw_Dilithium_InvnttTomont
+} // end: ML_DSA_InvnttTomont
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
