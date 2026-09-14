@@ -27,8 +27,8 @@ In the SLH‑DSA algorithm, dynamic arrays had to be replaced by static arrays i
 ## License
 PQCleanAutomotive contains third-party components with licensing information
 that differs from the Apache-2.0 license applicable to IAV contributions.
-The complete license texts and attribution notices are located in the
-respective component directories and in the root `NOTICE` file.
+License information, applicable license texts, and attribution notices are
+located in the respective component directories and in the root `NOTICE` file.
 
 * ML‑KEM: PQClean Public Domain designation; see `ML_KEM/LICENSE` and `NOTICE`.
 * ML‑DSA: PQClean Public Domain designation; see `ML_DSA/LICENSE` and `NOTICE`.

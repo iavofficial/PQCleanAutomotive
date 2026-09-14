@@ -1,6 +1,15 @@
 /***********************************************************************************************************************
- * FN-DSA names for the shared common-library interface.
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * This file is licensed under the Apache License, Version 2.0.
+ * See the LICENSE file in the repository root for the complete license text.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  **********************************************************************************************************************/
+
+/* FN-DSA names for the shared common-library interface. */
 #ifndef FN_DSA_COMMONLIB_H
 #define FN_DSA_COMMONLIB_H
 
