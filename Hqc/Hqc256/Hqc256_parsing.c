@@ -1,0 +1,264 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, HQC
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
+ ** @{ */
+/** \addtogroup Hqc256
+*    includes the modules for Hqc256
+ ** @{ */
+/** \addtogroup Hqc256_parsing
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file Hqc256_parsing.c
+* \brief Functions to parse secret key, public key and ciphertext of the HQC scheme
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "Hqc_CommonLib.h"
+#include "Hqc256_parameters.h"
+#include "Hqc256_vector.h"
+#include "Platform_Types.h"
+
+#include "Hqc256_parsing.h"
+/**********************************************************************************************************************/
+/* DEFINES                                                                                                            */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION PROTOTYPES                                                                                        */
+/**********************************************************************************************************************/
+static uint64 load8_256(const uint8 *const in);
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION DEFINITIONS                                                                                       */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+static uint64 load8_256(const uint8 *const in)
+{
+  uint64 ret = in[7];
+
+  for (sint8 i = 6; i >= 0; --i)
+  {
+    ret <<= 8;
+    ret |= in[i];
+  }
+
+  return ret;
+} // end: load8_256
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTION DEFINITIONS                                                                                        */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+void Hqc256_Load8_Arr(uint64 *const out64, uint16 outlen, const uint8 *const in8, uint16 inlen)
+{
+  uint16 index_in  = 0;
+  uint16 index_out = 0;
+
+  // first copy by 8 bytes
+  if ((inlen >= 8) && (outlen >= 1))
+  {
+    while ((index_out < outlen) && ((index_in + 8) <= inlen))
+    {
+      out64[index_out] = load8_256(&in8[index_in]);
+
+      index_in += 8;
+      index_out += 1;
+    }
+  }
+
+  // we now need to do the last 7 bytes if necessary
+  if (!((index_in >= inlen) || (index_out >= outlen)))
+  {
+    out64[index_out] = in8[inlen - 1];
+    for (uint16 i = inlen - index_in; i >= 2; --i)
+    {
+      out64[index_out] <<= 8;
+      out64[index_out] |= in8[index_in + i - 2U];
+    }
+  }
+} // end: Hqc256_Load8_Arr
+
+/*====================================================================================================================*/
+void Hqc256_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in64, uint16 inlen)
+{
+  uint32 index_in = 0;
+  for (uint32 index_out = 0; (index_out < outlen) && (index_in < inlen); ++index_out)
+  {
+    out8[index_out] = (uint8)((in64[index_in] >> ((index_out % 8) * 8)) & 0xFFU);
+    if ((index_out % 8) == 7)
+    {
+      ++index_in;
+    }
+  }
+} // end: Hqc256_Store8_Arr
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a secret key into a string
+ *
+ * The secret key is composed of the seed used to generate vectors <b>x</b> and <b>y</b>.
+ * As technicality, the public key is appended to the secret key in order to respect NIST API.
+ *
+ * \param[out] sk String containing the secret key
+ * \param[in] sk_seed Seed used to generate the secret key
+ * \param[in] sigma String used in HHK transform
+ * \param[in] pk String containing the public key
+ */
+void Hqc256_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
+                                       const uint8 *const pk)
+{
+  Hqc_CommonLib_MemCpy(sk, sk_seed, HQC256_SEED_BYTES);
+  Hqc_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES], sigma, HQC256_VEC_K_SIZE_BYTES);
+  Hqc_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], pk, HQC256_PUBLIC_KEY_BYTES);
+} // end: Hqc256_Secret_Key_To_String
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a secret key from a string
+ *
+ * The secret key is composed of the seed used to generate vectors <b>x</b> and <b>y</b>.
+ * As technicality, the public key is appended to the secret key in order to respect NIST API.
+ *
+ * \param[out] x uint64 representation of vector x
+ * \param[out] y uint64 representation of vector y
+ * \param[out] pk String containing the public key
+ * \param[in] sk String containing the secret key
+ */
+void Hqc256_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *const sigma, uint8 *const pk,
+                                         const uint8 *const sk)
+{
+  hqc256_seedexpander_state sk_seedexpander;
+
+  Hqc_CommonLib_MemCpy(sigma, &sk[HQC256_SEED_BYTES], HQC256_VEC_K_SIZE_BYTES);
+  Hqc256_SeedExpander_Init(&sk_seedexpander, sk, HQC256_SEED_BYTES);
+
+  Hqc256_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC256_PARAM_OMEGA);
+  Hqc256_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC256_PARAM_OMEGA);
+  Hqc_CommonLib_MemCpy(pk, &sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], HQC256_PUBLIC_KEY_BYTES);
+} // end: Hqc256_Secret_Key_From_String
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a public key into a string
+ *
+ * The public key is composed of the syndrome <b>s</b> as well as the seed used to generate the vector <b>h</b>
+ *
+ * \param[out] pk String containing the public key
+ * \param[in] pk_seed Seed used to generate the public key
+ * \param[in] s uint64 representation of vector s
+ */
+void Hqc256_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
+{
+  Hqc_CommonLib_MemCpy(pk, pk_seed, HQC256_SEED_BYTES);
+  Hqc256_Store8_Arr(&pk[HQC256_SEED_BYTES], HQC256_VEC_N_SIZE_BYTES, s, HQC256_VEC_N_SIZE_64);
+} // end: Hqc256_Public_Key_To_String
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a public key from a string
+ *
+ * The public key is composed of the syndrome <b>s</b> as well as the seed used to generate the vector <b>h</b>
+ *
+ * \param[out] h uint64 representation of vector h
+ * \param[out] s uint64 representation of vector s
+ * \param[in] pk String containing the public key
+ */
+void Hqc256_Public_Key_From_String(uint64 *const h, uint64 *const s, const uint8 *const pk)
+{
+  hqc256_seedexpander_state pk_seedexpander;
+
+  Hqc256_SeedExpander_Init(&pk_seedexpander, pk, HQC256_SEED_BYTES);
+  Hqc256_Vect_Set_Random(&pk_seedexpander, h);
+
+  Hqc256_Load8_Arr(s, HQC256_VEC_N_SIZE_64, &pk[HQC256_SEED_BYTES], HQC256_VEC_N_SIZE_BYTES);
+} // end: Hqc256_Public_Key_From_String
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a ciphertext into a string
+ *
+ * The ciphertext is composed of vectors <b>u</b>, <b>v</b> and salt.
+ *
+ * \param[out] ct String containing the ciphertext
+ * \param[in] u uint64 representation of vector u
+ * \param[in] v uint64 representation of vector v
+ * \param[in] salt String containing a salt
+ */
+void Hqc256_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const uint64 *const v,
+                                       const uint8 *const salt)
+{
+  Hqc256_Store8_Arr(ct, HQC256_VEC_N_SIZE_BYTES, u, HQC256_VEC_N_SIZE_64);
+  Hqc256_Store8_Arr(&ct[HQC256_VEC_N_SIZE_BYTES], HQC256_VEC_N1N2_SIZE_BYTES, v, HQC256_VEC_N1N2_SIZE_64);
+  Hqc_CommonLib_MemCpy(&ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], salt, HQC256_SALT_SIZE_BYTES);
+} // end: Hqc256_Ciphertext_To_String
+
+/*====================================================================================================================*/
+/**
+ * \brief Parse a ciphertext from a string
+ *
+ * The ciphertext is composed of vectors <b>u</b>, <b>v</b> and salt.
+ *
+ * \param[out] u uint64 representation of vector u
+ * \param[out] v uint64 representation of vector v
+ * \param[out] d String containing the hash d
+ * \param[in] ct String containing the ciphertext
+ */
+void Hqc256_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *const salt, const uint8 *const ct)
+{
+  Hqc256_Load8_Arr(u, HQC256_VEC_N_SIZE_64, ct, HQC256_VEC_N_SIZE_BYTES);
+  Hqc256_Load8_Arr(v, HQC256_VEC_N1N2_SIZE_64, &ct[HQC256_VEC_N_SIZE_BYTES], HQC256_VEC_N1N2_SIZE_BYTES);
+  Hqc_CommonLib_MemCpy(salt, &ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], HQC256_SALT_SIZE_BYTES);
+} // end: Hqc256_Ciphertext_From_String
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
