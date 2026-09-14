@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_CommonLib
+/** \addtogroup ML_KEM_CommonLib
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_CommonLib.c
-* \brief  description of FsmSw_Kyber_CommonLib.c
+/** \file ML_KEM_CommonLib.c
+* \brief  description of ML_KEM_CommonLib.c
 *
 * \details
 *
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_CommonLib.h"
+#include "ML_KEM_CommonLib.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER_COMMON_LIB_CBD2_NIBBLES_NUM 8u
+#define ML_KEM_COMMON_LIB_CBD2_NIBBLES_NUM 8u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -86,7 +94,7 @@
   polyspace +3 MISRA2012:8.7 [Justified:] 
   "Common library utilities should be avaliable for usage if needed"
 */
-uint32 FsmSw_Kyber_Load32LittleEndian(const uint8 x[4])
+uint32 ML_KEM_Load32LittleEndian(const uint8 x[4])
 {
   uint32 r = 0;
 
@@ -96,7 +104,7 @@ uint32 FsmSw_Kyber_Load32LittleEndian(const uint8 x[4])
   r |= (uint32)x[3] << 24u;
 
   return r;
-} // end: FsmSw_Kyber_Load32LittleEndian
+} // end: ML_KEM_Load32LittleEndian
 
 /*====================================================================================================================*/
 /**
@@ -107,7 +115,7 @@ uint32 FsmSw_Kyber_Load32LittleEndian(const uint8 x[4])
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-void FsmSw_Kyber_Cbd2(poly *r, const uint8 buf[2u * KYBER_N / 4u])
+void ML_KEM_Cbd2(poly *r, const uint8 buf[2u * ML_KEM_N / 4u])
 {
   uint8 i  = 0;
   uint8 j  = 0;
@@ -116,20 +124,20 @@ void FsmSw_Kyber_Cbd2(poly *r, const uint8 buf[2u * KYBER_N / 4u])
   sint16 a = 0;
   sint16 b = 0;
 
-  for (i = 0; i < (KYBER_N / 8u); i++)
+  for (i = 0; i < (ML_KEM_N / 8u); i++)
   {
-    t = FsmSw_Kyber_Load32LittleEndian(&buf[4u * i]);
+    t = ML_KEM_Load32LittleEndian(&buf[4u * i]);
     d = t & 0x55555555u;
     d += (t >> 1u) & 0x55555555u;
 
-    for (j = 0; j < FSMSW_KYBER_COMMON_LIB_CBD2_NIBBLES_NUM; j++)
+    for (j = 0; j < ML_KEM_COMMON_LIB_CBD2_NIBBLES_NUM; j++)
     {
       a                       = (sint16)((uint16)((uint16)((d >> ((4u * j)))) & 0x3u));
       b                       = (sint16)((uint16)((uint16)((d >> ((4u * j) + 2u))) & 0x3u));
       r->coeffs[(8u * i) + j] = a - b;
     }
   }
-} // end: FsmSw_Kyber_Cbd2
+} // end: ML_KEM_Cbd2
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

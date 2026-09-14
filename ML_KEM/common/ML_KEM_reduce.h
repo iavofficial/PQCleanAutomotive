@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_reduce
+/** \addtogroup ML_KEM_reduce
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_reduce.h
-* \brief  Declarations for the modul FsmSw_Kyber_reduce.c
+/** \file ML_KEM_reduce.h
+* \brief  Declarations for the modul ML_KEM_reduce.c
 *
 * \details
 *
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_REDUCE_H
-#define FSMSW_KYBER_REDUCE_H
+#ifndef ML_KEM_REDUCE_H
+#define ML_KEM_REDUCE_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -63,10 +71,10 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a);
-sint16 FsmSw_Kyber_BarrettReduce(sint16 a);
+sint16 ML_KEM_MontgomeryReduce(sint32 a);
+sint16 ML_KEM_BarrettReduce(sint16 a);
 
-#endif /* FSMSW_KYBER_REDUCE_H */
+#endif /* ML_KEM_REDUCE_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber512
-*    includes the modules for Kyber512
+/** \addtogroup ML_KEM_512
+*    includes the modules for ML_KEM_512
  ** @{ */
-/** \addtogroup Kyber512_indcpa
+/** \addtogroup ML_KEM_512_indcpa
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber512_indcpa.h
-* \brief  Declarations for the modul FsmSw_Kyber512_indcpa.c
+/** \file ML_KEM_512_indcpa.h
+* \brief  Declarations for the modul ML_KEM_512_indcpa.c
 *
 * \details
 *
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER512_INDCPA_H
-#define FSMSW_KYBER512_INDCPA_H
+#ifndef ML_KEM_512_INDCPA_H
+#define ML_KEM_512_INDCPA_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber512_params.h"
-#include "FsmSw_Kyber512_polyvec.h"
+#include "ML_KEM_512_params.h"
+#include "ML_KEM_512_polyvec.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,16 +72,16 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber512_Indcpa_GenMatrix(polyvec512 *a, const uint8 seed[KYBER_SYMBYTES], uint8 transposed);
-void FsmSw_Kyber512_Indcpa_KeyPair(uint8 pk[KYBER512_INDCPA_PUBLICKEYBYTES], uint8 sk[KYBER512_INDCPA_SECRETKEYBYTES]);
+void ML_KEM_512_Indcpa_GenMatrix(polyvec512 *a, const uint8 seed[ML_KEM_SYMBYTES], uint8 transposed);
+void ML_KEM_512_Indcpa_KeyPair(uint8 pk[ML_KEM_512_INDCPA_PUBLICKEYBYTES], uint8 sk[ML_KEM_512_INDCPA_SECRETKEYBYTES]);
 
-void FsmSw_Kyber512_Indcpa_Enc(uint8 c[KYBER512_INDCPA_BYTES], const uint8 m[KYBER512_INDCPA_MSGBYTES],
-                               const uint8 pk[KYBER512_INDCPA_PUBLICKEYBYTES], const uint8 coins[KYBER_SYMBYTES]);
+void ML_KEM_512_Indcpa_Enc(uint8 c[ML_KEM_512_INDCPA_BYTES], const uint8 m[ML_KEM_512_INDCPA_MSGBYTES],
+                               const uint8 pk[ML_KEM_512_INDCPA_PUBLICKEYBYTES], const uint8 coins[ML_KEM_SYMBYTES]);
 
-void FsmSw_Kyber512_Indcpa_Dec(uint8 m[KYBER512_INDCPA_MSGBYTES], const uint8 c[KYBER512_INDCPA_BYTES],
-                               const uint8 sk[KYBER512_INDCPA_SECRETKEYBYTES]);
+void ML_KEM_512_Indcpa_Dec(uint8 m[ML_KEM_512_INDCPA_MSGBYTES], const uint8 c[ML_KEM_512_INDCPA_BYTES],
+                               const uint8 sk[ML_KEM_512_INDCPA_SECRETKEYBYTES]);
 
-#endif /* FSMSW_KYBER512_INDCPA_H */
+#endif /* ML_KEM_512_INDCPA_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

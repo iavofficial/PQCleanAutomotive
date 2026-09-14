@@ -1,34 +1,62 @@
-#ifndef FSMSW_KYBER1024_API_H
-#define FSMSW_KYBER1024_API_H
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
- *  \file
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
+ *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber1024
-*    includes the modules for Kyber1024
+/** \addtogroup ML_KEM_1024
+*    includes the modules for ML_KEM_1024
  ** @{ */
-/** \addtogroup FsmSw_Kyber1024_api
+/** \addtogroup ML_KEM_1024_api
  ** @{ */
 
+/*====================================================================================================================*/
+/** \file ML_KEM_1024_api.h
+* \brief  Description of the ML_KEM_1024_api.h
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef ML_KEM_1024_API_H
+#define ML_KEM_1024_API_H
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
-#include "FsmSw_Kyber_api.h"
+#include "ML_KEM_api.h"
 #include "Std_Types.h"
 
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER1024_PUBLICKEYBYTES  1568u
-#define KYBER1024_SECRETKEYBYTES  3168u
-#define KYBER1024_INDCPA_BYTES    1568u
-#define KYBER1024_CIPHERTEXTBYTES 1568u
-#define KYBER1024_INDCPA_MSGBYTES 32u
+#define ML_KEM_1024_PUBLICKEYBYTES  1568u
+#define ML_KEM_1024_SECRETKEYBYTES  3168u
+#define ML_KEM_1024_INDCPA_BYTES    1568u
+#define ML_KEM_1024_CIPHERTEXTBYTES 1568u
+#define ML_KEM_1024_INDCPA_MSGBYTES 32u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -49,11 +77,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber1024_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
-void FsmSw_Kyber1024_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
-void FsmSw_Kyber1024_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
+void ML_KEM_1024_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+void ML_KEM_1024_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+void ML_KEM_1024_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-#endif /* FSMSW_KYBER1024_API_H */
+#endif /* ML_KEM_1024_API_H */

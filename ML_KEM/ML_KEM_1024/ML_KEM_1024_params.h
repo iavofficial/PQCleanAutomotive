@@ -1,8 +1,18 @@
 /***********************************************************************************************************************
-*
-*                                          IAV GmbH
-*
-***********************************************************************************************************************/
+ *
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
 /*
  *
  *  $File$
@@ -14,39 +24,39 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER1024_PARAMS_H
-#define FSMSW_KYBER1024_PARAMS_H
+#ifndef ML_KEM_1024_PARAMS_H
+#define ML_KEM_1024_PARAMS_H
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber1024_api.h"
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_1024_api.h"
+#include "ML_KEM_params.h"
 #include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER1024_K            4u
-#define KYBER1024_POLYVECBYTES (KYBER1024_K * KYBER_POLYBYTES)
+#define ML_KEM_1024_K            4u
+#define ML_KEM_1024_POLYVECBYTES (ML_KEM_1024_K * ML_KEM_POLYBYTES)
 
-#define KYBER1024_IMPLBYTES 1024u
+#define ML_KEM_1024_IMPLBYTES 1024u
 
-#define KYBER1024_POLYCOMPRESSEDBYTES    160u
-#define KYBER1024_POLYVECCOMPRESSEDBYTES (KYBER1024_K * 352u)
+#define ML_KEM_1024_POLYCOMPRESSEDBYTES    160u
+#define ML_KEM_1024_POLYVECCOMPRESSEDBYTES (ML_KEM_1024_K * 352u)
 
-#define KYBER1024_ETA1 2u
-#define KYBER1024_ETA2 2u
+#define ML_KEM_1024_ETA1 2u
+#define ML_KEM_1024_ETA2 2u
 
-#define KYBER1024_INDCPA_PUBLICKEYBYTES (KYBER1024_POLYVECBYTES + KYBER_SYMBYTES)
-#define KYBER1024_INDCPA_SECRETKEYBYTES (KYBER1024_POLYVECBYTES)
+#define ML_KEM_1024_INDCPA_PUBLICKEYBYTES (ML_KEM_1024_POLYVECBYTES + ML_KEM_SYMBYTES)
+#define ML_KEM_1024_INDCPA_SECRETKEYBYTES (ML_KEM_1024_POLYVECBYTES)
 
-FSMSW_STATIC_ASSERT(KYBER1024_PUBLICKEYBYTES == (KYBER1024_INDCPA_PUBLICKEYBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_1024_PUBLICKEYBYTES == (ML_KEM_1024_INDCPA_PUBLICKEYBYTES));
 /* 32 bytes of additional space to save H(pk) */
-FSMSW_STATIC_ASSERT(KYBER1024_SECRETKEYBYTES ==
-                    (KYBER1024_INDCPA_SECRETKEYBYTES + KYBER1024_INDCPA_PUBLICKEYBYTES + (2u * KYBER_SYMBYTES)));
-FSMSW_STATIC_ASSERT(KYBER1024_INDCPA_BYTES == (KYBER1024_POLYVECCOMPRESSEDBYTES + KYBER1024_POLYCOMPRESSEDBYTES));
-FSMSW_STATIC_ASSERT(KYBER1024_CIPHERTEXTBYTES == (KYBER1024_INDCPA_BYTES));
-FSMSW_STATIC_ASSERT(KYBER1024_INDCPA_MSGBYTES == (KYBER_SYMBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_1024_SECRETKEYBYTES ==
+                    (ML_KEM_1024_INDCPA_SECRETKEYBYTES + ML_KEM_1024_INDCPA_PUBLICKEYBYTES + (2u * ML_KEM_SYMBYTES)));
+FSMSW_STATIC_ASSERT(ML_KEM_1024_INDCPA_BYTES == (ML_KEM_1024_POLYVECCOMPRESSEDBYTES + ML_KEM_1024_POLYCOMPRESSEDBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_1024_CIPHERTEXTBYTES == (ML_KEM_1024_INDCPA_BYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_1024_INDCPA_MSGBYTES == (ML_KEM_SYMBYTES));
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -68,7 +78,7 @@ FSMSW_STATIC_ASSERT(KYBER1024_INDCPA_MSGBYTES == (KYBER_SYMBYTES));
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_KYBER1024_PARAMS_H */
+#endif /* ML_KEM_1024_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

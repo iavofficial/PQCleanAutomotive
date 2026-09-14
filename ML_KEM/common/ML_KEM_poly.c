@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_poly
+/** \addtogroup ML_KEM_poly
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_poly.c
-* \brief  description of FsmSw_Kyber_poly.c
+/** \file ML_KEM_poly.c
+* \brief  description of ML_KEM_poly.c
 *
 * \details
 *
@@ -37,13 +45,13 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_CommonLib.h"
-#include "FsmSw_Kyber_ntt.h"
-#include "FsmSw_Kyber_reduce.h"
-#include "FsmSw_Kyber_symmetric.h"
+#include "ML_KEM_CommonLib.h"
+#include "ML_KEM_ntt.h"
+#include "ML_KEM_reduce.h"
+#include "ML_KEM_symmetric.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber_poly.h"
+#include "ML_KEM_poly.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -80,16 +88,16 @@
 /**
 * \brief Serialization of a polynomial
 *
-* \param[out] uint8      *r : pointer to output byte array (needs space for KYBER_POLYBYTES bytes)
+* \param[out] uint8      *r : pointer to output byte array (needs space for ML_KEM_POLYBYTES bytes)
 * \param[in]  const poly *a : pointer to input polynomial
 */
-void FsmSw_Kyber_Poly_ToBytes(uint8 r[KYBER_POLYBYTES], const poly *a)
+void ML_KEM_Poly_ToBytes(uint8 r[ML_KEM_POLYBYTES], const poly *a)
 {
   uint16 i  = 0;
   uint16 t0 = 0;
   uint16 t1 = 0;
 
-  for (i = 0; i < (KYBER_N / 2u); i++)
+  for (i = 0; i < (ML_KEM_N / 2u); i++)
   {
     /* map to positive standard representatives */
     t0 = (uint16)(a->coeffs[2u * i]);
@@ -97,35 +105,35 @@ void FsmSw_Kyber_Poly_ToBytes(uint8 r[KYBER_POLYBYTES], const poly *a)
     /* Shift to get the first bit */
     if ((t0 >> 15u) != 0u)
     {
-      t0 = t0 + KYBER_Q;
+      t0 = t0 + ML_KEM_Q;
     }
 
     t1 = (uint16)(a->coeffs[(2u * i) + 1u]);
     /* Shift to get the first bit */
     if ((t1 >> 15u) != 0u)
     {
-      t1 = t1 + KYBER_Q;
+      t1 = t1 + ML_KEM_Q;
     }
 
     r[3u * i]        = (uint8)(t0 >> 0);
     r[(3u * i) + 1u] = (uint8)((t0 >> 8u) | (t1 << 4u));
     r[(3u * i) + 2u] = (uint8)(t1 >> 4u);
   }
-} // end: FsmSw_Kyber_Poly_ToBytes
+} // end: ML_KEM_Poly_ToBytes
 
 /*====================================================================================================================*/
 /**
 * \brief De-serialization of a polynomial;
-*        inverse of FsmSw_Kyber_Poly_ToBytes
+*        inverse of ML_KEM_Poly_ToBytes
 *
 * \param[out] poly        *r : pointer to output polynomial
-* \param[in]  const uint8 *a : pointer to input byte array (of KYBER_POLYBYTES bytes)
+* \param[in]  const uint8 *a : pointer to input byte array (of ML_KEM_POLYBYTES bytes)
 */
-void FsmSw_Kyber_Poly_FromBytes(poly *r, const uint8 a[KYBER_POLYBYTES])
+void ML_KEM_Poly_FromBytes(poly *r, const uint8 a[ML_KEM_POLYBYTES])
 {
   uint16 i = 0;
 
-  for (i = 0; i < (KYBER_N / 2u); i++)
+  for (i = 0; i < (ML_KEM_N / 2u); i++)
   {
     r->coeffs[2u * i] =
         (sint16)((uint16)((((((uint16)a[3u * i]) >> 0u) | (((uint16)a[((3u * i) + 1u)]) << 8u))) & 0xFFFu));
@@ -133,7 +141,7 @@ void FsmSw_Kyber_Poly_FromBytes(poly *r, const uint8 a[KYBER_POLYBYTES])
     r->coeffs[(2u * i) + 1u] =
         (sint16)((uint16)((((((uint16)a[(3u * i) + 1u]) >> 4u) | (((uint16)a[(3u * i) + 2u]) << 4u))) & 0xFFFu));
   }
-} // end: FsmSw_Kyber_Poly_FromBytes
+} // end: ML_KEM_Poly_FromBytes
 
 /*====================================================================================================================*/
 /**
@@ -143,11 +151,11 @@ void FsmSw_Kyber_Poly_FromBytes(poly *r, const uint8 a[KYBER_POLYBYTES])
 *
 * \param[in,out] uint16 *r : pointer to in/output polynomial
 */
-void FsmSw_Kyber_Poly_Ntt(poly *r)
+void ML_KEM_Poly_Ntt(poly *r)
 {
-  FsmSw_Kyber_Ntt(r->coeffs);
-  FsmSw_Kyber_Poly_Reduce(r);
-} // end: FsmSw_Kyber_Poly_Ntt
+  ML_KEM_Ntt(r->coeffs);
+  ML_KEM_Poly_Reduce(r);
+} // end: ML_KEM_Poly_Ntt
 
 /*====================================================================================================================*/
 /**
@@ -157,10 +165,10 @@ void FsmSw_Kyber_Poly_Ntt(poly *r)
 *
 * \param[in,out] uint16 *a : pointer to in/output polynomial
 */
-void FsmSw_Kyber_Poly_InvnttTomont(poly *r)
+void ML_KEM_Poly_InvnttTomont(poly *r)
 {
-  FsmSw_Kyber_Invntt(r->coeffs);
-} // end: FsmSw_Kyber_Poly_InvnttTomont
+  ML_KEM_Invntt(r->coeffs);
+} // end: ML_KEM_Poly_InvnttTomont
 
 /*====================================================================================================================*/
 /**
@@ -170,18 +178,18 @@ void FsmSw_Kyber_Poly_InvnttTomont(poly *r)
 * \param[in]  const poly *a : pointer to first input polynomial
 * \param[in]  const poly *b : pointer to second input polynomial
 */
-void FsmSw_Kyber_Poly_BasemulMontgomery(poly *r, const poly *a, const poly *b)
+void ML_KEM_Poly_BasemulMontgomery(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < (KYBER_N / 4u); i++)
+  for (i = 0; i < (ML_KEM_N / 4u); i++)
   {
-    FsmSw_Kyber_Basemul(&r->coeffs[4u * i], &a->coeffs[4u * i], &b->coeffs[4u * i], FsmSw_Kyber_zetas[64u + i]);
+    ML_KEM_Basemul(&r->coeffs[4u * i], &a->coeffs[4u * i], &b->coeffs[4u * i], ML_KEM_zetas[64u + i]);
 
-    FsmSw_Kyber_Basemul(&r->coeffs[(4u * i) + 2u], &a->coeffs[(4u * i) + 2u], &b->coeffs[(4u * i) + 2u],
-                        -FsmSw_Kyber_zetas[64u + i]);
+    ML_KEM_Basemul(&r->coeffs[(4u * i) + 2u], &a->coeffs[(4u * i) + 2u], &b->coeffs[(4u * i) + 2u],
+                        -ML_KEM_zetas[64u + i]);
   }
-} // end: FsmSw_Kyber_Poly_BasemulMontgomery
+} // end: ML_KEM_Poly_BasemulMontgomery
 
 /*====================================================================================================================*/
 /**
@@ -190,16 +198,16 @@ void FsmSw_Kyber_Poly_BasemulMontgomery(poly *r, const poly *a, const poly *b)
 *
 * \param[in,out] poly *r : pointer to input/output polynomial
 */
-void FsmSw_Kyber_Poly_Tomont(poly *r)
+void ML_KEM_Poly_Tomont(poly *r)
 {
   uint16 i       = 0;
-  const sint16 f = (sint16)((1ULL << 32u) % KYBER_Q);
+  const sint16 f = (sint16)((1ULL << 32u) % ML_KEM_Q);
 
-  for (i = 0; i < KYBER_N; i++)
+  for (i = 0; i < ML_KEM_N; i++)
   {
-    r->coeffs[i] = FsmSw_Kyber_MontgomeryReduce((sint32)r->coeffs[i] * (sint32)f);
+    r->coeffs[i] = ML_KEM_MontgomeryReduce((sint32)r->coeffs[i] * (sint32)f);
   }
-} // end: FsmSw_Kyber_Poly_Tomont
+} // end: ML_KEM_Poly_Tomont
 
 /*====================================================================================================================*/
 /**
@@ -208,15 +216,15 @@ void FsmSw_Kyber_Poly_Tomont(poly *r)
 *
 * \param[in,out] poly *r : pointer to input/output polynomial
 */
-void FsmSw_Kyber_Poly_Reduce(poly *r)
+void ML_KEM_Poly_Reduce(poly *r)
 {
   uint16 i = 0;
 
-  for (i = 0; i < KYBER_N; i++)
+  for (i = 0; i < ML_KEM_N; i++)
   {
-    r->coeffs[i] = FsmSw_Kyber_BarrettReduce(r->coeffs[i]);
+    r->coeffs[i] = ML_KEM_BarrettReduce(r->coeffs[i]);
   }
-} // end: FsmSw_Kyber_Poly_Reduce
+} // end: ML_KEM_Poly_Reduce
 
 /*====================================================================================================================*/
 /**
@@ -226,15 +234,15 @@ void FsmSw_Kyber_Poly_Reduce(poly *r)
 * \param[in]  const poly *a : pointer to first input polynomial
 * \param[in]  const poly *b : pointer to second input polynomial
 */
-void FsmSw_Kyber_Poly_Add(poly *r, const poly *a, const poly *b)
+void ML_KEM_Poly_Add(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < KYBER_N; i++)
+  for (i = 0; i < ML_KEM_N; i++)
   {
     r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
   }
-} // end: FsmSw_Kyber_Poly_Add
+} // end: ML_KEM_Poly_Add
 
 /*====================================================================================================================*/
 /**
@@ -244,15 +252,15 @@ void FsmSw_Kyber_Poly_Add(poly *r, const poly *a, const poly *b)
 * \param[in]  const poly *a : pointer to first input polynomial
 * \param[in]  const poly *b : pointer to second input polynomial
 */
-void FsmSw_Kyber_Poly_Sub(poly *r, const poly *a, const poly *b)
+void ML_KEM_Poly_Sub(poly *r, const poly *a, const poly *b)
 {
   uint16 i = 0;
 
-  for (i = 0; i < KYBER_N; i++)
+  for (i = 0; i < ML_KEM_N; i++)
   {
     r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
   }
-} // end: FsmSw_Kyber_Poly_Sub
+} // end: ML_KEM_Poly_Sub
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

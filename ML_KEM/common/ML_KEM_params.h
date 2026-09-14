@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_params
+/** \addtogroup ML_KEM_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_params.h
-* \brief  description of FsmSw_Kyber_params.h
+/** \file ML_KEM_params.h
+* \brief  description of ML_KEM_params.h
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_PARAMS_H
-#define FSMSW_KYBER_PARAMS_H
+#ifndef ML_KEM_PARAMS_H
+#define ML_KEM_PARAMS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -42,12 +50,12 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER_N 256u
-#define KYBER_Q 3329u
+#define ML_KEM_N 256u
+#define ML_KEM_Q 3329u
 
-#define KYBER_SYMBYTES 32u /* size in bytes of hashes, and seeds */
+#define ML_KEM_SYMBYTES 32u /* size in bytes of hashes, and seeds */
 
-#define KYBER_POLYBYTES 384u
+#define ML_KEM_POLYBYTES 384u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -68,7 +76,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_KYBER_PARAMS_H */
+#endif /* ML_KEM_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,29 +1,56 @@
-#ifndef FSMSW_KYBER_API_H
-#define FSMSW_KYBER_API_H
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
- *  \file
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
+ *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber
-*    includes the modules for Kyber
+/** \addtogroup ML_KEM
+*    includes the modules for ML_KEM
  ** @{ */
-/** \addtogroup FsmSw_Kyber_api
+/** \addtogroup ML_KEM_api
  ** @{ */
 
+/*====================================================================================================================*/
+/** \file ML_KEM_api.h
+* \brief  Description of the ML_KEM_api.h
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef ML_KEM_API_H
+#define ML_KEM_API_H
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
 #include "Std_Types.h"
-
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER_SSBYTES 32u /* size in bytes of shared key */
+#define ML_KEM_SSBYTES 32u /* size in bytes of shared key */
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -48,4 +75,4 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-#endif /* FSMSW_KYBER_API_H */
+#endif /* ML_KEM_API_H */

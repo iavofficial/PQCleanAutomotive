@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber512
-*    includes the modules for Kyber512
+/** \addtogroup ML_KEM_512
+*    includes the modules for ML_KEM_512
  ** @{ */
-/** \addtogroup Kyber512_kem
+/** \addtogroup ML_KEM_512_kem
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber512_kem.h
-* \brief  Declarations for the modul FsmSw_Kyber512_kem.c
+/** \file ML_KEM_512_kem.h
+* \brief  Declarations for the modul ML_KEM_512_kem.c
 *
 * \details
 *
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER512_KEM_H
-#define FSMSW_KYBER512_KEM_H
+#ifndef ML_KEM_512_KEM_H
+#define ML_KEM_512_KEM_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber512_api.h"
-#include "FsmSw_Kyber512_params.h"
+#include "ML_KEM_512_api.h"
+#include "ML_KEM_512_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -65,7 +73,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_KYBER512_KEM_H */
+#endif /* ML_KEM_512_KEM_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

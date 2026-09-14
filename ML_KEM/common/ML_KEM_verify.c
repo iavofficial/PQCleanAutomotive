@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,11 +19,11 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_verify
+/** \addtogroup ML_KEM_verify
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_verify.c
+/** \file ML_KEM_verify.c
 * \brief  description of FsmSw_symmetric_verify.c
 *
 * \details
@@ -39,7 +47,7 @@
 /**********************************************************************************************************************/
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber_verify.h"
+#include "ML_KEM_verify.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -82,7 +90,7 @@
 *
 * \returns 0 if the byte arrays are equal, 1 otherwise
 */
-uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
+uint8 ML_KEM_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
 {
   uint32 i = 0;
   uint8 r  = 0;
@@ -107,7 +115,7 @@ uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
   }
 
   return (uint8)temp2;
-} // end: FsmSw_Kyber_Verify
+} // end: ML_KEM_Verify
 
 /*====================================================================================================================*/
 /**
@@ -121,7 +129,7 @@ uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len)
 * \param[in]  uint32     len : Amount of bytes to be copied
 * \param[in]  uint8        b : Condition bit; has to be in {0,1}
 */
-void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
+void ML_KEM_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
 {
   uint32 i     = 0;
   sint8 b_sint = 0;
@@ -134,7 +142,7 @@ void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
   {
     r[i] = r[i] ^ ((uint8)b_sint & (r[i] ^ x[i]));
   }
-} // end: FsmSw_Kyber_Cmov
+} // end: ML_KEM_Cmov
 
 /*====================================================================================================================*/
 /*************************************************
@@ -146,7 +154,7 @@ void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b)
 * \param[in]  sint16  v :       input int16_t
 * \param[in]  uint8   b :       Condition bit; has to be in {0,1}
 **************************************************/
-void FsmSw_Kyber_Cmov_int16(sint16 *r, sint16 v, uint16 b)
+void ML_KEM_Cmov_int16(sint16 *r, sint16 v, uint16 b)
 {
   sint16 b_sint = 0;
   uint16 r_uint = (uint16)(*r);

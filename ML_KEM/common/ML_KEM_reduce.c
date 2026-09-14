@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_reduce
+/** \addtogroup ML_KEM_reduce
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_reduce.c
-* \brief  description of FsmSw_Kyber_reduce.c
+/** \file ML_KEM_reduce.c
+* \brief  description of ML_KEM_reduce.c
 *
 * \details
 *
@@ -37,10 +45,10 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber_reduce.h"
+#include "ML_KEM_reduce.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -83,14 +91,14 @@
 *
 * \returns integer in {-q+1,...,q-1} congruent to a * R^-1 modulo q.
 */
-sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a)
+sint16 ML_KEM_MontgomeryReduce(sint32 a)
 {
   sint16 t = 0;
 
   t = (sint16)a * QINV;
-  t = (sint16)((uint16)(((uint32)a - ((uint32)t * KYBER_Q)) >> 16));
+  t = (sint16)((uint16)(((uint32)a - ((uint32)t * ML_KEM_Q)) >> 16));
   return t;
-} // end: FsmSw_Kyber_MontgomeryReduce
+} // end: ML_KEM_MontgomeryReduce
 
 /*====================================================================================================================*/
 /**
@@ -101,21 +109,15 @@ sint16 FsmSw_Kyber_MontgomeryReduce(sint32 a)
 *
 * \returns integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
 */
-sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
+sint16 ML_KEM_BarrettReduce(sint16 a)
 {
   sint16 t = 0;
-  /* polyspace +3 DEFECT:UINT_CONSTANT_OVFL [To fix:]"Due to the shift and the cast, temp0 becomes 0. Because we don't 
-     want to deviate too much from the original functionality of the repo, the shift key remains active. We will check  
-     the violation again once the repo has been set to read-only." */
-  const sint16 temp0 = (sint16)(uint16)((uint32)1u << (uint16)25u);
+
+  const sint32 temp0 = (sint32)((uint32)1u << (uint16)25u);
   sint32 temp1       = 0;
   uint32 temp2       = 0;
-  const sint16 v     = (sint16)((uint16)((((uint32)1 << 26u) + KYBER_Q / 2u) / KYBER_Q));
+  const sint32 v     = (sint32)((((uint32)1 << 26u) + ML_KEM_Q / 2u) / ML_KEM_Q);
 
-  /* Polyspace cannot resolve the operation if the shift operation is inserted instead of temp0. */
-  /* polyspace +3 MISRA2012:2.2 [To fix:]"Due to the shift and the cast, temp0 becomes 0. Because we don't want to 
-     deviate too much from the original functionality of the repo, the shift key remains active. We will check the 
-     violation again once the repo has been set to read-only." */
   temp1 = ((sint32)v * (sint32)a) + (sint32)temp0;
 
   /* Check the first bit */
@@ -128,10 +130,10 @@ sint16 FsmSw_Kyber_BarrettReduce(sint16 a)
     temp2 = ((uint32)temp1 >> 26u);
   }
   t = (sint16)((sint32)temp2);
-  t = (sint16)((uint16)(((uint32)t * KYBER_Q)));
+  t = (sint16)((uint16)(((uint32)t * ML_KEM_Q)));
 
   return a - t;
-} // end: FsmSw_Kyber_BarrettReduce
+} // end: ML_KEM_BarrettReduce
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

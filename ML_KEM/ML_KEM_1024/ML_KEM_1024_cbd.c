@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber1024
-*    includes the modules for Kyber1024
+/** \addtogroup ML_KEM_1024
+*    includes the modules for ML_KEM_1024
  ** @{ */
-/** \addtogroup Kyber1024_cbd
+/** \addtogroup ML_KEM_1024_cbd
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber1024_cbd.c
-* \brief  description of FsmSw_Kyber1024_cbd.c
+/** \file ML_KEM_1024_cbd.c
+* \brief  description of ML_KEM_1024_cbd.c
 *
 * \details
 *
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber1024_params.h"
-#include "FsmSw_Kyber_CommonLib.h"
+#include "ML_KEM_1024_params.h"
+#include "ML_KEM_CommonLib.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber1024_cbd.h"
+#include "ML_KEM_1024_cbd.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -81,10 +89,10 @@
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-void FsmSw_Kyber1024_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER1024_ETA1 * KYBER_N / 4u])
+void ML_KEM_1024_Poly_Cbd_Eta1(poly *const r, const uint8 buf[ML_KEM_1024_ETA1 * ML_KEM_N / 4u])
 {
-  FsmSw_Kyber_Cbd2(r, buf);
-} // end: FsmSw_Kyber1024_Poly_Cbd_Eta1
+  ML_KEM_Cbd2(r, buf);
+} // end: ML_KEM_1024_Poly_Cbd_Eta1
 
 /*====================================================================================================================*/
 /**
@@ -95,10 +103,10 @@ void FsmSw_Kyber1024_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER1024_ETA1
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-void FsmSw_Kyber1024_Poly_Cbd_Eta2(poly *const r, const uint8 buf[KYBER1024_ETA2 * KYBER_N / 4u])
+void ML_KEM_1024_Poly_Cbd_Eta2(poly *const r, const uint8 buf[ML_KEM_1024_ETA2 * ML_KEM_N / 4u])
 {
-  FsmSw_Kyber_Cbd2(r, buf);
-} // end: FsmSw_Kyber1024_Poly_Cbd_Eta2
+  ML_KEM_Cbd2(r, buf);
+} // end: ML_KEM_1024_Poly_Cbd_Eta2
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

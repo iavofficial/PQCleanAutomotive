@@ -1,34 +1,61 @@
-#ifndef FSMSW_KYBER512_API_H
-#define FSMSW_KYBER512_API_H
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
- *  \file
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
+ *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber512
-*    includes the modules for Kyber512
+/** \addtogroup ML_KEM_512
+*    includes the modules for ML_KEM_512
  ** @{ */
-/** \addtogroup FsmSw_Kyber512_api
+/** \addtogroup ML_KEM_512_api
  ** @{ */
 
+/*====================================================================================================================*/
+/** \file ML_KEM_512_api.h
+* \brief  Description of the ML_KEM_512_api.h
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef ML_KEM_512_API_H
+#define ML_KEM_512_API_H
 /***********************************************************************************************************************
  * INCLUDES
  **********************************************************************************************************************/
-#include "FsmSw_Kyber_api.h"
+#include "ML_KEM_api.h"
 #include "Std_Types.h"
-
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER512_PUBLICKEYBYTES  800u
-#define KYBER512_SECRETKEYBYTES  1632u
-#define KYBER512_INDCPA_BYTES    768u
-#define KYBER512_CIPHERTEXTBYTES 768u
-#define KYBER512_INDCPA_MSGBYTES 32u
+#define ML_KEM_512_PUBLICKEYBYTES  800u
+#define ML_KEM_512_SECRETKEYBYTES  1632u
+#define ML_KEM_512_INDCPA_BYTES    768u
+#define ML_KEM_512_CIPHERTEXTBYTES 768u
+#define ML_KEM_512_INDCPA_MSGBYTES 32u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -49,11 +76,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber512_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
-void FsmSw_Kyber512_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
-void FsmSw_Kyber512_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
+void ML_KEM_512_Crypto_Kem_KeyPair(uint8 *const pk, uint8 *const sk);
+void ML_KEM_512_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const pk);
+void ML_KEM_512_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 *const sk);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-#endif /* FSMSW_KYBER512_API_H */
+#endif /* ML_KEM_512_API_H */

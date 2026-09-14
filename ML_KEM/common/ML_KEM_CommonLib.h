@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_CommonLib
+/** \addtogroup ML_KEM_CommonLib
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_CommonLib.h
-* \brief  Declarations for the modul FsmSw_Kyber_CommonLib.c
+/** \file ML_KEM_CommonLib.h
+* \brief  Declarations for the modul ML_KEM_CommonLib.c
 *
 * \details
 *
@@ -33,12 +41,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_COMMONLIB_H
-#define FSMSW_KYBER_COMMONLIB_H
+#ifndef ML_KEM_COMMONLIB_H
+#define ML_KEM_COMMONLIB_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -53,7 +61,7 @@ making it impractical and complex to hide the implementation details." */
 making it impractical and complex to hide the implementation details." */
 typedef struct
 {
-  sint16 coeffs[KYBER_N];
+  sint16 coeffs[ML_KEM_N];
 } poly;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
@@ -70,10 +78,10 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-uint32 FsmSw_Kyber_Load32LittleEndian(const uint8 x[4]);
-void FsmSw_Kyber_Cbd2(poly *r, const uint8 buf[2u * KYBER_N / 4u]);
+uint32 ML_KEM_Load32LittleEndian(const uint8 x[4]);
+void ML_KEM_Cbd2(poly *r, const uint8 buf[2u * ML_KEM_N / 4u]);
 
-#endif /* FSMSW_KYBER_COMMONLIB_H */
+#endif /* ML_KEM_COMMONLIB_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

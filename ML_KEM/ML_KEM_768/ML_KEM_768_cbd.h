@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber768
-*    includes the modules for Kyber768
+/** \addtogroup ML_KEM_768
+*    includes the modules for ML_KEM_768
  ** @{ */
-/** \addtogroup Kyber768_cbd
+/** \addtogroup ML_KEM_768_cbd
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber768_cbd.h
-* \brief  Declarations for the modul FsmSw_Kyber768_cbd.c
+/** \file ML_KEM_768_cbd.h
+* \brief  Declarations for the modul ML_KEM_768_cbd.c
 *
 * \details
 *
@@ -33,14 +41,14 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER768_CBD_H
-#define FSMSW_KYBER768_CBD_H
+#ifndef ML_KEM_768_CBD_H
+#define ML_KEM_768_CBD_H
 
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber768_params.h"
-#include "FsmSw_Kyber768_poly.h"
+#include "ML_KEM_768_params.h"
+#include "ML_KEM_768_poly.h"
 #include "Std_Types.h"
 
 /**********************************************************************************************************************/
@@ -66,11 +74,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber768_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER768_ETA1 * KYBER_N / 4u]);
+void ML_KEM_768_Poly_Cbd_Eta1(poly *const r, const uint8 buf[ML_KEM_768_ETA1 * ML_KEM_N / 4u]);
 
-void FsmSw_Kyber768_Poly_Cbd_Eta2(poly *const r, const uint8 buf[KYBER768_ETA2 * KYBER_N / 4u]);
+void ML_KEM_768_Poly_Cbd_Eta2(poly *const r, const uint8 buf[ML_KEM_768_ETA2 * ML_KEM_N / 4u]);
 
-#endif /* FSMSW_KYBER768_CBD_H */
+#endif /* ML_KEM_768_CBD_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

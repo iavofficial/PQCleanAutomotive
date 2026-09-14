@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_verify
+/** \addtogroup ML_KEM_verify
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_verify.h
-* \brief  Declarations for the modul FsmSw_Kyber_symmetric_verify.c
+/** \file ML_KEM_verify.h
+* \brief  Declarations for the modul ML_KEM_symmetric_verify.c
 *
 * \details
 *
@@ -33,8 +41,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_VERIFY_H
-#define FSMSW_KYBER_VERIFY_H
+#ifndef ML_KEM_VERIFY_H
+#define ML_KEM_VERIFY_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -75,11 +83,11 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-uint8 FsmSw_Kyber_Verify(const uint8 *const a, const uint8 *const b, uint32 len);
-void FsmSw_Kyber_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b);
-void FsmSw_Kyber_Cmov_int16(sint16 *r, sint16 v, uint16 b);
+uint8 ML_KEM_Verify(const uint8 *const a, const uint8 *const b, uint32 len);
+void ML_KEM_Cmov(uint8 *const r, const uint8 *const x, uint32 len, uint8 b);
+void ML_KEM_Cmov_int16(sint16 *r, sint16 v, uint16 b);
 
-#endif /* FSMSW_KYBER_VERIFY_H */
+#endif /* ML_KEM_VERIFY_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

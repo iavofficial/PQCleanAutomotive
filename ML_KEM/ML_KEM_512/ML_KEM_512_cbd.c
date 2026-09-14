@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber512
-*    includes the modules for Kyber512
+/** \addtogroup ML_KEM_512
+*    includes the modules for ML_KEM_512
  ** @{ */
-/** \addtogroup Kyber512_cbd
+/** \addtogroup ML_KEM_512_cbd
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber512_cbd.c
-* \brief  description of FsmSw_Kyber512_cbd.c
+/** \file ML_KEM_512_cbd.c
+* \brief  description of ML_KEM_512_cbd.c
 *
 * \details
 *
@@ -37,15 +45,15 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber512_params.h"
-#include "FsmSw_Kyber_CommonLib.h"
+#include "ML_KEM_512_params.h"
+#include "ML_KEM_CommonLib.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber512_cbd.h"
+#include "ML_KEM_512_cbd.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER512_CBD_BLOCK_SIZE 4u
+#define ML_KEM_512_CBD_BLOCK_SIZE 4u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -65,8 +73,8 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3]);
-static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u]);
+static uint32 ml_kem_512_Load24LittleEndian(const uint8 x[3]);
+static void ml_kem_512_Cbd3(poly *const r, const uint8 buf[3u * ML_KEM_N / 4u]);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -76,13 +84,13 @@ static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u
 /**
 * \brief load 3 bytes into a 32-bit integer
 *        in little-endian order.
-*        This function is only needed for Kyber-512
+*        This function is only needed for ML_KEM-512
 *
 * \param[in] const uint8 *x : pointer to input byte array
 *
 * \returns 32-bit unsigned integer loaded from x (most significant byte is zero)
 */
-static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3])
+static uint32 ml_kem_512_Load24LittleEndian(const uint8 x[3])
 {
   uint32 r = 0;
 
@@ -91,19 +99,19 @@ static uint32 fsmsw_kyber512_Load24LittleEndian(const uint8 x[3])
   r |= (uint32)x[2] << 16;
 
   return r;
-} // end: fsmsw_kyber512_Load24LittleEndian
+} // end: ml_kem_512_Load24LittleEndian
 
 /*====================================================================================================================*/
 /**
 * \brief Given an array of uniformly random bytes, compute
 *        polynomial with coefficients distributed according to
 *        a centered binomial distribution with parameter eta=3.
-*        This function is only needed for Kyber-512
+*        This function is only needed for ML_KEM-512
 *
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u])
+static void ml_kem_512_Cbd3(poly *const r, const uint8 buf[3u * ML_KEM_N / 4u])
 {
   uint8 i  = 0;
   uint8 j  = 0;
@@ -112,21 +120,21 @@ static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u
   sint16 a = 0;
   sint16 b = 0;
 
-  for (i = 0; i < (KYBER_N / 4u); i++)
+  for (i = 0; i < (ML_KEM_N / 4u); i++)
   {
-    t = fsmsw_kyber512_Load24LittleEndian(&buf[3u * i]);
+    t = ml_kem_512_Load24LittleEndian(&buf[3u * i]);
     d = t & 0x00249249u;
     d += (t >> 1u) & 0x00249249u;
     d += (t >> 2u) & 0x00249249u;
 
-    for (j = 0; j < FSMSW_KYBER512_CBD_BLOCK_SIZE; j++)
+    for (j = 0; j < ML_KEM_512_CBD_BLOCK_SIZE; j++)
     {
       a                       = (sint16)((uint16)((uint16)((d >> ((6u * j)))) & 0x7u));
       b                       = (sint16)((uint16)((uint16)((d >> ((6u * j) + 3u))) & 0x7u));
       r->coeffs[(4u * i) + j] = a - b;
     }
   }
-} // end: fsmsw_kyber512_Cbd3
+} // end: ml_kem_512_Cbd3
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -136,15 +144,15 @@ static void fsmsw_kyber512_Cbd3(poly *const r, const uint8 buf[3u * KYBER_N / 4u
 * \brief Given an array of uniformly random bytes, compute
 *        polynomial with coefficients distributed according to
 *        a centered binomial distribution with parameter eta=3.
-*        This function is only needed for Kyber-512
+*        This function is only needed for ML_KEM-512
 *
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-void FsmSw_Kyber512_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER512_ETA1 * KYBER_N / 4u])
+void ML_KEM_512_Poly_Cbd_Eta1(poly *const r, const uint8 buf[ML_KEM_512_ETA1 * ML_KEM_N / 4u])
 {
-  fsmsw_kyber512_Cbd3(r, buf);
-} // end: FsmSw_Kyber512_Poly_Cbd_Eta1
+  ml_kem_512_Cbd3(r, buf);
+} // end: ML_KEM_512_Poly_Cbd_Eta1
 
 /*====================================================================================================================*/
 /**
@@ -155,10 +163,10 @@ void FsmSw_Kyber512_Poly_Cbd_Eta1(poly *const r, const uint8 buf[KYBER512_ETA1 *
 * \param[out] poly          *r : pointer to output polynomial
 * \param[in]  const uint8 *buf : pointer to input byte array
 */
-void FsmSw_Kyber512_Poly_Cbd_Eta2(poly *const r, const uint8 buf[KYBER512_ETA2 * KYBER_N / 4u])
+void ML_KEM_512_Poly_Cbd_Eta2(poly *const r, const uint8 buf[ML_KEM_512_ETA2 * ML_KEM_N / 4u])
 {
-  FsmSw_Kyber_Cbd2(r, buf);
-} // end: FsmSw_Kyber512_Poly_Cbd_Eta2
+  ML_KEM_Cbd2(r, buf);
+} // end: ML_KEM_512_Poly_Cbd_Eta2
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

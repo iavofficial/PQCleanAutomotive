@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber768
-*    includes the modules for Kyber768
+/** \addtogroup ML_KEM_768
+*    includes the modules for ML_KEM_768
  ** @{ */
-/** \addtogroup Kyber768_polyvec
+/** \addtogroup ML_KEM_768_polyvec
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber768_polyvec.c
-* \brief  description of FsmSw_Kyber768_polyvec.c
+/** \file ML_KEM_768_polyvec.c
+* \brief  description of ML_KEM_768_polyvec.c
 *
 * \details
 *
@@ -37,16 +45,16 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber768_params.h"
-#include "FsmSw_Kyber768_poly.h"
-#include "FsmSw_Kyber_poly.h"
+#include "ML_KEM_768_params.h"
+#include "ML_KEM_768_poly.h"
+#include "ML_KEM_poly.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber768_polyvec.h"
+#include "ML_KEM_768_polyvec.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE 4u
+#define ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE 4u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -82,29 +90,29 @@
 * \param[out] uint8         *r : pointer to output byte array
 * \param[in]  const polyvec *a : pointer to input vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_Compress(uint8 r[KYBER768_POLYVECCOMPRESSEDBYTES], const polyvec768 *const a)
+void ML_KEM_768_Polyvec_Compress(uint8 r[ML_KEM_768_POLYVECCOMPRESSEDBYTES], const polyvec768 *const a)
 {
   uint8 i                                              = 0;
   uint8 k                                              = 0;
   uint16 j                                             = 0;
-  uint16 t[FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
+  uint16 t[ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* r_temp is used to avoid modifying the input. */
   uint8 *r_temp = r;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    for (j = 0; j < (KYBER_N / FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE); j++)
+    for (j = 0; j < (ML_KEM_N / ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE); j++)
     {
-      for (k = 0; (k < FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE); k++)
+      for (k = 0; (k < ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE); k++)
       {
         t[k] = (uint16)(a->vec[i].coeffs[(4u * j) + k]);
         /* Shift to get the first bit */
         if ((t[k] >> 15u) != 0u)
         {
-          t[k] = t[k] + KYBER_Q;
+          t[k] = t[k] + ML_KEM_Q;
         }
-        t[k] = (uint16)(((t[k] << 10u) + (KYBER_Q / 2u)) / KYBER_Q) & 0x3ffu;
+        t[k] = (uint16)(((t[k] << 10u) + (ML_KEM_Q / 2u)) / ML_KEM_Q) & 0x3ffu;
       }
 
       r_temp[0] = (uint8)(t[0] >> 0);
@@ -115,29 +123,29 @@ void FsmSw_Kyber768_Polyvec_Compress(uint8 r[KYBER768_POLYVECCOMPRESSEDBYTES], c
       r_temp    = &(r_temp[5]);
     }
   }
-} // end: FsmSw_Kyber768_Polyvec_Compress
+} // end: ML_KEM_768_Polyvec_Compress
 
 /*====================================================================================================================*/
 /**
 * \brief De-serialize and decompress vector of polynomials;
-*        approximate inverse of FsmSw_Kyber768_Polyvec_Compress
+*        approximate inverse of ML_KEM_768_Polyvec_Compress
 *
 * \param[out] polyvec768  *r : pointer to output vector of polynomials
-* \param[in]  const uint8 *a : pointer to input byte array (of length KYBER768_POLYVECCOMPRESSEDBYTES bytes)
+* \param[in]  const uint8 *a : pointer to input byte array (of length ML_KEM_768_POLYVECCOMPRESSEDBYTES bytes)
 */
-void FsmSw_Kyber768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[KYBER768_POLYVECCOMPRESSEDBYTES])
+void ML_KEM_768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[ML_KEM_768_POLYVECCOMPRESSEDBYTES])
 {
   uint8 i                                              = 0;
   uint8 k                                              = 0;
   uint16 j                                             = 0;
-  uint16 t[FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
+  uint16 t[ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE] = {0};
 
   /* a_temp is used to avoid modifying the input. */
   const uint8 *a_temp = a;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    for (j = 0; j < (KYBER_N / 4u); j++)
+    for (j = 0; j < (ML_KEM_N / 4u); j++)
     {
       t[0] = ((uint16)a_temp[0] >> 0) | ((uint16)a_temp[1] << 8);
       t[1] = ((uint16)a_temp[1] >> 2) | ((uint16)a_temp[2] << 6);
@@ -146,48 +154,48 @@ void FsmSw_Kyber768_Polyvec_Decompress(polyvec768 *const r, const uint8 a[KYBER7
       /* Set address from pointer a[4] to address a[5] */
       a_temp = &(a_temp[5]);
 
-      for (k = 0; k < FSMSW_KYBER768_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
+      for (k = 0; k < ML_KEM_768_POLYVEC_COMPRESS_BLOCK_SIZE; k++)
       {
-        r->vec[i].coeffs[(4u * j) + k] = (sint16)((uint16)((((t[k] & 0x3FFu) * KYBER_Q) + KYBER768_IMPLBYTES) >> 10u));
+        r->vec[i].coeffs[(4u * j) + k] = (sint16)((uint16)((((t[k] & 0x3FFu) * ML_KEM_Q) + ML_KEM_768_IMPLBYTES) >> 10u));
       }
     }
   }
-} // end: FsmSw_Kyber768_Polyvec_Decompress
+} // end: ML_KEM_768_Polyvec_Decompress
 
 /*====================================================================================================================*/
 /**
 * \brief Serialize vector of polynomials
 *
-* \param[out] uint8            *r : pointer to output byte array (of length KYBER768_POLYVECBYTES bytes)
+* \param[out] uint8            *r : pointer to output byte array (of length ML_KEM_768_POLYVECBYTES bytes)
 * \param[in]  const polyvec768 *a : pointer to input vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_ToBytes(uint8 r[KYBER768_POLYVECBYTES], const polyvec768 *const a)
+void ML_KEM_768_Polyvec_ToBytes(uint8 r[ML_KEM_768_POLYVECBYTES], const polyvec768 *const a)
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_ToBytes(&(r[i * KYBER_POLYBYTES]), &a->vec[i]);
+    ML_KEM_Poly_ToBytes(&(r[i * ML_KEM_POLYBYTES]), &a->vec[i]);
   }
-} // end: FsmSw_Kyber768_Polyvec_ToBytes
+} // end: ML_KEM_768_Polyvec_ToBytes
 
 /*====================================================================================================================*/
 /**
 * \brief De-serialize vector of polynomials;
-*        inverse of FsmSw_Kyber768_Polyvec_ToBytes
+*        inverse of ML_KEM_768_Polyvec_ToBytes
 *
 * \param[out] uint8            *r : pointer to output byte array
-* \param[in]  const polyvec768 *a : pointer to input vector of polynomials (of length KYBER768_POLYVECBYTES bytes)
+* \param[in]  const polyvec768 *a : pointer to input vector of polynomials (of length ML_KEM_768_POLYVECBYTES bytes)
 */
-void FsmSw_Kyber768_Polyvec_FromBytes(polyvec768 *r, const uint8 a[KYBER768_POLYVECBYTES])
+void ML_KEM_768_Polyvec_FromBytes(polyvec768 *r, const uint8 a[ML_KEM_768_POLYVECBYTES])
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_FromBytes(&r->vec[i], &a[i * KYBER_POLYBYTES]);
+    ML_KEM_Poly_FromBytes(&r->vec[i], &a[i * ML_KEM_POLYBYTES]);
   }
-} // end: FsmSw_Kyber768_Polyvec_FromBytes
+} // end: ML_KEM_768_Polyvec_FromBytes
 
 /*====================================================================================================================*/
 /**
@@ -195,15 +203,15 @@ void FsmSw_Kyber768_Polyvec_FromBytes(polyvec768 *r, const uint8 a[KYBER768_POLY
 *
 * \param[in,out] polyvec768 *r : pointer to in/output vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_Ntt(polyvec768 *r)
+void ML_KEM_768_Polyvec_Ntt(polyvec768 *r)
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_Ntt(&r->vec[i]);
+    ML_KEM_Poly_Ntt(&r->vec[i]);
   }
-} // end: FsmSw_Kyber768_Polyvec_Ntt
+} // end: ML_KEM_768_Polyvec_Ntt
 
 /*====================================================================================================================*/
 /**
@@ -212,15 +220,15 @@ void FsmSw_Kyber768_Polyvec_Ntt(polyvec768 *r)
 *
 * \param[in,out] polyvec768 *r : pointer to in/output vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_InvnttTomont(polyvec768 *r)
+void ML_KEM_768_Polyvec_InvnttTomont(polyvec768 *r)
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_InvnttTomont(&r->vec[i]);
+    ML_KEM_Poly_InvnttTomont(&r->vec[i]);
   }
-} // end: FsmSw_Kyber768_Polyvec_InvnttTomont
+} // end: ML_KEM_768_Polyvec_InvnttTomont
 
 /*====================================================================================================================*/
 /**
@@ -231,21 +239,21 @@ void FsmSw_Kyber768_Polyvec_InvnttTomont(polyvec768 *r)
 * \param[in]  const polyvec768 *a : pointer to first input vector of polynomials
 * \param[in]  const polyvec768 *b : pointer to second input vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_BasemulAccMontgomery(poly *const r, const polyvec768 *const a, const polyvec768 *const b)
+void ML_KEM_768_Polyvec_BasemulAccMontgomery(poly *const r, const polyvec768 *const a, const polyvec768 *const b)
 {
   uint8 i = 0;
   poly t  = {{0}};
 
-  FsmSw_Kyber_Poly_BasemulMontgomery(r, &a->vec[0], &b->vec[0]);
+  ML_KEM_Poly_BasemulMontgomery(r, &a->vec[0], &b->vec[0]);
 
-  for (i = 1; i < KYBER768_K; i++)
+  for (i = 1; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_BasemulMontgomery(&t, &a->vec[i], &b->vec[i]);
-    FsmSw_Kyber_Poly_Add(r, r, &t);
+    ML_KEM_Poly_BasemulMontgomery(&t, &a->vec[i], &b->vec[i]);
+    ML_KEM_Poly_Add(r, r, &t);
   }
 
-  FsmSw_Kyber_Poly_Reduce(r);
-} // end: FsmSw_Kyber768_Polyvec_BasemulAccMontgomery
+  ML_KEM_Poly_Reduce(r);
+} // end: ML_KEM_768_Polyvec_BasemulAccMontgomery
 
 /*====================================================================================================================*/
 /**
@@ -255,15 +263,15 @@ void FsmSw_Kyber768_Polyvec_BasemulAccMontgomery(poly *const r, const polyvec768
 *
 * \param[in,out] polyvec768 *r : pointer to input/output polynomial
 */
-void FsmSw_Kyber768_Polyvec_Reduce(polyvec768 *r)
+void ML_KEM_768_Polyvec_Reduce(polyvec768 *r)
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_Reduce(&r->vec[i]);
+    ML_KEM_Poly_Reduce(&r->vec[i]);
   }
-} // end: FsmSw_Kyber768_Polyvec_Reduce
+} // end: ML_KEM_768_Polyvec_Reduce
 
 /*====================================================================================================================*/
 /**
@@ -273,15 +281,15 @@ void FsmSw_Kyber768_Polyvec_Reduce(polyvec768 *r)
 * \param[in]  const polyvec768 *a : pointer to first input vector of polynomials
 * \param[in]  const polyvec768 *b : pointer to second input vector of polynomials
 */
-void FsmSw_Kyber768_Polyvec_Add(polyvec768 *r, const polyvec768 *const a, const polyvec768 *const b)
+void ML_KEM_768_Polyvec_Add(polyvec768 *r, const polyvec768 *const a, const polyvec768 *const b)
 {
   uint8 i = 0;
 
-  for (i = 0; i < KYBER768_K; i++)
+  for (i = 0; i < ML_KEM_768_K; i++)
   {
-    FsmSw_Kyber_Poly_Add(&r->vec[i], &a->vec[i], &b->vec[i]);
+    ML_KEM_Poly_Add(&r->vec[i], &a->vec[i], &b->vec[i]);
   }
-} // end: FsmSw_Kyber768_Polyvec_Add
+} // end: ML_KEM_768_Polyvec_Add
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

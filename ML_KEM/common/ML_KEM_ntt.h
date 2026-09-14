@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_ntt
+/** \addtogroup ML_KEM_ntt
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_ntt.h
-* \brief  Declarations for the modul FsmSw_Kyber_ntt.c
+/** \file ML_KEM_ntt.h
+* \brief  Declarations for the modul ML_KEM_ntt.c
 *
 * \details
 *
@@ -33,18 +41,18 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_NTT_H
-#define FSMSW_KYBER_NTT_H
+#ifndef ML_KEM_NTT_H
+#define ML_KEM_NTT_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER_NTT_ZETAS_SIZE 128u
-#define FSMSW_KYBER_NTT_R_SIZE     256u
+#define ML_KEM_NTT_ZETAS_SIZE 128u
+#define ML_KEM_NTT_R_SIZE     256u
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -52,7 +60,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-extern const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE];
+extern const sint16 ML_KEM_zetas[ML_KEM_NTT_ZETAS_SIZE];
 /**********************************************************************************************************************/
 /* GLOBAL CONSTANTS                                                                                                   */
 /**********************************************************************************************************************/
@@ -64,11 +72,11 @@ extern const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE];
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber_Ntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE]);
-void FsmSw_Kyber_Invntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE]);
-void FsmSw_Kyber_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint16 zeta);
+void ML_KEM_Ntt(sint16 r[ML_KEM_NTT_R_SIZE]);
+void ML_KEM_Invntt(sint16 r[ML_KEM_NTT_R_SIZE]);
+void ML_KEM_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint16 zeta);
 
-#endif /* FSMSW_KYBER_NTT_H */
+#endif /* ML_KEM_NTT_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

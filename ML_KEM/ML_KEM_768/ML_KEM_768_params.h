@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber768
-*    includes the modules for Kyber768
+/** \addtogroup ML_KEM_768
+*    includes the modules for ML_KEM_768
  ** @{ */
-/** \addtogroup Kyber768_params
+/** \addtogroup ML_KEM_768_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber768_params.h
-* \brief  Declarations for the modul FsmSw_Kyber768_params.c
+/** \file ML_KEM_768_params.h
+* \brief  Declarations for the modul ML_KEM_768_params.c
 *
 * \details
 *
@@ -33,38 +41,38 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER768_PARAMS_H
-#define FSMSW_KYBER768_PARAMS_H
+#ifndef ML_KEM_768_PARAMS_H
+#define ML_KEM_768_PARAMS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber768_api.h"
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_768_api.h"
+#include "ML_KEM_params.h"
 #include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-#define KYBER768_K            3u
-#define KYBER768_POLYVECBYTES (KYBER768_K * KYBER_POLYBYTES)
+#define ML_KEM_768_K            3u
+#define ML_KEM_768_POLYVECBYTES (ML_KEM_768_K * ML_KEM_POLYBYTES)
 
-#define KYBER768_IMPLBYTES 768u
+#define ML_KEM_768_IMPLBYTES 768u
 
-#define KYBER768_POLYCOMPRESSEDBYTES    128u
-#define KYBER768_POLYVECCOMPRESSEDBYTES (KYBER768_K * 320u)
+#define ML_KEM_768_POLYCOMPRESSEDBYTES    128u
+#define ML_KEM_768_POLYVECCOMPRESSEDBYTES (ML_KEM_768_K * 320u)
 
-#define KYBER768_ETA1 2u
-#define KYBER768_ETA2 2u
+#define ML_KEM_768_ETA1 2u
+#define ML_KEM_768_ETA2 2u
 
-#define KYBER768_INDCPA_PUBLICKEYBYTES (KYBER768_POLYVECBYTES + KYBER_SYMBYTES)
-#define KYBER768_INDCPA_SECRETKEYBYTES (KYBER768_POLYVECBYTES)
+#define ML_KEM_768_INDCPA_PUBLICKEYBYTES (ML_KEM_768_POLYVECBYTES + ML_KEM_SYMBYTES)
+#define ML_KEM_768_INDCPA_SECRETKEYBYTES (ML_KEM_768_POLYVECBYTES)
 
-FSMSW_STATIC_ASSERT(KYBER768_PUBLICKEYBYTES == (KYBER768_INDCPA_PUBLICKEYBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_768_PUBLICKEYBYTES == (ML_KEM_768_INDCPA_PUBLICKEYBYTES));
 /* 32 bytes of additional space to save H(pk) */
-FSMSW_STATIC_ASSERT(KYBER768_SECRETKEYBYTES ==
-                    (KYBER768_INDCPA_SECRETKEYBYTES + KYBER768_INDCPA_PUBLICKEYBYTES + (2u * KYBER_SYMBYTES)));
-FSMSW_STATIC_ASSERT(KYBER768_INDCPA_BYTES == (KYBER768_POLYVECCOMPRESSEDBYTES + KYBER768_POLYCOMPRESSEDBYTES));
-FSMSW_STATIC_ASSERT(KYBER768_CIPHERTEXTBYTES == (KYBER768_INDCPA_BYTES));
-FSMSW_STATIC_ASSERT(KYBER768_INDCPA_MSGBYTES == (KYBER_SYMBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_768_SECRETKEYBYTES ==
+                    (ML_KEM_768_INDCPA_SECRETKEYBYTES + ML_KEM_768_INDCPA_PUBLICKEYBYTES + (2u * ML_KEM_SYMBYTES)));
+FSMSW_STATIC_ASSERT(ML_KEM_768_INDCPA_BYTES == (ML_KEM_768_POLYVECCOMPRESSEDBYTES + ML_KEM_768_POLYCOMPRESSEDBYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_768_CIPHERTEXTBYTES == (ML_KEM_768_INDCPA_BYTES));
+FSMSW_STATIC_ASSERT(ML_KEM_768_INDCPA_MSGBYTES == (ML_KEM_SYMBYTES));
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -86,7 +94,7 @@ FSMSW_STATIC_ASSERT(KYBER768_INDCPA_MSGBYTES == (KYBER_SYMBYTES));
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_KYBER768_PARAMS_H */
+#endif /* ML_KEM_768_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

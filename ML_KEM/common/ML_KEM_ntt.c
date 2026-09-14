@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_ntt
+/** \addtogroup ML_KEM_ntt
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_ntt.c
-* \brief  description of FsmSw_Kyber_ntt.c
+/** \file ML_KEM_ntt.c
+* \brief  description of ML_KEM_ntt.c
 *
 * \details
 *
@@ -37,11 +45,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber_params.h"
-#include "FsmSw_Kyber_reduce.h"
+#include "ML_KEM_params.h"
+#include "ML_KEM_reduce.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber_ntt.h"
+#include "ML_KEM_ntt.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -53,7 +61,7 @@
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
-const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE] = {
+const sint16 ML_KEM_zetas[ML_KEM_NTT_ZETAS_SIZE] = {
     -1044, -758,  -359,  -1517, 1493,  1422,  287,   202,   -171,  622,  1577,  182,   962,   -1202, -1474, 1468,
     573,   -1325, 264,   383,   -829,  1458,  -1602, -130,  -681,  1017, 732,   608,   -1542, 411,   -205,  -1571,
     1223,  652,   -552,  1015,  -1293, 1491,  -282,  -1544, 516,   -8,   -320,  -666,  -1618, -1162, 126,   1469,
@@ -73,7 +81,7 @@ const sint16 FsmSw_Kyber_zetas[FSMSW_KYBER_NTT_ZETAS_SIZE] = {
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b);
+static sint16 ml_kem_Fqmul(sint16 a, sint16 b);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -88,10 +96,10 @@ static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b);
 *
 * \returns 16-bit integer congruent to a*b*R^{-1} mod q
 */
-static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b)
+static sint16 ml_kem_Fqmul(sint16 a, sint16 b)
 {
-  return FsmSw_Kyber_MontgomeryReduce((sint32)a * b);
-} // end: fsmsw_kyber_Fqmul
+  return ML_KEM_MontgomeryReduce((sint32)a * b);
+} // end: ml_kem_Fqmul
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                      */
 /**********************************************************************************************************************/
@@ -103,7 +111,7 @@ static sint16 fsmsw_kyber_Fqmul(sint16 a, sint16 b)
 *
 * \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
 */
-void FsmSw_Kyber_Ntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
+void ML_KEM_Ntt(sint16 r[ML_KEM_NTT_R_SIZE])
 {
   uint16 len   = 0;
   uint16 start = 0;
@@ -116,17 +124,17 @@ void FsmSw_Kyber_Ntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
   {
     for (start = 0; start < 256u; start = j + len)
     {
-      zeta = FsmSw_Kyber_zetas[k];
+      zeta = ML_KEM_zetas[k];
       k++;
       for (j = start; j < (start + len); j++)
       {
-        t          = fsmsw_kyber_Fqmul(zeta, r[j + len]);
+        t          = ml_kem_Fqmul(zeta, r[j + len]);
         r[j + len] = r[j] - t;
         r[j]       = r[j] + t;
       }
     }
   }
-} // end: FsmSw_Kyber_Ntt
+} // end: ML_KEM_Ntt
 
 /*====================================================================================================================*/
 /**
@@ -136,7 +144,7 @@ void FsmSw_Kyber_Ntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
 *
 * \param[in,out] int16_t r[256] : pointer to input/output vector of elements of Zq
 */
-void FsmSw_Kyber_Invntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
+void ML_KEM_Invntt(sint16 r[ML_KEM_NTT_R_SIZE])
 {
   uint16 start   = 0;
   uint16 len     = 0;
@@ -150,23 +158,23 @@ void FsmSw_Kyber_Invntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
   {
     for (start = 0; start < 256u; start = j + len)
     {
-      zeta = FsmSw_Kyber_zetas[k];
+      zeta = ML_KEM_zetas[k];
       k--;
       for (j = start; j < (start + len); j++)
       {
         t          = r[j];
-        r[j]       = FsmSw_Kyber_BarrettReduce(t + r[j + len]);
+        r[j]       = ML_KEM_BarrettReduce(t + r[j + len]);
         r[j + len] = r[j + len] - t;
-        r[j + len] = fsmsw_kyber_Fqmul(zeta, r[j + len]);
+        r[j + len] = ml_kem_Fqmul(zeta, r[j + len]);
       }
     }
   }
 
-  for (j = 0; j < FSMSW_KYBER_NTT_R_SIZE; j++)
+  for (j = 0; j < ML_KEM_NTT_R_SIZE; j++)
   {
-    r[j] = fsmsw_kyber_Fqmul(r[j], f);
+    r[j] = ml_kem_Fqmul(r[j], f);
   }
-} // end: FsmSw_Kyber_Invntt
+} // end: ML_KEM_Invntt
 
 /*====================================================================================================================*/
 /**
@@ -178,14 +186,14 @@ void FsmSw_Kyber_Invntt(sint16 r[FSMSW_KYBER_NTT_R_SIZE])
 * \param[in]  const int16_t b[2] : pointer to the second factor
 * \param[in]  int16_t       zeta : integer defining the reduction polynomial
 */
-void FsmSw_Kyber_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint16 zeta)
+void ML_KEM_Basemul(sint16 r[2], const sint16 a[2], const sint16 b[2], sint16 zeta)
 {
-  r[0] = fsmsw_kyber_Fqmul(a[1], b[1]);
-  r[0] = fsmsw_kyber_Fqmul(r[0], zeta);
-  r[0] += fsmsw_kyber_Fqmul(a[0], b[0]);
-  r[1] = fsmsw_kyber_Fqmul(a[0], b[1]);
-  r[1] += fsmsw_kyber_Fqmul(a[1], b[0]);
-} // end: FsmSw_Kyber_Basemul
+  r[0] = ml_kem_Fqmul(a[1], b[1]);
+  r[0] = ml_kem_Fqmul(r[0], zeta);
+  r[0] += ml_kem_Fqmul(a[0], b[0]);
+  r[1] = ml_kem_Fqmul(a[0], b[1]);
+  r[1] += ml_kem_Fqmul(a[1], b[0]);
+} // end: ML_KEM_Basemul
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,12 +19,12 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_symmetric
+/** \addtogroup ML_KEM_symmetric
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_symmetric.h
-* \brief  Declarations for the modul FsmSw_Kyber_symmetric_shake.c
+/** \file ML_KEM_symmetric.h
+* \brief  Declarations for the modul ML_KEM_symmetric_shake.c
 *
 * \details
 *
@@ -33,13 +41,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_KYBER_SYMMETRIC_H
-#define FSMSW_KYBER_SYMMETRIC_H
+#ifndef ML_KEM_SYMMETRIC_H
+#define ML_KEM_SYMMETRIC_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "FsmSw_Fips202.h"
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,10 +72,10 @@ typedef shake128ctx xof_state;
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_Kyber_Shake128_Absorb(xof_state *const s, const uint8 seed[KYBER_SYMBYTES], uint8 x, uint8 y);
-void FsmSw_Kyber_Shake256_Prf(uint8 *const out, uint32 outlen, const uint8 key[KYBER_SYMBYTES], uint8 nonce);
+void ML_KEM_Shake128_Absorb(xof_state *const s, const uint8 seed[ML_KEM_SYMBYTES], uint8 x, uint8 y);
+void ML_KEM_Shake256_Prf(uint8 *const out, uint32 outlen, const uint8 key[ML_KEM_SYMBYTES], uint8 nonce);
 
-#endif /* FSMSW_KYBER_SYMMETRIC_H */
+#endif /* ML_KEM_SYMMETRIC_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

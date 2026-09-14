@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
@@ -11,11 +19,11 @@
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Kyber_symmetric_shake
+/** \addtogroup ML_KEM_symmetric_shake
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber_symmetric_shake.c
+/** \file ML_KEM_symmetric_shake.c
 * \brief  description of FsmSw_symmetric_shake.c
 *
 * \details
@@ -39,10 +47,10 @@
 /**********************************************************************************************************************/
 #include "FsmSw_CommonLib.h"
 #include "FsmSw_Fips202.h"
-#include "FsmSw_Kyber_params.h"
+#include "ML_KEM_params.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber_symmetric.h"
+#include "ML_KEM_symmetric.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -77,23 +85,23 @@
 
 /*====================================================================================================================*/
 /**
-* \brief Absorb step of the SHAKE128 specialized for the Kyber context.
+* \brief Absorb step of the SHAKE128 specialized for the ML_KEM context.
 *
 * \param[out] xof_state      *s : pointer to (uninitialized) output Keccak state
-* \param[in]  const uint8 *seed : pointer to KYBER_SYMBYTES input to be absorbed into state
+* \param[in]  const uint8 *seed : pointer to ML_KEM_SYMBYTES input to be absorbed into state
 * \param[in]  uint8           i : additional byte of input
 * \param[in]  uint8           j : additional byte of input
 */
-void FsmSw_Kyber_Shake128_Absorb(xof_state *const s, const uint8 seed[KYBER_SYMBYTES], uint8 x, uint8 y)
+void ML_KEM_Shake128_Absorb(xof_state *const s, const uint8 seed[ML_KEM_SYMBYTES], uint8 x, uint8 y)
 {
-  uint8 extseed[KYBER_SYMBYTES + 2u] = {0};
+  uint8 extseed[ML_KEM_SYMBYTES + 2u] = {0};
 
-  FsmSw_CommonLib_MemCpy(extseed, seed, KYBER_SYMBYTES);
-  extseed[KYBER_SYMBYTES]      = x;
-  extseed[KYBER_SYMBYTES + 1u] = y;
+  FsmSw_CommonLib_MemCpy(extseed, seed, ML_KEM_SYMBYTES);
+  extseed[ML_KEM_SYMBYTES]      = x;
+  extseed[ML_KEM_SYMBYTES + 1u] = y;
 
   FsmSw_Fips202_Shake128_Absorb(s, extseed, sizeof(extseed));
-} // end: FsmSw_Kyber_Shake128_Absorb
+} // end: ML_KEM_Shake128_Absorb
 
 /*====================================================================================================================*/
 /**
@@ -102,18 +110,18 @@ void FsmSw_Kyber_Shake128_Absorb(xof_state *const s, const uint8 seed[KYBER_SYMB
 *
 * \param[out] uint8       *out : pointer to output
 * \param[out] uint32    outlen : number of requested output bytes
-* \param[in]  const uint8 *key : pointer to the key (of length KYBER_SYMBYTES)
+* \param[in]  const uint8 *key : pointer to the key (of length ML_KEM_SYMBYTES)
 * \param[in]  uint8      nonce : single-byte nonce (public PRF input)
 */
-void FsmSw_Kyber_Shake256_Prf(uint8 *const out, uint32 outlen, const uint8 key[KYBER_SYMBYTES], uint8 nonce)
+void ML_KEM_Shake256_Prf(uint8 *const out, uint32 outlen, const uint8 key[ML_KEM_SYMBYTES], uint8 nonce)
 {
-  uint8 extkey[KYBER_SYMBYTES + 1u] = {0};
+  uint8 extkey[ML_KEM_SYMBYTES + 1u] = {0};
 
-  FsmSw_CommonLib_MemCpy(extkey, key, KYBER_SYMBYTES);
-  extkey[KYBER_SYMBYTES] = nonce;
+  FsmSw_CommonLib_MemCpy(extkey, key, ML_KEM_SYMBYTES);
+  extkey[ML_KEM_SYMBYTES] = nonce;
 
   FsmSw_Fips202_Shake256(out, outlen, extkey, sizeof(extkey));
-} // end: FsmSw_Kyber_Shake256_Prf
+} // end: ML_KEM_Shake256_Prf
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

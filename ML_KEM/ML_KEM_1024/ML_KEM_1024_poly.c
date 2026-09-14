@@ -1,22 +1,30 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, ML-KEM (formerly CRYSTALS-Kyber)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are marked as Public Domain by PQClean.
+ * See the NOTICE file in the repository root for the upstream
+ * license reference and attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
-/** \addtogroup Kyber1024
-*    includes the modules for Kyber1024
+/** \addtogroup ML_KEM_1024
+*    includes the modules for ML_KEM_1024
  ** @{ */
-/** \addtogroup Kyber1024_poly
+/** \addtogroup ML_KEM_1024_poly
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Kyber1024_poly.c
-* \brief  description of FsmSw_Kyber1024_poly.c
+/** \file ML_KEM_1024_poly.c
+* \brief  description of ML_KEM_1024_poly.c
 *
 * \details
 *
@@ -37,21 +45,21 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_Kyber1024_cbd.h"
-#include "FsmSw_Kyber1024_params.h"
-#include "FsmSw_Kyber_ntt.h"
-#include "FsmSw_Kyber_poly.h"
-#include "FsmSw_Kyber_reduce.h"
-#include "FsmSw_Kyber_symmetric.h"
-#include "FsmSw_Kyber_verify.h"
+#include "ML_KEM_1024_cbd.h"
+#include "ML_KEM_1024_params.h"
+#include "ML_KEM_ntt.h"
+#include "ML_KEM_poly.h"
+#include "ML_KEM_reduce.h"
+#include "ML_KEM_symmetric.h"
+#include "ML_KEM_verify.h"
 #include "Std_Types.h"
 
-#include "FsmSw_Kyber1024_poly.h"
+#include "ML_KEM_1024_poly.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_KYBER1024_POLY_BLOCK_SIZE 8u
-#define FSMSW_KYBER1024_POLY_T_SIZE     8
+#define ML_KEM_1024_POLY_BLOCK_SIZE 8u
+#define ML_KEM_1024_POLY_T_SIZE     8
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -84,27 +92,27 @@
 /**
 * \brief Compression and subsequent serialization of a polynomial
 *
-* \param[out] uint8      *r : pointer to output byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
+* \param[out] uint8      *r : pointer to output byte array (of length ML_KEM_1024_POLYCOMPRESSEDBYTES bytes)
 * \param[in]  const poly *a : pointer to input polynomial
 */
-void FsmSw_Kyber1024_Poly_Compress(uint8 r[KYBER1024_POLYCOMPRESSEDBYTES], const poly *const a)
+void ML_KEM_1024_Poly_Compress(uint8 r[ML_KEM_1024_POLYCOMPRESSEDBYTES], const poly *const a)
 {
   uint16 i                             = 0;
   sint16 u                             = 0;
   uint8 j                              = 0;
-  uint8 t[FSMSW_KYBER1024_POLY_T_SIZE] = {0};
+  uint8 t[ML_KEM_1024_POLY_T_SIZE] = {0};
 
   /* r_temp is used to avoid modifying the input. */
   uint8 *r_temp = r;
 
-  for (i = 0; i < (KYBER_N / 8u); i++)
+  for (i = 0; i < (ML_KEM_N / 8u); i++)
   {
-    for (j = 0; j < FSMSW_KYBER1024_POLY_BLOCK_SIZE; j++)
+    for (j = 0; j < ML_KEM_1024_POLY_BLOCK_SIZE; j++)
     {
       /* map to positive standard representatives */
       u    = a->coeffs[(8u * i) + j];
-      u    = (sint16)(u + (sint16)((uint16)(((uint32)u >> 15u) & KYBER_Q)));
-      t[j] = (uint8)(((((uint32)u << 5u) + KYBER_Q / 2u) / KYBER_Q) & 31u);
+      u    = (sint16)(u + (sint16)((uint16)(((uint32)u >> 15u) & ML_KEM_Q)));
+      t[j] = (uint8)(((((uint32)u << 5u) + ML_KEM_Q / 2u) / ML_KEM_Q) & 31u);
     }
 
     r_temp[0] = (t[0] >> 0) | (t[1] << 5);
@@ -114,26 +122,26 @@ void FsmSw_Kyber1024_Poly_Compress(uint8 r[KYBER1024_POLYCOMPRESSEDBYTES], const
     r_temp[4] = (t[6] >> 2) | (t[7] << 3);
     r_temp    = &(r_temp[5]);
   }
-} // end: FsmSw_Kyber1024_Poly_Compress
+} // end: ML_KEM_1024_Poly_Compress
 
 /*====================================================================================================================*/
 /**
 * \brief De-serialization and subsequent decompression of a polynomial;
-*        approximate inverse of FsmSw_Kyber1024_Poly_Compress
+*        approximate inverse of ML_KEM_1024_Poly_Compress
 *
 * \param[out] poly        *r : pointer to output polynomial
-* \param[in]  const uint8 *a : pointer to input byte array (of length KYBER1024_POLYCOMPRESSEDBYTES bytes)
+* \param[in]  const uint8 *a : pointer to input byte array (of length ML_KEM_1024_POLYCOMPRESSEDBYTES bytes)
 */
-void FsmSw_Kyber1024_Poly_Decompress(poly *const r, const uint8 a[KYBER1024_POLYCOMPRESSEDBYTES])
+void ML_KEM_1024_Poly_Decompress(poly *const r, const uint8 a[ML_KEM_1024_POLYCOMPRESSEDBYTES])
 {
   uint16 i                             = 0;
   uint8 j                              = 0;
-  uint8 t[FSMSW_KYBER1024_POLY_T_SIZE] = {0};
+  uint8 t[ML_KEM_1024_POLY_T_SIZE] = {0};
 
   /* a_temp is used to avoid modifying the input. */
   const uint8 *a_temp = a;
 
-  for (i = 0; i < (KYBER_N / 8u); i++)
+  for (i = 0; i < (ML_KEM_N / 8u); i++)
   {
     t[0]   = (a_temp[0] >> 0);
     t[1]   = (a_temp[0] >> 5) | (a_temp[1] << 3);
@@ -145,107 +153,101 @@ void FsmSw_Kyber1024_Poly_Decompress(poly *const r, const uint8 a[KYBER1024_POLY
     t[7]   = (a_temp[4] >> 3);
     a_temp = &(a_temp[5]);
 
-    for (j = 0; j < FSMSW_KYBER1024_POLY_BLOCK_SIZE; j++)
+    for (j = 0; j < ML_KEM_1024_POLY_BLOCK_SIZE; j++)
     {
-      r->coeffs[(8u * i) + j] = (sint16)((uint16)(((uint32)(((uint32)t[j] & 31u) * KYBER_Q) + 16u) >> 5u));
+      r->coeffs[(8u * i) + j] = (sint16)((uint16)(((uint32)(((uint32)t[j] & 31u) * ML_KEM_Q) + 16u) >> 5u));
     }
   }
-} // end: FsmSw_Kyber1024_Poly_Decompress
+} // end: ML_KEM_1024_Poly_Decompress
 
 /*====================================================================================================================*/
 /**
 * \brief Convert 32-byte message to polynomial
 *
 * \param[out] poly          *r :   pointer to output polynomial
-* \param[in]  const uint8 *msg : pointer to input message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+* \param[in]  const uint8 *msg : pointer to input message (of length ML_KEM_1024_INDCPA_MSGBYTES bytes)
 */
-void FsmSw_Kyber1024_Poly_FromMsg(poly *const r, const uint8 msg[KYBER1024_INDCPA_MSGBYTES])
+void ML_KEM_1024_Poly_FromMsg(poly *const r, const uint8 msg[ML_KEM_1024_INDCPA_MSGBYTES])
 {
   uint8 j  = 0;
   uint16 i = 0;
 
-  for (i = 0; i < (KYBER_N / 8u); i++)
+  for (i = 0; i < (ML_KEM_N / 8u); i++)
   {
-    for (j = 0; j < FSMSW_KYBER1024_POLY_BLOCK_SIZE; j++)
+    for (j = 0; j < ML_KEM_1024_POLY_BLOCK_SIZE; j++)
     {
       r->coeffs[(8u * i) + j] = 0;
-      FsmSw_Kyber_Cmov_int16(&r->coeffs[(8u * i) + j], (sint16)((KYBER_Q + 1u) / 2u), ((uint16)msg[i] >> j) & 1u);
+      ML_KEM_Cmov_int16(&r->coeffs[(8u * i) + j], (sint16)((ML_KEM_Q + 1u) / 2u), ((uint16)msg[i] >> j) & 1u);
     }
   }
-} // end: FsmSw_Kyber1024_Poly_FromMsg
+} // end: ML_KEM_1024_Poly_FromMsg
 
 /*====================================================================================================================*/
 /**
 * \brief Convert polynomial to 32-byte message
 *
-* \param[out] uint8    *msg : pointer to output message (of length KYBER1024_INDCPA_MSGBYTES bytes)
+* \param[out] uint8    *msg : pointer to output message (of length ML_KEM_1024_INDCPA_MSGBYTES bytes)
 * \param[in]  const poly *a : pointer to input polynomial
 */
-void FsmSw_Kyber1024_Poly_ToMsg(uint8 msg[KYBER1024_INDCPA_MSGBYTES], const poly *const a)
+void ML_KEM_1024_Poly_ToMsg(uint8 msg[ML_KEM_1024_INDCPA_MSGBYTES], const poly *const a)
 {
   uint8 j  = 0;
   uint16 i = 0;
   uint16 t = 0;
 
-  for (i = 0; i < (KYBER_N / 8u); i++)
+  for (i = 0; i < (ML_KEM_N / 8u); i++)
   {
     msg[i] = 0;
-    for (j = 0; j < FSMSW_KYBER1024_POLY_BLOCK_SIZE; j++)
+    for (j = 0; j < ML_KEM_1024_POLY_BLOCK_SIZE; j++)
     {
       t = (uint16)(a->coeffs[(8u * i) + j]);
       /* Shift to get the first bit */
       if ((t >> 15u) != 0u)
       {
-        t = t + KYBER_Q;
+        t = t + ML_KEM_Q;
       }
 
-      t      = (((t << 1u) + (KYBER_Q / 2u)) / KYBER_Q) & 1u;
+      t      = (((t << 1u) + (ML_KEM_Q / 2u)) / ML_KEM_Q) & 1u;
       msg[i] = (uint8)((uint16)msg[i] | (t << j));
     }
   }
-} // end: FsmSw_Kyber1024_Poly_ToMsg
+} // end: ML_KEM_1024_Poly_ToMsg
 
 /*====================================================================================================================*/
 /**
 * \brief Sample a polynomial deterministically from a seed and a nonce,
 *        with output polynomial close to centered binomial distribution
-*        with parameter KYBER1024_ETA1
+*        with parameter ML_KEM_1024_ETA1
 *
 * \param[out] poly           *r : pointer to output polynomial
-* \param[in]  const uint8 *seed : pointer to input seed (of length KYBER_SYMBYTES bytes)
+* \param[in]  const uint8 *seed : pointer to input seed (of length ML_KEM_SYMBYTES bytes)
 * \param[in]  uint8       nonce : one-byte input nonce
 */
-void FsmSw_Kyber1024_Poly_GetNoiseEta1(poly *const r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
+void ML_KEM_1024_Poly_GetNoiseEta1(poly *const r, const uint8 seed[ML_KEM_SYMBYTES], uint8 nonce)
 {
-  uint8 buf[KYBER1024_ETA1 * KYBER_N / 4u] = {0};
+  uint8 buf[ML_KEM_1024_ETA1 * ML_KEM_N / 4u] = {0};
 
-  FsmSw_Kyber_Shake256_Prf(buf, sizeof(buf), seed, nonce);
-  FsmSw_Kyber1024_Poly_Cbd_Eta1(r, buf);
-} // end: FsmSw_Kyber1024_Poly_GetNoiseEta1
+  ML_KEM_Shake256_Prf(buf, sizeof(buf), seed, nonce);
+  ML_KEM_1024_Poly_Cbd_Eta1(r, buf);
+} // end: ML_KEM_1024_Poly_GetNoiseEta1
 
 /*====================================================================================================================*/
 /**
 * \brief Sample a polynomial deterministically from a seed and a nonce,
 *        with output polynomial close to centered binomial distribution
-*        with parameter KYBER1024_ETA2
+*        with parameter ML_KEM_1024_ETA2
 *
 * \param[out] poly           *r : pointer to output polynomial
-* \param[in]  const uint8 *seed : pointer to input seed (of length KYBER_SYMBYTES bytes)
+* \param[in]  const uint8 *seed : pointer to input seed (of length ML_KEM_SYMBYTES bytes)
 * \param[in]  uint8       nonce : one-byte input nonce
 */
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_Kyber1024_Poly_GetNoiseEta2(poly *const r, const uint8 seed[KYBER_SYMBYTES], uint8 nonce)
+void ML_KEM_1024_Poly_GetNoiseEta2(poly *const r, const uint8 seed[ML_KEM_SYMBYTES], uint8 nonce)
 {
-  uint8 buf[KYBER1024_ETA2 * KYBER_N / 4u] = {0};
+  uint8 buf[ML_KEM_1024_ETA2 * ML_KEM_N / 4u] = {0};
 
-  FsmSw_Kyber_Shake256_Prf(buf, sizeof(buf), seed, nonce);
-  FsmSw_Kyber1024_Poly_Cbd_Eta2(r, buf);
-} // end: FsmSw_Kyber1024_Poly_GetNoiseEta2
+  ML_KEM_Shake256_Prf(buf, sizeof(buf), seed, nonce);
+  ML_KEM_1024_Poly_Cbd_Eta2(r, buf);
+} // end: ML_KEM_1024_Poly_GetNoiseEta2
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
