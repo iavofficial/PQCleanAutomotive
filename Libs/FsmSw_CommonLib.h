@@ -1,7 +1,11 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Copyright 2026 IAV GmbH
  *
+ * This file is licensed under the Apache License, Version 2.0.
+ * See the LICENSE file in the repository root for the complete license text.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  *
  **********************************************************************************************************************/
 

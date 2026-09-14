@@ -1,7 +1,15 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: public-domain FIPS-202 / Keccak support code
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are identified as Public Domain.
+ * The original sources and authors are documented in the source comments
+ * and in the NOTICE file in the repository root.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-Support-Code-Public-Domain AND Apache-2.0
  *
  **********************************************************************************************************************/
 
