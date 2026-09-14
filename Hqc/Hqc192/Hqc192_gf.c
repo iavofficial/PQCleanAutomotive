@@ -1,0 +1,276 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, HQC
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
+ ** @{ */
+/** \addtogroup Hqc192
+*    includes the modules for Hqc192
+ ** @{ */
+/** \addtogroup Hqc192_gf
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file Hqc192_gf.c
+* \brief  Galois field implementation
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "Hqc_CommonLib.h"
+#include "Hqc192_parameters.h"
+#include "Platform_Types.h"
+
+#include "Hqc192_gf.h"
+
+/**********************************************************************************************************************/
+/* DEFINES                                                                                                            */
+/**********************************************************************************************************************/
+#define PQC_HQC192_TZB_COUNT              14
+#define PQC_HQC192_GF_CLMUL_TMP_SIZE      4
+#define PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE 2
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION PROTOTYPES                                                                                        */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION DEFINITIONS                                                                                       */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+* \brief Computes the number of trailing zero bits.
+*
+* \returns The number of trailing zero bits in a.
+* \param[in] a An operand
+*
+*/
+static uint16 hqc192_trailing_zero_bits_count(uint16 a)
+{
+  uint16 tmp  = 0;
+  uint16 mask = 0xFFFF;
+  for (uint8 i = 0; i < PQC_HQC192_TZB_COUNT; ++i)
+  {
+    const uint16 bit_i_is_1 = (a >> i) & 0x0001u;
+    const uint16 bit_i_is_0 = 1u - bit_i_is_1;
+    const uint32 tmp_mask   = 0xffffu + (uint32)bit_i_is_1;
+
+    tmp += (bit_i_is_0 & mask);
+    mask &= (uint16)(tmp_mask & 0xffffu);
+  }
+  return tmp;
+} // end: trailing_zero_bits_count
+
+/*====================================================================================================================*/
+/**
+* \brief Reduces polynomial x modulo primitive polynomial GF_POLY.
+*
+* \returns x mod GF_POLY
+* \param[in] x Polynomial of degree less than 64
+* \param[in] deg_x The degree of polynomial x
+*
+*/
+static uint16 hqc192_gf_reduce(uint64 x, uint8 deg_x)
+{
+  uint16 z1, z2, rmdr, dist;
+  uint64 mod;
+  uint64 x_tmp = x;
+
+  // Deduce the number of steps of reduction
+  const uint8 steps = CEIL_DIVIDE(deg_x - (HQC192_PARAM_M - 1), HQC192_PARAM_GF_POLY_M2);
+
+  // Reduce
+  for (uint8 i = 0; i < steps; ++i)
+  {
+    mod = x_tmp >> HQC192_PARAM_M;
+    x_tmp &= ((uint64)1 << HQC192_PARAM_M) - 1;
+    x_tmp ^= mod;
+
+    z1   = 0;
+    rmdr = (uint16)HQC192_PARAM_GF_POLY ^ 0x0001U;
+    for (sint8 j = HQC192_PARAM_GF_POLY_WT - 2; j > 0; --j)
+    {
+      z2   = hqc192_trailing_zero_bits_count(rmdr);
+      dist = z2 - z1;
+      mod <<= dist;
+      x_tmp ^= mod;
+      rmdr ^= (uint16)1 << z2;
+      z1 = z2;
+    }
+  }
+
+  return (uint16)x_tmp;
+} // end: gf_reduce
+
+/*====================================================================================================================*/
+/**
+* \brief Carryless multiplication of two polynomials a and b.
+*
+* polyspace +1 MISRA2012:3.1 [Justified:]"The comment is a link and therefore contains a slash" 
+* Implementation of the algorithm mul1 in https://hal.inria.fr/inria-00188261v4/document
+* with s = 2 and w = 8
+
+* \param[out] The polynomial c = a * b
+* \param[in] a The first polynomial
+* \param[in] b The second polynomial
+*
+*/
+static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uint8 a, uint8 b)
+{
+  uint16 h = 0, l = 0, g = 0, u[PQC_HQC192_GF_CLMUL_TMP_SIZE];
+  uint32 tmp1, tmp2;
+  uint16 mask;
+  u[0] = 0;
+  u[1] = Hqc_Convert_u8_to_u16((b & 0x7FU));
+  u[2] = u[1] << 1;
+  u[3] = u[2] ^ u[1];
+  tmp1 = (uint32)a & (uint32)3;
+
+  for (uint8 i = 0; i < PQC_HQC192_GF_CLMUL_TMP_SIZE; i++)
+  {
+    tmp2 = (uint32)(tmp1 - i);
+    g ^= (uint16)((u[i] & (uint32)(0 - (1 - ((uint32)(tmp2 | (~tmp2 + 1U)) >> 31)))) & 0xFFFFU);
+  }
+
+  l = g;
+  h = 0;
+
+  for (uint8 i = 2; i < (2 * PQC_HQC192_GF_CLMUL_TMP_SIZE); i += 2)
+  {
+    g    = 0;
+    tmp1 = Hqc_Convert_u8_to_u32(((a >> i) & (uint8)3));
+    for (uint8 j = 0; j < PQC_HQC192_GF_CLMUL_TMP_SIZE; ++j)
+    {
+      tmp2 = (uint32)(tmp1 - j);
+      g ^= (uint16)((u[j] & (uint32)(0 - (1 - ((uint32)(tmp2 | (~tmp2 + 1U)) >> 31)))) & 0xFFFFU);
+    }
+
+    l ^= g << i;
+    h ^= g >> (8 - i);
+  }
+
+  mask = (uint16)(0u - (((uint16)b >> 7) & 0x01U));
+  l ^= (Hqc_Convert_u8_to_u16((a << 7)) & mask);
+  h ^= (Hqc_Convert_u8_to_u16((a >> 1)) & mask);
+
+  c[0] = (uint8)l;
+  c[1] = (uint8)h;
+} // end: gf_carryless_mul
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTION DEFINITIONS                                                                                        */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+* \brief Multiplies two elements of GF(2^GF_M).
+*
+* \returns the product a*b
+* \param[in] a Element of GF(2^GF_M)
+* \param[in] b Element of GF(2^GF_M)
+*
+*/
+uint16 Hqc192_Gf_Mul(uint16 a, uint16 b)
+{
+  uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE] = {0};
+  gf_carryless_mul_192(c, (uint8)a, (uint8)b);
+  const uint16 tmp = Hqc_Convert_u8_to_u16(c[0]) ^ (Hqc_Convert_u8_to_u16(c[1]) << 8);
+  return hqc192_gf_reduce(tmp, 2 * (HQC192_PARAM_M - 1));
+} // end: Hqc192_Gf_Mul
+
+/*====================================================================================================================*/
+/**
+* \brief Squares an element of GF(2^HQC192_PARAM_M).
+*
+* \returns a^2
+* \param[in] a Element of GF(2^HQC192_PARAM_M)
+*
+*/
+uint16 Hqc192_Gf_Square(uint16 a)
+{
+  uint32 b = a;
+  uint32 s = b & (uint32)1;
+  for (uint8 i = 1; i < HQC192_PARAM_M; ++i)
+  {
+    b <<= 1;
+    s ^= b & ((uint32)1 << (2 * i));
+  }
+
+  return hqc192_gf_reduce(s, 2 * (HQC192_PARAM_M - 1));
+} // end: Hqc192_Gf_Square
+
+/*====================================================================================================================*/
+/**
+* \brief Computes the inverse of an element of GF(2^HQC192_PARAM_M),
+ * using the addition chain 1 2 3 4 7 11 15 30 60 120 127 254
+*
+* \returns the inverse of a if a != 0 or 0 if a = 0
+* \param[in] a Element of GF(2^HQC192_PARAM_M)
+*
+*/
+uint16 Hqc192_Gf_Inverse(uint16 a)
+{
+  uint16 inv = a;
+  uint16 tmp1, tmp2;
+
+  inv  = Hqc192_Gf_Square(a);      /* a^2 */
+  tmp1 = Hqc192_Gf_Mul(inv, a);    /* a^3 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^4 */
+  tmp2 = Hqc192_Gf_Mul(inv, tmp1); /* a^7 */
+  tmp1 = Hqc192_Gf_Mul(inv, tmp2); /* a^11 */
+  inv  = Hqc192_Gf_Mul(tmp1, inv); /* a^15 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^30 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^60 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^120 */
+  inv  = Hqc192_Gf_Mul(inv, tmp2); /* a^127 */
+  inv  = Hqc192_Gf_Square(inv);    /* a^254 */
+  return inv;
+} // end: Hqc192_Gf_Inverse
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

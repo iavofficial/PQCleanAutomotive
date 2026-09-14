@@ -1,0 +1,152 @@
+PQCleanAutomotive
+=================
+
+Copyright 2026 IAV GmbH
+
+PQCleanAutomotive contains source code derived from the PQClean project:
+
+    https://github.com/PQClean/PQClean
+
+The source code in this repository has been adapted for automotive
+microcontroller platforms. The following notices apply to the respective
+upstream components and are in addition to the Apache License, Version 2.0,
+applicable to IAV contributions. See LICENSE for the Apache-2.0 license text.
+
+
+SPDX LicenseRef definitions
+===========================
+
+The following project-specific SPDX identifiers are used in source-file
+headers. They are local identifiers and are not entries in the SPDX License
+List.
+
+
+LicenseRef-PQClean-Public-Domain
+--------------------------------
+
+This identifier refers to the upstream PQClean designation used for the
+ML-DSA and ML-KEM implementations:
+
+    Public Domain (https://creativecommons.org/share-your-work/public-domain/cc0/)
+
+PQClean does not explicitly identify these implementations with the SPDX
+license identifier CC0-1.0. This project therefore records the upstream
+designation as a local LicenseRef instead of interpreting it as CC0-1.0.
+
+
+LicenseRef-PQClean-HQC-Public-Domain
+------------------------------------
+
+This identifier refers to the upstream PQClean designation used for the HQC
+implementation:
+
+    Public Domain
+
+The upstream PQClean repository does not provide a complete license text or
+an explicit CC0 reference for HQC. This project therefore records the
+upstream designation as a local LicenseRef instead of interpreting it as
+CC0-1.0.
+
+
+LicenseRef-PQClean-Support-Code-Public-Domain
+-------------------------------------------------
+
+This identifier refers to the public-domain FIPS-202 / Keccak and SHA-2
+support code used by PQClean and adapted in this repository.
+
+The original sources and authors are documented in the source comments and
+in the FIPS-202 / Keccak and SHA-2 support code section below. No specific
+SPDX License List identifier or explicit CC0 reference is asserted for these
+original portions. This project therefore records the upstream designation
+as a local LicenseRef.
+
+
+ML-DSA / CRYSTALS-Dilithium
+---------------------------
+
+The original PQClean ML-DSA implementation, formerly known as
+CRYSTALS-Dilithium, is identified in PQClean as:
+
+    Public Domain
+
+PQClean references the Creative Commons public-domain dedication:
+
+    https://creativecommons.org/share-your-work/public-domain/cc0/
+
+For the historical algorithm name used in this fork, the corresponding
+source directory is ML_DSA/.
+
+
+ML-KEM / CRYSTALS-Kyber
+-----------------------
+
+The original PQClean ML-KEM implementation, formerly known as
+CRYSTALS-Kyber, is identified in PQClean as:
+
+    Public Domain
+
+PQClean references the Creative Commons public-domain dedication:
+
+    https://creativecommons.org/share-your-work/public-domain/cc0/
+
+For the historical algorithm name used in this fork, the corresponding
+source directory is ML_KEM/.
+
+
+SPHINCS+ / SLH-DSA
+------------------
+
+The original PQClean SPHINCS+ implementation is distributed under the
+Creative Commons CC0 1.0 Universal dedication. The standardized algorithm
+name is SLH-DSA. The corresponding source directory in this fork is SLH_DSA/.
+
+The complete CC0 1.0 Universal license text is included in the applicable
+upstream PQClean LICENSE file.
+
+
+Falcon / FN-DSA
+---------------
+
+The original Falcon implementation is distributed under the MIT License.
+The applicable copyright notice is:
+
+    Copyright (c) 2017-2019 Falcon Project
+
+The complete MIT license text and the Falcon project patent notice must be
+retained with the Falcon source code. The corresponding source directory in
+this fork is FN_DSA/.
+
+
+HQC
+---
+
+The upstream PQClean repository identifies the original HQC implementation
+as:
+
+    Public Domain
+
+The upstream PQClean repository does not provide a complete license text or
+an explicit CC0 reference for HQC. This notice therefore records the upstream
+designation without interpreting it as CC0. The corresponding source
+directory in this fork is Hqc/.
+
+
+FIPS-202 / Keccak and SHA-2 support code
+----------------------------------------
+
+PQClean identifies the relevant Keccak/FIPS-202 support code as public-domain
+code. The upstream source and author information are documented in the
+source comments and the applicable upstream PQClean license information.
+
+Any additional IAV-authored support code and modifications are covered by
+the Apache License, Version 2.0, unless a more specific notice states
+otherwise.
+
+
+Patent and trademark information
+--------------------------------
+
+This NOTICE file does not grant trademark rights and does not constitute a
+patent license beyond the rights expressly granted by the applicable license.
+The Falcon upstream patent notice must be considered together with the
+Falcon source and its MIT license.

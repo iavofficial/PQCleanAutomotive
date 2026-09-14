@@ -1,0 +1,96 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
+ ** @{ */
+/** \addtogroup SLH_DSA_SHAKE_128fSimple
+*    includes the modules for SLH_DSA_SHAKE_128fSimple
+ ** @{ */
+/** \addtogroup SLH_DSA_SHAKE_128fSimple_fors
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file SLH_DSA_SHAKE_128fSimple_fors.h
+* \brief  Description of SLH_DSA_SHAKE_128fSimple_fors.h
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+#ifndef SLH_DSA_SHAKE_128FSIMPLE_FORS_H
+#define SLH_DSA_SHAKE_128FSIMPLE_FORS_H
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "SLH_DSA_SHAKE_128fSimple_context.h"
+#include "SLH_DSA_SHAKE_128fSimple_params.h"
+#include "Std_Types.h"
+/**********************************************************************************************************************/
+/* GLOBAL DEFINES                                                                                                     */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTION PROTOTYPES                                                                                         */
+/**********************************************************************************************************************/
+/**
+ * Signs a message m, deriving the secret key from sk_seed and the FTS address.
+ * Assumes m contains at least SLH_DSA_SHAKE_128FSIMPLE_FORS_HEIGHT * SLH_DSA_SHAKE_128FSIMPLE_FORS_TREES bits.
+ */
+void SLH_DSA_SHAKE_128fSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
+                                             const slh_dsa_shake_128f_ctx *const ctx, const uint32 fors_addr[8]);
+
+/**
+ * Derives the FORS public key from a signature.
+ * This can be used for verification by comparing to a known public key, or to
+ * subsequently verify a signature on the derived public key. The latter is the
+ * typical use-case when used as an FTS below an OTS in a hypertree.
+ * Assumes m contains at least SLH_DSA_SHAKE_128FSIMPLE_FORS_HEIGHT * SLH_DSA_SHAKE_128FSIMPLE_FORS_TREES bits.
+ */
+
+void SLH_DSA_SHAKE_128fSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
+                                                  const slh_dsa_shake_128f_ctx *const ctx, const uint32 fors_addr[8]);
+
+#endif /* SLH_DSA_SHAKE_128FSIMPLE_FORS_H */
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

@@ -1,0 +1,296 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, HQC
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * The upstream PQClean repository identifies the original HQC
+ * implementation as "Public Domain". No complete upstream license text
+ * or explicit CC0 reference is provided.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: LicenseRef-PQClean-HQC-Public-Domain AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC Hqc
+*    includes the modules for SwC Hqc
+ ** @{ */
+/** \addtogroup Hqc128
+*    includes the modules for Hqc128
+ ** @{ */
+/** \addtogroup Hqc128_reed_muller
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file Hqc128_reed_muller.c
+* \brief  Constant time implementation of Reed-Muller code RM(1,7)
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "Hqc_CommonLib.h"
+#include "Hqc128_parameters.h"
+#include "Platform_Types.h"
+
+#include "Hqc128_reed_muller.h"
+/**********************************************************************************************************************/
+/* DEFINES                                                                                                            */
+/**********************************************************************************************************************/
+
+// number of repeated code words
+#define MULTIPLICITY CEIL_DIVIDE(HQC128_PARAM_N2, 128)
+
+/* polyspace +7 MISRA2012:D4.9 [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
+/* polyspace +5 MISRA C:2012 10.1 [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
+/* polyspace +3 CERT-C:PRE00-C [Justified:]"No refactoring of macros, as converting to, for example, 
+inline functions would not provide significant benefits." */
+// copy bit 0 into all bits of a 32 bit value
+#define BIT0MASK(x)                        (uint32)(0u - (((uint32)(x) & 1u)))
+#define PQC_HQC128_RM_CODEWORD_LENGTH      128
+#define PQC_HQC128_RM_CODEWORD_HALF_LENGTH (PQC_HQC128_RM_CODEWORD_LENGTH / 2)
+#define PQC_HQC128_RM_M                    7
+#define PQC_HQC128_PART_COUNT              2
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION PROTOTYPES                                                                                        */
+/**********************************************************************************************************************/
+static void encode_128(uint64 *const cword, uint8 message);
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION DEFINITIONS                                                                                       */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+ * \brief Encode a single byte into a single codeword using RM(1,7)
+ *
+ * Encoding matrix of this code:
+ * bit pattern (note that bits are numbered big endian)
+ * 0   aaaaaaaa aaaaaaaa aaaaaaaa aaaaaaaa
+ * 1   cccccccc cccccccc cccccccc cccccccc
+ * 2   f0f0f0f0 f0f0f0f0 f0f0f0f0 f0f0f0f0
+ * 3   ff00ff00 ff00ff00 ff00ff00 ff00ff00
+ * 4   ffff0000 ffff0000 ffff0000 ffff0000
+ * 5   ffffffff 00000000 ffffffff 00000000
+ * 6   ffffffff ffffffff 00000000 00000000
+ * 7   ffffffff ffffffff ffffffff ffffffff
+ *
+ * \param[out] word An RM(1,7) codeword
+ * \param[in] message A message
+ */
+static void encode_128(uint64 *const cword, uint8 message)
+{
+  uint32 first_word;
+  const uint32 msg_tmp = (uint32)message;
+  // bit 7 flips all the bits, do that first to save work
+  first_word = BIT0MASK(msg_tmp >> 7);
+  // bits 0, 1, 2, 3, 4 are the same for all four longs
+  // (Warning: in the bit matrix above, low bits are at the left!)
+  first_word ^= BIT0MASK(msg_tmp >> 0) & 0xaaaaaaaaU;
+  first_word ^= BIT0MASK(msg_tmp >> 1) & 0xccccccccU;
+  first_word ^= BIT0MASK(msg_tmp >> 2) & 0xf0f0f0f0U;
+  first_word ^= BIT0MASK(msg_tmp >> 3) & 0xff00ff00U;
+  first_word ^= BIT0MASK(msg_tmp >> 4) & 0xffff0000U;
+  // we can store this in the first quarter
+  cword[0] = first_word;
+  // bit 5 flips entries 1 and 3. Bit 6 flips 2 and 3
+  first_word ^= BIT0MASK(msg_tmp >> 5);
+  cword[0] |= (uint64)first_word << 32;
+  first_word ^= BIT0MASK(msg_tmp >> 6);
+  cword[1] = (uint64)first_word << 32;
+  first_word ^= BIT0MASK(msg_tmp >> 5);
+  cword[1] |= first_word;
+} // end: encode
+
+/*====================================================================================================================*/
+/**
+ * \brief Hadamard transform
+ *
+ * Perform hadamard transform of src and store result in dst
+ * src is overwritten
+ *
+ * \param[out] src Structure that contain the expanded codeword
+ * \param[out] dst Structure that contain the expanded codeword
+ */
+static void hqc128_hadamard(uint16 src[PQC_HQC128_RM_CODEWORD_LENGTH], uint16 dst[PQC_HQC128_RM_CODEWORD_LENGTH])
+{
+  // the passes move data:
+  // src -> dst -> src -> dst -> src -> dst -> src -> dst
+  // using p1 and p2 alternately
+  uint16 *p1 = src;
+  uint16 *p2 = dst;
+  uint16 *p3;
+  for (uint8 pass = 0; pass < PQC_HQC128_RM_M; ++pass)
+  {
+    for (uint8 i = 0; i < PQC_HQC128_RM_CODEWORD_HALF_LENGTH; ++i)
+    {
+      p2[i]      = p1[2 * i] + p1[(2 * i) + 1];
+      p2[i + 64] = p1[2 * i] - p1[(2 * i) + 1];
+    }
+    // swap p1, p2 for next round
+    p3 = p1;
+    p1 = p2;
+    p2 = p3;
+  }
+} // end: hadamard
+
+/*====================================================================================================================*/
+/**
+ * \brief Add multiple codewords into expanded codeword
+ *
+ * Accesses memory in order
+ * Note: this does not write the codewords as -1 or +1 as the green machine does
+ * instead, just 0 and 1 is used.
+ * The resulting hadamard transform has:
+ * all values are halved
+ * the first entry is 64 too high
+ *
+ * \param[out] dest Structure that contain the expanded codeword
+ * \param[in] src Structure that contain the codeword
+ */
+static void hqc128_expand_and_sum(uint16 dest[PQC_HQC128_RM_CODEWORD_LENGTH], const uint64 src[2 * MULTIPLICITY])
+{
+  // start with the first copy
+  for (uint8 part = 0; part < PQC_HQC128_PART_COUNT; ++part)
+  {
+    for (uint8 bit = 0; bit < PQC_HQC128_RM_CODEWORD_HALF_LENGTH; ++bit)
+    {
+      dest[(part * 64) + bit] = (uint16)(((src[part] >> bit) & 1U) & 0xFFFFU);
+    }
+  }
+  // sum the rest of the copies
+  for (uint8 copy = 1; copy < MULTIPLICITY; ++copy)
+  {
+    for (uint8 part = 0; part < PQC_HQC128_PART_COUNT; ++part)
+    {
+      for (uint8 bit = 0; bit < PQC_HQC128_RM_CODEWORD_HALF_LENGTH; ++bit)
+      {
+        dest[(part * 64) + bit] += (uint16)((src[(2 * copy) + part] >> bit) & 1U);
+      }
+    }
+  }
+} // end: expand_and_sum
+
+/*====================================================================================================================*/
+/**
+ * \brief Finding the location of the highest value
+ *
+ * This is the final step of the green machine: find the location of the highest value,
+ * and add 128 if the peak is positive
+ * if there are two identical peaks, the peak with smallest value
+ * in the lowest 7 bits it taken
+ * \param[in] transform Structure that contain the expanded codeword
+ */
+static uint8 find_peaks_128(const uint16 transform[PQC_HQC128_RM_CODEWORD_LENGTH])
+{
+  uint16 peak_abs = 0;
+  uint16 peak     = 0;
+  uint16 pos      = 0;
+  uint16 t, abs_value, mask, tmp;
+  for (uint16 i = 0; i < PQC_HQC128_RM_CODEWORD_LENGTH; ++i)
+  {
+    t         = transform[i];
+    tmp       = (uint16)(0u - (t >> 15));
+    abs_value = t ^ (tmp & (t ^ ((uint16)(~t) + 1U))); // t = abs(t)
+    mask      = (uint16)(0u - (((uint16)(peak_abs - abs_value)) >> 15));
+    peak ^= mask & (peak ^ t);
+    pos ^= mask & (pos ^ i);
+    peak_abs ^= mask & (peak_abs ^ abs_value);
+  }
+  // set bit 7
+  tmp = (uint16)(0u - (1u - (peak >> 15)));
+  pos |= 128U & tmp;
+  return (uint8)pos;
+} // end: find_peaks
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTION DEFINITIONS                                                                                        */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+ * \brief Encodes the received word
+ *
+ * The message consists of N1 bytes each byte is encoded into PARAM_N2 bits,
+ * or MULTIPLICITY repeats of 128 bits
+ *
+ * \param[out] cdw Array of size HQC128_VEC_N1N2_SIZE_64 receiving the encoded message
+ * \param[in] msg Array of size HQC128_VEC_N1_SIZE_64 storing the message
+ */
+void Hqc128_Reed_Muller_Encode(uint64 *const cdw, const uint8 *const msg)
+{
+  for (uint8 i = 0; i < HQC128_VEC_N1_SIZE_BYTES; ++i)
+  {
+    // encode first word
+    encode_128(&cdw[2 * i * MULTIPLICITY], msg[i]);
+    // copy to other identical codewords
+    for (uint8 copy = 1; copy < MULTIPLICITY; ++copy)
+    {
+      Hqc_CommonLib_MemCpy(&cdw[(2 * i * MULTIPLICITY) + (2 * copy)], &cdw[2 * i * MULTIPLICITY], 16);
+    }
+  }
+} // end: Hqc128_Reed_Muller_Encode
+
+/*====================================================================================================================*/
+/**
+ * \brief Decodes the received word
+ *
+ * Decoding uses fast hadamard transform, for a more complete picture on Reed-Muller decoding, see MacWilliams, Florence Jessie, and Neil James Alexander Sloane.
+ * The theory of error-correcting codes codes @cite macwilliams1977theory
+ *
+ * \param[out] msg Array of size HQC128_VEC_N1_SIZE_64 receiving the decoded message
+ * \param[in] cdw Array of size HQC128_VEC_N1N2_SIZE_64 storing the received word
+ */
+void Hqc128_Reed_Muller_Decode(uint8 *const msg, const uint64 *const cdw)
+{
+  uint16 expanded[PQC_HQC128_RM_CODEWORD_LENGTH];
+  uint16 transform[PQC_HQC128_RM_CODEWORD_LENGTH];
+  for (uint8 i = 0; i < HQC128_VEC_N1_SIZE_BYTES; ++i)
+  {
+    // collect the codewords
+    hqc128_expand_and_sum(expanded, &cdw[2 * i * MULTIPLICITY]);
+    // apply hadamard transform
+    hqc128_hadamard(expanded, transform);
+    // fix the first entry to get the half Hadamard transform
+    transform[0] -= 64 * MULTIPLICITY;
+    // finish the decoding
+    msg[i] = find_peaks_128(transform);
+  }
+} // end: Hqc128_Reed_Muller_Decode
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
