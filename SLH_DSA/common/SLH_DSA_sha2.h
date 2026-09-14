@@ -1,6 +1,15 @@
 /***********************************************************************************************************************
- * SLH-DSA names for the shared SHA-2 interface.
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * This file is licensed under the Apache License, Version 2.0.
+ * See the LICENSE file in the repository root for the complete license text.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  **********************************************************************************************************************/
+
+/* SLH-DSA names for the shared SHA-2 interface. */
 #ifndef SLH_DSA_SHA2_H
 #define SLH_DSA_SHA2_H
 
