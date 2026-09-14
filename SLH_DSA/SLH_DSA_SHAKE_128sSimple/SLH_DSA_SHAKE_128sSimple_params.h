@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_128sSimple
-*    includes the modules for SphincsShake_128sSimple
+/** \addtogroup SLH_DSA_SHAKE_128sSimple
+*    includes the modules for SLH_DSA_SHAKE_128sSimple
  ** @{ */
-/** \addtogroup SphincsShake_128sSimple_params
+/** \addtogroup SLH_DSA_SHAKE_128sSimple_params
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_128sSimple_params.h
-* \brief  Description of FsmSw_SphincsShake_128sSimple_params.h
+/** \file SLH_DSA_SHAKE_128sSimple_params.h
+* \brief  Description of SLH_DSA_SHAKE_128sSimple_params.h
 *
 * \details
 *
@@ -33,73 +40,73 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_128SSIMPLE_PARAMS_H
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_PARAMS_H
+#ifndef SLH_DSA_SHAKE_128SSIMPLE_PARAMS_H
+#define SLH_DSA_SHAKE_128SSIMPLE_PARAMS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_128sSimple_api.h"
-#include "FsmSw_Sphincs_shake_offsets.h"
+#include "SLH_DSA_SHAKE_128sSimple_api.h"
+#include "SLH_DSA_SHAKE_offsets.h"
 #include "FsmSw_StaticAssert.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
 /* Hash output length in bytes. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_N 16u
+#define SLH_DSA_SHAKE_128SSIMPLE_N 16u
 /* Height of the hypertree. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_FULL_HEIGHT 63u
+#define SLH_DSA_SHAKE_128SSIMPLE_FULL_HEIGHT 63u
 /* Number of subtree layer. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_D 7u
+#define SLH_DSA_SHAKE_128SSIMPLE_D 7u
 /* FORS tree dimensions. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_HEIGHT 12u
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_TREES  14u
+#define SLH_DSA_SHAKE_128SSIMPLE_FORS_HEIGHT 12u
+#define SLH_DSA_SHAKE_128SSIMPLE_FORS_TREES  14u
 /* Winternitz parameter, */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_W 16u
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_W 16u
 
 /* For clarity */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES 32u
+#define SLH_DSA_SHAKE_128SSIMPLE_ADDR_BYTES 32u
 
 /* WOTS parameters. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LOGW 4u
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_LOGW 4u
 
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN1                                                                        \
-  (8u * FSMSW_SPHINCSSHAKE_128SSIMPLE_N / FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LOGW)
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN1                                                                        \
+  (8u * SLH_DSA_SHAKE_128SSIMPLE_N / SLH_DSA_SHAKE_128SSIMPLE_WOTS_LOGW)
 
-/* FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN2 is floor(log(len_1 * (w - 1)) / log(w)) + 1 we precompute */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN2 3u
+/* SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN2 is floor(log(len_1 * (w - 1)) / log(w)) + 1 we precompute */
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN2 3u
 
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN                                                                         \
-  (FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN1 + FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN2)
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_BYTES                                                                       \
-  (FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_LEN * FSMSW_SPHINCSSHAKE_128SSIMPLE_N)
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN                                                                         \
+  (SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN1 + SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN2)
+#define SLH_DSA_SHAKE_128SSIMPLE_WOTS_BYTES                                                                       \
+  (SLH_DSA_SHAKE_128SSIMPLE_WOTS_LEN * SLH_DSA_SHAKE_128SSIMPLE_N)
 
 /* Subtree size. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_TREE_HEIGHT                                                                      \
-  (FSMSW_SPHINCSSHAKE_128SSIMPLE_FULL_HEIGHT / FSMSW_SPHINCSSHAKE_128SSIMPLE_D)
+#define SLH_DSA_SHAKE_128SSIMPLE_TREE_HEIGHT                                                                      \
+  (SLH_DSA_SHAKE_128SSIMPLE_FULL_HEIGHT / SLH_DSA_SHAKE_128SSIMPLE_D)
 
 /* FORS parameters. */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_MSG_BYTES                                                                   \
-  (((FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_HEIGHT * FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_TREES) + 7u) / 8u)
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_BYTES                                                                       \
-  ((FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_HEIGHT + 1u) * FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_TREES *                       \
-   FSMSW_SPHINCSSHAKE_128SSIMPLE_N)
+#define SLH_DSA_SHAKE_128SSIMPLE_FORS_MSG_BYTES                                                                   \
+  (((SLH_DSA_SHAKE_128SSIMPLE_FORS_HEIGHT * SLH_DSA_SHAKE_128SSIMPLE_FORS_TREES) + 7u) / 8u)
+#define SLH_DSA_SHAKE_128SSIMPLE_FORS_BYTES                                                                       \
+  ((SLH_DSA_SHAKE_128SSIMPLE_FORS_HEIGHT + 1u) * SLH_DSA_SHAKE_128SSIMPLE_FORS_TREES *                       \
+   SLH_DSA_SHAKE_128SSIMPLE_N)
 
 /* Resulting SPX sizes. */
-FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_128SSIMPLE_BYTES ==
-                    (FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_FORS_BYTES +
-                     (FSMSW_SPHINCSSHAKE_128SSIMPLE_D * FSMSW_SPHINCSSHAKE_128SSIMPLE_WOTS_BYTES) +
-                     (FSMSW_SPHINCSSHAKE_128SSIMPLE_FULL_HEIGHT * FSMSW_SPHINCSSHAKE_128SSIMPLE_N)));
+FSMSW_STATIC_ASSERT(SLH_DSA_SHAKE_128SSIMPLE_BYTES ==
+                    (SLH_DSA_SHAKE_128SSIMPLE_N + SLH_DSA_SHAKE_128SSIMPLE_FORS_BYTES +
+                     (SLH_DSA_SHAKE_128SSIMPLE_D * SLH_DSA_SHAKE_128SSIMPLE_WOTS_BYTES) +
+                     (SLH_DSA_SHAKE_128SSIMPLE_FULL_HEIGHT * SLH_DSA_SHAKE_128SSIMPLE_N)));
 
-FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_128SSIMPLE_PK_BYTES == (2u * FSMSW_SPHINCSSHAKE_128SSIMPLE_N));
-FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_128SSIMPLE_SK_BYTES ==
-                    (2 * FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_PK_BYTES));
+FSMSW_STATIC_ASSERT(SLH_DSA_SHAKE_128SSIMPLE_PK_BYTES == (2u * SLH_DSA_SHAKE_128SSIMPLE_N));
+FSMSW_STATIC_ASSERT(SLH_DSA_SHAKE_128SSIMPLE_SK_BYTES ==
+                    (2 * SLH_DSA_SHAKE_128SSIMPLE_N + SLH_DSA_SHAKE_128SSIMPLE_PK_BYTES));
 
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_CRYPTO_SEEDBYTES (3u * FSMSW_SPHINCSSHAKE_128SSIMPLE_N)
+#define SLH_DSA_SHAKE_128SSIMPLE_CRYPTO_SEEDBYTES (3u * SLH_DSA_SHAKE_128SSIMPLE_N)
 
 /* Defines for max array length */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_THASH_BUF_LEN      35u
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_TREEHASH_BUF_LEN   1u /* Buffer with this length is currently not used */
-#define FSMSW_SPHINCSSHAKE_128SSIMPLE_TREEHASHX1_BUF_LEN 12u
+#define SLH_DSA_SHAKE_128SSIMPLE_THASH_BUF_LEN      35u
+#define SLH_DSA_SHAKE_128SSIMPLE_TREEHASH_BUF_LEN   1u /* Buffer with this length is currently not used */
+#define SLH_DSA_SHAKE_128SSIMPLE_TREEHASHX1_BUF_LEN 12u
 
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
@@ -121,7 +128,7 @@ FSMSW_STATIC_ASSERT(FSMSW_SPHINCSSHAKE_128SSIMPLE_SK_BYTES ==
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_SPHINCSSHAKE_128SSIMPLE_PARAMS_H */
+#endif /* SLH_DSA_SHAKE_128SSIMPLE_PARAMS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

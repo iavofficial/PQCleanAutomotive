@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple
-*    includes the modules for SphincsSha2_256sSimple
+/** \addtogroup SLH_DSA_SHA2_256sSimple
+*    includes the modules for SLH_DSA_SHA2_256sSimple
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple_sign
+/** \addtogroup SLH_DSA_SHA2_256sSimple_sign
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsSha2_256sSimple_sign.h
-* \brief  Description of FsmSw_SphincsSha2_256sSimple_sign.h
+/** \file SLH_DSA_SHA2_256sSimple_sign.h
+* \brief  Description of SLH_DSA_SHA2_256sSimple_sign.h
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHA2_256SSIMPLE_SIGN_H
-#define FSMSW_SPHINCSSHA2_256SSIMPLE_SIGN_H
+#ifndef SLH_DSA_SHA2_256SSIMPLE_SIGN_H
+#define SLH_DSA_SHA2_256SSIMPLE_SIGN_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -63,7 +70,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_SPHINCSSHA2_256SSIMPLE_SIGN_H */
+#endif /* SLH_DSA_SHA2_256SSIMPLE_SIGN_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

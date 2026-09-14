@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple
-*    includes the modules for SphincsSha2_256sSimple
+/** \addtogroup SLH_DSA_SHA2_256sSimple
+*    includes the modules for SLH_DSA_SHA2_256sSimple
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple_fors
+/** \addtogroup SLH_DSA_SHA2_256sSimple_fors
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsSha2_256sSimple_fors.h
-* \brief  Description of FsmSw_SphincsSha2_256sSimple_fors.h
+/** \file SLH_DSA_SHA2_256sSimple_fors.h
+* \brief  Description of SLH_DSA_SHA2_256sSimple_fors.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_H
-#define FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_H
+#ifndef SLH_DSA_SHA2_256SSIMPLE_FORS_H
+#define SLH_DSA_SHA2_256SSIMPLE_FORS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsSha2_256sSimple_context.h"
-#include "FsmSw_SphincsSha2_256sSimple_params.h"
+#include "SLH_DSA_SHA2_256sSimple_context.h"
+#include "SLH_DSA_SHA2_256sSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,19 +71,13 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_256sSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
-                                            const sphincs_sha2_256s_ctx *const ctx, const uint32 fors_addr[8]);
+void SLH_DSA_SHA2_256sSimple_Fors_Sign(uint8 *const sig, uint8 *const pk, const uint8 *const m,
+                                            const slh_dsa_sha2_256s_ctx *const ctx, const uint32 fors_addr[8]);
 
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsSha2_256sSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
-                                                 const sphincs_sha2_256s_ctx *const ctx, const uint32 fors_addr[8]);
+void SLH_DSA_SHA2_256sSimple_Fors_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const m,
+                                                 const slh_dsa_sha2_256s_ctx *const ctx, const uint32 fors_addr[8]);
 
-#endif /* FSMSW_SPHINCSSHA2_256SSIMPLE_FORS_H */
+#endif /* SLH_DSA_SHA2_256SSIMPLE_FORS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

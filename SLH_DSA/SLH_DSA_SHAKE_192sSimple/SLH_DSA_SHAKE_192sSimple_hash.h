@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_192sSimple
-*    includes the modules for SphincsShake_192sSimple
+/** \addtogroup SLH_DSA_SHAKE_192sSimple
+*    includes the modules for SLH_DSA_SHAKE_192sSimple
  ** @{ */
-/** \addtogroup SphincsShake_192sSimple_hash 
+/** \addtogroup SLH_DSA_SHAKE_192sSimple_hash 
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_192sSimple_hash.h
-* \brief  Description of FsmSw_SphincsShake_192sSimple_hash.h
+/** \file SLH_DSA_SHAKE_192sSimple_hash.h
+* \brief  Description of SLH_DSA_SHAKE_192sSimple_hash.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_192SSIMPLE_HASH_H
-#define FSMSW_SPHINCSSHAKE_192SSIMPLE_HASH_H
+#ifndef SLH_DSA_SHAKE_192SSIMPLE_HASH_H
+#define SLH_DSA_SHAKE_192SSIMPLE_HASH_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_192sSimple_context.h"
-#include "FsmSw_SphincsShake_192sSimple_params.h"
+#include "SLH_DSA_SHAKE_192sSimple_context.h"
+#include "SLH_DSA_SHAKE_192sSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,18 +71,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_192sSimple_PrfAddr(uint8 *const out, const sphincs_shake_192s_ctx *const ctx,
+void SLH_DSA_SHAKE_192sSimple_PrfAddr(uint8 *const out, const slh_dsa_shake_192s_ctx *const ctx,
                                            const uint32 addr[8]);
 
-void FsmSw_SphincsShake_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+void SLH_DSA_SHAKE_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
                                                     const uint8 *const optrand, const uint8 *const m, uint32 mlen,
-                                                    const sphincs_shake_192s_ctx *const ctx);
+                                                    const slh_dsa_shake_192s_ctx *const ctx);
 
-void FsmSw_SphincsShake_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+void SLH_DSA_SHAKE_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
                                                const uint8 *const R, const uint8 *const pk, const uint8 *const m,
-                                               uint32 mlen, const sphincs_shake_192s_ctx *const ctx);
+                                               uint32 mlen, const slh_dsa_shake_192s_ctx *const ctx);
 
-#endif /* FSMSW_SPHINCSSHAKE_192SSIMPLE_HASH_H */
+#endif /* SLH_DSA_SHAKE_192SSIMPLE_HASH_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup FsmSw_Sphincs_utils
+/** \addtogroup SLH_DSA_utils
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Sphincs_utils.c
-* \brief  description of FsmSw_Sphincs_utils.c
+/** \file SLH_DSA_utils.c
+* \brief  description of SLH_DSA_utils.c
 *
 * \details
 *
@@ -37,9 +44,9 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
+#include "SLH_DSA_CommonLib.h"
 
-#include "FsmSw_Sphincs_utils.h"
+#include "SLH_DSA_utils.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -81,7 +88,7 @@
  * \param[in]  uint64     in : t.b.d.
  *
  */
-void FsmSw_Sphincs_UllToBytes(uint8 *const out, uint32 outlen, uint64 in)
+void SLH_DSA_UllToBytes(uint8 *const out, uint32 outlen, uint64 in)
 {
   sint32 i = 0;
 
@@ -94,7 +101,7 @@ void FsmSw_Sphincs_UllToBytes(uint8 *const out, uint32 outlen, uint64 in)
     out[i]  = (uint8)(in_temp & 0xFFu);
     in_temp = in_temp >> 8;
   }
-} // end: FsmSw_Sphincs_UllToBytes
+} // end: SLH_DSA_UllToBytes
 
 /*====================================================================================================================*/
 /**
@@ -104,13 +111,13 @@ void FsmSw_Sphincs_UllToBytes(uint8 *const out, uint32 outlen, uint64 in)
  * \param[in]  uint32  in : t.b.d.
  *
  */
-void FsmSw_Sphincs_U32ToBytes(uint8 *const out, uint32 in)
+void SLH_DSA_U32ToBytes(uint8 *const out, uint32 in)
 {
   out[0] = (uint8)(in >> 24);
   out[1] = (uint8)(in >> 16);
   out[2] = (uint8)(in >> 8);
   out[3] = (uint8)in;
-} // end: FsmSw_Sphincs_U32ToBytes
+} // end: SLH_DSA_U32ToBytes
 
 /*====================================================================================================================*/
 /**
@@ -122,7 +129,7 @@ void FsmSw_Sphincs_U32ToBytes(uint8 *const out, uint32 in)
  * \returns uint64 retval.
  *
  */
-uint64 FsmSw_Sphincs_BytesToUll(const uint8 *const in, uint32 inlen)
+uint64 SLH_DSA_BytesToUll(const uint8 *const in, uint32 inlen)
 {
   uint64 retval = 0;
   uint32 i      = 0;
@@ -132,7 +139,7 @@ uint64 FsmSw_Sphincs_BytesToUll(const uint8 *const in, uint32 inlen)
     retval |= ((uint64)in[i]) << (8u * (inlen - 1u - i));
   }
   return retval;
-} // end: FsmSw_Sphincs_BytesToUll
+} // end: SLH_DSA_BytesToUll
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

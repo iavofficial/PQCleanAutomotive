@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_256fSimple
-*    includes the modules for SphincsShake_256fSimple
+/** \addtogroup SLH_DSA_SHAKE_256fSimple
+*    includes the modules for SLH_DSA_SHAKE_256fSimple
  ** @{ */
-/** \addtogroup SphincsShake_256fSimple_wots
+/** \addtogroup SLH_DSA_SHAKE_256fSimple_wots
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_256fSimple_wots.h
-* \brief  Description of FsmSw_SphincsShake_256fSimple_wots.h
+/** \file SLH_DSA_SHAKE_256fSimple_wots.h
+* \brief  Description of SLH_DSA_SHAKE_256fSimple_wots.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_256FSIMPLE_WOTS_H
-#define FSMSW_SPHINCSSHAKE_256FSIMPLE_WOTS_H
+#ifndef SLH_DSA_SHAKE_256FSIMPLE_WOTS_H
+#define SLH_DSA_SHAKE_256FSIMPLE_WOTS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_256fSimple_context.h"
-#include "FsmSw_SphincsShake_256fSimple_params.h"
+#include "SLH_DSA_SHAKE_256fSimple_context.h"
+#include "SLH_DSA_SHAKE_256fSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,18 +71,12 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_256fSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
-                                                  const sphincs_shake_256f_ctx *const ctx, uint32 addr[8]);
+void SLH_DSA_SHAKE_256fSimple_Wots_PkFromSig(uint8 *const pk, const uint8 *const sig, const uint8 *const msg,
+                                                  const slh_dsa_shake_256f_ctx *const ctx, uint32 addr[8]);
 
-void FsmSw_SphincsShake_256fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
+void SLH_DSA_SHAKE_256fSimple_Wots_ChainLengths(uint32 *const lengths, const uint8 *const msg);
 
-#endif /* FSMSW_SPHINCSSHAKE_256FSIMPLE_WOTS_H */
+#endif /* SLH_DSA_SHAKE_256FSIMPLE_WOTS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

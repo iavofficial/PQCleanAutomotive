@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_128sSimple
-*    includes the modules for SphincsShake_128sSimple
+/** \addtogroup SLH_DSA_SHAKE_128sSimple
+*    includes the modules for SLH_DSA_SHAKE_128sSimple
  ** @{ */
-/** \addtogroup SphincsShake_128sSimple_thash
+/** \addtogroup SLH_DSA_SHAKE_128sSimple_thash
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_128sSimple_thash_shake_simple.c
-* \brief  description of FsmSw_SphincsShake_128sSimple_thash_shake_simple.c
+/** \file SLH_DSA_SHAKE_128sSimple_thash_shake_simple.c
+* \brief  description of SLH_DSA_SHAKE_128sSimple_thash_shake_simple.c
 *
 * \details
 *
@@ -37,13 +44,13 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_Fips202.h"
-#include "FsmSw_SphincsShake_128sSimple_params.h"
-#include "FsmSw_SphincsShake_128sSimple_utils.h"
-#include "FsmSw_Sphincs_shake_address.h"
+#include "SLH_DSA_CommonLib.h"
+#include "SLH_DSA_Fips202.h"
+#include "SLH_DSA_SHAKE_128sSimple_params.h"
+#include "SLH_DSA_SHAKE_128sSimple_utils.h"
+#include "SLH_DSA_SHAKE_address.h"
 
-#include "FsmSw_SphincsShake_128sSimple_thash.h"
+#include "SLH_DSA_SHAKE_128sSimple_thash.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
@@ -78,30 +85,30 @@
 
 /*====================================================================================================================*/
 /**
- * \brief Takes an array of inblocks concatenated arrays of FSMSW_SPHINCSSHAKE_128SSIMPLE_N bytes.
+ * \brief Takes an array of inblocks concatenated arrays of SLH_DSA_SHAKE_128SSIMPLE_N bytes.
  *
  * \param[out] uint8                        *out : t.b.d.
  * \param[in]  const uint8                   *in : t.b.d.
  * \param[in]  uint32                   inblocks : t.b.d.
- * \param[in]  const sphincs_shake_128s_ctx *ctx : t.b.d.
+ * \param[in]  const slh_dsa_shake_128s_ctx *ctx : t.b.d.
  * \param[in]  const uint32              addr[8] : t.b.d.
  *
  */
-void FsmSw_SphincsShake_128sSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
-                                         const sphincs_shake_128s_ctx *const ctx, const uint32 addr[8])
+void SLH_DSA_SHAKE_128sSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                         const slh_dsa_shake_128s_ctx *const ctx, const uint32 addr[8])
 {
-  uint8 buf[FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES +
-            (FSMSW_SPHINCSSHAKE_128SSIMPLE_THASH_BUF_LEN * FSMSW_SPHINCSSHAKE_128SSIMPLE_N)] = {0};
+  uint8 buf[SLH_DSA_SHAKE_128SSIMPLE_N + SLH_DSA_SHAKE_128SSIMPLE_ADDR_BYTES +
+            (SLH_DSA_SHAKE_128SSIMPLE_THASH_BUF_LEN * SLH_DSA_SHAKE_128SSIMPLE_N)] = {0};
 
-  FsmSw_CommonLib_MemCpy(buf, ctx->pub_seed, FSMSW_SPHINCSSHAKE_128SSIMPLE_N);
-  FsmSw_CommonLib_MemCpy(&buf[FSMSW_SPHINCSSHAKE_128SSIMPLE_N], addr, FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES);
-  FsmSw_CommonLib_MemCpy(&buf[FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES], in,
-                         inblocks * FSMSW_SPHINCSSHAKE_128SSIMPLE_N);
+  SLH_DSA_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_128SSIMPLE_N);
+  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128SSIMPLE_N], addr, SLH_DSA_SHAKE_128SSIMPLE_ADDR_BYTES);
+  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128SSIMPLE_N + SLH_DSA_SHAKE_128SSIMPLE_ADDR_BYTES], in,
+                         inblocks * SLH_DSA_SHAKE_128SSIMPLE_N);
 
-  FsmSw_Fips202_Shake256(out, FSMSW_SPHINCSSHAKE_128SSIMPLE_N, buf,
-                         FSMSW_SPHINCSSHAKE_128SSIMPLE_N + FSMSW_SPHINCSSHAKE_128SSIMPLE_ADDR_BYTES +
-                             (inblocks * FSMSW_SPHINCSSHAKE_128SSIMPLE_N));
-} // end: FsmSw_SphincsShake_128sSimple_Thash
+  SLH_DSA_Fips202_Shake256(out, SLH_DSA_SHAKE_128SSIMPLE_N, buf,
+                         SLH_DSA_SHAKE_128SSIMPLE_N + SLH_DSA_SHAKE_128SSIMPLE_ADDR_BYTES +
+                             (inblocks * SLH_DSA_SHAKE_128SSIMPLE_N));
+} // end: SLH_DSA_SHAKE_128sSimple_Thash
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

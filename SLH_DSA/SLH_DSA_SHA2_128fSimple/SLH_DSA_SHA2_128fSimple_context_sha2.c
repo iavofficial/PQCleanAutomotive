@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_128fSimple
-*    includes the modules for SphincsSha2_128fSimple
+/** \addtogroup SLH_DSA_SHA2_128fSimple
+*    includes the modules for SLH_DSA_SHA2_128fSimple
  ** @{ */
-/** \addtogroup SphincsSha2_128fSimple_context
+/** \addtogroup SLH_DSA_SHA2_128fSimple_context
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsSha2_128fSimple_context_sha2.c
-* \brief  description of FsmSw_SphincsSha2_128fSimple_context_sha2.c
+/** \file SLH_DSA_SHA2_128fSimple_context_sha2.c
+* \brief  description of SLH_DSA_SHA2_128fSimple_context_sha2.c
 *
 * \details
 *
@@ -37,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsSha2_128fSimple_context.h"
+#include "SLH_DSA_SHA2_128fSimple_context.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
@@ -61,7 +68,7 @@
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTION PROTOTYPES                                                                                        */
 /**********************************************************************************************************************/
-static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx);
+static void slh_dsa_sha2_128fsimple_SeedState(slh_dsa_sha2_128f_ctx *ctx);
 
 /**********************************************************************************************************************/
 /* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
@@ -70,30 +77,30 @@ static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx);
 /*====================================================================================================================*/
 /**
  * \brief Absorb the constant pub_seed using one round of the compression function. This initializes state_seeded
- *        and state_seeded_512, which can then be reused in FsmSw_SphincsSha2_128fSimple_Thash.
+ *        and state_seeded_512, which can then be reused in SLH_DSA_SHA2_128fSimple_Thash.
  *
- * \param[in] sphincs_sha2_128f_ctx *ctx : t.b.d
+ * \param[in] slh_dsa_sha2_128f_ctx *ctx : t.b.d
  *
  */
-static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx)
+static void slh_dsa_sha2_128fsimple_SeedState(slh_dsa_sha2_128f_ctx *ctx)
 {
-  uint8 block[FSMSW_SPHINCS_SHA512_BLOCK_BYTES] = {0};
+  uint8 block[SLH_DSA_SHA512_BLOCK_BYTES] = {0};
   uint32 i                                      = 0;
 
-  for (i = 0; i < FSMSW_SPHINCSSHA2_128FSIMPLE_N; ++i)
+  for (i = 0; i < SLH_DSA_SHA2_128FSIMPLE_N; ++i)
   {
     block[i] = ctx->pub_seed[i];
   }
 
-  for (i = FSMSW_SPHINCSSHA2_128FSIMPLE_N; i < FSMSW_SPHINCS_SHA512_BLOCK_BYTES; ++i)
+  for (i = SLH_DSA_SHA2_128FSIMPLE_N; i < SLH_DSA_SHA512_BLOCK_BYTES; ++i)
   {
     block[i] = 0;
   }
   /* block has been properly initialized for both SHA-256 and SHA-512 */
 
-  FsmSw_Sha256_IncInit(&ctx->state_seeded);
-  FsmSw_Sha256_IncBlocks(&ctx->state_seeded, block, 1);
-} // end: fsmsw_sphincssha2_128fsimple_SeedState
+  SLH_DSA_Sha256_IncInit(&ctx->state_seeded);
+  SLH_DSA_Sha256_IncBlocks(&ctx->state_seeded, block, 1);
+} // end: slh_dsa_sha2_128fsimple_SeedState
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
 /**********************************************************************************************************************/
@@ -102,13 +109,13 @@ static void fsmsw_sphincssha2_128fsimple_SeedState(sphincs_sha2_128f_ctx *ctx)
 /**
  * \brief We initialize the state for the hash functions
  *
- * \param[in] sphincs_sha2_128f_ctx *ctx : t.b.d
+ * \param[in] slh_dsa_sha2_128f_ctx *ctx : t.b.d
  *
  */
-void FsmSw_SphincsSha2_128fSimple_InitializeHashFunction(sphincs_sha2_128f_ctx *const ctx)
+void SLH_DSA_SHA2_128fSimple_InitializeHashFunction(slh_dsa_sha2_128f_ctx *const ctx)
 {
-  fsmsw_sphincssha2_128fsimple_SeedState(ctx);
-} // end: FsmSw_SphincsSha2_128fSimple_InitializeHashFunction
+  slh_dsa_sha2_128fsimple_SeedState(ctx);
+} // end: SLH_DSA_SHA2_128fSimple_InitializeHashFunction
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

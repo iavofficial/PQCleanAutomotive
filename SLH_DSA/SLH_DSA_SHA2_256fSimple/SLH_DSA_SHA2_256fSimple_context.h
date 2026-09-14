@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_256fSimple
-*    includes the modules for SphincsSha2_256fSimple
+/** \addtogroup SLH_DSA_SHA2_256fSimple
+*    includes the modules for SLH_DSA_SHA2_256fSimple
  ** @{ */
-/** \addtogroup SphincsSha2_256fSimple_context
+/** \addtogroup SLH_DSA_SHA2_256fSimple_context
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsSha2_256fSimple_context.h
-* \brief  Description of FsmSw_SphincsSha2_256fSimple_context.h
+/** \file SLH_DSA_SHA2_256fSimple_context.h
+* \brief  Description of SLH_DSA_SHA2_256fSimple_context.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHA2_256FSIMPLE_CONTEXT_H
-#define FSMSW_SPHINCSSHA2_256FSIMPLE_CONTEXT_H
+#ifndef SLH_DSA_SHA2_256FSIMPLE_CONTEXT_H
+#define SLH_DSA_SHA2_256FSIMPLE_CONTEXT_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsSha2_256fSimple_params.h"
-#include "FsmSw_sha2.h"
+#include "SLH_DSA_SHA2_256fSimple_params.h"
+#include "SLH_DSA_sha2.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -54,14 +61,14 @@ making it impractical and complex to hide the implementation details." */
 making it impractical and complex to hide the implementation details." */
 typedef struct
 {
-  uint8 pub_seed[FSMSW_SPHINCSSHA2_256FSIMPLE_N];
-  uint8 sk_seed[FSMSW_SPHINCSSHA2_256FSIMPLE_N];
+  uint8 pub_seed[SLH_DSA_SHA2_256FSIMPLE_N];
+  uint8 sk_seed[SLH_DSA_SHA2_256FSIMPLE_N];
   /* sha256 state that absorbed pub_seed */
   sha256ctx state_seeded;
   /* sha512 state that absorbed pub_seed */
   sha512ctx state_seeded_512;
 
-} sphincs_sha2_256f_ctx;
+} slh_dsa_sha2_256f_ctx;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -77,9 +84,9 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_256fSimple_InitializeHashFunction(sphincs_sha2_256f_ctx *const ctx);
+void SLH_DSA_SHA2_256fSimple_InitializeHashFunction(slh_dsa_sha2_256f_ctx *const ctx);
 
-#endif /* FSMSW_SPHINCSSHA2_256FSIMPLE_CONTEXT_H */
+#endif /* SLH_DSA_SHA2_256FSIMPLE_CONTEXT_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

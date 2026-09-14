@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_192sSimple
-*    includes the modules for SphincsShake_192sSimple
+/** \addtogroup SLH_DSA_SHAKE_192sSimple
+*    includes the modules for SLH_DSA_SHAKE_192sSimple
  ** @{ */
-/** \addtogroup SphincsShake_192sSimple_utils
+/** \addtogroup SLH_DSA_SHAKE_192sSimple_utils
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_192sSimple_utils.h
-* \brief  Description of FsmSw_SphincsShake_192sSimple_utils.h
+/** \file SLH_DSA_SHAKE_192sSimple_utils.h
+* \brief  Description of SLH_DSA_SHAKE_192sSimple_utils.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_192SSIMPLE_UTILS_H
-#define FSMSW_SPHINCSSHAKE_192SSIMPLE_UTILS_H
+#ifndef SLH_DSA_SHAKE_192SSIMPLE_UTILS_H
+#define SLH_DSA_SHAKE_192SSIMPLE_UTILS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_192sSimple_context.h"
-#include "FsmSw_SphincsShake_192sSimple_params.h"
+#include "SLH_DSA_SHAKE_192sSimple_context.h"
+#include "SLH_DSA_SHAKE_192sSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,28 +71,18 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_192sSimple_ComputeRoot(uint8 *const root, const uint8 *const leaf, uint32 leaf_idx,
+void SLH_DSA_SHAKE_192sSimple_ComputeRoot(uint8 *const root, const uint8 *const leaf, uint32 leaf_idx,
                                                uint32 idx_offset, const uint8 *const auth_path, uint32 tree_height,
-                                               const sphincs_shake_192s_ctx *const ctx, uint32 addr[8]);
+                                               const slh_dsa_shake_192s_ctx *const ctx, uint32 addr[8]);
 
-/* polyspace +4 CERT-C:DCL23-C [Justified:]"
- polyspace +3 ISO-17961:funcdecl [Justified:]
- polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_192sSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
-                                            const sphincs_shake_192s_ctx *const ctx, uint32 leaf_idx, uint32 idx_offset,
+void SLH_DSA_SHAKE_192sSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
+                                            const slh_dsa_shake_192s_ctx *const ctx, uint32 leaf_idx, uint32 idx_offset,
                                             uint32 tree_height,
-                                            void (*const gen_leaf)(uint8 *leaf, const sphincs_shake_192s_ctx *ctx,
+                                            void (*const gen_leaf)(uint8 *leaf, const slh_dsa_shake_192s_ctx *ctx,
                                                                    uint32 addr_idx, const uint32 tree_addr[8]),
                                             uint32 tree_addr[8]);
 
-#endif /* FSMSW_SPHINCSSHAKE_192SSIMPLE_UTILS_H */
+#endif /* SLH_DSA_SHAKE_192SSIMPLE_UTILS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

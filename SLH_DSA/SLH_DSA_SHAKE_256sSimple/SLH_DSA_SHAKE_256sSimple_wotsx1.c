@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_256sSimple
-*    includes the modules for SphincsShake_256sSimple
+/** \addtogroup SLH_DSA_SHAKE_256sSimple
+*    includes the modules for SLH_DSA_SHAKE_256sSimple
  ** @{ */
-/** \addtogroup SphincsShake_256sSimple_wotsx1
+/** \addtogroup SLH_DSA_SHAKE_256sSimple_wotsx1
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_256sSimple_wotsx1.c
-* \brief  description of FsmSw_SphincsShake_256sSimple_wotsx1.c
+/** \file SLH_DSA_SHAKE_256sSimple_wotsx1.c
+* \brief  description of SLH_DSA_SHAKE_256sSimple_wotsx1.c
 *
 * \details
 *
@@ -37,20 +44,20 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_CommonLib.h"
-#include "FsmSw_SphincsShake_256sSimple_FctWrapper.h"
-#include "FsmSw_SphincsShake_256sSimple_hash.h"
-#include "FsmSw_SphincsShake_256sSimple_params.h"
-#include "FsmSw_SphincsShake_256sSimple_thash.h"
-#include "FsmSw_SphincsShake_256sSimple_utils.h"
-#include "FsmSw_SphincsShake_256sSimple_wots.h"
-#include "FsmSw_Sphincs_shake_address.h"
+#include "SLH_DSA_CommonLib.h"
+#include "SLH_DSA_SHAKE_256sSimple_FctWrapper.h"
+#include "SLH_DSA_SHAKE_256sSimple_hash.h"
+#include "SLH_DSA_SHAKE_256sSimple_params.h"
+#include "SLH_DSA_SHAKE_256sSimple_thash.h"
+#include "SLH_DSA_SHAKE_256sSimple_utils.h"
+#include "SLH_DSA_SHAKE_256sSimple_wots.h"
+#include "SLH_DSA_SHAKE_address.h"
 
-#include "FsmSw_SphincsShake_256sSimple_wotsx1.h"
+#include "SLH_DSA_SHAKE_256sSimple_wotsx1.h"
 /**********************************************************************************************************************/
 /* DEFINES                                                                                                            */
 /**********************************************************************************************************************/
-#define FSMSW_SPHINCS_UINT32_MAX_VALUE 0xFFFFFFFFu
+#define SLH_DSA_UINT32_MAX_VALUE 0xFFFFFFFFu
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -85,30 +92,24 @@
  *              signing with this WOTS key.
  *
  * \param[out] uint8                       *dest : t.b.d.
- * \param[in]  const sphincs_shake_256s_ctx *ctx : t.b.d.
+ * \param[in]  const slh_dsa_shake_256s_ctx *ctx : t.b.d.
  * \param[in]  uint32                   leaf_idx : t.b.d.
  * \param[in]  void                      *v_info : t.b.d.
  *
  */
-/* polyspace +6 CERT-C:DCL23-C [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +4 ISO-17961:funcdecl [Justified:]"The identifiers are distinct. The naming convention ensures clarity 
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-/* polyspace +2 MISRA2012:5.1 [Justified:]"The identifiers are distinct. The naming convention ensures clarity
-and avoids confusion with other functions. Therefore, this warning is a false positive." */
-void FsmSw_SphincsShake_256sSimple_Wots_GenLeafX1(uint8 *const dest, const sphincs_shake_256s_ctx *const ctx,
+void SLH_DSA_SHAKE_256sSimple_Wots_GenLeafX1(uint8 *const dest, const slh_dsa_shake_256s_ctx *const ctx,
                                                   uint32 leaf_idx, void *const v_info)
 {
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality.
     Ensured proper alignment and validity." */
-  FsmSw_SphincsShake_256sSimple_LeafInfoX1_T *info          = v_info;
+  SLH_DSA_SHAKE_256sSimple_LeafInfoX1_T *info          = v_info;
   uint32 *const leaf_addr                                   = info->leaf_addr;
   uint32 *const pk_addr                                     = info->pk_addr;
   uint32 i                                                  = 0;
   uint32 k                                                  = 0;
-  uint8 pk_buffer[FSMSW_SPHINCSSHAKE_256SSIMPLE_WOTS_BYTES] = {0};
+  uint8 pk_buffer[SLH_DSA_SHAKE_256SSIMPLE_WOTS_BYTES] = {0};
   uint8 *buffer                                             = (uint8 *)NULL_PTR;
   uint32 wots_k_mask                                        = 0;
 
@@ -123,52 +124,52 @@ void FsmSw_SphincsShake_256sSimple_Wots_GenLeafX1(uint8 *const dest, const sphin
     wots_k_mask = (uint32)~0u;
   }
 
-  FsmSw_SphincsShake_256sSimple_set_keypair_addr(leaf_addr, leaf_idx);
-  FsmSw_SphincsShake_256sSimple_set_keypair_addr(pk_addr, leaf_idx);
+  SLH_DSA_SHAKE_256sSimple_set_keypair_addr(leaf_addr, leaf_idx);
+  SLH_DSA_SHAKE_256sSimple_set_keypair_addr(pk_addr, leaf_idx);
 
   buffer = pk_buffer;
-  for (i = 0; i < FSMSW_SPHINCSSHAKE_256SSIMPLE_WOTS_LEN; i++)
+  for (i = 0; i < SLH_DSA_SHAKE_256SSIMPLE_WOTS_LEN; i++)
   {
     /* Set wots_k to the step if we're generating a signature, ~0 if we're not */
     uint32 const wots_k = info->wots_steps[i] | wots_k_mask;
 
     /* Start with the secret seed */
-    FsmSw_SphincsShake_SetChainAddr(leaf_addr, i);
-    FsmSw_SphincsShake_SetHashAddr(leaf_addr, 0);
-    FsmSw_SphincsShake_SetType(leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_WOTSPRF);
+    SLH_DSA_SHAKE_SetChainAddr(leaf_addr, i);
+    SLH_DSA_SHAKE_SetHashAddr(leaf_addr, 0);
+    SLH_DSA_SHAKE_SetType(leaf_addr, SLH_DSA_ADDR_TYPE_WOTSPRF);
 
-    FsmSw_SphincsShake_256sSimple_PrfAddr(buffer, ctx, leaf_addr);
+    SLH_DSA_SHAKE_256sSimple_PrfAddr(buffer, ctx, leaf_addr);
 
-    FsmSw_SphincsShake_SetType(leaf_addr, FSMSW_SPHINCS_ADDR_TYPE_WOTS);
+    SLH_DSA_SHAKE_SetType(leaf_addr, SLH_DSA_ADDR_TYPE_WOTS);
 
     /* Iterate down the WOTS chain */
-    for (k = 0; k < FSMSW_SPHINCS_UINT32_MAX_VALUE; k++)
+    for (k = 0; k < SLH_DSA_UINT32_MAX_VALUE; k++)
     {
       /* Check if this is the value that needs to be saved as a part of the WOTS signature */
       if (k == wots_k)
       {
-        FsmSw_CommonLib_MemCpy(&info->wots_sig[i * FSMSW_SPHINCSSHAKE_256SSIMPLE_N], buffer,
-                               FSMSW_SPHINCSSHAKE_256SSIMPLE_N);
+        SLH_DSA_CommonLib_MemCpy(&info->wots_sig[i * SLH_DSA_SHAKE_256SSIMPLE_N], buffer,
+                               SLH_DSA_SHAKE_256SSIMPLE_N);
       }
 
       /* Check if we hit the top of the chain */
-      if (k == FSMSW_SPHINCSSHAKE_256SSIMPLE_WOTS_W - 1u)
+      if (k == SLH_DSA_SHAKE_256SSIMPLE_WOTS_W - 1u)
       {
         break;
       }
 
       /* Iterate one step on the chain */
-      FsmSw_SphincsShake_SetHashAddr(leaf_addr, k);
+      SLH_DSA_SHAKE_SetHashAddr(leaf_addr, k);
 
-      FsmSw_SphincsShake_256sSimple_Thash(buffer, buffer, 1, ctx, leaf_addr);
+      SLH_DSA_SHAKE_256sSimple_Thash(buffer, buffer, 1, ctx, leaf_addr);
     }
 
-    buffer = &buffer[FSMSW_SPHINCSSHAKE_256SSIMPLE_N];
+    buffer = &buffer[SLH_DSA_SHAKE_256SSIMPLE_N];
   }
 
-  /* Do the final FsmSw_SphincsShake_256sSimple_Thash to generate the public keys */
-  FsmSw_SphincsShake_256sSimple_Thash(dest, pk_buffer, FSMSW_SPHINCSSHAKE_256SSIMPLE_WOTS_LEN, ctx, pk_addr);
-} // end: FsmSw_SphincsShake_256sSimple_Wots_GenLeafX1
+  /* Do the final SLH_DSA_SHAKE_256sSimple_Thash to generate the public keys */
+  SLH_DSA_SHAKE_256sSimple_Thash(dest, pk_buffer, SLH_DSA_SHAKE_256SSIMPLE_WOTS_LEN, ctx, pk_addr);
+} // end: SLH_DSA_SHAKE_256sSimple_Wots_GenLeafX1
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsShake_128fSimple
-*    includes the modules for SphincsShake_128fSimple
+/** \addtogroup SLH_DSA_SHAKE_128fSimple
+*    includes the modules for SLH_DSA_SHAKE_128fSimple
  ** @{ */
-/** \addtogroup SphincsShake_128fSimple_context
+/** \addtogroup SLH_DSA_SHAKE_128fSimple_context
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_128fSimple_context.h
-* \brief  Description of FsmSw_SphincsShake_128fSimple_context.h
+/** \file SLH_DSA_SHAKE_128fSimple_context.h
+* \brief  Description of SLH_DSA_SHAKE_128fSimple_context.h
 *
 * \details
 *
@@ -33,12 +40,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_128FSIMPLE_CONTEXT_H
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_CONTEXT_H
+#ifndef SLH_DSA_SHAKE_128FSIMPLE_CONTEXT_H
+#define SLH_DSA_SHAKE_128FSIMPLE_CONTEXT_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_128fSimple_params.h"
+#include "SLH_DSA_SHAKE_128fSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -53,10 +60,10 @@ making it impractical and complex to hide the implementation details." */
 making it impractical and complex to hide the implementation details." */
 typedef struct
 {
-  uint8 pub_seed[FSMSW_SPHINCSSHAKE_128FSIMPLE_N];
-  uint8 sk_seed[FSMSW_SPHINCSSHAKE_128FSIMPLE_N];
+  uint8 pub_seed[SLH_DSA_SHAKE_128FSIMPLE_N];
+  uint8 sk_seed[SLH_DSA_SHAKE_128FSIMPLE_N];
 
-} sphincs_shake_128f_ctx;
+} slh_dsa_shake_128f_ctx;
 /**********************************************************************************************************************/
 /* GLOBAL VARIABLES                                                                                                   */
 /**********************************************************************************************************************/
@@ -72,11 +79,11 @@ typedef struct
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_128fSimple_InitializeHashFunction(sphincs_shake_128f_ctx *const ctx);
+void SLH_DSA_SHAKE_128fSimple_InitializeHashFunction(slh_dsa_shake_128f_ctx *const ctx);
 
-void FsmSw_SphincsShake_128fSimple_1FreeHashFunction(sphincs_shake_128f_ctx *const ctx);
+void SLH_DSA_SHAKE_128fSimple_1FreeHashFunction(slh_dsa_shake_128f_ctx *const ctx);
 
-#endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_CONTEXT_H */
+#endif /* SLH_DSA_SHAKE_128FSIMPLE_CONTEXT_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

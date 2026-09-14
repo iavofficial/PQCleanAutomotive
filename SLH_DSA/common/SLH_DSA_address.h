@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
 /** \addtogroup common
 *    includes the modules for common
  ** @{ */
-/** \addtogroup Sphincs_address
+/** \addtogroup SLH_DSA_address
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_Sphincs_address.h
-* \brief  description of FsmSw_Sphincs_address.h file
+/** \file SLH_DSA_address.h
+* \brief  description of SLH_DSA_address.h file
 *
 * \details
 *
@@ -33,8 +40,8 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCS_ADDRESS_H
-#define FSMSW_SPHINCS_ADDRESS_H
+#ifndef SLH_DSA_ADDRESS_H
+#define SLH_DSA_ADDRESS_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
@@ -42,14 +49,14 @@
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
 /**********************************************************************************************************************/
-/* The hash types that are passed to FsmSw_SphincsSha2_SetType */
-#define FSMSW_SPHINCS_ADDR_TYPE_WOTS     0
-#define FSMSW_SPHINCS_ADDR_TYPE_WOTSPK   1
-#define FSMSW_SPHINCS_ADDR_TYPE_HASHTREE 2
-#define FSMSW_SPHINCS_ADDR_TYPE_FORSTREE 3
-#define FSMSW_SPHINCS_ADDR_TYPE_FORSPK   4
-#define FSMSW_SPHINCS_ADDR_TYPE_WOTSPRF  5
-#define FSMSW_SPHINCS_ADDR_TYPE_FORSPRF  6
+/* The hash types that are passed to SLH_DSA_SHA2_SetType */
+#define SLH_DSA_ADDR_TYPE_WOTS     0
+#define SLH_DSA_ADDR_TYPE_WOTSPK   1
+#define SLH_DSA_ADDR_TYPE_HASHTREE 2
+#define SLH_DSA_ADDR_TYPE_FORSTREE 3
+#define SLH_DSA_ADDR_TYPE_FORSPK   4
+#define SLH_DSA_ADDR_TYPE_WOTSPRF  5
+#define SLH_DSA_ADDR_TYPE_FORSPRF  6
 /**********************************************************************************************************************/
 /* TYPES                                                                                                              */
 /**********************************************************************************************************************/
@@ -70,7 +77,7 @@
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
 
-#endif /* FSMSW_SPHINCS_ADDRESS_H */
+#endif /* SLH_DSA_ADDRESS_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

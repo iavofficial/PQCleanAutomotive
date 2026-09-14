@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple
-*    includes the modules for SphincsSha2_256sSimple
+/** \addtogroup SLH_DSA_SHA2_256sSimple
+*    includes the modules for SLH_DSA_SHA2_256sSimple
  ** @{ */
-/** \addtogroup SphincsSha2_256sSimple_hash 
+/** \addtogroup SLH_DSA_SHA2_256sSimple_hash 
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsSha2_256sSimple_hash.h
-* \brief  Description of FsmSw_SphincsSha2_256sSimple_hash.h
+/** \file SLH_DSA_SHA2_256sSimple_hash.h
+* \brief  Description of SLH_DSA_SHA2_256sSimple_hash.h
 *
 * \details
 *
@@ -33,13 +40,13 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHA2_256SSIMPLE_HASH_H
-#define FSMSW_SPHINCSSHA2_256SSIMPLE_HASH_H
+#ifndef SLH_DSA_SHA2_256SSIMPLE_HASH_H
+#define SLH_DSA_SHA2_256SSIMPLE_HASH_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsSha2_256sSimple_context.h"
-#include "FsmSw_SphincsSha2_256sSimple_params.h"
+#include "SLH_DSA_SHA2_256sSimple_context.h"
+#include "SLH_DSA_SHA2_256sSimple_params.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,20 +71,20 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsSha2_256sSimple_PrfAddr(uint8 *const out, const sphincs_sha2_256s_ctx *const ctx,
+void SLH_DSA_SHA2_256sSimple_PrfAddr(uint8 *const out, const slh_dsa_sha2_256s_ctx *const ctx,
                                           const uint32 addr[8]);
 
-void FsmSw_SphincsSha2_256sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+void SLH_DSA_SHA2_256sSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
-                                                   const sphincs_sha2_256s_ctx *const ctx);
+                                                   const slh_dsa_sha2_256s_ctx *const ctx);
 
-void FsmSw_SphincsSha2_256sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+void SLH_DSA_SHA2_256sSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
-                                              uint32 mlen, const sphincs_sha2_256s_ctx *const ctx);
+                                              uint32 mlen, const slh_dsa_sha2_256s_ctx *const ctx);
 
-void FsmSw_SphincsSha2_256sSimple_MgF1_512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen);
+void SLH_DSA_SHA2_256sSimple_MgF1_512(uint8 *const out, uint32 outlen, const uint8 *const in, uint32 inlen);
 
-#endif /* FSMSW_SPHINCSSHA2_256SSIMPLE_HASH_H */
+#endif /* SLH_DSA_SHA2_256SSIMPLE_HASH_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

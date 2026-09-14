@@ -1,22 +1,29 @@
 /***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
  *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
  *
  **********************************************************************************************************************/
 
-/** \addtogroup SwC FsmSw
-*    includes the modules for SwC FsmSw
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
  ** @{ */
-/** \addtogroup SphincsSha2_128fSimple
-*    includes the modules for SphincsShake_128fSimple
+/** \addtogroup SLH_DSA_SHA2_128fSimple
+*    includes the modules for SLH_DSA_SHAKE_128fSimple
  ** @{ */
-/** \addtogroup SphincsShake_128fSimple_thash
+/** \addtogroup SLH_DSA_SHAKE_128fSimple_thash
  ** @{ */
 
 /*====================================================================================================================*/
-/** \file FsmSw_SphincsShake_128fSimple_thash.h
-* \brief  Description of FsmSw_SphincsShake_128fSimple_thash.h
+/** \file SLH_DSA_SHAKE_128fSimple_thash.h
+* \brief  Description of SLH_DSA_SHAKE_128fSimple_thash.h
 *
 * \details
 *
@@ -33,12 +40,12 @@
  *  $Rev$
  *
  **********************************************************************************************************************/
-#ifndef FSMSW_SPHINCSSHAKE_128FSIMPLE_THASH_H
-#define FSMSW_SPHINCSSHAKE_128FSIMPLE_THASH_H
+#ifndef SLH_DSA_SHAKE_128FSIMPLE_THASH_H
+#define SLH_DSA_SHAKE_128FSIMPLE_THASH_H
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FsmSw_SphincsShake_128fSimple_context.h"
+#include "SLH_DSA_SHAKE_128fSimple_context.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -63,10 +70,10 @@
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTION PROTOTYPES                                                                                         */
 /**********************************************************************************************************************/
-void FsmSw_SphincsShake_128fSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
-                                         const sphincs_shake_128f_ctx *const ctx, const uint32 addr[8]);
+void SLH_DSA_SHAKE_128fSimple_Thash(uint8 *const out, const uint8 *const in, uint32 inblocks,
+                                         const slh_dsa_shake_128f_ctx *const ctx, const uint32 addr[8]);
 
-#endif /* FSMSW_SPHINCSSHAKE_128FSIMPLE_THASH_H */
+#endif /* SLH_DSA_SHAKE_128FSIMPLE_THASH_H */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
