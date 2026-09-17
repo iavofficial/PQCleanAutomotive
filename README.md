@@ -41,13 +41,15 @@ In the SLH‑DSA algorithm, dynamic arrays had to be replaced by static arrays i
 
 ## Integration, build and test
 
-This repository provides C implementations of post-quantum cryptographic
-algorithms together with their public API headers. It is intended to be
-integrated into an existing embedded or automotive software project.
+This repository provides algorithm implementations and public API headers. It
+does not provide a standalone application or a project-specific build system.
 
-The repository does not provide a standalone application or a project-specific
-build system. Users are responsible for integrating the required source files
-into their own build environment and adapting platform-dependent components.
+To use the algorithms, the required source files and headers must be integrated
+into the target project's build environment. Platform-specific components must be provided or adapted by the integrator.
+
+An example integration can be found in the `Crypto.c` file of the
+[IAV_quantumSAR](https://github.com/iavofficial/IAV_quantumSAR/tree/main)
+repository.
 
 ## License
 PQCleanAutomotive contains third-party components with licensing information
