@@ -39,6 +39,16 @@ For the integration of PQCleanAutomotive, the file Crypto.c in the [IAV_quantumS
 
 In the SLH‑DSA algorithm, dynamic arrays had to be replaced by static arrays in various functions for the microcontroller implementation.
 
+## Integration, build and test
+
+This repository provides C implementations of post-quantum cryptographic
+algorithms together with their public API headers. It is intended to be
+integrated into an existing embedded or automotive software project.
+
+The repository does not provide a standalone application or a project-specific
+build system. Users are responsible for integrating the required source files
+into their own build environment and adapting platform-dependent components.
+
 ## License
 PQCleanAutomotive contains third-party components with licensing information
 that differs from the Apache-2.0 license applicable to IAV contributions.
