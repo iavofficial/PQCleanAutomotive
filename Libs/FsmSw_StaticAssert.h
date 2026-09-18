@@ -1,8 +1,15 @@
-#ifndef FSMSW_STATIC_ASSERT_H
-#define FSMSW_STATIC_ASSERT_H
-/**********************************************************************************************************************
+/***********************************************************************************************************************
  *
- *                                                    IAV GmbH
+ * Copyright 2026 IAV GmbH
+ *
+ * This file is licensed under the Apache License, Version 2.0.
+ * See the LICENSE file in the repository root for the complete license text.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/***********************************************************************************************************************
  * \file
  * \brief Compile time assertions
  * \details Provides the macro FSMSW_STATIC_ASSERT which can be used to perform compile time assertions.
@@ -10,7 +17,6 @@
  * Inspired by www.pixelbeat.org/programming/gcc/static_assert.html
  * 
  **********************************************************************************************************************/
-
 /** \addtogroup SwC FsmSw
 *    includes the modules for SwC FsmSw
  ** @{ */
@@ -19,6 +25,9 @@
  ** @{ */
 /** \addtogroup StaticAssert
  ** @{ */
+
+#ifndef FSMSW_STATIC_ASSERT_H
+#define FSMSW_STATIC_ASSERT_H
 
 /**********************************************************************************************************************
  * MACROS                                                                                                             

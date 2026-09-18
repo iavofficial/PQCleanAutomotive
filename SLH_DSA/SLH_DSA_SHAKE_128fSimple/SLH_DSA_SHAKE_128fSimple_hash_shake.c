@@ -1,0 +1,189 @@
+/***********************************************************************************************************************
+ *
+ * Original implementation: PQClean, SLH-DSA (standardized as SLH-DSA)
+ *
+ * Copyright 2026 IAV GmbH
+ *
+ * Original portions are dedicated to the public domain under CC0 1.0 Universal.
+ * See the NOTICE file in the repository root for attribution information.
+ * IAV modifications are licensed under the Apache License, Version 2.0.
+ *
+ * SPDX-License-Identifier: CC0-1.0 AND Apache-2.0
+ *
+ **********************************************************************************************************************/
+
+/** \addtogroup SwC SLH-DSA
+*    includes the modules for SwC SLH-DSA
+ ** @{ */
+/** \addtogroup SLH_DSA_SHAKE_128fSimple
+*    includes the modules for SLH_DSA_SHAKE_128fSimple
+ ** @{ */
+/** \addtogroup SLH_DSA_SHAKE_128fSimple_hash
+ ** @{ */
+
+/*====================================================================================================================*/
+/** \file SLH_DSA_SHAKE_128fSimple_hash_shake.c
+* \brief  description of SLH_DSA_SHAKE_128fSimple_hash_shake.c
+*
+* \details
+*
+*
+*/
+/*
+ *
+ *  $File$
+ *
+ *  $Author$
+ *
+ *  $Date$
+ *
+ *  $Rev$
+ *
+ **********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* INCLUDES                                                                                                           */
+/**********************************************************************************************************************/
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
+#include "SLH_DSA_SHAKE_128fSimple_params.h"
+#include "SLH_DSA_SHAKE_128fSimple_utils.h"
+#include "SLH_DSA_SHAKE_address.h"
+#include "SLH_DSA_utils.h"
+
+#include "SLH_DSA_SHAKE_128fSimple_hash.h"
+/**********************************************************************************************************************/
+/* DEFINES                                                                                                            */
+/**********************************************************************************************************************/
+#define SPX_TREE_BITS  (SLH_DSA_SHAKE_128FSIMPLE_TREE_HEIGHT * (SLH_DSA_SHAKE_128FSIMPLE_D - 1u))
+#define SPX_TREE_BYTES ((SPX_TREE_BITS + 7u) / 8u)
+#define SPX_LEAF_BITS  SLH_DSA_SHAKE_128FSIMPLE_TREE_HEIGHT
+#define SPX_LEAF_BYTES ((SPX_LEAF_BITS + 7u) / 8u)
+#define SPX_DGST_BYTES (SLH_DSA_SHAKE_128FSIMPLE_FORS_MSG_BYTES + SPX_TREE_BYTES + SPX_LEAF_BYTES)
+
+/**********************************************************************************************************************/
+/* TYPES                                                                                                              */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL VARIABLES                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* GLOBAL CONSTANTS                                                                                                   */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* MACROS                                                                                                             */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTION PROTOTYPES                                                                                        */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PRIVATE FUNCTIONS DEFINITIONS                                                                                      */
+/**********************************************************************************************************************/
+
+/**********************************************************************************************************************/
+/* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */
+/**********************************************************************************************************************/
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes PRF(pk_seed, sk_seed, addr).
+ *
+ * \param[out] uint8                        *out : t.b.d.
+ * \param[in]  const slh_dsa_shake_128f_ctx *ctx : t.b.d.
+ * \param[in]  const uint32              addr[8] : t.b.d.
+ *
+ */
+void SLH_DSA_SHAKE_128fSimple_PrfAddr(uint8 *const out, const slh_dsa_shake_128f_ctx *const ctx,
+                                           const uint32 addr[8])
+{
+  uint8 buf[(2u * SLH_DSA_SHAKE_128FSIMPLE_N) + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES] = {0};
+
+  FsmSw_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_128FSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N], addr, SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES], ctx->sk_seed,
+                         SLH_DSA_SHAKE_128FSIMPLE_N);
+
+  FsmSw_Fips202_Shake256(out, SLH_DSA_SHAKE_128FSIMPLE_N, buf,
+                         (2u * SLH_DSA_SHAKE_128FSIMPLE_N) + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES);
+} // end: SLH_DSA_SHAKE_128fSimple_PrfAddr
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes the message-dependent randomness R, using a secret seed and an optional randomization value
+ *        as well as the message.
+ *
+ * \param[out] uint8                         *R : t.b.d.
+ * \param[in]  const uint8              *sk_prf : t.b.d.
+ * \param[in]  const uint8             *optrand : t.b.d.
+ * \param[in]  const uint8                   *m : t.b.d.
+ * \param[in]  uint32                      mlen : t.b.d.
+ * \param[in]  const slh_dsa_sha2_128f_ctx *ctx : t.b.d.
+ * 
+ */
+void SLH_DSA_SHAKE_128fSimple_GenMessageRandom(uint8 *const R, const uint8 *const sk_prf,
+                                                    const uint8 *const optrand, const uint8 *const m, uint32 mlen,
+                                                    const slh_dsa_shake_128f_ctx *const ctx)
+{
+  (void)ctx;
+  shake256incctx s_inc = {{0}};
+
+  FsmSw_Fips202_Shake256_IncInit(&s_inc);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, sk_prf, SLH_DSA_SHAKE_128FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, optrand, SLH_DSA_SHAKE_128FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
+  FsmSw_Fips202_Shake256_IncFinalize(&s_inc);
+  FsmSw_Fips202_Shake256_IncSqueeze(R, SLH_DSA_SHAKE_128FSIMPLE_N, &s_inc);
+} // end: SLH_DSA_SHAKE_128fSimple_GenMessageRandom
+
+/*====================================================================================================================*/
+/**
+ * \brief Computes the message hash using R, the public key, and the message. Outputs the message digest and the
+ *        index of the leaf. The index is split in the tree index and the leaf index, for convenient copying to
+ *        an address.
+ *
+ * \param[out] uint8                     *digest : t.b.d.
+ * \param[out] uint64                      *tree : t.b.d.
+ * \param[out] uint32                  *leaf_idx : t.b.d.
+ * \param[in]  const uint8                    *R : t.b.d.
+ * \param[in]  const uint8                   *pk : t.b.d.
+ * \param[in]  const uint8                    *m : t.b.d.
+ * \param[in]  uint32                       mlen : t.b.d.
+ * \param[in]  const slh_dsa_shake_128f_ctx *ctx : t.b.d.
+ *
+ */
+void SLH_DSA_SHAKE_128fSimple_HashMessage(uint8 *const digest, uint64 *const tree, uint32 *const leaf_idx,
+                                               const uint8 *const R, const uint8 *const pk, const uint8 *const m,
+                                               uint32 mlen, const slh_dsa_shake_128f_ctx *const ctx)
+{
+  (void)ctx;
+
+  uint8 buf[SPX_DGST_BYTES] = {0};
+  uint8 *bufp               = buf;
+  shake256incctx s_inc      = {{0}};
+
+  FsmSw_Fips202_Shake256_IncInit(&s_inc);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, R, SLH_DSA_SHAKE_128FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, pk, SLH_DSA_SHAKE_128FSIMPLE_PK_BYTES);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
+  FsmSw_Fips202_Shake256_IncFinalize(&s_inc);
+  FsmSw_Fips202_Shake256_IncSqueeze(buf, SPX_DGST_BYTES, &s_inc);
+
+  FsmSw_CommonLib_MemCpy(digest, bufp, SLH_DSA_SHAKE_128FSIMPLE_FORS_MSG_BYTES);
+  bufp = &bufp[SLH_DSA_SHAKE_128FSIMPLE_FORS_MSG_BYTES];
+
+  *tree = SLH_DSA_BytesToUll(bufp, SPX_TREE_BYTES);
+  *tree &= (~(uint64)0) >> (64u - SPX_TREE_BITS);
+  bufp = &bufp[SPX_TREE_BYTES];
+
+  *leaf_idx = (uint32)SLH_DSA_BytesToUll(bufp, SPX_LEAF_BYTES);
+  *leaf_idx &= (~(uint32)0) >> (32u - SPX_LEAF_BITS);
+} // end: SLH_DSA_SHAKE_128fSimple_HashMessage
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
