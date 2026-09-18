@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc256_code.h"
 #include "Hqc256_gf2x.h"
 #include "Hqc256_parameters.h"
@@ -112,11 +112,11 @@ void Hqc256_Pke_Keygen(uint8 *const pk, uint8 *const sk)
   uint64 s[HQC256_VEC_N_SIZE_64]       = {0};
 
   // Create seed_expanders for public key and secret key
-  (void)Hqc_CommonLib_RandomBytes(sk_seed, HQC256_SEED_BYTES);
-  (void)Hqc_CommonLib_RandomBytes(sigma, HQC256_VEC_K_SIZE_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sk_seed, HQC256_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sigma, HQC256_VEC_K_SIZE_BYTES);
   Hqc256_SeedExpander_Init(&sk_seedexpander, sk_seed, HQC256_SEED_BYTES);
 
-  (void)Hqc_CommonLib_RandomBytes(pk_seed, HQC256_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(pk_seed, HQC256_SEED_BYTES);
   Hqc256_SeedExpander_Init(&pk_seedexpander, pk_seed, HQC256_SEED_BYTES);
 
   // Compute secret key

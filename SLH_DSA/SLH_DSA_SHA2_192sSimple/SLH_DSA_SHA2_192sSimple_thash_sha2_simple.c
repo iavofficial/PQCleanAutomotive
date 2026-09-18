@@ -44,12 +44,12 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHA2_192sSimple_hash.h"
 #include "SLH_DSA_SHA2_192sSimple_params.h"
 #include "SLH_DSA_SHA2_192sSimple_utils.h"
 #include "SLH_DSA_SHA2_address.h"
-#include "SLH_DSA_sha2.h"
+#include "FsmSw_sha2.h"
 
 #include "SLH_DSA_SHA2_192sSimple_thash.h"
 /**********************************************************************************************************************/
@@ -105,14 +105,14 @@ void SLH_DSA_SHA2_192sSimple_Thash(uint8 *const out, const uint8 *const in, uint
       0};
 
   /* Retrieve precomputed state containing pub_seed */
-  SLH_DSA_Sha256_IncCtxClone(&sha2_state, &ctx->state_seeded);
+  FsmSw_Sha256_IncCtxClone(&sha2_state, &ctx->state_seeded);
 
-  SLH_DSA_CommonLib_MemCpy(buf, addr, SPX_SHA256_ADDR_BYTES);
-  SLH_DSA_CommonLib_MemCpy(&buf[SPX_SHA256_ADDR_BYTES], in, inblocks * SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(buf, addr, SPX_SHA256_ADDR_BYTES);
+  FsmSw_CommonLib_MemCpy(&buf[SPX_SHA256_ADDR_BYTES], in, inblocks * SLH_DSA_SHA2_192SSIMPLE_N);
 
-  SLH_DSA_Sha256_IncFinalize(outbuf, &sha2_state, buf,
+  FsmSw_Sha256_IncFinalize(outbuf, &sha2_state, buf,
                            SPX_SHA256_ADDR_BYTES + (inblocks * SLH_DSA_SHA2_192SSIMPLE_N));
-  SLH_DSA_CommonLib_MemCpy(out, outbuf, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(out, outbuf, SLH_DSA_SHA2_192SSIMPLE_N);
 } // end: SLH_DSA_SHA2_192sSimple_Thash
 
 /** @} doxygen end group definition */

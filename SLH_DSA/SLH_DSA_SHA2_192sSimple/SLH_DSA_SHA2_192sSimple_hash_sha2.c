@@ -44,11 +44,11 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHA2_192sSimple_params.h"
 #include "SLH_DSA_SHA2_address.h"
 #include "SLH_DSA_utils.h"
-#include "SLH_DSA_sha2.h"
+#include "FsmSw_sha2.h"
 
 #include "SLH_DSA_SHA2_192sSimple_hash.h"
 /**********************************************************************************************************************/
@@ -56,10 +56,10 @@
 /**********************************************************************************************************************/
 #define SPX_SHAX_OUTPUT_BYTES SLH_DSA_SHA512_OUTPUT_BYTES
 #define SPX_SHAX_BLOCK_BYTES  SLH_DSA_SHA512_BLOCK_BYTES
-#define shaX_inc_init         SLH_DSA_Sha512_IncInit
-#define shaX_inc_blocks       SLH_DSA_Sha512_IncBlocks
-#define shaX_inc_finalize     SLH_DSA_Sha512_IncFinalize
-#define shaX                  SLH_DSA_Sha512
+#define shaX_inc_init         FsmSw_Sha512_IncInit
+#define shaX_inc_blocks       FsmSw_Sha512_IncBlocks
+#define shaX_inc_finalize     FsmSw_Sha512_IncFinalize
+#define shaX                  FsmSw_Sha512
 #define mgf1_X                SLH_DSA_SHA2_192sSimple_MgF1_512
 #define shaXstate             sha512ctx
 
@@ -131,7 +131,7 @@ void SLH_DSA_SHA2_192sSimple_MgF1_512(uint8 *const out, uint32 outlen, const uin
   /* out_temp is used to avoid modifying the input. */
   uint8 *out_temp = out;
 
-  SLH_DSA_CommonLib_MemCpy(inbuf, in, inlen);
+  FsmSw_CommonLib_MemCpy(inbuf, in, inlen);
 
   /* While we can fit in at least another full block of SHA512 output.. */
   /* polyspace +2 MISRA2012:14.2 [Justified:]"The calculation involving the loop counter directly affects loop
@@ -139,15 +139,15 @@ void SLH_DSA_SHA2_192sSimple_MgF1_512(uint8 *const out, uint32 outlen, const uin
   for (i = 0; ((i + 1u) * SLH_DSA_SHA512_OUTPUT_BYTES) <= outlen; i++)
   {
     SLH_DSA_U32ToBytes(&inbuf[inlen], i);
-    SLH_DSA_Sha512(out_temp, inbuf, inlen + 4u);
+    FsmSw_Sha512(out_temp, inbuf, inlen + 4u);
     out_temp = &out_temp[SLH_DSA_SHA512_OUTPUT_BYTES];
   }
   /* Until we cannot anymore, and we fill the remainder. */
   if (outlen > (i * SLH_DSA_SHA512_OUTPUT_BYTES))
   {
     SLH_DSA_U32ToBytes(&inbuf[inlen], i);
-    SLH_DSA_Sha512(outbuf, inbuf, inlen + 4u);
-    SLH_DSA_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * SLH_DSA_SHA512_OUTPUT_BYTES));
+    FsmSw_Sha512(outbuf, inbuf, inlen + 4u);
+    FsmSw_CommonLib_MemCpy(out_temp, outbuf, outlen - (i * SLH_DSA_SHA512_OUTPUT_BYTES));
   }
 } // end: SLH_DSA_SHA2_192sSimple_MgF1_512
 
@@ -168,15 +168,15 @@ void SLH_DSA_SHA2_192sSimple_PrfAddr(uint8 *const out, const slh_dsa_sha2_192s_c
   uint8 outbuf[SLH_DSA_SHA256_OUTPUT_BYTES]                   = {0};
 
   /* Retrieve precomputed state containing pub_seed */
-  SLH_DSA_Sha256_IncCtxClone(&sha2_state, &ctx->state_seeded);
+  FsmSw_Sha256_IncCtxClone(&sha2_state, &ctx->state_seeded);
 
   /* Remainder: ADDR^c ‖ SK.seed */
-  SLH_DSA_CommonLib_MemCpy(buf, addr, SPX_SHA256_ADDR_BYTES);
-  SLH_DSA_CommonLib_MemCpy(&buf[SPX_SHA256_ADDR_BYTES], ctx->sk_seed, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(buf, addr, SPX_SHA256_ADDR_BYTES);
+  FsmSw_CommonLib_MemCpy(&buf[SPX_SHA256_ADDR_BYTES], ctx->sk_seed, SLH_DSA_SHA2_192SSIMPLE_N);
 
-  SLH_DSA_Sha256_IncFinalize(outbuf, &sha2_state, buf, SPX_SHA256_ADDR_BYTES + SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_Sha256_IncFinalize(outbuf, &sha2_state, buf, SPX_SHA256_ADDR_BYTES + SLH_DSA_SHA2_192SSIMPLE_N);
 
-  SLH_DSA_CommonLib_MemCpy(out, outbuf, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(out, outbuf, SLH_DSA_SHA2_192SSIMPLE_N);
 } // end: SLH_DSA_SHA2_192sSimple_PrfAddr
 
 /*====================================================================================================================*/
@@ -214,24 +214,24 @@ void SLH_DSA_SHA2_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const
   {
     buf[i] = 0x36u ^ sk_prf[i];
   }
-  SLH_DSA_CommonLib_MemSet(&buf[SLH_DSA_SHA2_192SSIMPLE_N], 0x36u,
+  FsmSw_CommonLib_MemSet(&buf[SLH_DSA_SHA2_192SSIMPLE_N], 0x36u,
                          SPX_SHAX_BLOCK_BYTES - SLH_DSA_SHA2_192SSIMPLE_N);
 
   shaX_inc_init(&state);
   shaX_inc_blocks(&state, buf, 1u);
 
-  SLH_DSA_CommonLib_MemCpy(buf, optrand, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(buf, optrand, SLH_DSA_SHA2_192SSIMPLE_N);
 
   /* If optrand + message cannot fill up an entire block */
   if ((SLH_DSA_SHA2_192SSIMPLE_N + mlen_temp) < SPX_SHAX_BLOCK_BYTES)
   {
-    SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHA2_192SSIMPLE_N], m_temp, mlen_temp);
+    FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHA2_192SSIMPLE_N], m_temp, mlen_temp);
     shaX_inc_finalize(&buf[SPX_SHAX_BLOCK_BYTES], &state, buf, mlen_temp + SLH_DSA_SHA2_192SSIMPLE_N);
   }
   /* Otherwise first fill a block, so that finalize only uses the message */
   else
   {
-    SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHA2_192SSIMPLE_N], m_temp,
+    FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHA2_192SSIMPLE_N], m_temp,
                            SPX_SHAX_BLOCK_BYTES - SLH_DSA_SHA2_192SSIMPLE_N);
     shaX_inc_blocks(&state, buf, 1u);
 
@@ -244,11 +244,11 @@ void SLH_DSA_SHA2_192sSimple_GenMessageRandom(uint8 *const R, const uint8 *const
   {
     buf[i] = 0x5Cu ^ sk_prf[i];
   }
-  SLH_DSA_CommonLib_MemSet(&buf[SLH_DSA_SHA2_192SSIMPLE_N], 0x5Cu,
+  FsmSw_CommonLib_MemSet(&buf[SLH_DSA_SHA2_192SSIMPLE_N], 0x5Cu,
                          SPX_SHAX_BLOCK_BYTES - SLH_DSA_SHA2_192SSIMPLE_N);
 
   shaX(buf, buf, SPX_SHAX_BLOCK_BYTES + SPX_SHAX_OUTPUT_BYTES);
-  SLH_DSA_CommonLib_MemCpy(R, buf, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(R, buf, SLH_DSA_SHA2_192SSIMPLE_N);
 } // end: SLH_DSA_SHA2_192sSimple_GenMessageRandom
 
 /*====================================================================================================================*/
@@ -287,8 +287,8 @@ void SLH_DSA_SHA2_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree
   uint32 mlen_temp    = mlen;
 
   /* seed: SHA-X(R ‖ PK.seed ‖ PK.root ‖ M) */
-  SLH_DSA_CommonLib_MemCpy(inbuf, R, SLH_DSA_SHA2_192SSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N], pk, SLH_DSA_SHA2_192SSIMPLE_PK_BYTES);
+  FsmSw_CommonLib_MemCpy(inbuf, R, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N], pk, SLH_DSA_SHA2_192SSIMPLE_PK_BYTES);
 
   /* If R + pk + message cannot fill up an entire block */
   /* polyspace +3 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change
@@ -296,7 +296,7 @@ void SLH_DSA_SHA2_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree
   if ((SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES + mlen_temp) <
       (SPX_INBLOCKS * SPX_SHAX_BLOCK_BYTES))
   {
-    SLH_DSA_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES], m_temp,
+    FsmSw_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES], m_temp,
                            mlen_temp);
     shaX_inc_finalize(&seed[2u * SLH_DSA_SHA2_192SSIMPLE_N], &state, inbuf,
                       SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES + mlen_temp);
@@ -306,7 +306,7 @@ void SLH_DSA_SHA2_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree
   {
     /* polyspace +3 MISRA2012:2.2 [Justified:]"Calculation is important if defines should change
     and therefore not dead code" */
-    SLH_DSA_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES], m_temp,
+    FsmSw_CommonLib_MemCpy(&inbuf[SLH_DSA_SHA2_192SSIMPLE_N + SLH_DSA_SHA2_192SSIMPLE_PK_BYTES], m_temp,
                            (SPX_INBLOCKS * SPX_SHAX_BLOCK_BYTES) - SLH_DSA_SHA2_192SSIMPLE_N -
                                SLH_DSA_SHA2_192SSIMPLE_PK_BYTES);
     shaX_inc_blocks(&state, inbuf, SPX_INBLOCKS);
@@ -323,14 +323,14 @@ void SLH_DSA_SHA2_192sSimple_HashMessage(uint8 *const digest, uint64 *const tree
   }
 
   /* H_msg: MGF1-SHA-X(R ‖ PK.seed ‖ seed) */
-  SLH_DSA_CommonLib_MemCpy(seed, R, SLH_DSA_SHA2_192SSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(&seed[SLH_DSA_SHA2_192SSIMPLE_N], pk, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(seed, R, SLH_DSA_SHA2_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(&seed[SLH_DSA_SHA2_192SSIMPLE_N], pk, SLH_DSA_SHA2_192SSIMPLE_N);
 
   /* By doing this in two steps, we prevent hashing the message twice;
      otherwise each iteration in MGF1 would hash the message again. */
   mgf1_X(bufp, SPX_DGST_BYTES, seed, (2u * SLH_DSA_SHA2_192SSIMPLE_N) + SPX_SHAX_OUTPUT_BYTES);
 
-  SLH_DSA_CommonLib_MemCpy(digest, bufp, SLH_DSA_SHA2_192SSIMPLE_FORS_MSG_BYTES);
+  FsmSw_CommonLib_MemCpy(digest, bufp, SLH_DSA_SHA2_192SSIMPLE_FORS_MSG_BYTES);
   bufp = &bufp[SLH_DSA_SHA2_192SSIMPLE_FORS_MSG_BYTES];
 
   *tree = SLH_DSA_BytesToUll(bufp, SPX_TREE_BYTES);

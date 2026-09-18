@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FN_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "FN_DSA_codec.h"
 #include "FN_DSA_common.h"
 #include "FN_DSA_fpr.h"
@@ -182,20 +182,20 @@ static sint32 fn_dsa1024_DoSign(uint8 *const nonce, uint8 *const sigbuf, uint32 
   if (bStopFunc == FALSE)
   {
     /* Create a random nonce (40 bytes). */
-    (void)FN_DSA_CommonLib_RandomBytes(nonce, FN_DSA_1024_NONCELEN);
+    (void)FsmSw_CommonLib_RandomBytes(nonce, FN_DSA_1024_NONCELEN);
 
     /* Hash message nonce + message into a vector. */
-    FN_DSA_Fips202_Shake256_IncInit(&sc);
-    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
-    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
-    FN_DSA_Fips202_Shake256_IncFinalize(&sc);
+    FsmSw_Fips202_Shake256_IncInit(&sc);
+    FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
+    FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
+    FsmSw_Fips202_Shake256_IncFinalize(&sc);
     FN_DSA_HashToPointCt(&sc, r_1024.hm, FN_DSA_1024_LOGN, tmp2_1024.b);
 
     /* Initialize a RNG. */
-    (void)FN_DSA_CommonLib_RandomBytes(seed, sizeof(seed));
-    FN_DSA_Fips202_Shake256_IncInit(&sc);
-    FN_DSA_Fips202_Shake256_IncAbsorb(&sc, seed, sizeof(seed));
-    FN_DSA_Fips202_Shake256_IncFinalize(&sc);
+    (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
+    FsmSw_Fips202_Shake256_IncInit(&sc);
+    FsmSw_Fips202_Shake256_IncAbsorb(&sc, seed, sizeof(seed));
+    FsmSw_Fips202_Shake256_IncFinalize(&sc);
 
     /* Compute and return the signature. This loops until a signature value is found that fits in the provided
          * buffer. */
@@ -265,10 +265,10 @@ static sint32 fn_dsa1024_DoVerify(const uint8 *const nonce, const uint8 *const s
     else
     {
       /* Hash nonce + message into a vector. */
-      FN_DSA_Fips202_Shake256_IncInit(&sc);
-      FN_DSA_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
-      FN_DSA_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
-      FN_DSA_Fips202_Shake256_IncFinalize(&sc);
+      FsmSw_Fips202_Shake256_IncInit(&sc);
+      FsmSw_Fips202_Shake256_IncAbsorb(&sc, nonce, FN_DSA_1024_NONCELEN);
+      FsmSw_Fips202_Shake256_IncAbsorb(&sc, m, mlen);
+      FsmSw_Fips202_Shake256_IncFinalize(&sc);
       FN_DSA_HashToPointCt(&sc, hm, FN_DSA_1024_LOGN, tmp3_1024.b);
 
       /* Verify signature. */
@@ -338,10 +338,10 @@ uint8 FN_DSA_1024_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
   tmp1_struct tmp1_1024                         = {{0}};
 
   /* Generate key pair. */
-  (void)FN_DSA_CommonLib_RandomBytes(seed, sizeof(seed));
-  FN_DSA_Fips202_Shake256_IncInit(&rng);
-  FN_DSA_Fips202_Shake256_IncAbsorb(&rng, seed, sizeof(seed));
-  FN_DSA_Fips202_Shake256_IncFinalize(&rng);
+  (void)FsmSw_CommonLib_RandomBytes(seed, sizeof(seed));
+  FsmSw_Fips202_Shake256_IncInit(&rng);
+  FsmSw_Fips202_Shake256_IncAbsorb(&rng, seed, sizeof(seed));
+  FsmSw_Fips202_Shake256_IncFinalize(&rng);
   FN_DSA_Keygen(&rng, f, g, F, (sint8 *)NULL_PTR, h, FN_DSA_1024_LOGN, tmp1_1024.b);
 
   /* Encode private key. */
@@ -487,7 +487,7 @@ uint8 FN_DSA_1024_Crypto_Sign(uint8 *const sm, uint32 *const smlen, const uint8 
   uint32 sigbuflen = 0;
   uint8 retVal     = ERR_OK;
   /* Move the message to its final location; this is a memmove() so it handles overlaps properly. */
-  FN_DSA_CommonLib_MemMove(&sm[2u + FN_DSA_1024_NONCELEN], m, mlen);
+  FsmSw_CommonLib_MemMove(&sm[2u + FN_DSA_1024_NONCELEN], m, mlen);
   pm        = &sm[2u + FN_DSA_1024_NONCELEN];
   sigbuf    = &pm[1u + mlen];
   sigbuflen = FN_DSA_1024_CRYPTO_BYTES - FN_DSA_1024_NONCELEN - 3u;
@@ -570,8 +570,8 @@ uint8 FN_DSA_1024_Crypto_Sign_Open(uint8 *const m, uint32 *const mlen, const uin
     else
     {
       /* Signature is correct, we just have to copy/move the message to its final destination.
-      * The FN_DSA_CommonLib_MemMove() properly handles overlaps. */
-      FN_DSA_CommonLib_MemMove(m, &sm[2u + FN_DSA_1024_NONCELEN], pmlen);
+      * The FsmSw_CommonLib_MemMove() properly handles overlaps. */
+      FsmSw_CommonLib_MemMove(m, &sm[2u + FN_DSA_1024_NONCELEN], pmlen);
       *mlen = pmlen;
     }
   }

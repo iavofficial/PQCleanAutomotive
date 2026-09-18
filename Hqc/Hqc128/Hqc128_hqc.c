@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc128_code.h"
 #include "Hqc128_gf2x.h"
 #include "Hqc128_parameters.h"
@@ -112,11 +112,11 @@ void Hqc128_Pke_Keygen(uint8 *const pk, uint8 *const sk)
   uint64 s[HQC128_VEC_N_SIZE_64]       = {0};
 
   // Create seed_expanders for public key and secret key
-  (void)Hqc_CommonLib_RandomBytes(sk_seed, HQC128_SEED_BYTES);
-  (void)Hqc_CommonLib_RandomBytes(sigma, HQC128_VEC_K_SIZE_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sk_seed, HQC128_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sigma, HQC128_VEC_K_SIZE_BYTES);
   Hqc128_SeedExpander_Init(&sk_seedexpander, sk_seed, HQC128_SEED_BYTES);
 
-  (void)Hqc_CommonLib_RandomBytes(pk_seed, HQC128_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(pk_seed, HQC128_SEED_BYTES);
   Hqc128_SeedExpander_Init(&pk_seedexpander, pk_seed, HQC128_SEED_BYTES);
 
   // Compute secret key

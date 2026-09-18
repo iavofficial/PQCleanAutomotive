@@ -69,7 +69,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FN_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "FN_DSA_codec.h"
 #include "FN_DSA_common.h"
 #include "FN_DSA_fft.h"
@@ -2215,13 +2215,13 @@ static sint32 fn_dsa_ZintBezout(uint32 *const u, uint32 *const v, const uint32 *
     *  a = x   u0 = 1   v0 = 0
     *  b = y   u1 = y   v1 = x-1
     * Note that x is odd, so computing x-1 is easy. */
-    FN_DSA_CommonLib_MemCpy(a, x, len * sizeof(*x));
-    FN_DSA_CommonLib_MemCpy(b, y, len * sizeof(*y));
+    FsmSw_CommonLib_MemCpy(a, x, len * sizeof(*x));
+    FsmSw_CommonLib_MemCpy(b, y, len * sizeof(*y));
     u0[0] = 1;
-    FN_DSA_CommonLib_MemSet(&u0[1], 0, (len - 1u) * sizeof(*u0));
-    FN_DSA_CommonLib_MemSet(v0, 0, len * sizeof(*v0));
-    FN_DSA_CommonLib_MemCpy(u1, y, len * sizeof(*u1));
-    FN_DSA_CommonLib_MemCpy(v1, x, len * sizeof(*v1));
+    FsmSw_CommonLib_MemSet(&u0[1], 0, (len - 1u) * sizeof(*u0));
+    FsmSw_CommonLib_MemSet(v0, 0, len * sizeof(*v0));
+    FsmSw_CommonLib_MemCpy(u1, y, len * sizeof(*u1));
+    FsmSw_CommonLib_MemCpy(v1, x, len * sizeof(*v1));
     v1[0]--;
 
     /* Each input operand may be as large as 31*len bits, and we reduce the total length by at least 30 bits at each
@@ -2792,7 +2792,7 @@ static uint64 fn_dsa_GetRngU64(inner_shake256_context *const rng)
   /* We enforce little-endian representation. */
   uint8 tmp[FN_DSA_GETRNG64_TMP_SIZE] = {0};
 
-  FN_DSA_Fips202_Shake256_IncSqueeze(tmp, sizeof(tmp), rng);
+  FsmSw_Fips202_Shake256_IncSqueeze(tmp, sizeof(tmp), rng);
 
   return (uint64)tmp[0] | ((uint64)tmp[1] << 8) | ((uint64)tmp[2] << 16) | ((uint64)tmp[3] << 24) |
          ((uint64)tmp[4] << 32) | ((uint64)tmp[5] << 40) | ((uint64)tmp[6] << 48) | ((uint64)tmp[7] << 56);
@@ -3057,7 +3057,7 @@ static void fn_dsa_MakeFgStep(uint32 *const data, uint32 logn, uint32 depth, sin
   igm           = &gm[n];
   t1            = &igm[n];
 
-  FN_DSA_CommonLib_MemMove(fs, data, 2u * n * slen * sizeof(*data));
+  FsmSw_CommonLib_MemMove(fs, data, 2u * n * slen * sizeof(*data));
 
   /* First slen words: we use the input values directly, and apply inverse NTT as we go. */
   for (u = 0; u < slen; u++)
@@ -3445,13 +3445,13 @@ static sint32 fn_dsa_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f
   Ft = tmp;
   Gt = &Ft[n * llen];
   t1 = &Gt[n * llen];
-  FN_DSA_CommonLib_MemMove(t1, ft1_solveNtruIntermediate, 2u * n * slen * sizeof(*ft1_solveNtruIntermediate));
+  FsmSw_CommonLib_MemMove(t1, ft1_solveNtruIntermediate, 2u * n * slen * sizeof(*ft1_solveNtruIntermediate));
   ft1_solveNtruIntermediate = t1;
   gt1_solveNtruIntermediate = &ft1_solveNtruIntermediate[slen * n];
   t1                        = &gt1_solveNtruIntermediate[slen * n];
 
   /* Move Fd and Gd _after_ f and g. */
-  FN_DSA_CommonLib_MemMove(t1, Fd, 2u * hn * dlen * sizeof(*Fd));
+  FsmSw_CommonLib_MemMove(t1, Fd, 2u * hn * dlen * sizeof(*Fd));
   Fd = t1;
   Gd = &Fd[hn * dlen];
 
@@ -3858,7 +3858,7 @@ static sint32 fn_dsa_SolveNtruIntermediate(uint32 logn_top, const sint8 *const f
   y = tmp;
   for (u = 0; u < (n << 1); u++)
   {
-    FN_DSA_CommonLib_MemMove(x, y, slen * sizeof(*y));
+    FsmSw_CommonLib_MemMove(x, y, slen * sizeof(*y));
     x = &x[slen];
     y = &y[llen];
   }
@@ -3988,9 +3988,9 @@ static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f
   }
 
   /* Now Fd and Gd are not needed anymore; we can squeeze them out. */
-  FN_DSA_CommonLib_MemMove(tmp, Ft, llen * n * sizeof(uint32));
+  FsmSw_CommonLib_MemMove(tmp, Ft, llen * n * sizeof(uint32));
   Ft = tmp;
-  FN_DSA_CommonLib_MemMove(&Ft[llen * n], Gt, llen * n * sizeof(uint32));
+  FsmSw_CommonLib_MemMove(&Ft[llen * n], Gt, llen * n * sizeof(uint32));
   Gt                        = &Ft[llen * n];
   ft1_solveNtruBinaryDepth1 = &Gt[llen * n];
   gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
@@ -4032,11 +4032,11 @@ static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f
     }
 
     /* From that point onward, we only need tables for degree n, so we can save some space. */
-    FN_DSA_CommonLib_MemMove(&gm[n], igm, n * sizeof(*igm));
+    FsmSw_CommonLib_MemMove(&gm[n], igm, n * sizeof(*igm));
     igm = &gm[n];
-    FN_DSA_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1_solveNtruBinaryDepth1));
+    FsmSw_CommonLib_MemMove(&igm[n], fx, n * sizeof(*ft1_solveNtruBinaryDepth1));
     fx = &igm[n];
-    FN_DSA_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1_solveNtruBinaryDepth1));
+    FsmSw_CommonLib_MemMove(&fx[n], gx, n * sizeof(*gt1_solveNtruBinaryDepth1));
     gx = &fx[n];
 
     /* Get F' and G' modulo p and in NTT representation (they have degree n/2). These values were computed in a
@@ -4130,11 +4130,11 @@ static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f
   fn_dsa_PolyBigToFp(rt2, Gt, llen, llen, logn);
 
   /* Integer representation of F and G is no longer needed, we can remove it. */
-  FN_DSA_CommonLib_MemMove(tmp, ft1_solveNtruBinaryDepth1, 2u * slen * n * sizeof(*ft1_solveNtruBinaryDepth1));
+  FsmSw_CommonLib_MemMove(tmp, ft1_solveNtruBinaryDepth1, 2u * slen * n * sizeof(*ft1_solveNtruBinaryDepth1));
   ft1_solveNtruBinaryDepth1 = tmp;
   gt1_solveNtruBinaryDepth1 = &ft1_solveNtruBinaryDepth1[slen * n];
   rt3                       = fn_dsa_AlignFpr(tmp, &gt1_solveNtruBinaryDepth1[slen * n]);
-  FN_DSA_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
+  FsmSw_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
   rt1 = rt3;
   rt2 = &rt1[n];
   rt3 = &rt2[n];
@@ -4145,7 +4145,7 @@ static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f
   fn_dsa_PolyBigToFp(rt4, gt1_solveNtruBinaryDepth1, slen, slen, logn);
 
   /* Remove unneeded ft1 and gt1. */
-  FN_DSA_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
+  FsmSw_CommonLib_MemMove(tmp, rt1, 4u * n * sizeof(*rt1));
   /* polyspace +4 CERT-C:EXP36-C [Justified:]"Necessary conversion from void* to object* for functionality. 
     Ensured proper alignment and validity." */
   /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
@@ -4211,7 +4211,7 @@ static sint32 fn_dsa_SolveNtruBinaryDepth1(uint32 logn_top, const sint8 *const f
   Ft  = tmp;
   Gt  = &Ft[n];
   rt3 = fn_dsa_AlignFpr(tmp, &Gt[n]);
-  FN_DSA_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
+  FsmSw_CommonLib_MemMove(rt3, rt1, 2u * n * sizeof(*rt1));
   rt1 = rt3;
   rt2 = &rt1[n];
 
@@ -4330,7 +4330,7 @@ static sint32 fn_dsa_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, co
 
   Gp = &Fp[n];
   t1 = &Gp[n];
-  FN_DSA_CommonLib_MemMove(Fp, ft_solveNtruBinaryDepth0, 2u * n * sizeof(*ft_solveNtruBinaryDepth0));
+  FsmSw_CommonLib_MemMove(Fp, ft_solveNtruBinaryDepth0, 2u * n * sizeof(*ft_solveNtruBinaryDepth0));
 
   /* We now need to apply the Babai reduction. At that point, we have F and G in two n-word arrays.
    * We can compute F*adj(f)+G*adj(g) and f*adj(f)+g*adj(g) modulo p, using the NTT. We still move memory around in
@@ -4419,7 +4419,7 @@ static sint32 fn_dsa_SolveNtruBinaryDepth0(uint32 logn, const sint8 *const f, co
 
   FN_DSA_FFT(rt3, logn);
   rt2 = fn_dsa_AlignFpr(tmp, t2);
-  FN_DSA_CommonLib_MemMove(rt2, rt3, hn * sizeof(*rt3));
+  FsmSw_CommonLib_MemMove(rt2, rt3, hn * sizeof(*rt3));
 
   /* Convert F*adj(f)+G*adj(g) in FFT representation. */
   rt3 = &rt2[hn];

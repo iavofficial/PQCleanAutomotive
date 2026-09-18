@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc128_parameters.h"
 #include "Hqc128_vector.h"
 #include "Platform_Types.h"
@@ -157,9 +157,9 @@ void Hqc128_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in6
 void Hqc128_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
                                        const uint8 *const pk)
 {
-  Hqc_CommonLib_MemCpy(sk, sk_seed, HQC128_SEED_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES], sigma, HQC128_VEC_K_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(sk, sk_seed, HQC128_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES], sigma, HQC128_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
 } // end: Hqc128_Secret_Key_To_String
 
 /*====================================================================================================================*/
@@ -179,12 +179,12 @@ void Hqc128_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
 {
   hqc128_seedexpander_state sk_seedexpander;
 
-  Hqc_CommonLib_MemCpy(sigma, &sk[HQC128_SEED_BYTES], HQC128_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(sigma, &sk[HQC128_SEED_BYTES], HQC128_VEC_K_SIZE_BYTES);
   Hqc128_SeedExpander_Init(&sk_seedexpander, sk, HQC128_SEED_BYTES);
 
   Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC128_PARAM_OMEGA);
   Hqc128_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC128_PARAM_OMEGA);
-  Hqc_CommonLib_MemCpy(pk, &sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], HQC128_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, &sk[HQC128_SEED_BYTES + HQC128_VEC_K_SIZE_BYTES], HQC128_PUBLIC_KEY_BYTES);
 } // end: Hqc128_Secret_Key_From_String
 
 /*====================================================================================================================*/
@@ -200,7 +200,7 @@ void Hqc128_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
  */
 void Hqc128_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
 {
-  Hqc_CommonLib_MemCpy(pk, pk_seed, HQC128_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, pk_seed, HQC128_SEED_BYTES);
   Hqc128_Store8_Arr(&pk[HQC128_SEED_BYTES], HQC128_VEC_N_SIZE_BYTES, s, HQC128_VEC_N_SIZE_64);
 } // end: Hqc128_Public_Key_To_String
 
@@ -240,7 +240,7 @@ void Hqc128_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const u
 {
   Hqc128_Store8_Arr(ct, HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
   Hqc128_Store8_Arr(&ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v, HQC128_VEC_N1N2_SIZE_64);
-  Hqc_CommonLib_MemCpy(&ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], salt, HQC128_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], salt, HQC128_SALT_SIZE_BYTES);
 } // end: Hqc128_Ciphertext_To_String
 
 /*====================================================================================================================*/
@@ -258,7 +258,7 @@ void Hqc128_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *cons
 {
   Hqc128_Load8_Arr(u, HQC128_VEC_N_SIZE_64, ct, HQC128_VEC_N_SIZE_BYTES);
   Hqc128_Load8_Arr(v, HQC128_VEC_N1N2_SIZE_64, &ct[HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(salt, &ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], HQC128_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(salt, &ct[HQC128_VEC_N_SIZE_BYTES + HQC128_VEC_N1N2_SIZE_BYTES], HQC128_SALT_SIZE_BYTES);
 } // end: Hqc128_Ciphertext_From_String
 
 /** @} doxygen end group definition */

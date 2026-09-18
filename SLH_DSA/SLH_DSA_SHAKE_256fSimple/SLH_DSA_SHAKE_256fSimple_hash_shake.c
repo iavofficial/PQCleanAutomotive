@@ -44,8 +44,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
-#include "SLH_DSA_Fips202.h"
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
 #include "SLH_DSA_SHAKE_256fSimple_params.h"
 #include "SLH_DSA_SHAKE_256fSimple_utils.h"
 #include "SLH_DSA_SHAKE_address.h"
@@ -102,12 +102,12 @@ void SLH_DSA_SHAKE_256fSimple_PrfAddr(uint8 *const out, const slh_dsa_shake_256f
 {
   uint8 buf[(2u * SLH_DSA_SHAKE_256FSIMPLE_N) + SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES] = {0};
 
-  SLH_DSA_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_256FSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_256FSIMPLE_N], addr, SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES);
-  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_256FSIMPLE_N + SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES], ctx->sk_seed,
+  FsmSw_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_256FSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_256FSIMPLE_N], addr, SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_256FSIMPLE_N + SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES], ctx->sk_seed,
                          SLH_DSA_SHAKE_256FSIMPLE_N);
 
-  SLH_DSA_Fips202_Shake256(out, SLH_DSA_SHAKE_256FSIMPLE_N, buf,
+  FsmSw_Fips202_Shake256(out, SLH_DSA_SHAKE_256FSIMPLE_N, buf,
                          (2u * SLH_DSA_SHAKE_256FSIMPLE_N) + SLH_DSA_SHAKE_256FSIMPLE_ADDR_BYTES);
 } // end: SLH_DSA_SHAKE_256fSimple_PrfAddr
 
@@ -131,12 +131,12 @@ void SLH_DSA_SHAKE_256fSimple_GenMessageRandom(uint8 *const R, const uint8 *cons
   (void)ctx;
   shake256incctx s_inc = {{0}};
 
-  SLH_DSA_Fips202_Shake256_IncInit(&s_inc);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, sk_prf, SLH_DSA_SHAKE_256FSIMPLE_N);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, optrand, SLH_DSA_SHAKE_256FSIMPLE_N);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
-  SLH_DSA_Fips202_Shake256_IncFinalize(&s_inc);
-  SLH_DSA_Fips202_Shake256_IncSqueeze(R, SLH_DSA_SHAKE_256FSIMPLE_N, &s_inc);
+  FsmSw_Fips202_Shake256_IncInit(&s_inc);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, sk_prf, SLH_DSA_SHAKE_256FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, optrand, SLH_DSA_SHAKE_256FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
+  FsmSw_Fips202_Shake256_IncFinalize(&s_inc);
+  FsmSw_Fips202_Shake256_IncSqueeze(R, SLH_DSA_SHAKE_256FSIMPLE_N, &s_inc);
 } // end: SLH_DSA_SHAKE_256fSimple_GenMessageRandom
 
 /*====================================================================================================================*/
@@ -164,14 +164,14 @@ void SLH_DSA_SHAKE_256fSimple_HashMessage(uint8 *const digest, uint64 *const tre
   uint8 *bufp               = buf;
   shake256incctx s_inc      = {{0}};
 
-  SLH_DSA_Fips202_Shake256_IncInit(&s_inc);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, R, SLH_DSA_SHAKE_256FSIMPLE_N);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, pk, SLH_DSA_SHAKE_256FSIMPLE_PK_BYTES);
-  SLH_DSA_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
-  SLH_DSA_Fips202_Shake256_IncFinalize(&s_inc);
-  SLH_DSA_Fips202_Shake256_IncSqueeze(buf, SPX_DGST_BYTES, &s_inc);
+  FsmSw_Fips202_Shake256_IncInit(&s_inc);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, R, SLH_DSA_SHAKE_256FSIMPLE_N);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, pk, SLH_DSA_SHAKE_256FSIMPLE_PK_BYTES);
+  FsmSw_Fips202_Shake256_IncAbsorb(&s_inc, m, mlen);
+  FsmSw_Fips202_Shake256_IncFinalize(&s_inc);
+  FsmSw_Fips202_Shake256_IncSqueeze(buf, SPX_DGST_BYTES, &s_inc);
 
-  SLH_DSA_CommonLib_MemCpy(digest, bufp, SLH_DSA_SHAKE_256FSIMPLE_FORS_MSG_BYTES);
+  FsmSw_CommonLib_MemCpy(digest, bufp, SLH_DSA_SHAKE_256FSIMPLE_FORS_MSG_BYTES);
   bufp = &bufp[SLH_DSA_SHAKE_256FSIMPLE_FORS_MSG_BYTES];
 
   *tree = SLH_DSA_BytesToUll(bufp, SPX_TREE_BYTES);

@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHAKE_192sSimple_FctWrapper.h"
 #include "SLH_DSA_SHAKE_192sSimple_context.h"
 #include "SLH_DSA_SHAKE_192sSimple_fors.h"
@@ -103,12 +103,12 @@ static void slh_dsa_shake_192ssimple_crypto_sign_SeedKeyPair(uint8 *const pk, ui
   slh_dsa_shake_192s_ctx ctx = {{0}};
 
   /* Initialize SK_SEED, SK_PRF and PUB_SEED from seed. */
-  SLH_DSA_CommonLib_MemCpy(sk, seed, SLH_DSA_SHAKE_192SSIMPLE_CRYPTO_SEEDBYTES);
+  FsmSw_CommonLib_MemCpy(sk, seed, SLH_DSA_SHAKE_192SSIMPLE_CRYPTO_SEEDBYTES);
 
-  SLH_DSA_CommonLib_MemCpy(pk, &sk[2u * SLH_DSA_SHAKE_192SSIMPLE_N], SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(pk, &sk[2u * SLH_DSA_SHAKE_192SSIMPLE_N], SLH_DSA_SHAKE_192SSIMPLE_N);
 
-  SLH_DSA_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(ctx.sk_seed, sk, SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(ctx.sk_seed, sk, SLH_DSA_SHAKE_192SSIMPLE_N);
 
   /* This hook allows the hash function instantiation to do whatever preparation or computation it needs, based
    * on the public seed. */
@@ -120,7 +120,7 @@ static void slh_dsa_shake_192ssimple_crypto_sign_SeedKeyPair(uint8 *const pk, ui
   /* cleanup */
   SLH_DSA_SHAKE_192sSimple_4FreeHashFunction(&ctx);
 
-  SLH_DSA_CommonLib_MemCpy(&pk[SLH_DSA_SHAKE_192SSIMPLE_N], &sk[3u * SLH_DSA_SHAKE_192SSIMPLE_N],
+  FsmSw_CommonLib_MemCpy(&pk[SLH_DSA_SHAKE_192SSIMPLE_N], &sk[3u * SLH_DSA_SHAKE_192SSIMPLE_N],
                          SLH_DSA_SHAKE_192SSIMPLE_N);
 
   return;
@@ -142,7 +142,7 @@ static void slh_dsa_shake_192ssimple_crypto_sign_SeedKeyPair(uint8 *const pk, ui
 void SLH_DSA_SHAKE_192sSimple_Crypto_Sign_KeyPair(uint8 *const pk, uint8 *const sk)
 {
   uint8 seed[SLH_DSA_SHAKE_192SSIMPLE_CRYPTO_SEEDBYTES] = {0};
-  (void)SLH_DSA_CommonLib_RandomBytes(seed, SLH_DSA_SHAKE_192SSIMPLE_CRYPTO_SEEDBYTES);
+  (void)FsmSw_CommonLib_RandomBytes(seed, SLH_DSA_SHAKE_192SSIMPLE_CRYPTO_SEEDBYTES);
   slh_dsa_shake_192ssimple_crypto_sign_SeedKeyPair(pk, sk, seed);
 
   return;
@@ -192,8 +192,8 @@ void SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Signature(uint8 *const sig, uint32 *co
   /* sig_temp is used to avoid modifying the input. */
   uint8 *sig_temp = sig;
 
-  SLH_DSA_CommonLib_MemCpy(ctx.sk_seed, sk, SLH_DSA_SHAKE_192SSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(ctx.sk_seed, sk, SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
 
   /* This hook allows the hash function instantiation to do whatever preparation or computation it needs, based
    * on the public seed. */
@@ -204,7 +204,7 @@ void SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Signature(uint8 *const sig, uint32 *co
 
   /* Optionally, signing can be made non-deterministic using optrand. This can help counter side-channel attacks that
    * would benefit from getting a large number of traces when the signer uses the same nodes. */
-  (void)SLH_DSA_CommonLib_RandomBytes(optrand, SLH_DSA_SHAKE_192SSIMPLE_N);
+  (void)FsmSw_CommonLib_RandomBytes(optrand, SLH_DSA_SHAKE_192SSIMPLE_N);
   /* Compute the digest randomization value. */
   SLH_DSA_SHAKE_192sSimple_GenMessageRandom(sig_temp, sk_prf, optrand, m, mlen, &ctx);
 
@@ -293,7 +293,7 @@ uint8 SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Verify(const uint8 *const sig, uint32
     retVal = ERR_NOT_OK;
   }
 
-  SLH_DSA_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(ctx.pub_seed, pk, SLH_DSA_SHAKE_192SSIMPLE_N);
 
   /* This hook allows the hash function instantiation to do whatever
      preparation or computation it needs, based on the public seed. */
@@ -348,7 +348,7 @@ uint8 SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Verify(const uint8 *const sig, uint32
   SLH_DSA_SHAKE_192sSimple_4FreeHashFunction(&ctx);
 
   /* Check if the root node equals the root node in the public key. */
-  if (SLH_DSA_CommonLib_MemCmp(root, pub_root, SLH_DSA_SHAKE_192SSIMPLE_N) != 0u)
+  if (FsmSw_CommonLib_MemCmp(root, pub_root, SLH_DSA_SHAKE_192SSIMPLE_N) != 0u)
   {
     retVal = ERR_NOT_OK;
   }
@@ -380,7 +380,7 @@ void SLH_DSA_SHAKE_192sSimple_Crypto_Sign(uint8 *const sm, uint32 *const smlen, 
 
   (void)SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Signature(sm, &siglen, m, mlen, sk);
 
-  SLH_DSA_CommonLib_MemMove(&sm[SLH_DSA_SHAKE_192SSIMPLE_BYTES], m, mlen);
+  FsmSw_CommonLib_MemMove(&sm[SLH_DSA_SHAKE_192SSIMPLE_BYTES], m, mlen);
   *smlen = siglen + mlen;
 
   return;
@@ -414,7 +414,7 @@ uint8 SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Open(uint8 *const m, uint32 *const ml
      but SLH-DSA signatures are always exactly SLH_DSA_SHAKE_192SSIMPLE_BYTES. */
   if (smlen < SLH_DSA_SHAKE_192SSIMPLE_BYTES)
   {
-    SLH_DSA_CommonLib_MemSet(m, 0, smlen);
+    FsmSw_CommonLib_MemSet(m, 0, smlen);
     *mlen  = 0;
     retVal = ERR_NOT_OK;
   }
@@ -425,13 +425,13 @@ uint8 SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Open(uint8 *const m, uint32 *const ml
     if (0 != SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Verify(sm, SLH_DSA_SHAKE_192SSIMPLE_BYTES,
                                                               &sm[SLH_DSA_SHAKE_192SSIMPLE_BYTES], *mlen, pk))
     {
-      SLH_DSA_CommonLib_MemSet(m, 0, smlen);
+      FsmSw_CommonLib_MemSet(m, 0, smlen);
       *mlen  = 0;
       retVal = ERR_NOT_OK;
     }
 
     /* If verification was successful, move the message to the right place. */
-    SLH_DSA_CommonLib_MemMove(m, &sm[SLH_DSA_SHAKE_192SSIMPLE_BYTES], *mlen);
+    FsmSw_CommonLib_MemMove(m, &sm[SLH_DSA_SHAKE_192SSIMPLE_BYTES], *mlen);
   }
   return retVal;
 } // end: SLH_DSA_SHAKE_192sSimple_Crypto_Sign_Open

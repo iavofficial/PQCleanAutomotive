@@ -45,8 +45,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
-#include "Hqc_Fips202.h"
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
 #include "Hqc192_domains.h"
 
 #include "Hqc192_shake_prng.h"
@@ -97,10 +97,10 @@
 void Hqc192_SeedExpander_Init(hqc192_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen)
 {
   const uint8 domain = HQC192_SEEDEXPANDER_DOMAIN;
-  Hqc_Fips202_Shake256_IncInit(state);
-  Hqc_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
-  Hqc_Fips202_Shake256_IncAbsorb(state, &domain, 1);
-  Hqc_Fips202_Shake256_IncFinalize(state);
+  FsmSw_Fips202_Shake256_IncInit(state);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, &domain, 1);
+  FsmSw_Fips202_Shake256_IncFinalize(state);
 } // end: Hqc192_SeedExpander_Init
 
 /*====================================================================================================================*/
@@ -118,13 +118,13 @@ void Hqc192_SeedExpander_Init(hqc192_seedexpander_state *const state, const uint
 void Hqc192_SeedExpander(hqc192_seedexpander_state *const state, uint8 *output, uint32 outlen)
 {
   const uint8 bsize     = sizeof(uint64);
-  const uint8 remainder = (uint8)((outlen % Hqc_Convert_u8_to_u32(bsize)) & 0xFFU);
+  const uint8 remainder = (uint8)((outlen % FsmSw_Convert_u8_to_u32(bsize)) & 0xFFU);
   uint8 tmp[sizeof(uint64)];
-  Hqc_Fips202_Shake256_IncSqueeze(output, outlen - Hqc_Convert_u8_to_u32(remainder), state);
+  FsmSw_Fips202_Shake256_IncSqueeze(output, outlen - FsmSw_Convert_u8_to_u32(remainder), state);
   if (remainder != 0)
   {
-    Hqc_Fips202_Shake256_IncSqueeze(tmp, Hqc_Convert_u8_to_u32(bsize), state);
-    uint8 *const output_tmp = &output[outlen - Hqc_Convert_u8_to_u32(remainder)];
+    FsmSw_Fips202_Shake256_IncSqueeze(tmp, FsmSw_Convert_u8_to_u32(bsize), state);
+    uint8 *const output_tmp = &output[outlen - FsmSw_Convert_u8_to_u32(remainder)];
     for (uint8 i = 0; i < remainder; ++i)
     {
       output_tmp[i] = tmp[i];

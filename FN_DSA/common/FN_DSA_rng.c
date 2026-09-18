@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FN_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "FN_DSA_common.h"
 
 #include "FN_DSA_rng.h"
@@ -137,8 +137,8 @@ static void fn_dsa_prng_Refill(prng *p)
     uint32 v;
     sint32 i;
 
-    FN_DSA_CommonLib_MemCpy(&state[0], CW, sizeof(CW));
-    FN_DSA_CommonLib_MemCpy(&state[4], p->state.d, 48);
+    FsmSw_CommonLib_MemCpy(&state[0], CW, sizeof(CW));
+    FsmSw_CommonLib_MemCpy(&state[4], p->state.d, 48);
     state[14] ^= (uint32)cc;
     state[15] ^= (uint32)(cc >> 32);
     for (i = 0; i < FN_DSA_PRNG_ROUNDS; i++)
@@ -168,7 +168,7 @@ static void fn_dsa_prng_Refill(prng *p)
     }
 
     uint32 temp2[FN_DSA_PRNG_TEMP2_SIZE];
-    FN_DSA_CommonLib_MemCpy(temp2, p->state.d, 256);
+    FsmSw_CommonLib_MemCpy(temp2, p->state.d, 256);
     state[14] += temp2[10] ^ (uint32)cc;
     state[15] += temp2[11] ^ (uint32)(cc >> 32);
     cc++;
@@ -221,7 +221,7 @@ void FN_DSA_Prng_Init(prng *p, inner_shake256_context *const src)
   uint32 *const d32 = (uint32 *)((void *)p->state.d);
   uint64 *const d64 = (uint64 *)((void *)p->state.d);
 
-  FN_DSA_Fips202_Shake256_IncSqueeze(tmp, 56, src);
+  FsmSw_Fips202_Shake256_IncSqueeze(tmp, 56, src);
 
   for (i = 0; i < FN_DSA_PRNG_D32_COUNTER; i++)
   {
@@ -267,7 +267,7 @@ void FN_DSA_Prng_GetBytes(prng *const p, void *const dst, uint32 len)
       clen = len_temp;
     }
 
-    FN_DSA_CommonLib_MemCpy(buf, p->buf.d, clen);
+    FsmSw_CommonLib_MemCpy(buf, p->buf.d, clen);
     buf = &buf[clen];
     len_temp -= clen;
     p->ptr += clen;

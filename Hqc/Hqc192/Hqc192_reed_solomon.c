@@ -46,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc192_fft.h"
 #include "Hqc192_gf.h"
 #include "Hqc192_parameters.h"
@@ -262,7 +262,7 @@ static uint16 hqc192_compute_elp(uint16 *const sigma, const uint16 *const syndro
   for (mu = 0; (mu < (2 * HQC192_PARAM_DELTA)); ++mu)
   {
     // Save sigma in case we need it to update X_sigma_p
-    Hqc_CommonLib_MemCpy(sigma_copy, sigma, 2 * (HQC192_PARAM_DELTA));
+    FsmSw_CommonLib_MemCpy(sigma_copy, sigma, 2 * (HQC192_PARAM_DELTA));
     deg_sigma_copy = deg_sigma;
 
     dd = Hqc192_Gf_Mul(d, Hqc192_Gf_Inverse(d_p));
@@ -272,16 +272,16 @@ static uint16 hqc192_compute_elp(uint16 *const sigma, const uint16 *const syndro
       sigma[y] ^= Hqc192_Gf_Mul(dd, X_sigma_p[y]);
     }
 
-    const uint32 pp_reverse = Hqc_Convert_u16_to_u32((pp ^ 0xFFFFU) + 1U);
+    const uint32 pp_reverse = FsmSw_Convert_u16_to_u32((pp ^ 0xFFFFU) + 1U);
     deg_X                   = (uint16)(((uint32)mu + pp_reverse) & 0xffffu);
     deg_X_sigma_p           = deg_X + deg_sigma_p;
 
     // mask1 = 0xffff if(d != 0) and 0 otherwise
-    mask1 = 0u - Hqc_GetSignBit_i16(0 - (sint16)d);
+    mask1 = 0u - FsmSw_GetSignBit_i16(0 - (sint16)d);
 
     // mask2 = 0xffff if(deg_X_sigma_p > deg_sigma) and 0 otherwise
     const sint16 tmp_sigma = (sint16)deg_sigma - (sint16)deg_X_sigma_p;
-    mask2                  = 0u - Hqc_GetSignBit_i16(tmp_sigma);
+    mask2                  = 0u - FsmSw_GetSignBit_i16(tmp_sigma);
 
     // mask12 = 0xffff if the deg_sigma increased and 0 otherwise
     mask12 = mask1 & mask2;
@@ -413,8 +413,8 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
     for (uint8 j = 0; j < HQC192_PARAM_DELTA; j++)
     {
       /* polyspace +1 DEFECT:UINT_OVFL [Justified:]"The +1U is intentional and used to produce a mask" */
-      const uint32 delta_reverse = (~Hqc_Convert_u16_to_u32(j ^ delta_counter) + 1U);
-      mask2                      = Hqc_Convert_u32_to_u16(~(delta_reverse >> 15));
+      const uint32 delta_reverse = (~FsmSw_Convert_u16_to_u32(j ^ delta_counter) + 1U);
+      mask2                      = FsmSw_Convert_u32_to_u16(~(delta_reverse >> 15));
       beta_j[j] += mask1 & mask2 & hqc192_gf_exp[i];
       found += mask1 & mask2 & 1U;
     }
@@ -439,7 +439,7 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
     {
       tmp2 = Hqc192_Gf_Mul(tmp2, (1U ^ Hqc192_Gf_Mul(inverse, beta_j[(i + k) % HQC192_PARAM_DELTA])));
     }
-    mask1  = 0u - Hqc_GetSignBit_i16((sint16)i - (sint16)delta_real_value);
+    mask1  = 0u - FsmSw_GetSignBit_i16((sint16)i - (sint16)delta_real_value);
     e_j[i] = mask1 & Hqc192_Gf_Mul(tmp1, Hqc192_Gf_Inverse(tmp2));
   }
 
@@ -453,7 +453,7 @@ static void compute_error_values_192(uint16 *const error_values, const uint16 *c
     mask1                       = (uint16)(0u - (uint16)err_is_not_zero); // err[i] != 0
     for (uint8 j = 0; j < HQC192_PARAM_DELTA; j++)
     {
-      tmp_delta_sign   = ((uint32)j ^ Hqc_Convert_u16_to_u32(delta_counter)) >> 31;
+      tmp_delta_sign   = ((uint32)j ^ FsmSw_Convert_u16_to_u32(delta_counter)) >> 31;
       const uint32 tmp = 0xffffu + tmp_delta_sign;
       mask2            = (uint16)(tmp & 0xffffu);
       error_values[i] += mask1 & mask2 & e_j[j];
@@ -504,7 +504,7 @@ void Hqc192_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
   uint16 tmp[HQC192_PARAM_G]   = {0};
   const uint16 PARAM_RS_POLY[] = {HQC192_RS_POLY_COEFS};
 
-  Hqc_CommonLib_MemSet(cdw, 0, HQC192_PARAM_N1);
+  FsmSw_CommonLib_MemSet(cdw, 0, HQC192_PARAM_N1);
 
   for (uint8 i = 0; i < HQC192_PARAM_K; ++i)
   {
@@ -523,7 +523,7 @@ void Hqc192_Reed_Solomon_Encode(uint8 *const cdw, const uint8 *const msg)
     cdw[0] = (uint8)tmp[0];
   }
 
-  Hqc_CommonLib_MemCpy(&cdw[HQC192_PARAM_N1 - HQC192_PARAM_K], msg, HQC192_PARAM_K);
+  FsmSw_CommonLib_MemCpy(&cdw[HQC192_PARAM_N1 - HQC192_PARAM_K], msg, HQC192_PARAM_K);
 } // end: Hqc192_Reed_Solomon_Encode
 
 /*====================================================================================================================*/
@@ -574,7 +574,7 @@ void Hqc192_Reed_Solomon_Decode(uint8 *const msg, uint8 *const cdw)
   hqc192_correct_errors(cdw, error_values);
 
   // Retrieve the message from the decoded codeword
-  Hqc_CommonLib_MemCpy(msg, &cdw[HQC192_PARAM_G - 1], HQC192_PARAM_K);
+  FsmSw_CommonLib_MemCpy(msg, &cdw[HQC192_PARAM_G - 1], HQC192_PARAM_K);
 } // end: Hqc192_Reed_Solomon_Decode
 
 /** @} doxygen end group definition */

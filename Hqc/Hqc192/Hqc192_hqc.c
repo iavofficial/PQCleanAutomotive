@@ -46,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc192_code.h"
 #include "Hqc192_gf2x.h"
 #include "Hqc192_parameters.h"
@@ -115,11 +115,11 @@ void Hqc192_Pke_Keygen(uint8 *const pk, uint8 *const sk)
   uint64 s[HQC192_VEC_N_SIZE_64]       = {0};
 
   // Create seed_expanders for public key and secret key
-  (void)Hqc_CommonLib_RandomBytes(sk_seed, HQC192_SEED_BYTES);
-  (void)Hqc_CommonLib_RandomBytes(sigma, HQC192_VEC_K_SIZE_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sk_seed, HQC192_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(sigma, HQC192_VEC_K_SIZE_BYTES);
   Hqc192_SeedExpander_Init(&sk_seedexpander, sk_seed, HQC192_SEED_BYTES);
 
-  (void)Hqc_CommonLib_RandomBytes(pk_seed, HQC192_SEED_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(pk_seed, HQC192_SEED_BYTES);
   Hqc192_SeedExpander_Init(&pk_seedexpander, pk_seed, HQC192_SEED_BYTES);
 
   // Compute secret key

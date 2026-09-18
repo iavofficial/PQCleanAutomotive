@@ -46,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 #include "SLH_DSA_SHA2_128fSimple_params.h"
-#include "SLH_DSA_sha2.h"
+#include "FsmSw_sha2.h"
 #include "Std_Types.h"
 /**********************************************************************************************************************/
 /* GLOBAL DEFINES                                                                                                     */
@@ -64,7 +64,7 @@ typedef struct
   uint8 pub_seed[SLH_DSA_SHA2_128FSIMPLE_N];
   uint8 sk_seed[SLH_DSA_SHA2_128FSIMPLE_N];
 
-  // SLH_DSA_Sha256 state that absorbed pub_seed
+  // FsmSw_Sha256 state that absorbed pub_seed
   sha256ctx state_seeded;
 
 } slh_dsa_sha2_128f_ctx;

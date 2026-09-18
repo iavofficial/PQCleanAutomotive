@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc128_parameters.h"
 #include "Platform_Types.h"
 
@@ -118,7 +118,7 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   u[15] = u[14] ^ u[1];
 
   g    = 0;
-  tmp1 = a & Hqc_Convert_u8_to_u64(0x0f);
+  tmp1 = a & FsmSw_Convert_u8_to_u64(0x0f);
 
   for (uint8 i = 0; i < PQC_HQC128_NIBBLE_SIZE; ++i)
   {
@@ -133,7 +133,7 @@ static void hqc128_base_mul(uint64 *const c, uint64 a, uint64 b)
   for (uint8 i = 4; i < (4 * PQC_HQC128_NIBBLE_SIZE); i += 4)
   {
     g    = 0;
-    tmp1 = (a >> i) & Hqc_Convert_u8_to_u64(0x0f);
+    tmp1 = (a >> i) & FsmSw_Convert_u8_to_u64(0x0f);
     for (uint8 j = 0; j < PQC_HQC128_NIBBLE_SIZE; ++j)
     {
       tmp2 = tmp1 - j;
@@ -267,8 +267,8 @@ static void hqc128_gf2x_gf_reduce(uint64 *const o, const uint64 *const a)
 
   for (uint16 i = 0; i < HQC128_VEC_N_SIZE_64; ++i)
   {
-    r     = a[i + HQC128_VEC_N_SIZE_64 - 1] >> (((uint16)HQC128_PARAM_N) & Hqc_Convert_u8_to_u16(0x3F));
-    carry = a[i + HQC128_VEC_N_SIZE_64] << (64 - (((uint16)HQC128_PARAM_N) & Hqc_Convert_u8_to_u16(0x3F)));
+    r     = a[i + HQC128_VEC_N_SIZE_64 - 1] >> (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F));
+    carry = a[i + HQC128_VEC_N_SIZE_64] << (64 - (((uint16)HQC128_PARAM_N) & FsmSw_Convert_u8_to_u16(0x3F)));
     o[i]  = a[i] ^ r ^ carry;
   }
 

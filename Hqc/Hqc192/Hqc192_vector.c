@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc192_parameters.h"
 #include "Hqc192_parsing.h"
 #include "Platform_Types.h"
@@ -116,7 +116,7 @@ static uint64 single_bit_mask_192(uint32 pos)
 
   for (uint8 i = 0; i < PQC_HQC192_WORD_BITS; ++i)
   {
-    tmp = Hqc_Convert_u32_to_u64(pos - i);
+    tmp = FsmSw_Convert_u32_to_u64(pos - i);
     tmp = 0 - (1 - ((uint64)(tmp | (~tmp + 1U)) >> 63));
     ret |= mask & tmp;
     mask <<= 1;
@@ -167,16 +167,16 @@ void Hqc192_Vect_Set_Random_Fixed_Weight(hqc192_seedexpander_state *const ctx, u
   uint32 pos, found, mask32, tmp;
   uint64 mask64, val;
 
-  Hqc192_SeedExpander(ctx, rand_bytes, Hqc_Convert_u16_to_u32(4 * weight));
+  Hqc192_SeedExpander(ctx, rand_bytes, FsmSw_Convert_u16_to_u32(4 * weight));
 
   for (uint16 i = 0; i < weight; ++i)
   {
     support[i] = rand_bytes[4 * i];
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
     support[i] =
-        (uint32)(i + hqc192_vector_gf_reduce(support[i], Hqc_Convert_u16_to_u32(i))); // use constant-tme reduction
+        (uint32)(i + hqc192_vector_gf_reduce(support[i], FsmSw_Convert_u16_to_u32(i))); // use constant-tme reduction
   }
 
   for (uint16 i = (weight - 1); i > 0; --i)
@@ -189,7 +189,7 @@ void Hqc192_Vect_Set_Random_Fixed_Weight(hqc192_seedexpander_state *const ctx, u
     }
 
     mask32     = 0 - found;
-    support[i] = (mask32 & Hqc_Convert_u16_to_u32(i)) ^ (~mask32 & support[i]);
+    support[i] = (mask32 & FsmSw_Convert_u16_to_u32(i)) ^ (~mask32 & support[i]);
   }
 
   for (uint16 i = 0; i < weight; ++i)
@@ -268,7 +268,7 @@ uint8 Hqc192_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 s
 
   for (uint16 i = 0; i < size; i++)
   {
-    r |= Hqc_Convert_u8_to_u16(v1[i] ^ v2[i]);
+    r |= FsmSw_Convert_u8_to_u16(v1[i] ^ v2[i]);
   }
 
   return (uint8)(((r - 1) >> 8) & 0xFFU);
@@ -296,7 +296,7 @@ void Hqc192_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, u
       val = (uint8)((64 - (size_o % 64)) & 0xFFU);
     }
 
-    Hqc_CommonLib_MemCpy(o, v, HQC192_VEC_N1N2_SIZE_BYTES);
+    FsmSw_CommonLib_MemCpy(o, v, HQC192_VEC_N1N2_SIZE_BYTES);
 
     for (uint8 i = 0; i < val; ++i)
     {
@@ -305,7 +305,7 @@ void Hqc192_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, u
   }
   else
   {
-    Hqc_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
+    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
   }
 } // end: Hqc192_Vect_Resize
 

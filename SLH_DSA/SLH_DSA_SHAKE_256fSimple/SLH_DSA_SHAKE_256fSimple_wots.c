@@ -46,7 +46,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHAKE_256fSimple_hash.h"
 #include "SLH_DSA_SHAKE_256fSimple_params.h"
 #include "SLH_DSA_SHAKE_256fSimple_thash.h"
@@ -110,7 +110,7 @@ static void slh_dsa_shake_256fsimple_wots_GenChain(uint8 *const out, const uint8
   uint32 i = 0;
 
   /* Initialize out with the value at position 'start'. */
-  SLH_DSA_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_256FSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_256FSIMPLE_N);
 
   /* Iterate 'steps' calls to the hash function. */
   for (i = start; (i < (start + steps)) && (i < SLH_DSA_SHAKE_256FSIMPLE_WOTS_W); i++)

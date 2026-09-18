@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHA2_128fSimple_hash.h"
 #include "SLH_DSA_SHA2_128fSimple_params.h"
 #include "SLH_DSA_SHA2_128fSimple_thash.h"
@@ -114,13 +114,13 @@ void SLH_DSA_SHA2_128fSimple_ComputeRoot(uint8 *const root, const uint8 *const l
      and auth_path has to go left. Otherwise it is the other way around. */
   if (0u < (leaf_idx_temp & 1u))
   {
-    SLH_DSA_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], leaf, SLH_DSA_SHA2_128FSIMPLE_N);
-    SLH_DSA_CommonLib_MemCpy(buffer, auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
+    FsmSw_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], leaf, SLH_DSA_SHA2_128FSIMPLE_N);
+    FsmSw_CommonLib_MemCpy(buffer, auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
   }
   else
   {
-    SLH_DSA_CommonLib_MemCpy(buffer, leaf, SLH_DSA_SHA2_128FSIMPLE_N);
-    SLH_DSA_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
+    FsmSw_CommonLib_MemCpy(buffer, leaf, SLH_DSA_SHA2_128FSIMPLE_N);
+    FsmSw_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
   }
   auth_path_temp = &auth_path_temp[SLH_DSA_SHA2_128FSIMPLE_N];
 
@@ -136,12 +136,12 @@ void SLH_DSA_SHA2_128fSimple_ComputeRoot(uint8 *const root, const uint8 *const l
     if (0u < (leaf_idx_temp & 1u))
     {
       SLH_DSA_SHA2_128fSimple_Thash(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], buffer, 2u, ctx, addr);
-      SLH_DSA_CommonLib_MemCpy(buffer, auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
+      FsmSw_CommonLib_MemCpy(buffer, auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
     }
     else
     {
       SLH_DSA_SHA2_128fSimple_Thash(buffer, buffer, 2u, ctx, addr);
-      SLH_DSA_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
+      FsmSw_CommonLib_MemCpy(&buffer[SLH_DSA_SHA2_128FSIMPLE_N], auth_path_temp, SLH_DSA_SHA2_128FSIMPLE_N);
     }
     auth_path_temp = &auth_path_temp[SLH_DSA_SHA2_128FSIMPLE_N];
   }
@@ -204,7 +204,7 @@ void SLH_DSA_SHA2_128fSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
     /* If this is a node we need for the auth path.. */
     if ((leaf_idx ^ 0x1u) == idx)
     {
-      SLH_DSA_CommonLib_MemCpy(auth_path, &stack[(offset - 1u) * SLH_DSA_SHA2_128FSIMPLE_N],
+      FsmSw_CommonLib_MemCpy(auth_path, &stack[(offset - 1u) * SLH_DSA_SHA2_128FSIMPLE_N],
                              SLH_DSA_SHA2_128FSIMPLE_N);
     }
 
@@ -227,12 +227,12 @@ void SLH_DSA_SHA2_128fSimple_TreeHash(uint8 *const root, uint8 *const auth_path,
       /* If this is a node we need for the auth path.. */
       if (((leaf_idx >> heights[offset - 1u]) ^ 0x1u) == tree_idx)
       {
-        SLH_DSA_CommonLib_MemCpy(&auth_path[heights[offset - 1u] * SLH_DSA_SHA2_128FSIMPLE_N],
+        FsmSw_CommonLib_MemCpy(&auth_path[heights[offset - 1u] * SLH_DSA_SHA2_128FSIMPLE_N],
                                &stack[(offset - 1u) * SLH_DSA_SHA2_128FSIMPLE_N], SLH_DSA_SHA2_128FSIMPLE_N);
       }
     }
   }
-  SLH_DSA_CommonLib_MemCpy(root, stack, SLH_DSA_SHA2_128FSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(root, stack, SLH_DSA_SHA2_128FSIMPLE_N);
 } // end: SLH_DSA_SHA2_128fSimple_TreeHash
 
 /** @} doxygen end group definition */

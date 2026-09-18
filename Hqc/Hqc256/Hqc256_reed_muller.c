@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc256_parameters.h"
 #include "Platform_Types.h"
 
@@ -258,7 +258,7 @@ void Hqc256_Reed_Muller_Encode(uint64 *const cdw, const uint8 *const msg)
     // copy to other identical codewords
     for (uint8 copy = 1; copy < MULTIPLICITY; ++copy)
     {
-      Hqc_CommonLib_MemCpy(&cdw[(2 * i * MULTIPLICITY) + (2 * copy)], &cdw[2 * i * MULTIPLICITY], 16);
+      FsmSw_CommonLib_MemCpy(&cdw[(2 * i * MULTIPLICITY) + (2 * copy)], &cdw[2 * i * MULTIPLICITY], 16);
     }
   }
 } // end: Hqc256_Reed_Muller_Encode

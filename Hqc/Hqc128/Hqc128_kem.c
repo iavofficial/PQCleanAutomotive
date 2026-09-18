@@ -45,8 +45,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
-#include "Hqc_Fips202.h"
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
 #include "Hqc128_domains.h"
 #include "Hqc128_hqc.h"
 #include "Hqc128_parameters.h"
@@ -130,11 +130,11 @@ sint8 Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const
   shake256incctx shake256state;
 
   // Computing m
-  (void)Hqc_CommonLib_RandomBytes(m, HQC128_VEC_K_SIZE_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(m, HQC128_VEC_K_SIZE_BYTES);
 
   // Computing theta
-  (void)Hqc_CommonLib_RandomBytes(salt, HQC128_SALT_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+  (void)FsmSw_CommonLib_RandomBytes(salt, HQC128_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
   Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_PUBLIC_KEY_BYTES + HQC128_SALT_SIZE_BYTES,
                                HQC128_G_FCT_DOMAIN);
@@ -143,7 +143,7 @@ sint8 Hqc128_Crypto_Kem_Enc(uint8 *const ct, uint8 *const ss, const uint8 *const
   Hqc128_Pke_Encrypt(u, v, m, theta, pk);
 
   // Computing shared secret
-  Hqc_CommonLib_MemCpy(mc, m, HQC128_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(mc, m, HQC128_VEC_K_SIZE_BYTES);
   Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES], HQC128_VEC_N_SIZE_BYTES, u, HQC128_VEC_N_SIZE_64);
   Hqc128_Store8_Arr(&mc[HQC128_VEC_K_SIZE_BYTES + HQC128_VEC_N_SIZE_BYTES], HQC128_VEC_N1N2_SIZE_BYTES, v,
                           HQC128_VEC_N1N2_SIZE_64);
@@ -190,7 +190,7 @@ sint8 Hqc128_Crypto_Kem_Dec(uint8 *const ss, const uint8 *const ct, const uint8 
   result = Hqc128_Pke_Decrypt(m, sigma, u, v, sk);
 
   // Computing theta
-  Hqc_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(&tmp[HQC128_VEC_K_SIZE_BYTES], pk, HQC128_PUBLIC_KEY_BYTES);
   Hqc128_Shake256_512_Ds(&shake256state, theta, tmp,
                                HQC128_VEC_K_SIZE_BYTES + HQC128_PUBLIC_KEY_BYTES + HQC128_SALT_SIZE_BYTES,
                                HQC128_G_FCT_DOMAIN);

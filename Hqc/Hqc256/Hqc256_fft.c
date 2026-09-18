@@ -53,7 +53,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc256_gf.h"
 #include "Hqc256_parameters.h"
 #include "Platform_Types.h"
@@ -230,9 +230,9 @@ static void radix_big_256(uint16 *const f0, uint16 *const f1, const uint16 *cons
 
   n = 1;
   n <<= (m_f - 2);
-  Hqc_CommonLib_MemCpy(Q, &f[3 * n], 2 * n);
-  Hqc_CommonLib_MemCpy(&Q[n], &f[3 * n], 2 * n);
-  Hqc_CommonLib_MemCpy(R, f, 4 * n);
+  FsmSw_CommonLib_MemCpy(Q, &f[3 * n], 2 * n);
+  FsmSw_CommonLib_MemCpy(&Q[n], &f[3 * n], 2 * n);
+  FsmSw_CommonLib_MemCpy(R, f, 4 * n);
 
   for (i = 0; i < n; ++i)
   {
@@ -243,10 +243,10 @@ static void radix_big_256(uint16 *const f0, uint16 *const f1, const uint16 *cons
   hqc256_radix(Q0, Q1, Q, m_f - 1);
   hqc256_radix(R0, R1, R, m_f - 1);
 
-  Hqc_CommonLib_MemCpy(f0, R0, 2 * n);
-  Hqc_CommonLib_MemCpy(&f0[n], Q0, 2 * n);
-  Hqc_CommonLib_MemCpy(f1, R1, 2 * n);
-  Hqc_CommonLib_MemCpy(&f1[n], Q1, 2 * n);
+  FsmSw_CommonLib_MemCpy(f0, R0, 2 * n);
+  FsmSw_CommonLib_MemCpy(&f0[n], Q0, 2 * n);
+  FsmSw_CommonLib_MemCpy(f1, R1, 2 * n);
+  FsmSw_CommonLib_MemCpy(&f1[n], Q1, 2 * n);
 } // end: radix_big
 
 /*====================================================================================================================*/
@@ -323,7 +323,7 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
     }
 
     // Compute gammas sums
-    compute_subset_sums_256(gammas_sums, gammas, Hqc_Convert_u8_to_u16(m - 1));
+    compute_subset_sums_256(gammas_sums, gammas, FsmSw_Convert_u8_to_u16(m - 1));
 
     // Step 5
     /* polyspace +2 MISRA2012:17.2 [Justified:]"Without in-depth knowledge, this violation cannot be resolved." */
@@ -349,7 +349,7 @@ static void fft_rec_256(uint16 *const w, uint16 *const f, uint16 f_coeffs, uint8
       fft_rec_256(v, f1, f_coeffs / 2, m - 1, m_f - 1, deltas);
 
       // Step 6
-      Hqc_CommonLib_MemCpy(&w[k], v, 2 * k);
+      FsmSw_CommonLib_MemCpy(&w[k], v, 2 * k);
       w[0] = u[0];
       w[k] ^= u[0];
       for (i = 1; i < k; ++i)
@@ -424,7 +424,7 @@ void Hqc256_Fft(uint16 *const w, const uint16 *const f, uint16 f_coeffs)
 
   k = (uint8)1 << (HQC256_PARAM_M - 1);
   // Step 6, 7 and error polynomial computation
-  Hqc_CommonLib_MemCpy(&w[k], v, (2 * Hqc_Convert_u8_to_u32(k)));
+  FsmSw_CommonLib_MemCpy(&w[k], v, (2 * FsmSw_Convert_u8_to_u32(k)));
 
   // Check if 0 is root
   w[0] = u[0];

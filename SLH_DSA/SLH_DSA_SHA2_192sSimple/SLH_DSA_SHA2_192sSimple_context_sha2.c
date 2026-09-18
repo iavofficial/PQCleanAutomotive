@@ -97,11 +97,11 @@ static void slh_dsa_sha2_192ssimple_SeedState(slh_dsa_sha2_192s_ctx *ctx)
   }
   /* block has been properly initialized for both SHA-256 and SHA-512 */
 
-  SLH_DSA_Sha256_IncInit(&ctx->state_seeded);
-  SLH_DSA_Sha256_IncBlocks(&ctx->state_seeded, block, 1);
+  FsmSw_Sha256_IncInit(&ctx->state_seeded);
+  FsmSw_Sha256_IncBlocks(&ctx->state_seeded, block, 1);
 
-  SLH_DSA_Sha512_IncInit(&ctx->state_seeded_512);
-  SLH_DSA_Sha512_IncBlocks(&ctx->state_seeded_512, block, 1);
+  FsmSw_Sha512_IncInit(&ctx->state_seeded_512);
+  FsmSw_Sha512_IncBlocks(&ctx->state_seeded_512, block, 1);
 } // end: slh_dsa_sha2_192ssimple_SeedState
 /**********************************************************************************************************************/
 /* PUBLIC FUNCTIONS DEFINITIONS                                                                                       */

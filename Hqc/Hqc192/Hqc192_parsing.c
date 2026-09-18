@@ -46,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc192_parameters.h"
 #include "Hqc192_vector.h"
 #include "Platform_Types.h"
@@ -157,9 +157,9 @@ void Hqc192_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in6
 void Hqc192_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
                                        const uint8 *const pk)
 {
-  Hqc_CommonLib_MemCpy(sk, sk_seed, HQC192_SEED_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC192_SEED_BYTES], sigma, HQC192_VEC_K_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC192_SEED_BYTES + HQC192_VEC_K_SIZE_BYTES], pk, HQC192_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(sk, sk_seed, HQC192_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC192_SEED_BYTES], sigma, HQC192_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC192_SEED_BYTES + HQC192_VEC_K_SIZE_BYTES], pk, HQC192_PUBLIC_KEY_BYTES);
 } // end: Hqc192_Secret_Key_To_String
 
 /*====================================================================================================================*/
@@ -180,12 +180,12 @@ void Hqc192_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
 {
   hqc192_seedexpander_state sk_seedexpander;
 
-  Hqc_CommonLib_MemCpy(sigma, &sk[HQC192_SEED_BYTES], HQC192_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(sigma, &sk[HQC192_SEED_BYTES], HQC192_VEC_K_SIZE_BYTES);
   Hqc192_SeedExpander_Init(&sk_seedexpander, sk, HQC192_SEED_BYTES);
 
   Hqc192_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC192_PARAM_OMEGA);
   Hqc192_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC192_PARAM_OMEGA);
-  Hqc_CommonLib_MemCpy(pk, &sk[HQC192_SEED_BYTES + HQC192_VEC_K_SIZE_BYTES], HQC192_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, &sk[HQC192_SEED_BYTES + HQC192_VEC_K_SIZE_BYTES], HQC192_PUBLIC_KEY_BYTES);
 } // end: Hqc192_Secret_Key_From_String
 
 /*====================================================================================================================*/
@@ -201,7 +201,7 @@ void Hqc192_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
 */
 void Hqc192_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
 {
-  Hqc_CommonLib_MemCpy(pk, pk_seed, HQC192_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, pk_seed, HQC192_SEED_BYTES);
   Hqc192_Store8_Arr(&pk[HQC192_SEED_BYTES], HQC192_VEC_N_SIZE_BYTES, s, HQC192_VEC_N_SIZE_64);
 } // end: Hqc192_Public_Key_To_String
 
@@ -243,7 +243,7 @@ void Hqc192_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const u
 {
   Hqc192_Store8_Arr(ct, HQC192_VEC_N_SIZE_BYTES, u, HQC192_VEC_N_SIZE_64);
   Hqc192_Store8_Arr(&ct[HQC192_VEC_N_SIZE_BYTES], HQC192_VEC_N1N2_SIZE_BYTES, v, HQC192_VEC_N1N2_SIZE_64);
-  Hqc_CommonLib_MemCpy(&ct[HQC192_VEC_N_SIZE_BYTES + HQC192_VEC_N1N2_SIZE_BYTES], salt, HQC192_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&ct[HQC192_VEC_N_SIZE_BYTES + HQC192_VEC_N1N2_SIZE_BYTES], salt, HQC192_SALT_SIZE_BYTES);
 } // end: Hqc192_Ciphertext_To_String
 
 /*====================================================================================================================*/
@@ -262,7 +262,7 @@ void Hqc192_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *cons
 {
   Hqc192_Load8_Arr(u, HQC192_VEC_N_SIZE_64, ct, HQC192_VEC_N_SIZE_BYTES);
   Hqc192_Load8_Arr(v, HQC192_VEC_N1N2_SIZE_64, &ct[HQC192_VEC_N_SIZE_BYTES], HQC192_VEC_N1N2_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(salt, &ct[HQC192_VEC_N_SIZE_BYTES + HQC192_VEC_N1N2_SIZE_BYTES], HQC192_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(salt, &ct[HQC192_VEC_N_SIZE_BYTES + HQC192_VEC_N1N2_SIZE_BYTES], HQC192_SALT_SIZE_BYTES);
 } // end: Hqc192_Ciphertext_From_String
 
 /** @} doxygen end group definition */

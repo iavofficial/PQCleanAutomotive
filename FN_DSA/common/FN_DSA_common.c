@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FN_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 
 #include "FN_DSA_common.h"
 /**********************************************************************************************************************/
@@ -122,7 +122,7 @@ void FN_DSA_HashToPointVartime(inner_shake256_context *const sc, uint16 *const x
     Ensured proper alignment and validity." */
     /* polyspace +2 MISRA2012:11.5 [Justified:]"Necessary conversion from void* to object* for functionality. 
         Ensured proper alignment and validity." */
-    FN_DSA_Fips202_Shake256_IncSqueeze((void *)buf, sizeof(buf), sc);
+    FsmSw_Fips202_Shake256_IncSqueeze((void *)buf, sizeof(buf), sc);
     w = ((uint32)buf[0] << 8) | (uint32)buf[1];
 
     if (w < 61445u)
@@ -199,7 +199,7 @@ void FN_DSA_HashToPointCt(inner_shake256_context *const sc, uint16 *const x, uin
     uint8 buf[FN_DSA_BUF_SIZE];
     uint32 w, wr;
 
-    FN_DSA_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), sc);
+    FsmSw_Fips202_Shake256_IncSqueeze(buf, sizeof(buf), sc);
     w  = ((uint32)buf[0] << 8) | (uint32)buf[1];
     wr = w - ((uint32)24578 & (((w - 24578u) >> 31) - 1u));
     wr = wr - ((uint32)24578 & (((wr - 24578u) >> 31) - 1u));

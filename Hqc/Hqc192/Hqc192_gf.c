@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc192_parameters.h"
 #include "Platform_Types.h"
 
@@ -165,7 +165,7 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   uint32 tmp1, tmp2;
   uint16 mask;
   u[0] = 0;
-  u[1] = Hqc_Convert_u8_to_u16((b & 0x7FU));
+  u[1] = FsmSw_Convert_u8_to_u16((b & 0x7FU));
   u[2] = u[1] << 1;
   u[3] = u[2] ^ u[1];
   tmp1 = (uint32)a & (uint32)3;
@@ -182,7 +182,7 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   for (uint8 i = 2; i < (2 * PQC_HQC192_GF_CLMUL_TMP_SIZE); i += 2)
   {
     g    = 0;
-    tmp1 = Hqc_Convert_u8_to_u32(((a >> i) & (uint8)3));
+    tmp1 = FsmSw_Convert_u8_to_u32(((a >> i) & (uint8)3));
     for (uint8 j = 0; j < PQC_HQC192_GF_CLMUL_TMP_SIZE; ++j)
     {
       tmp2 = (uint32)(tmp1 - j);
@@ -194,8 +194,8 @@ static void gf_carryless_mul_192(uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE], uin
   }
 
   mask = (uint16)(0u - (((uint16)b >> 7) & 0x01U));
-  l ^= (Hqc_Convert_u8_to_u16((a << 7)) & mask);
-  h ^= (Hqc_Convert_u8_to_u16((a >> 1)) & mask);
+  l ^= (FsmSw_Convert_u8_to_u16((a << 7)) & mask);
+  h ^= (FsmSw_Convert_u8_to_u16((a >> 1)) & mask);
 
   c[0] = (uint8)l;
   c[1] = (uint8)h;
@@ -218,7 +218,7 @@ uint16 Hqc192_Gf_Mul(uint16 a, uint16 b)
 {
   uint8 c[PQC_HQC192_GF_CLMUL_OUT_POLY_SIZE] = {0};
   gf_carryless_mul_192(c, (uint8)a, (uint8)b);
-  const uint16 tmp = Hqc_Convert_u8_to_u16(c[0]) ^ (Hqc_Convert_u8_to_u16(c[1]) << 8);
+  const uint16 tmp = FsmSw_Convert_u8_to_u16(c[0]) ^ (FsmSw_Convert_u8_to_u16(c[1]) << 8);
   return hqc192_gf_reduce(tmp, 2 * (HQC192_PARAM_M - 1));
 } // end: Hqc192_Gf_Mul
 

@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "FN_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "FN_DSA_common.h"
 #include "FN_DSA_fft.h"
 #include "FN_DSA_rng.h"
@@ -483,12 +483,12 @@ static void fn_dsa_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ct
 
     /* Split d00 and d11 and expand them into half-size quasi-cyclic Gram matrices. We also save l10 in tmp[]. */
     FN_DSA_Poly_SplitFFT(tmp, &tmp[hn], g00, logn);
-    FN_DSA_CommonLib_MemCpy(g00, tmp, n * sizeof(*tmp));
+    FsmSw_CommonLib_MemCpy(g00, tmp, n * sizeof(*tmp));
     FN_DSA_Poly_SplitFFT(tmp, &tmp[hn], g11, logn);
-    FN_DSA_CommonLib_MemCpy(g11, tmp, n * sizeof(*tmp));
-    FN_DSA_CommonLib_MemCpy(tmp, g01, n * sizeof(*g01));
-    FN_DSA_CommonLib_MemCpy(g01, g00, hn * sizeof(*g00));
-    FN_DSA_CommonLib_MemCpy(&g01[hn], g11, hn * sizeof(*g00));
+    FsmSw_CommonLib_MemCpy(g11, tmp, n * sizeof(*tmp));
+    FsmSw_CommonLib_MemCpy(tmp, g01, n * sizeof(*g01));
+    FsmSw_CommonLib_MemCpy(g01, g00, hn * sizeof(*g00));
+    FsmSw_CommonLib_MemCpy(&g01[hn], g11, hn * sizeof(*g00));
 
     /* The half-size Gram matrices for the recursive LDL tree building are now:
    *   - left sub-tree: g00, g00+hn, g01
@@ -508,7 +508,7 @@ static void fn_dsa_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ct
     /* Compute tb0 = t0 + (t1 - z1) * l10. At that point, l10 is in tmp, t1 is unmodified, and z1 is in tmp + (n << 1).
    * The buffer in z1 is free.   *
    * In the end, z1 is written over t1, and tb0 is in t0. */
-    FN_DSA_CommonLib_MemCpy(z1, t1, n * sizeof(*t1));
+    FsmSw_CommonLib_MemCpy(z1, t1, n * sizeof(*t1));
     FN_DSA_Poly_Sub(z1, &tmp[(n << 1)], logn);
     /* polyspace +6 DEFECT:BITWISE_ARITH_MIX [Justified:]"The current implementation has been carefully reviewed and 
      determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
@@ -516,7 +516,7 @@ static void fn_dsa_FfSamplingFftDyntree(samplerZ const samp, void *const samp_ct
     /* polyspace +3 CERT-C:INT14-C [Justified:]"The current implementation has been carefully reviewed and 
     determined to be safe and reliable in this specific context. Modifying the code solely to conform to 
     the rule would provide no additional benefit and could compromise the stability of the system" */
-    FN_DSA_CommonLib_MemCpy(t1, &tmp[(n << 1)], n * sizeof(*tmp));
+    FsmSw_CommonLib_MemCpy(t1, &tmp[(n << 1)], n * sizeof(*tmp));
     FN_DSA_Poly_MulFFT(tmp, z1, logn);
     FN_DSA_Poly_Add(t0, tmp, logn);
 
@@ -727,7 +727,7 @@ static void fn_dsa_FfSamplingFft(samplerZ const samp, void *const samp_ctx, fpr 
     FN_DSA_Poly_MergeFFT(z1, tmp, &tmp[hn], logn);
 
     /* Compute tb0 = t0 + (t1 - z1) * L. Value tb0 ends up in tmp[]. */
-    FN_DSA_CommonLib_MemCpy(tmp, t1, n * sizeof(*t1));
+    FsmSw_CommonLib_MemCpy(tmp, t1, n * sizeof(*t1));
     FN_DSA_Poly_Sub(tmp, z1, logn);
     FN_DSA_Poly_MulFFT(tmp, tree, logn);
     FN_DSA_Poly_Add(tmp, t0, logn);
@@ -817,19 +817,19 @@ static sint32 fn_dsa_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16
   t0 = &b11[n];
   t1 = &t0[n];
 
-  FN_DSA_CommonLib_MemCpy(t0, b01, n * sizeof(*b01));
+  FsmSw_CommonLib_MemCpy(t0, b01, n * sizeof(*b01));
   FN_DSA_Poly_MulselfadjFFT(t0, logn); /* t0 <- b01*adj(b01) */
 
-  FN_DSA_CommonLib_MemCpy(t1, b00, n * sizeof(*b00));
+  FsmSw_CommonLib_MemCpy(t1, b00, n * sizeof(*b00));
   FN_DSA_Poly_MuladjFFT(t1, b10, logn); /* t1 <- b00*adj(b10) */
   FN_DSA_Poly_MulselfadjFFT(b00, logn); /* b00 <- b00*adj(b00) */
   FN_DSA_Poly_Add(b00, t0, logn);       /* b00 <- g00 */
-  FN_DSA_CommonLib_MemCpy(t0, b01, n * sizeof(*b01));
+  FsmSw_CommonLib_MemCpy(t0, b01, n * sizeof(*b01));
   FN_DSA_Poly_MuladjFFT(b01, b11, logn); /* b01 <- b01*adj(b11) */
   FN_DSA_Poly_Add(b01, t1, logn);        /* b01 <- g01 */
 
   FN_DSA_Poly_MulselfadjFFT(b10, logn); /* b10 <- b10*adj(b10) */
-  FN_DSA_CommonLib_MemCpy(t1, b11, n * sizeof(*b11));
+  FsmSw_CommonLib_MemCpy(t1, b11, n * sizeof(*b11));
   FN_DSA_Poly_MulselfadjFFT(t1, logn); /* t1 <- b11*adj(b11) */
   FN_DSA_Poly_Add(b10, t1, logn);      /* b10 <- g11 */
 
@@ -855,14 +855,14 @@ static sint32 fn_dsa_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16
   /* Apply the lattice basis to obtain the real target vector (after normalization with regards to modulus). */
   FN_DSA_FFT(t0, logn);
   ni_doSignDyn = fpr_inverse_of_q;
-  FN_DSA_CommonLib_MemCpy(t1, t0, n * sizeof(*t0));
+  FsmSw_CommonLib_MemCpy(t1, t0, n * sizeof(*t0));
   FN_DSA_Poly_MulFFT(t1, b01, logn);
   FN_DSA_Poly_Mulconst(t1, FN_DSA_Fpr_Neg(ni_doSignDyn), logn);
   FN_DSA_Poly_MulFFT(t0, b11, logn);
   FN_DSA_Poly_Mulconst(t0, ni_doSignDyn, logn);
 
   /* b01 and b11 can be discarded, so we move back (t0,t1). Memory layout is now: g00 g01 g11 t0 t1 */
-  FN_DSA_CommonLib_MemCpy(b11, t0, n * 2u * sizeof(*t0));
+  FsmSw_CommonLib_MemCpy(b11, t0, n * 2u * sizeof(*t0));
   t0 = &g11[n];
   t1 = &t0[n];
 
@@ -875,7 +875,7 @@ static sint32 fn_dsa_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16
   b01 = &b00[n];
   b10 = &b01[n];
   b11 = &b10[n];
-  FN_DSA_CommonLib_MemMove(&b11[n], t0, n * 2u * sizeof(*t0));
+  FsmSw_CommonLib_MemMove(&b11[n], t0, n * 2u * sizeof(*t0));
   t0 = &b11[n];
   t1 = &t0[n];
   fn_dsa_SmallintsToFpr(b01, f, logn);
@@ -892,15 +892,15 @@ static sint32 fn_dsa_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16
   ty = &tx[n];
 
   /* Get the lattice point corresponding to that tiny vector. */
-  FN_DSA_CommonLib_MemCpy(tx, t0, n * sizeof(*t0));
-  FN_DSA_CommonLib_MemCpy(ty, t1, n * sizeof(*t1));
+  FsmSw_CommonLib_MemCpy(tx, t0, n * sizeof(*t0));
+  FsmSw_CommonLib_MemCpy(ty, t1, n * sizeof(*t1));
   FN_DSA_Poly_MulFFT(tx, b00, logn);
   FN_DSA_Poly_MulFFT(ty, b10, logn);
   FN_DSA_Poly_Add(tx, ty, logn);
-  FN_DSA_CommonLib_MemCpy(ty, t0, n * sizeof(*t0));
+  FsmSw_CommonLib_MemCpy(ty, t0, n * sizeof(*t0));
   FN_DSA_Poly_MulFFT(ty, b01, logn);
 
-  FN_DSA_CommonLib_MemCpy(t0, tx, n * sizeof(*tx));
+  FsmSw_CommonLib_MemCpy(t0, tx, n * sizeof(*tx));
   FN_DSA_Poly_MulFFT(t1, b11, logn);
   FN_DSA_Poly_Add(t1, ty, logn);
   FN_DSA_IFFT(t0, logn);
@@ -941,8 +941,8 @@ static sint32 fn_dsa_DoSignDyn(samplerZ const samp, void *const samp_ctx, sint16
 
   if (0 < FN_DSA_IsShortHalf(sqn, s2tmp, logn))
   {
-    FN_DSA_CommonLib_MemCpy(s2, s2tmp, n * sizeof(*s2));
-    FN_DSA_CommonLib_MemCpy(tmp, s1tmp, n * sizeof(*s1tmp));
+    FsmSw_CommonLib_MemCpy(s2, s2tmp, n * sizeof(*s2));
+    FsmSw_CommonLib_MemCpy(tmp, s1tmp, n * sizeof(*s1tmp));
 
     retVal = 1;
   }

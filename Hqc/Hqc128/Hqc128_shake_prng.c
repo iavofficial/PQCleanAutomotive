@@ -45,8 +45,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
-#include "Hqc_Fips202.h"
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
 #include "Hqc128_domains.h"
 
 #include "Hqc128_shake_prng.h"
@@ -95,10 +95,10 @@
 void Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint8 *const seed, uint32 seedlen)
 {
   const uint8 domain = HQC128_SEEDEXPANDER_DOMAIN;
-  Hqc_Fips202_Shake256_IncInit(state);
-  Hqc_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
-  Hqc_Fips202_Shake256_IncAbsorb(state, &domain, 1);
-  Hqc_Fips202_Shake256_IncFinalize(state);
+  FsmSw_Fips202_Shake256_IncInit(state);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, seed, seedlen);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, &domain, 1);
+  FsmSw_Fips202_Shake256_IncFinalize(state);
 } // end: Hqc128_SeedExpander_Init
 
 /*====================================================================================================================*/
@@ -115,12 +115,12 @@ void Hqc128_SeedExpander_Init(hqc128_seedexpander_state *const state, const uint
 void Hqc128_SeedExpander(hqc128_seedexpander_state *const state, uint8 *output, uint32 outlen)
 {
   const uint8 bsize      = sizeof(uint64);
-  const uint32 remainder = outlen % Hqc_Convert_u8_to_u32(bsize);
+  const uint32 remainder = outlen % FsmSw_Convert_u8_to_u32(bsize);
   uint8 tmp[sizeof(uint64)];
-  Hqc_Fips202_Shake256_IncSqueeze(output, outlen - remainder, state);
+  FsmSw_Fips202_Shake256_IncSqueeze(output, outlen - remainder, state);
   if (remainder != 0)
   {
-    Hqc_Fips202_Shake256_IncSqueeze(tmp, Hqc_Convert_u8_to_u32(bsize), state);
+    FsmSw_Fips202_Shake256_IncSqueeze(tmp, FsmSw_Convert_u8_to_u32(bsize), state);
     uint8 *const output_tmp = &output[outlen - remainder];
     for (uint32 i = 0; i < remainder; ++i)
     {

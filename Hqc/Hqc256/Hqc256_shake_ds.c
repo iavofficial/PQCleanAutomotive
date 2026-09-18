@@ -98,19 +98,19 @@ void Hqc256_Shake256_512_Ds(shake256incctx *const state, uint8 *const output, co
 {
   const uint8 domain_tmp = domain;
   /* Init state */
-  Hqc_Fips202_Shake256_IncInit(state);
+  FsmSw_Fips202_Shake256_IncInit(state);
 
   /* Absorb input */
-  Hqc_Fips202_Shake256_IncAbsorb(state, input, inlen);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, input, inlen);
 
   /* Absorb domain separation byte */
-  Hqc_Fips202_Shake256_IncAbsorb(state, &domain_tmp, 1);
+  FsmSw_Fips202_Shake256_IncAbsorb(state, &domain_tmp, 1);
 
   /* Finalize */
-  Hqc_Fips202_Shake256_IncFinalize(state);
+  FsmSw_Fips202_Shake256_IncFinalize(state);
 
   /* Squeeze output */
-  Hqc_Fips202_Shake256_IncSqueeze(output, 512 / 8, state);
+  FsmSw_Fips202_Shake256_IncSqueeze(output, 512 / 8, state);
 
   /* Release ctx */
   //shake256_inc_ctx_release(state);

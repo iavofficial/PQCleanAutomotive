@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHAKE_128fSimple_FctWrapper.h"
 #include "SLH_DSA_SHAKE_128fSimple_hash.h"
 #include "SLH_DSA_SHAKE_128fSimple_params.h"
@@ -151,7 +151,7 @@ void SLH_DSA_SHAKE_128fSimple_Wots_GenLeafX1(uint8 *const dest, const slh_dsa_sh
       /* Check if this is the value that needs to be saved as a part of the WOTS signature */
       if (k == wots_k)
       {
-        SLH_DSA_CommonLib_MemCpy(&info->wots_sig[i * SLH_DSA_SHAKE_128FSIMPLE_N], buffer,
+        FsmSw_CommonLib_MemCpy(&info->wots_sig[i * SLH_DSA_SHAKE_128FSIMPLE_N], buffer,
                                SLH_DSA_SHAKE_128FSIMPLE_N);
       }
 

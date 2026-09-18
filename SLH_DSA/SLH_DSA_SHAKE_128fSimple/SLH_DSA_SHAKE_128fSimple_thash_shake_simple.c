@@ -44,8 +44,8 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
-#include "SLH_DSA_Fips202.h"
+#include "FsmSw_CommonLib.h"
+#include "FsmSw_Fips202.h"
 #include "SLH_DSA_SHAKE_128fSimple_params.h"
 #include "SLH_DSA_SHAKE_128fSimple_utils.h"
 #include "SLH_DSA_SHAKE_address.h"
@@ -100,12 +100,12 @@ void SLH_DSA_SHAKE_128fSimple_Thash(uint8 *const out, const uint8 *const in, uin
   uint8 buf[SLH_DSA_SHAKE_128FSIMPLE_N + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES +
             (SLH_DSA_SHAKE_128FSIMPLE_THASH_BUF_LEN * SLH_DSA_SHAKE_128FSIMPLE_N)] = {0};
 
-  SLH_DSA_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_128FSIMPLE_N);
-  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N], addr, SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES);
-  SLH_DSA_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES], in,
+  FsmSw_CommonLib_MemCpy(buf, ctx->pub_seed, SLH_DSA_SHAKE_128FSIMPLE_N);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N], addr, SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES);
+  FsmSw_CommonLib_MemCpy(&buf[SLH_DSA_SHAKE_128FSIMPLE_N + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES], in,
                          inblocks * SLH_DSA_SHAKE_128FSIMPLE_N);
 
-  SLH_DSA_Fips202_Shake256(out, SLH_DSA_SHAKE_128FSIMPLE_N, buf,
+  FsmSw_Fips202_Shake256(out, SLH_DSA_SHAKE_128FSIMPLE_N, buf,
                          SLH_DSA_SHAKE_128FSIMPLE_N + SLH_DSA_SHAKE_128FSIMPLE_ADDR_BYTES +
                              (inblocks * SLH_DSA_SHAKE_128FSIMPLE_N));
 } // end: SLH_DSA_SHAKE_128fSimple_Thash

@@ -45,7 +45,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc256_parameters.h"
 #include "Hqc256_vector.h"
 #include "Platform_Types.h"
@@ -156,9 +156,9 @@ void Hqc256_Store8_Arr(uint8 *const out8, uint16 outlen, const uint64 *const in6
 void Hqc256_Secret_Key_To_String(uint8 *const sk, const uint8 *const sk_seed, const uint8 *const sigma,
                                        const uint8 *const pk)
 {
-  Hqc_CommonLib_MemCpy(sk, sk_seed, HQC256_SEED_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES], sigma, HQC256_VEC_K_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], pk, HQC256_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(sk, sk_seed, HQC256_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES], sigma, HQC256_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], pk, HQC256_PUBLIC_KEY_BYTES);
 } // end: Hqc256_Secret_Key_To_String
 
 /*====================================================================================================================*/
@@ -178,12 +178,12 @@ void Hqc256_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
 {
   hqc256_seedexpander_state sk_seedexpander;
 
-  Hqc_CommonLib_MemCpy(sigma, &sk[HQC256_SEED_BYTES], HQC256_VEC_K_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(sigma, &sk[HQC256_SEED_BYTES], HQC256_VEC_K_SIZE_BYTES);
   Hqc256_SeedExpander_Init(&sk_seedexpander, sk, HQC256_SEED_BYTES);
 
   Hqc256_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, x, HQC256_PARAM_OMEGA);
   Hqc256_Vect_Set_Random_Fixed_Weight(&sk_seedexpander, y, HQC256_PARAM_OMEGA);
-  Hqc_CommonLib_MemCpy(pk, &sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], HQC256_PUBLIC_KEY_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, &sk[HQC256_SEED_BYTES + HQC256_VEC_K_SIZE_BYTES], HQC256_PUBLIC_KEY_BYTES);
 } // end: Hqc256_Secret_Key_From_String
 
 /*====================================================================================================================*/
@@ -198,7 +198,7 @@ void Hqc256_Secret_Key_From_String(uint64 *const x, uint64 *const y, uint8 *cons
  */
 void Hqc256_Public_Key_To_String(uint8 *const pk, const uint8 *const pk_seed, const uint64 *const s)
 {
-  Hqc_CommonLib_MemCpy(pk, pk_seed, HQC256_SEED_BYTES);
+  FsmSw_CommonLib_MemCpy(pk, pk_seed, HQC256_SEED_BYTES);
   Hqc256_Store8_Arr(&pk[HQC256_SEED_BYTES], HQC256_VEC_N_SIZE_BYTES, s, HQC256_VEC_N_SIZE_64);
 } // end: Hqc256_Public_Key_To_String
 
@@ -238,7 +238,7 @@ void Hqc256_Ciphertext_To_String(uint8 *const ct, const uint64 *const u, const u
 {
   Hqc256_Store8_Arr(ct, HQC256_VEC_N_SIZE_BYTES, u, HQC256_VEC_N_SIZE_64);
   Hqc256_Store8_Arr(&ct[HQC256_VEC_N_SIZE_BYTES], HQC256_VEC_N1N2_SIZE_BYTES, v, HQC256_VEC_N1N2_SIZE_64);
-  Hqc_CommonLib_MemCpy(&ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], salt, HQC256_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(&ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], salt, HQC256_SALT_SIZE_BYTES);
 } // end: Hqc256_Ciphertext_To_String
 
 /*====================================================================================================================*/
@@ -256,7 +256,7 @@ void Hqc256_Ciphertext_From_String(uint64 *const u, uint64 *const v, uint8 *cons
 {
   Hqc256_Load8_Arr(u, HQC256_VEC_N_SIZE_64, ct, HQC256_VEC_N_SIZE_BYTES);
   Hqc256_Load8_Arr(v, HQC256_VEC_N1N2_SIZE_64, &ct[HQC256_VEC_N_SIZE_BYTES], HQC256_VEC_N1N2_SIZE_BYTES);
-  Hqc_CommonLib_MemCpy(salt, &ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], HQC256_SALT_SIZE_BYTES);
+  FsmSw_CommonLib_MemCpy(salt, &ct[HQC256_VEC_N_SIZE_BYTES + HQC256_VEC_N1N2_SIZE_BYTES], HQC256_SALT_SIZE_BYTES);
 } // end: Hqc256_Ciphertext_From_String
 
 /** @} doxygen end group definition */

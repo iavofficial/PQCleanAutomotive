@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHAKE_192sSimple_params.h"
 #include "SLH_DSA_SHAKE_192sSimple_thash.h"
 #include "SLH_DSA_SHAKE_192sSimple_utils.h"
@@ -152,14 +152,14 @@ void SLH_DSA_SHAKE_192sSimple_TreeHashX1(uint8 *const root, uint8 *const auth_pa
       if (h == tree_height)
       {
         /* We hit the root; return it */
-        SLH_DSA_CommonLib_MemCpy(root, &current[SLH_DSA_SHAKE_192SSIMPLE_N], SLH_DSA_SHAKE_192SSIMPLE_N);
+        FsmSw_CommonLib_MemCpy(root, &current[SLH_DSA_SHAKE_192SSIMPLE_N], SLH_DSA_SHAKE_192SSIMPLE_N);
         bStopFunc = TRUE;
       }
 
       /* Check if the node we have is a part of the authentication path; if it is, write it out */
       if (((internal_idx ^ internal_leaf) == 0x01u) && (FALSE == bStopFunc))
       {
-        SLH_DSA_CommonLib_MemCpy(&auth_path[h * SLH_DSA_SHAKE_192SSIMPLE_N],
+        FsmSw_CommonLib_MemCpy(&auth_path[h * SLH_DSA_SHAKE_192SSIMPLE_N],
                                &current[SLH_DSA_SHAKE_192SSIMPLE_N], SLH_DSA_SHAKE_192SSIMPLE_N);
       }
 
@@ -177,7 +177,7 @@ void SLH_DSA_SHAKE_192sSimple_TreeHashX1(uint8 *const root, uint8 *const auth_pa
       SLH_DSA_SHAKE_SetTreeIndex(tree_addr, (internal_idx / 2u) + internal_idx_offset);
 
       uint8 *const left = &stack[h * SLH_DSA_SHAKE_192SSIMPLE_N];
-      SLH_DSA_CommonLib_MemCpy(&current[0], left, SLH_DSA_SHAKE_192SSIMPLE_N);
+      FsmSw_CommonLib_MemCpy(&current[0], left, SLH_DSA_SHAKE_192SSIMPLE_N);
       SLH_DSA_SHAKE_192sSimple_Thash(&current[SLH_DSA_SHAKE_192SSIMPLE_N],
                                           &current[0u * SLH_DSA_SHAKE_192SSIMPLE_N], 2u, ctx, tree_addr);
 
@@ -188,7 +188,7 @@ void SLH_DSA_SHAKE_192sSimple_TreeHashX1(uint8 *const root, uint8 *const auth_pa
     if (FALSE == bStopFunc)
     {
       /* We've hit a left child; save the current for when we get the corresponding right right */
-      SLH_DSA_CommonLib_MemCpy(&stack[h * SLH_DSA_SHAKE_192SSIMPLE_N], &current[SLH_DSA_SHAKE_192SSIMPLE_N],
+      FsmSw_CommonLib_MemCpy(&stack[h * SLH_DSA_SHAKE_192SSIMPLE_N], &current[SLH_DSA_SHAKE_192SSIMPLE_N],
                              SLH_DSA_SHAKE_192SSIMPLE_N);
     }
   }

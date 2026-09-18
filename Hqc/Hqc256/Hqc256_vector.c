@@ -46,7 +46,7 @@
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
 
-#include "Hqc_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "Hqc256_parameters.h"
 #include "Hqc256_parsing.h"
 #include "Platform_Types.h"
@@ -108,7 +108,7 @@ static uint32 hqc256_m_val[PQC_HQC256_M_VAL_SIZE] = {
 */
 static inline uint32 hqc256_compare_u32(uint32 v1, uint32 v2)
 {
-  return Hqc_Convert_u8_to_u32(1) ^ ((uint32)((v1 - v2) | (v2 - v1)) >> 31);
+  return FsmSw_Convert_u8_to_u32(1) ^ ((uint32)((v1 - v2) | (v2 - v1)) >> 31);
 } // end: compare_u32
 
 static uint64 single_bit_mask_256(uint32 pos)
@@ -119,7 +119,7 @@ static uint64 single_bit_mask_256(uint32 pos)
 
   for (uint8 i = 0; i < PQC_HQC256_WORD_BITS; ++i)
   {
-    tmp = Hqc_Convert_u32_to_u64(pos - i);
+    tmp = FsmSw_Convert_u32_to_u64(pos - i);
     tmp = 0 - (1 - ((uint64)(tmp | (~tmp + 1U)) >> 63));
     ret |= mask & tmp;
     mask <<= 1;
@@ -140,7 +140,7 @@ static inline uint32 hqc256_vector_gf_reduce(uint32 a, uint8 i)
 {
   uint32 q, n, r;
   q = (uint32)((((uint64)a * hqc256_m_val[i]) >> 32) & 0xFFFFFFFFU);
-  n = Hqc_Convert_u16_to_u32((uint16)HQC256_PARAM_N - Hqc_Convert_u8_to_u16(i));
+  n = FsmSw_Convert_u16_to_u32((uint16)HQC256_PARAM_N - FsmSw_Convert_u8_to_u16(i));
   r = a - (q * n);
   return cond_sub_256(r, n);
 } // end: reduce
@@ -170,16 +170,16 @@ void Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, u
   uint32 pos, found, mask32, tmp;
   uint64 mask64, val;
 
-  Hqc256_SeedExpander(ctx, rand_bytes, Hqc_Convert_u16_to_u32(4 * weight));
+  Hqc256_SeedExpander(ctx, rand_bytes, FsmSw_Convert_u16_to_u32(4 * weight));
 
   for (uint16 i = 0; i < weight; ++i)
   {
     support[i] = rand_bytes[4 * i];
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
-    support[i] |= Hqc_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 1]) << 8;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 2]) << 16;
+    support[i] |= FsmSw_Convert_u8_to_u32(rand_bytes[(4 * i) + 3]) << 24;
     support[i] =
-        (uint32)(i + hqc256_vector_gf_reduce(support[i], Hqc_Convert_u16_to_u8(i))); // use constant-tme reduction
+        (uint32)(i + hqc256_vector_gf_reduce(support[i], FsmSw_Convert_u16_to_u8(i))); // use constant-tme reduction
   }
 
   for (uint16 i = (weight - 1); i > 0; --i)
@@ -198,7 +198,7 @@ void Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, u
   for (uint16 i = 0; i < weight; ++i)
   {
     index_tab[i] = support[i] >> 6;
-    pos          = support[i] & Hqc_Convert_u8_to_u32(0x3f);
+    pos          = support[i] & FsmSw_Convert_u8_to_u32(0x3f);
     bit_tab[i]   = single_bit_mask_256(pos); // avoid secret shift
   }
 
@@ -208,7 +208,7 @@ void Hqc256_Vect_Set_Random_Fixed_Weight(hqc256_seedexpander_state *const ctx, u
     for (uint16 j = 0; j < weight; ++j)
     {
       tmp    = (uint32)(i - index_tab[j]);
-      tmp    = Hqc_Convert_u8_to_u32(1) ^ ((uint32)(tmp | (~tmp + 1U)) >> 31);
+      tmp    = FsmSw_Convert_u8_to_u32(1) ^ ((uint32)(tmp | (~tmp + 1U)) >> 31);
       mask64 = 0 - (uint64)tmp;
       val |= (bit_tab[j] & mask64);
     }
@@ -271,7 +271,7 @@ uint8 Hqc256_Vect_Compare(const uint8 *const v1, const uint8 *const v2, uint16 s
 
   for (uint32 i = 0; i < size; i++)
   {
-    r |= Hqc_Convert_u8_to_u16(v1[i] ^ v2[i]);
+    r |= FsmSw_Convert_u8_to_u16(v1[i] ^ v2[i]);
   }
 
   return (uint8)(((r - 1) >> 8) & 0xFFU);
@@ -299,7 +299,7 @@ void Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, u
       val = (uint8)((64 - (size_o % 64)) & 0xFFU);
     }
 
-    Hqc_CommonLib_MemCpy(o, v, HQC256_VEC_N1N2_SIZE_BYTES);
+    FsmSw_CommonLib_MemCpy(o, v, HQC256_VEC_N1N2_SIZE_BYTES);
 
     for (uint8 i = 0; i < val; ++i)
     {
@@ -308,7 +308,7 @@ void Hqc256_Vect_Resize(uint64 *const o, uint16 size_o, const uint64 *const v, u
   }
   else
   {
-    Hqc_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
+    FsmSw_CommonLib_MemCpy(o, v, 8 * CEIL_DIVIDE((uint32)size_v, 64));
   }
 } // end: Hqc256_Vect_Resize
 

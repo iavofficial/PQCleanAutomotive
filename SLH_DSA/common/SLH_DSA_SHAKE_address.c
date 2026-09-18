@@ -44,7 +44,7 @@
 /**********************************************************************************************************************/
 /* INCLUDES                                                                                                           */
 /**********************************************************************************************************************/
-#include "SLH_DSA_CommonLib.h"
+#include "FsmSw_CommonLib.h"
 #include "SLH_DSA_SHAKE_offsets.h"
 #include "SLH_DSA_utils.h"
 
@@ -133,7 +133,7 @@ void SLH_DSA_SHAKE_SetType(uint32 addr[8], uint32 type)
 */
 void SLH_DSA_SHAKE_CopySubTreeAddr(uint32 out[8], const uint32 in[8])
 {
-  SLH_DSA_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
+  FsmSw_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
 } // end: SLH_DSA_SHAKE_CopySubTreeAddr
 
 /* These functions are used for OTS addresses. */
@@ -178,7 +178,7 @@ void SLH_DSA_SHAKE_SetKeyPairAddr2Byte(uint32 addr[8], uint32 keypair)
 */
 void SLH_DSA_SHAKE_CopyKeyPairAddr1Byte(uint32 out[8], const uint32 in[8])
 {
-  SLH_DSA_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
+  FsmSw_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
   ((uint8 *)out)[SLH_DSA_SHAKE_OFFSET_KP_ADDR1] = ((const uint8 *)in)[SLH_DSA_SHAKE_OFFSET_KP_ADDR1];
 } // end: SLH_DSA_SHAKE_CopyKeyPairAddr1Byte
 
@@ -193,7 +193,7 @@ void SLH_DSA_SHAKE_CopyKeyPairAddr1Byte(uint32 out[8], const uint32 in[8])
 */
 void SLH_DSA_SHAKE_CopyKeyPairAddr2Byte(uint32 out[8], const uint32 in[8])
 {
-  SLH_DSA_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
+  FsmSw_CommonLib_MemCpy(out, in, SLH_DSA_SHAKE_OFFSET_TREE + 8);
   ((uint8 *)out)[SLH_DSA_SHAKE_OFFSET_KP_ADDR2] = ((const uint8 *)in)[SLH_DSA_SHAKE_OFFSET_KP_ADDR2];
   ((uint8 *)out)[SLH_DSA_SHAKE_OFFSET_KP_ADDR1] = ((const uint8 *)in)[SLH_DSA_SHAKE_OFFSET_KP_ADDR1];
 } // end: SLH_DSA_SHAKE_CopyKeyPairAddr2Byte
