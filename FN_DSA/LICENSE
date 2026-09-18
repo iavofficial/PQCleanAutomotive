@@ -2,6 +2,8 @@ This file is a reference for the Falcon licence. Therefore, this file
 applies to all files in the subfolders. Because of this, the license 
 conditions are not repeated in every file.
 
+This code is provided under the MIT license:
+
  * ==========================(LICENSE BEGIN)============================
  * Copyright (c) 2017-2019  Falcon Project
  *
@@ -26,4 +28,13 @@ conditions are not repeated in every file.
  * ===========================(LICENSE END)=============================
 
 It was written by Thomas Pornin <thomas.pornin@nccgroup.com>.
- 
+
+It has been reported that patent US7308097B2 may be applicable to parts
+of Falcon. William Whyte, one of the designers of Falcon and also
+representative of OnBoard Security (current owner of the said patent),
+has pledged, as part of the IP statements submitted to the NIST for the
+PQC project, that in the event of Falcon being selected for
+standardization, a worldwide non-exclusive license to the patent will be
+granted for the purpose of implementing the standard "without
+compensation and under reasonable terms and conditions that are
+demonstrably free of any unfair discrimination".
